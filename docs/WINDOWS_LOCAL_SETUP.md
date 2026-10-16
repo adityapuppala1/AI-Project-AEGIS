@@ -344,3 +344,19 @@ Both audit commands are **read-only**. Do not reset the database volume.
 The second audit fails if PostgreSQL has lost required unique approval,
 independent checker, GIS-index or extension protections. See
 [release verification](INTEGRATION_RELEASE_GATES.md).
+
+
+## Approval Workbench incident scoping fix
+
+When testing branch `fix/agency-scoped-approval-incidents`, open
+`http://localhost:3000/approvals`. If the approved OIDC provider is
+not configured, the page must remain locked. When signed in, the
+incident dropdown must use only the operator's permitted synthetic
+agency cases. A test user from another agency must not see the public
+Hyderabad demonstration cases as eligible proposals.
+
+The authenticated API is
+`GET /v1/exercise/proposals/incidents`; the browser accesses it
+through protected `GET /api/proposals/incidents`. No access tokens are
+returned to browser JavaScript. Real IdP/MFA testing and two-user
+independent checker verification remain required before pilot use.
