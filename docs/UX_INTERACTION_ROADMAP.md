@@ -202,3 +202,13 @@ warning suggests that proximity alone demonstrates a hazard.
 The query uses PostGIS geography distance in meters; the UI remains
 accessible with text explanations and no new heavy mapping/3D libraries.
 See [Spatial Correlation Explorer](SPATIAL_CORRELATION_EXPLORER.md).
+
+## Offline Model Lab — synthetic-only interpretation
+
+The `/model-lab` route shows a versioned, actual computed *synthetic*
+holdout evaluation with a compact score-bin chart and accessible equivalent
+table, confusion matrix, dataset SHA, grouped split explanation and model
+limitations. Navigation, Help and Incident Intelligence link to the lab.
+Incident-specific screens continue to say no validated forecast is attached.
+The dashboard never displays model outputs as calibrated real-world flood
+probabilities or automated recommendation authorizations.
