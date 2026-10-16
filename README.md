@@ -235,3 +235,26 @@ Open `http://localhost:3000/model-lab`. The evaluation report is versioned
 in `services/api/app/fixtures/model_report_v1.json` and the dataset
 is generated with a fixed seed in `services/api/app/model_scenarios.py`.
 See [Model Evaluation Lab](docs/MODEL_EVALUATION_LAB.md).
+
+
+## Unified Exercise Assessment — incident review checklist
+
+Branch `feat/assessment-integration-v1` adds a read-only, explainable
+**Human Assessment Readiness** panel to each synthetic incident detail page.
+It combines synthetic case evidence, source freshness and PostGIS proximity
+candidates to explain missing/stale information and hand off a *separate*
+human exercise review. It **never computes a real flood-risk score**,
+interprets fictional assets as impacted, or authorizes real dispatch.
+
+Open `http://localhost:3000/incidents/22222222-2222-4222-8222-222222222222`
+and examine the Spatial Explorer and Human Assessment Readiness sections.
+
+```powershell
+git fetch origin
+git switch feat/assessment-integration-v1
+docker compose down
+docker compose up --build -d
+```
+
+See [Assessment architecture](docs/ASSESSMENT_MILESTONE.md) and
+[Execution tracker](docs/PROJECT_EXECUTION_TRACKER.md).
