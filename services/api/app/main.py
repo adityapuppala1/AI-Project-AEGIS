@@ -1,5 +1,6 @@
 """AEGIS exercise-only API foundation; no live alerts or dispatch."""
 from datetime import datetime, timezone
+from uuid import UUID
 from typing import Literal
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
@@ -75,3 +76,13 @@ def search_exercise_incidents(
         direction=direction, page=page, page_size=page_size,
     )
 
+
+
+@app.get("/v1/exercise/incidents/{incident_id}")
+def read_exercise_incident_workspace(incident_id: UUID):
+    """Public, synthetic-only incident workspace. No operational case data."""
+    from app.intelligence_store import incident_workspace
+    workspace = incident_workspace(incident_id)
+    if workspace is None:
+        raise HTTPException(status_code=404, detail="Exercise incident not found")
+    return workspace
