@@ -9,6 +9,7 @@ import {
 import { AppShell } from "./app-shell";
 import { GeoMap } from "./geo-map";
 import { StatusBadge } from "./status-badge";
+import { SpatialAnalysis } from "./spatial-analysis";
 import type { IncidentWorkspace, IncidentEvent, IncidentEvidence } from "../lib/incident-intelligence";
 
 type View = "evidence" | "timeline" | "interpretation";
@@ -240,5 +241,6 @@ export function IncidentIntelligence({ workspace }: { workspace: IncidentWorkspa
         </div>
       </div>}
     </section>
+    <SpatialAnalysis incidentId={incident.id}/>
   </AppShell>;
 }
