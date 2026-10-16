@@ -31,7 +31,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         !("real_world_asset_impact_known" in data) || data.real_world_asset_impact_known !== false ||
         !("operational_actions_enabled" in data) || data.operational_actions_enabled !== false ||
         !("needs_accountable_human_review" in data) || data.needs_accountable_human_review !== true ||
-        !("reasons" in data) || !Array.isArray(data.reasons)) {
+        !("reasons" in data) || !Array.isArray(data.reasons) ||
+        !("playbook" in data) || !data.playbook || typeof data.playbook !== "object" ||
+        !("version" in data.playbook) ||
+        data.playbook.version !== "AEGIS-URBAN-FLOOD-EXERCISE-v0.1" ||
+        !("operational_actions_enabled" in data.playbook) ||
+        data.playbook.operational_actions_enabled !== false) {
       throw new Error("Unexpected or unsafe assessment classification");
     }
     return NextResponse.json(data, { headers: { "Cache-Control": "no-store" } });
