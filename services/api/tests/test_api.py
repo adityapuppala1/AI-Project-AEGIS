@@ -16,3 +16,11 @@ def test_risk_score():
 
 def test_no_live_warning():
     assert client.post('/v1/live/public-warning').status_code == 403
+
+def test_telemetry_is_labeled_synthetic():
+    response = client.get("/v1/exercise/telemetry")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["source"] == "synthetic_fixture"
+    assert len(body["points"]) == 12
+    assert body["points"][-1]["label"] == "now"

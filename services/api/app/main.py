@@ -40,3 +40,18 @@ def deny_live_warning():
 def exercise_incidents():
     from app.db import list_incidents
     return list_incidents()
+
+@app.get("/v1/exercise/telemetry")
+def exercise_telemetry():
+    """Deterministic synthetic fixture. Never interpret as live measurements."""
+    rainfall = [6, 9, 13, 12, 18, 23, 29, 35, 31, 43, 47, 52]
+    water = [18, 19, 23, 28, 32, 39, 44, 49, 56, 62, 68, 74]
+    return {
+        "source": "synthetic_fixture",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "points": [
+            {"label": f"-{(11 - i) * 5}m" if i < 11 else "now",
+             "rainfall_mm": amount, "water_index": water[i]}
+            for i, amount in enumerate(rainfall)
+        ],
+    }
