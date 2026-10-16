@@ -8,7 +8,7 @@ def list_incidents():
         with conn.cursor() as cur:
             cur.execute("""SELECT id::text, hazard_type, status,
                 ST_Y(location) AS lat, ST_X(location) AS lon, created_at
-                FROM incidents WHERE agency_id = %s ORDER BY created_at DESC LIMIT 100""", (str(DEMO_AGENCY),))
+                FROM incidents WHERE agency_id = %s AND is_exercise_fixture IS TRUE ORDER BY created_at DESC LIMIT 100""", (str(DEMO_AGENCY),))
             rows = cur.fetchall()
     return [{**row, "created_at": row["created_at"].isoformat()} for row in rows]
 
@@ -27,7 +27,7 @@ def query_incidents(*, search="", status=None, sort="created_at", direction="des
     sort_direction = "ASC" if direction == "asc" else "DESC"
     # Public exercise search is confined to the hard-coded synthetic seed agency.
     # Future real-agency searches must use verified OIDC and ABAC instead.
-    clauses = ["agency_id = %s"]
+    clauses = ["agency_id = %s", "is_exercise_fixture IS TRUE"]
     params = [str(DEMO_AGENCY)]
     if search:
         # Treat user-provided % and _ as literal characters, not wildcard patterns.
