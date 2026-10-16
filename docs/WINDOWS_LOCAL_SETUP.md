@@ -239,3 +239,23 @@ fingerprints. All source readings remain historical synthetic samples.
 Migration 007 is additive and idempotent on existing volumes; do not run
 `docker compose down -v`. For detailed CLI, schema, validation, cost
 and security notes see [DataFusion Ingestion](DATAFUSION_INGESTION.md).
+
+
+## Synthetic geospatial candidate explorer
+
+```powershell
+git fetch origin
+git switch feat/spatial-incident-correlation
+docker compose down
+docker compose up --build -d
+docker compose ps
+```
+
+Open an incident from `http://localhost:3000/incidents` and inspect the
+Spatial Correlation Explorer with 1, 3, or 5 km search radius. The browser
+shows deliberately fictional assets and source data; proximity is *not*
+verified flooding, exposure or real infrastructure damage.
+
+`008_exercise_geospatial.sql` and `seed_geospatial.sql` are applied
+idempotently by Docker Compose. Do not delete existing database volumes.
+See [setup and spatial data contract](SPATIAL_CORRELATION_EXPLORER.md).
