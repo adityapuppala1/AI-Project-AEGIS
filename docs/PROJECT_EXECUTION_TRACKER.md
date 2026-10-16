@@ -59,3 +59,19 @@ P0 demo consolidation estimate **38–74 engineering hours**. Broader list estim
 ## Latest review gate
 
 PR #14 code SHA `c0683646b7f805d84b3c97e967d006298a03dc36` passed [GitHub Actions run 38946056929](https://github.com/adityapuppala1/AI-Project-AEGIS/actions/runs/38946056929) with **119 cumulative API tests**, reproducible model report, successful TypeScript/Next.js production build and Compose syntax. Full Docker integration remained skipped. This tracker update is documentation-only and intentionally did not retrigger CI. User's connected Windows device was offline when checked; real local E2E validation remains pending.
+
+
+## Integration hardening milestone (PR #15 scope)
+
+Branch `feat/integration-readiness-gates` adds:
+- read-only DB schema/migration/fixture preflight (CLI + GET-only endpoint);
+- per-module Windows smoke script that never drops/reseeds a volume;
+- maker-checker SQL synthetic-fixture guard on create/review/list;
+- scoped SQL and default-deny tests;
+- optional **manual-only** Docker end-to-end CI checks for preflight,
+  replay idempotency and absent real risk/action capabilities;
+- integration acceptance checklist for review and consolidation.
+
+Start/end UTC/IST and actual CI results must be updated only after
+GitHub records these events. Prior P0 effort estimates remain planning
+ranges and no real operational integration is certified.
