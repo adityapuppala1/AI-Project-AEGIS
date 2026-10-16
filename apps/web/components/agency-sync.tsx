@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   AlertTriangle, ArrowRight, CheckCircle2, ClipboardList,
-  Clock3, FileClock2, GitBranch, RefreshCw, ShieldAlert,
+  Clock3, FileClock, GitBranch, RefreshCw, ShieldAlert,
 } from "lucide-react";
 import { AppShell } from "./app-shell";
 import { isSyntheticTaskPayload,
@@ -114,7 +114,7 @@ export function AgencySync() {
     </div>
     <div className="grid gap-4 sm:grid-cols-3">
       {([
-        { state: "prepared", title: "Prepared, not sent", icon: FileClock2 },
+        { state: "prepared", title: "Prepared, not sent", icon: FileClock },
         { state: "acknowledged", title: "Scripted acknowledgements", icon: Clock3 },
         { state: "closed", title: "Scripted closures", icon: CheckCircle2 },
       ] as const).map(item => <article key={item.state} className="panel flex items-start justify-between gap-3 p-5">
