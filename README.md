@@ -92,3 +92,30 @@ powershell -ExecutionPolicy Bypass -File .\scripts\security-smoke-windows.ps1
 Without a configured IdP, this verifies no implicit operator session,
 protected proposals fail closed, and the backend remains in exercise mode.
 It does not replace full integration testing with a registered provider.
+
+## UX discovery and data-grid milestone
+
+Branch: `feat/ux-discovery-data-grid` (draft PR stacked on browser-auth work).
+
+Features:
+- `/incidents`: server-driven, sortable, filtered, paginated synthetic
+  incident registry. Queries are validated, SQL parameters are bound and
+  search indexes are applied by Docker's idempotent migrate service.
+- **Ctrl/⌘+K**: universal *navigation + synthetic incident* search palette.
+  Sensitive operational records are not indexed.
+- `/help`: searchable knowledge center with curated answers, warnings and
+  transparent AI limitations.
+- Restrained, original CSS visual polish inspired by interaction patterns;
+  **no Magic UI code copied from another GitHub repository** and no added
+  UI animation dependency.
+
+For Windows:
+```powershell
+git fetch origin
+git switch feat/ux-discovery-data-grid
+docker compose down
+docker compose up --build -d
+```
+
+See [Magic UI evaluation](docs/MAGIC_UI_FEASIBILITY.md) and
+[UX roadmap](docs/UX_INTERACTION_ROADMAP.md).
