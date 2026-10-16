@@ -13,8 +13,9 @@ services:
       test: ["CMD-SHELL", "pg_isready -U aegis -d aegis"]
       interval: 5s
       retries: 15
-    ports:
-      - "127.0.0.1:5432:5432"
+    # PostgreSQL is reachable only inside the Compose network at db:5432.
+    # Do not publish host port 5432: Windows may reserve it, and the API
+    # already connects internally through DATABASE_URL.
     mem_limit: 1g
   api:
     build: ./services/api
