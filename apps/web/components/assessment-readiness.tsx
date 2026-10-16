@@ -40,6 +40,24 @@ export function AssessmentReadiness({ incidentId }: { incidentId: string }) {
   const [result, setResult] = useState<Readiness | null>(null);
   const [busy, setBusy] = useState(true);
   const [error, setError] = useState("");
+  const [copyResult, setCopyResult] = useState("");
+  async function copyExerciseReview() {
+    if (!result) return;
+    const rationale = [
+      "AEGIS SIMULATION ONLY: fictional case " + result.incident_id,
+      "Playbook: " + result.playbook.version,
+      "Human-review checklist: " + result.recommendation_draft.join(" "),
+      "Synthetic evidence IDs: " + result.playbook.synthetic_evidence_ids.join(", "),
+      "Synthetic source IDs: " + result.playbook.synthetic_source_ids.join(", "),
+      "No real hazard prediction, operational warning or responder dispatch is authorized.",
+    ].join("\n").slice(0,1800);
+    try {
+      await navigator.clipboard.writeText(rationale);
+      setCopyResult("Review text copied to clipboard");
+    } catch {
+      setCopyResult("Clipboard access unavailable; review references above manually");
+    }
+  }
 
   useEffect(() => {
     const controller = new AbortController();
@@ -148,7 +166,13 @@ export function AssessmentReadiness({ incidentId }: { incidentId: string }) {
           <p className="mt-1 break-all font-mono text-[11px]">{result.playbook.synthetic_evidence_ids.join(" · ") || "No case evidence reference available"}</p>
           <Link href="/playbooks" className="mt-2 inline-flex items-center gap-1 font-semibold text-accent">Read referenced playbook <ArrowRight size={14}/></Link>
         </div>
-        <Link href="/approvals" className="control mt-3 text-xs"><ClipboardCheck size={16}/> Open verified exercise approvals <ArrowRight size={15}/></Link>
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <button type="button" className="control text-xs" onClick={() => void copyExerciseReview()}>
+            Copy synthetic review rationale
+          </button>
+          <Link href="/approvals" className="control text-xs"><ClipboardCheck size={16}/> Open verified exercise approvals <ArrowRight size={15}/></Link>
+          {copyResult && <span role="status" className="text-xs text-muted">{copyResult}</span>}
+        </div>
       </div>
     </div>}
   </section>;
