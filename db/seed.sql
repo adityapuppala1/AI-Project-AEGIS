@@ -1,0 +1,21 @@
+INSERT INTO agencies (id,name,jurisdiction) VALUES ('11111111-1111-4111-8111-111111111111','Hyderabad Exercise EOC',NULL) ON CONFLICT DO NOTHING;
+INSERT INTO incidents (id,agency_id,hazard_type,status,location) VALUES
+('22222222-2222-4222-8222-222222222222','11111111-1111-4111-8111-111111111111','Urban waterlogging','review',ST_SetSRID(ST_MakePoint(78.4483,17.4065),4326)),
+('33333333-3333-4333-8333-333333333333','11111111-1111-4111-8111-111111111111','Heavy rainfall','new',ST_SetSRID(ST_MakePoint(78.4867,17.3850),4326))
+ON CONFLICT DO NOTHING;
+
+-- Additional idempotent exercise cases; never operational incidents.
+INSERT INTO incidents (id,agency_id,hazard_type,status,location) VALUES
+('44444444-4444-4444-8444-444444444444','11111111-1111-4111-8111-111111111111','Drainage obstruction','active',ST_SetSRID(ST_MakePoint(78.4676,17.4239),4326)),
+('55555555-5555-4555-8555-555555555555','11111111-1111-4111-8111-111111111111','Road inundation','review',ST_SetSRID(ST_MakePoint(78.5072,17.3693),4326)),
+('66666666-6666-4666-8666-666666666666','11111111-1111-4111-8111-111111111111','Water-level observation','resolved',ST_SetSRID(ST_MakePoint(78.4162,17.4476),4326))
+ON CONFLICT DO NOTHING;
+
+-- Preserve demo classification on fresh and existing development volumes.
+UPDATE incidents SET is_exercise_fixture = TRUE
+WHERE agency_id = '11111111-1111-4111-8111-111111111111'
+  AND id IN ('22222222-2222-4222-8222-222222222222',
+             '33333333-3333-4333-8333-333333333333',
+             '44444444-4444-4444-8444-444444444444',
+             '55555555-5555-4555-8555-555555555555',
+             '66666666-6666-4666-8666-666666666666');

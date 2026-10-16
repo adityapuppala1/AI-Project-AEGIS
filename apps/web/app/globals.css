@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --canvas: 246 248 251;
+  --surface: 255 255 255;
+  --elevated: 239 244 249;
+  --stroke: 214 225 235;
+  --ink: 24 40 58;
+  --muted: 95 114 133;
+  --accent: 0 143 125;
+}
+.dark {
+  --canvas: 8 16 29;
+  --surface: 15 28 45;
+  --elevated: 22 39 59;
+  --stroke: 42 64 84;
+  --ink: 233 244 251;
+  --muted: 143 165 184;
+  --accent: 61 217 183;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { min-width: 320px; }
+::selection { background: rgb(var(--accent) / .26); }
+:focus-visible { outline: 2px solid rgb(var(--accent)); outline-offset: 3px; }
+@layer components {
+  .panel { @apply rounded-2xl border border-stroke bg-surface shadow-panel; }
+  .panel-heading { @apply flex flex-wrap items-center justify-between gap-3 border-b border-stroke px-5 py-4; }
+  .eyebrow { @apply text-[11px] font-bold uppercase tracking-[.19em] text-muted; }
+  .control { @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-stroke bg-surface px-3 text-sm font-semibold text-ink transition-colors hover:bg-elevated disabled:cursor-not-allowed disabled:opacity-50; }
+  .control-primary { @apply border-transparent bg-accent text-white hover:opacity-90 dark:text-[#071923]; }
+  .field { @apply h-10 w-full rounded-xl border border-stroke bg-elevated px-3 text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none; }
+  .status-dot { @apply inline-block h-2 w-2 shrink-0 rounded-full; }
+}
+.aegis-map { position: relative; height: 100%; min-height: 300px; overflow: hidden; border-radius: 0 0 1rem 1rem; background: #132c3b; }
+.aegis-marker { width: 31px; height: 31px; display: grid; place-items: center; background: #f59e0b; color: #132536; border: 3px solid white; border-radius: 50%; box-shadow: 0 3px 12px #08162377; cursor: pointer; font-size: 14px; font-weight: 800; }
+.aegis-marker[data-status="active"] { background: #f97373; }
+.aegis-marker[data-status="resolved"] { background: #65c8aa; }
+.aegis-marker[data-selected="true"] { box-shadow: 0 0 0 5px #5de0c377, 0 3px 12px #08162377; transform: scale(1.13); }
+.maplibregl-ctrl-attrib { font-size: 10px !important; }
+.maplibregl-popup-content { background: #13283b !important; color: #f2f8ff !important; border-radius: 10px !important; padding: 12px !important; }
+.maplibregl-popup-tip { border-top-color: #13283b !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+/* Original, restrained Magic UI-inspired treatment for noncritical help surfaces.
+   Avoid perpetual animated signals on emergency metrics and approval controls. */
+.signal-surface {
+  background-image: linear-gradient(125deg, rgb(var(--surface)), rgb(var(--elevated) / .58));
+}
+.signal-surface::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: .13;
+  pointer-events: none;
+  background-image: linear-gradient(rgb(var(--accent) / .18) 1px, transparent 1px),
+                    linear-gradient(90deg, rgb(var(--accent) / .18) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: linear-gradient(90deg, transparent 5%, black 78%);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .signal-surface::after {
+    content: "";
+    position: absolute;
+    inset: -30%;
+    pointer-events: none;
+    opacity: .07;
+    background: radial-gradient(ellipse at center, rgb(var(--accent)), transparent 55%);
+    animation: aegis-signal-breathe 9s ease-in-out infinite alternate;
+  }
+  @keyframes aegis-signal-breathe {
+    from { transform: translate3d(-9%, 2%, 0); }
+    to { transform: translate3d(8%, -3%, 0); }
+  }
+}

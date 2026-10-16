@@ -1,0 +1,97 @@
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_USER: aegis
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aegis_local_only}
+      POSTGRES_DB: aegis
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./db/migrations/002_governance.sql:/docker-entrypoint-initdb.d/015-governance.sql:ro
+      - ./db/migrations/003_identity_scopes.sql:/docker-entrypoint-initdb.d/016-identity-scopes.sql:ro
+      - ./db/migrations/004_incident_search.sql:/docker-entrypoint-initdb.d/017-incident-search.sql:ro
+      - ./db/migrations/005_incident_intelligence.sql:/docker-entrypoint-initdb.d/018-incident-intelligence.sql:ro
+      - ./db/migrations/006_exercise_source_health.sql:/docker-entrypoint-initdb.d/019-source-health.sql:ro
+      - ./db/migrations/007_exercise_ingestion.sql:/docker-entrypoint-initdb.d/020-exercise-ingestion.sql:ro
+      - ./db/migrations/008_exercise_geospatial.sql:/docker-entrypoint-initdb.d/021-exercise-geospatial.sql:ro
+      - ./db/migrations/009_exercise_agency_sync.sql:/docker-entrypoint-initdb.d/022-exercise-agency-sync.sql:ro
+      - ./db/seed_intelligence.sql:/docker-entrypoint-initdb.d/03-intelligence-seed.sql:ro
+      - ./db/seed_sources.sql:/docker-entrypoint-initdb.d/04-source-seed.sql:ro
+      - ./db/seed_geospatial.sql:/docker-entrypoint-initdb.d/05-geo-seed.sql:ro
+      - ./db/seed_agency_sync.sql:/docker-entrypoint-initdb.d/06-agency-sync-seed.sql:ro
+      - ./db/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aegis -d aegis"]
+      interval: 5s
+      retries: 15
+    # PostgreSQL is reachable only inside the Compose network at db:5432.
+    # Do not publish host port 5432: Windows may reserve it, and the API
+    # already connects internally through DATABASE_URL.
+    mem_limit: 1g
+  migrate:
+    image: postgis/postgis:16-3.4
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD:-aegis_local_only}
+    volumes:
+      - ./db/migrations/002_governance.sql:/migration.sql:ro
+      - ./db/migrations/003_identity_scopes.sql:/identity-scopes.sql:ro
+      - ./db/migrations/004_incident_search.sql:/incident-search.sql:ro
+      - ./db/migrations/005_incident_intelligence.sql:/incident-intelligence.sql:ro
+      - ./db/migrations/006_exercise_source_health.sql:/source-health.sql:ro
+      - ./db/migrations/007_exercise_ingestion.sql:/ingestion.sql:ro
+      - ./db/migrations/008_exercise_geospatial.sql:/geospatial.sql:ro
+      - ./db/migrations/009_exercise_agency_sync.sql:/agency-sync.sql:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["sh", "-c", "psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /migration.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /identity-scopes.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /incident-search.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /incident-intelligence.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /source-health.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /ingestion.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /geospatial.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /agency-sync.sql"]
+    restart: "no"
+  seed:
+    image: postgis/postgis:16-3.4
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD:-aegis_local_only}
+    volumes:
+      - ./db/seed.sql:/seed.sql:ro
+      - ./db/seed_intelligence.sql:/seed-intelligence.sql:ro
+      - ./db/seed_sources.sql:/seed-sources.sql:ro
+      - ./db/seed_geospatial.sql:/seed-geospatial.sql:ro
+      - ./db/seed_agency_sync.sql:/seed-agency-sync.sql:ro
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    command: ["sh", "-c", "psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /seed.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /seed-intelligence.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /seed-sources.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /seed-geospatial.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /seed-agency-sync.sql"]
+    restart: "no"
+  api:
+    build: ./services/api
+    environment:
+      DATABASE_URL: postgresql://aegis:${POSTGRES_PASSWORD:-aegis_local_only}@db:5432/aegis
+      CORS_ORIGIN: http://localhost:3000
+      # These are nonsecret public OIDC metadata; absent config fails closed.
+      OIDC_ISSUER: ${OIDC_ISSUER:-}
+      OIDC_AUDIENCE: ${OIDC_AUDIENCE:-}
+      OIDC_JWKS_URL: ${OIDC_JWKS_URL:-}
+    depends_on:
+      seed:
+        condition: service_completed_successfully
+    ports:
+      - "127.0.0.1:8000:8000"
+    mem_limit: 512m
+  web:
+    build: ./apps/web
+    environment:
+      API_INTERNAL_URL: http://api:8000
+      APP_ORIGIN: ${APP_ORIGIN:-http://localhost:3000}
+      OIDC_ISSUER: ${OIDC_ISSUER:-}
+      OIDC_AUDIENCE: ${OIDC_AUDIENCE:-}
+      OIDC_JWKS_URL: ${OIDC_JWKS_URL:-}
+      OIDC_CLIENT_ID: ${OIDC_CLIENT_ID:-}
+      OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET:-}
+      BFF_SESSION_KEY_BASE64: ${BFF_SESSION_KEY_BASE64:-}
+    depends_on:
+      - api
+    ports:
+      - "127.0.0.1:3000:3000"
+    mem_limit: 1g
+volumes:
+  pgdata:

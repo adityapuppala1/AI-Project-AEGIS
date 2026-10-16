@@ -1,0 +1,10 @@
+CREATE EXTENSION IF NOT EXISTS postgis;
+CREATE TABLE agencies (id UUID PRIMARY KEY, name TEXT NOT NULL, jurisdiction GEOMETRY(MultiPolygon,4326));
+CREATE TABLE incidents (id UUID PRIMARY KEY, agency_id UUID NOT NULL REFERENCES agencies(id), hazard_type TEXT NOT NULL, status TEXT NOT NULL CHECK(status IN ('new','review','active','resolved')), location GEOMETRY(Point,4326), created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
+CREATE TABLE observations (id UUID PRIMARY KEY, source_id TEXT NOT NULL, observed_at TIMESTAMPTZ NOT NULL, ingested_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), location GEOMETRY(Point,4326), payload JSONB NOT NULL, quality_status TEXT NOT NULL DEFAULT 'unverified');
+CREATE TABLE action_proposals (id UUID PRIMARY KEY, incident_id UUID NOT NULL REFERENCES incidents(id), maker_subject TEXT NOT NULL, action_type TEXT NOT NULL, proposal JSONB NOT NULL, status TEXT NOT NULL CHECK(status IN ('draft','submitted','approved','rejected')));
+CREATE TABLE approvals (id UUID PRIMARY KEY, proposal_id UUID NOT NULL REFERENCES action_proposals(id), checker_subject TEXT NOT NULL, decision TEXT NOT NULL CHECK(decision IN ('approved','rejected')), rationale TEXT NOT NULL, decided_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
+CREATE TABLE audit_events (id UUID PRIMARY KEY, actor_subject TEXT NOT NULL, action TEXT NOT NULL, resource_type TEXT NOT NULL, resource_id TEXT NOT NULL, occurred_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), details JSONB NOT NULL);
+CREATE INDEX observations_time_idx ON observations(observed_at DESC);
+CREATE INDEX observations_geom_idx ON observations USING GIST(location);
+CREATE INDEX incidents_geom_idx ON incidents USING GIST(location);

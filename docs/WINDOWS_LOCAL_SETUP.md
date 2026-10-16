@@ -1,0 +1,415 @@
+# AEGIS Windows local development — 16 GB RAM
+
+## Prerequisites
+- Windows 10/11 with WSL2 enabled; Docker Desktop using WSL2 backend.
+- Git for Windows, PowerShell and optionally VS Code.
+- Docker Desktop memory target: approximately 4–6 GB for this lightweight stack; keep other heavy apps closed.
+- Host ports 3000 and 8000 available. PostgreSQL uses port 5432 **inside Docker only**; no Windows port 5432 is required.
+- This environment is **exercise-only**; never use it for real warnings or emergency dispatch.
+
+## Clone and run
+```powershell
+git clone https://github.com/adityapuppala1/AI-Project-AEGIS.git
+cd AI-Project-AEGIS
+git fetch origin
+git switch feat/windows-local-dev
+powershell -ExecutionPolicy Bypass -File .\scripts\start-windows.ps1
+```
+Open http://localhost:3000 (command center), http://localhost:3000/admin (admin preview) and http://localhost:8000/docs (API reference).
+
+## Fix for Windows error: `listen tcp4 127.0.0.1:5432: bind ... forbidden by its access permissions`
+
+Older versions of this branch published the database's port 5432 to Windows. That is unnecessary and can conflict with local PostgreSQL, Windows reserved ports, or local security software. The Compose configuration now **removes the host port mapping** without changing the internal database connection.
+
+If you previously attempted to start the stack, update your branch and restart from the repository root:
+
+```powershell
+git switch feat/windows-local-dev
+git pull --ff-only origin feat/windows-local-dev
+docker compose down
+docker compose up --build -d
+docker compose ps
+```
+
+`docker compose down` **does not delete the PostgreSQL volume**. Do **not** add `-v` unless you deliberately want to delete local database data. The first successful database initialization seeds two exercise incidents.
+
+To inspect PostgreSQL without exposing it to Windows:
+
+```powershell
+docker compose exec db psql -U aegis -d aegis -c "SELECT count(*) FROM incidents;"
+```
+
+If you still see a port error, check whether it mentions **3000 or 8000** instead; those host ports are still required for browser access.
+
+## Common commands
+```powershell
+docker compose ps
+docker compose logs -f api
+docker compose logs -f web
+docker compose down
+docker compose up --build -d
+```
+Stop using `powershell -ExecutionPolicy Bypass -File .\scripts\stop-windows.ps1`.
+
+## Seed data
+On the **first** startup, PostgreSQL runs `db/schema.sql` and `db/seed.sql`. Two synthetic Hyderabad incidents are inserted. The dashboard loads them from the API and PostGIS. To reset the database **and permanently delete local database contents**, run `docker compose down -v` before restarting. Never use that command on valuable data.
+
+## Security and troubleshooting
+- Frontend/API ports bind only to 127.0.0.1. PostgreSQL has no published host port; API reaches it at `db:5432` on the internal Docker network.
+- Database password defaults to a development-only value. Set `POSTGRES_PASSWORD` in your PowerShell environment before starting if needed; use the same value consistently for the existing volume.
+- If Docker cannot start, open Docker Desktop and check WSL2 integration.
+- If ports are occupied, stop conflicting local services.
+- If the page shows zero incidents, inspect `docker compose logs api db` and confirm seed initialization.
+- The initial Docker web image is built for local evaluation, not production.
+- Frontend is a responsive schematic command center, not a real GIS map.
+- No operational SSO, external agency integration or trained prediction model is configured.
+
+## Development workflow
+Commit only to `adityapuppala1/AI-Project-AEGIS`. Use feature branches and PR review; never merge to main without validation. To run backend tests separately: `cd services/api; python -m pip install -r requirements.txt; python -m pytest -q`.
+
+## New command-center UI branch (October 2026)
+After checking that your current working tree has no uncommitted changes, use:
+```powershell
+git fetch origin
+git switch feat/command-center-ui-v1
+docker compose down
+docker compose up --build -d
+docker compose ps
+```
+You can also run `powershell -ExecutionPolicy Bypass -File .\scripts\start-windows.ps1`.
+
+Available screens:
+- `http://localhost:3000` — Command Center (responsive dark/light theme, MapLibre map, telemetry and incident queue).
+- `http://localhost:3000/incidents` — filterable exercise incident registry.
+- `http://localhost:3000/playbooks` — illustrative response procedures.
+- `http://localhost:3000/admin` — non-persistent policy preview.
+- `http://localhost:8000/docs` — FastAPI OpenAPI reference.
+
+**Existing database volumes:** The `seed` service runs an idempotent `db/seed.sql` script after PostgreSQL becomes healthy. This adds any missing synthetic incidents without erasing existing data. Do **not** run `docker compose down -v` to upgrade. Map tiles are requested from the public OpenStreetMap tile server and require an internet connection. Do not use this external tile service for confidential operational data.
+
+Troubleshooting:
+```powershell
+docker compose logs --tail=80 db seed api web
+docker compose exec db psql -U aegis -d aegis -c "SELECT count(*) FROM incidents;"
+```
+The frontend uses the API through internal Next.js route handlers; browser requests to `/api/incidents` and `/api/telemetry` should return exercise JSON when the backend is healthy.
+
+**Resource note:** The Next.js production build can require more temporary RAM than its runtime container. On a 16 GB laptop, keep Docker Desktop's WSL2 memory allocation around 4–6 GB or higher if builds fail, and close memory-intensive applications.
+
+
+## Authenticated proposal branch
+
+For the OIDC and agency-authorization milestone, use
+`git fetch origin` then `git switch feat/oidc-agency-authorization`.
+Run `docker compose up --build -d` as usual.
+
+The exercise web dashboard remains available even if no IdP is configured.
+Protected proposal endpoints are **intentionally unavailable** until
+`OIDC_ISSUER`, `OIDC_AUDIENCE`, and `OIDC_JWKS_URL` are configured for an
+approved identity provider. Do not use untrusted tokens, paste JWTs into URLs,
+or set up fake production logins. See
+[OIDC setup and signed claim contract](OIDC_IDENTITY_AND_AUTHORIZATION.md).
+
+Existing database volumes receive an idempotent additive migration automatically
+through the one-shot `migrate` service. Avoid `docker compose down -v` unless
+you explicitly intend to destroy local data.
+
+## Browser approval-workbench branch
+
+To run the latest approved-for-review development branch, with uncommitted
+work saved separately before switching:
+
+```powershell
+git fetch origin
+git switch feat/browser-oidc-approvals
+docker compose down
+docker compose up --build -d
+```
+
+Visit `http://localhost:3000/approvals`. Without an approved OIDC provider
+the page is intentionally locked while Command Center, incident registry and
+playbooks stay available. See
+[browser SSO configuration](BROWSER_SSO_AND_APPROVAL_WORKBENCH.md)
+for the optional identity-provider setup and required short-lived encryption key.
+
+### Verify fail-closed operator security locally
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\security-smoke-windows.ps1
+```
+
+Expected: no implicit operator identity; anonymous approvals return 401
+or 503 (depending on IdP configuration); backend reports exercise mode.
+Do not paste or commit real OIDC bearer tokens into GitHub, chat, screenshots
+or console logs.
+
+## UX search and help milestone
+
+To run the current feature branch after saving your own uncommitted edits:
+
+```powershell
+git fetch origin
+git switch feat/ux-discovery-data-grid
+docker compose down
+docker compose up --build -d
+docker compose ps
+```
+
+Visit `http://localhost:3000/incidents` for the searchable incident grid,
+press Ctrl+K (or Command+K) from any page for global navigation, and
+visit `http://localhost:3000/help` for curated self-help articles.
+
+The Compose `migrate` service automatically applies the new idempotent
+`004_incident_search.sql` trigram/status indexes, even when the PostgreSQL
+volume is already initialized. Do **not** run `docker compose down -v`
+for routine upgrades. This branch is exercise-only; no live alerts, dispatch
+or real-model inference are connected.
+
+
+## Incident Intelligence development branch
+
+To inspect the source provenance and chronology milestone after saving any
+uncommitted changes:
+
+```powershell
+git fetch origin
+git switch feat/incident-intelligence-workspace
+docker compose down
+docker compose up --build -d
+docker compose ps
+```
+
+The added `005_incident_intelligence.sql` migration and
+`seed_intelligence.sql` run idempotently in fresh and existing local volumes.
+Do not reset the PostgreSQL volume just to adopt these additions.
+
+The sample case page is
+`http://localhost:3000/incidents/22222222-2222-4222-8222-222222222222`.
+The evidence and timeline are simulated, NOT field-verified observations or
+secure production audit records. See
+[Incident Intelligence Workspace](INCIDENT_INTELLIGENCE_WORKSPACE.md).
+
+
+## Source Freshness development milestone
+
+Update your 16 GB Windows local environment:
+
+```powershell
+git fetch origin
+git switch feat/source-health-freshness
+docker compose down
+docker compose up --build -d
+docker compose ps
+```
+
+Open `http://localhost:3000/sources`. The simulation begins with four
+registered sources and 24 seeded readings. Existing stored fixtures age
+naturally and can become stale; Docker startup never pretends they are fresh.
+
+If the page cannot load, check:
+
+```powershell
+docker compose logs --tail=100 migrate seed api web
+docker compose exec db psql -U aegis -d aegis -c "SELECT COUNT(*) FROM exercise_data_sources;"
+```
+
+The migration/seed scripts are additive/idempotent. Never run
+`docker compose down -v` casually. The Source Freshness screen is a
+synthetic observability prototype, not an operational flood warning feed.
+Read [the full runbook](SOURCE_HEALTH_OBSERVATORY.md).
+
+
+## CLI-only DataFusion replay (new branch)
+
+```powershell
+git fetch origin
+git switch feat/datafusion-exercise-ingestion
+docker compose down
+docker compose up --build -d
+docker compose ps
+powershell -ExecutionPolicy Bypass -File .\scripts\replay-windows.ps1
+```
+
+Navigate to `http://localhost:3000/ingestion`. No external sensor, drone or
+government API is connected, and replay is deliberately **not available as an
+unauthenticated browser POST**. The local container must be running to replay.
+Expected fresh-volume ledger: 3 accepted unique IDs, 5 quarantined unique
+fingerprints. All source readings remain historical synthetic samples.
+
+Migration 007 is additive and idempotent on existing volumes; do not run
+`docker compose down -v`. For detailed CLI, schema, validation, cost
+and security notes see [DataFusion Ingestion](DATAFUSION_INGESTION.md).
+
+
+## Synthetic geospatial candidate explorer
+
+```powershell
+git fetch origin
+git switch feat/spatial-incident-correlation
+docker compose down
+docker compose up --build -d
+docker compose ps
+```
+
+Open an incident from `http://localhost:3000/incidents` and inspect the
+Spatial Correlation Explorer with 1, 3, or 5 km search radius. The browser
+shows deliberately fictional assets and source data; proximity is *not*
+verified flooding, exposure or real infrastructure damage.
+
+`008_exercise_geospatial.sql` and `seed_geospatial.sql` are applied
+idempotently by Docker Compose. Do not delete existing database volumes.
+See [setup and spatial data contract](SPATIAL_CORRELATION_EXPLORER.md).
+
+## Model Evaluation Lab (offline synthetic baseline)
+
+```powershell
+git fetch origin
+git switch feat/synthetic-model-evaluation
+docker compose down
+docker compose up --build -d
+docker compose exec -T api python -m app.model_lab --check
+```
+
+View `http://localhost:3000/model-lab` for the computed offline synthetic
+holdout evaluation, provenance and confusion matrix. The check verifies
+that the committed report matches exactly the seeded training generator.
+The new module requires no additional packages, database migrations, live
+data feeds or paid cloud resources. There is no actual hazard prediction
+endpoint or real emergency dispatch.
+Read [Model Lab methodology and limitations](MODEL_EVALUATION_LAB.md).
+
+
+## Unified synthetic incident assessment milestone
+
+After saving any uncommitted local edits, run:
+
+```powershell
+git fetch origin
+git switch feat/assessment-integration-v1
+docker compose down
+docker compose up --build -d
+docker compose ps
+```
+
+At `http://localhost:3000/incidents/22222222-2222-4222-8222-222222222222`,
+the new Human Assessment Readiness panel provides explanation codes,
+source freshness counts and a **human-only** evidence checklist. Its
+read-only endpoint is
+`/v1/exercise/incidents/{id}/readiness?radius_m=3000`.
+
+No extra database migrations, runtime dependencies, provider setup or paid
+services are required for this milestone. This is not real emergency advice.
+See [assessment safety contract](ASSESSMENT_MILESTONE.md).
+
+
+## End-to-end P0 integration and nondestructive smoke
+
+From the project root, after saving your local uncommitted changes:
+
+```powershell
+git fetch origin
+git switch feat/integration-readiness-gates
+docker compose up --build -d
+docker compose ps
+docker compose exec -T api python -m app.doctor
+powershell -ExecutionPolicy Bypass -File .\scripts\verify-windows.ps1
+```
+
+Expected: the doctor reports `status=ready`; every smoke assertion passes.
+This does not run a simulation replay or write to PostgreSQL. It requires
+the containers to be running and verifies paths from the current stacked
+feature branch. When verification fails, review
+`docker compose logs --tail=120 db migrate seed api web`.
+
+**Never run `docker compose down -v`** during routine updates.
+The exercise public warning path must remain 403, and anonymous exercise
+proposals must remain 401/503. Full detail:
+[Integration Release Gates](INTEGRATION_RELEASE_GATES.md).
+
+
+## Audit PostgreSQL approval and spatial constraints
+
+After starting the latest integration-hardening branch:
+
+```powershell
+git fetch origin
+git switch feat/release-preflight-constraints
+docker compose up --build -d
+docker compose exec -T api python -m app.doctor
+docker compose exec -T api python -m app.migration_audit
+powershell -ExecutionPolicy Bypass -File .\\scripts\\verify-windows.ps1
+```
+
+Both audit commands are **read-only**. Do not reset the database volume.
+The second audit fails if PostgreSQL has lost required unique approval,
+independent checker, GIS-index or extension protections. See
+[release verification](INTEGRATION_RELEASE_GATES.md).
+
+
+## Approval Workbench incident scoping fix
+
+When testing branch `fix/agency-scoped-approval-incidents`, open
+`http://localhost:3000/approvals`. If the approved OIDC provider is
+not configured, the page must remain locked. When signed in, the
+incident dropdown must use only the operator's permitted synthetic
+agency cases. A test user from another agency must not see the public
+Hyderabad demonstration cases as eligible proposals.
+
+The authenticated API is
+`GET /v1/exercise/proposals/incidents`; the browser accesses it
+through protected `GET /api/proposals/incidents`. No access tokens are
+returned to browser JavaScript. Real IdP/MFA testing and two-user
+independent checker verification remain required before pilot use.
+
+
+## Avoid GitHub Actions charges when checking code
+
+On branch `chore/opt-in-ci-and-gates`, run targeted local Python and
+TypeScript checks without contacting GitHub Actions:
+
+```powershell
+git fetch origin
+git switch chore/opt-in-ci-and-gates
+powershell -ExecutionPolicy Bypass -File .\scripts\verify-code-local.ps1 -Suite api
+powershell -ExecutionPolicy Bypass -File .\scripts\verify-code-local.ps1 -Suite web
+```
+
+These commands require installed local Python API dependencies and existing
+`apps/web/node_modules`. Pass `-ProductionBuild` to explicitly run the
+more expensive frontend production build locally. They do not replace the
+separate PostGIS/browser E2E tests. See [CI Cost Policy](CI_COST_POLICY.md).
+
+## Current consolidated CipherCop 2026 exercise candidate
+
+For the original [Product Vision](PRODUCT_VISION.md) demo rather than an
+individual milestone, use only the latest integrated candidate branch:
+
+```powershell
+cd C:\xampp\htdocs\AI-Project-AEGIS
+git fetch origin
+git switch feat/ciphercop-integrated-demo-rc
+docker compose up --build -d
+docker compose ps
+docker compose exec -T api python -m app.doctor
+docker compose exec -T api python -m app.migration_audit
+powershell -ExecutionPolicy Bypass -File .\scripts\verify-windows.ps1
+```
+
+Open `http://localhost:3000/demo`, then visit `/agency-sync`, `/audit`,
+`/admin`, and `/playbooks` from the guided links.
+
+To demonstrate source statuses (fresh/delayed/stale/no-data) **without deleting
+historical rows**, explicitly append three fictional samples using:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\run-tabletop-windows.ps1 -ConfirmExercise
+```
+
+Every generated source is an exercise fixture. Repeating with the same
+`-RunId` UUID does not insert duplicate samples. A new run ID produces a
+new set. This is a database write to synthetic source history and requires
+local operator consent; `verify-windows.ps1` remains read-only.
+
+The approval interface stays locked without an approved OIDC provider.
+Never make up a signed-in checker or bypass role policy to impress judges.
+See [consolidated acceptance matrix](CIPHERCOP_2026_RELEASE_AUDIT.md).
