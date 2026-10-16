@@ -22,6 +22,15 @@ type Readiness = {
   fictional_assets_nearby: number;
   reasons: { code: string; description: string }[];
   recommendation_draft: string[];
+  playbook: {
+    version: "AEGIS-URBAN-FLOOD-EXERCISE-v0.1";
+    status: "illustrative_not_approved_operational_sop";
+    step_refs: string[];
+    synthetic_evidence_ids: string[];
+    synthetic_source_ids: string[];
+    generated_by: "deterministic_exercise_checklist_not_ai_forecast";
+    operational_actions_enabled: false;
+  };
 };
 const rad = [1000, 3000, 5000] as const;
 
@@ -53,7 +62,12 @@ export function AssessmentReadiness({ incidentId }: { incidentId: string }) {
           data.real_world_asset_impact_known !== false ||
           data.real_world_risk_probability !== null ||
           data.needs_accountable_human_review !== true ||
-          !Array.isArray(data.reasons) || !Array.isArray(data.recommendation_draft)) {
+          !Array.isArray(data.reasons) || !Array.isArray(data.recommendation_draft) ||
+          data.playbook?.version !== "AEGIS-URBAN-FLOOD-EXERCISE-v0.1" ||
+          data.playbook.operational_actions_enabled !== false ||
+          data.playbook.generated_by !== "deterministic_exercise_checklist_not_ai_forecast" ||
+          !Array.isArray(data.playbook.synthetic_evidence_ids) ||
+          !Array.isArray(data.playbook.synthetic_source_ids)) {
         throw new Error("Assessment classification not verified");
       }
       if (!controller.signal.aborted) setResult(data);
@@ -127,6 +141,13 @@ export function AssessmentReadiness({ incidentId }: { incidentId: string }) {
           {result.recommendation_draft.map(step => <li key={step}>{step}</li>)}
         </ol>
         <p className="mt-3 text-xs text-muted">Static safety guidance, not a machine-issued emergency action or automatically generated forecast.</p>
+        <div className="mt-4 rounded-xl border border-stroke bg-surface p-3 text-xs leading-6 text-muted">
+          <p className="font-semibold text-ink">Traceable teaching references</p>
+          <p className="mt-1">Playbook: {result.playbook.version} · {result.playbook.status.replaceAll("_", " ")}</p>
+          <p className="mt-1">{result.playbook.synthetic_evidence_ids.length} synthetic case evidence IDs and {result.playbook.synthetic_source_ids.length} synthetic source IDs cited.</p>
+          <p className="mt-1 break-all font-mono text-[11px]">{result.playbook.synthetic_evidence_ids.join(" · ") || "No case evidence reference available"}</p>
+          <Link href="/playbooks" className="mt-2 inline-flex items-center gap-1 font-semibold text-accent">Read referenced playbook <ArrowRight size={14}/></Link>
+        </div>
         <Link href="/approvals" className="control mt-3 text-xs"><ClipboardCheck size={16}/> Open verified exercise approvals <ArrowRight size={15}/></Link>
       </div>
     </div>}
