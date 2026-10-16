@@ -119,3 +119,31 @@ docker compose up --build -d
 
 See [Magic UI evaluation](docs/MAGIC_UI_FEASIBILITY.md) and
 [UX roadmap](docs/UX_INTERACTION_ROADMAP.md).
+
+
+## Incident Intelligence Workspace (October milestone)
+
+The `feat/incident-intelligence-workspace` branch adds a case detail screen at
+`/incidents/{uuid}` with a synthetic source-provenance manifest, observation
+and ingestion timestamps, simulated historical chronology, map context and
+transparent absence of a validated AI forecast.
+
+Exercise incidents are explicitly flagged in the database; public exercise
+list/search/detail APIs are confined to the named synthetic agency **and**
+`is_exercise_fixture=TRUE`. No real incident or restricted approval audit rows
+should be exposed by these demonstration routes.
+
+The Incident Registry now supports bookmarkable filter views and links directly
+to the detailed workspace. Ctrl/⌘+K incident results and Command Center
+selection also link to case details.
+
+Run on Windows:
+
+```powershell
+git fetch origin
+git switch feat/incident-intelligence-workspace
+docker compose down
+docker compose up --build -d
+```
+
+See [Incident Intelligence contract](docs/INCIDENT_INTELLIGENCE_WORKSPACE.md).
