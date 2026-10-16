@@ -64,6 +64,10 @@ def test_export_has_bounded_provenance_and_no_private_audit(sources):
     assert bundle["operational_actions_enabled"] is False
     assert len(bundle["scripted_task_events"]) == 1
     assert bundle["playbook_ref"] == agency_sync_store.PLAYBOOK_VERSION
+    assert bundle["ingestion_contract_ref"] == "aegis.exercise.observation.v1"
+    assert bundle["offline_synthetic_model_card_ref"] == "aegis.exercise.logistic-baseline.v1"
+    assert bundle["incident_forecast_model_attached"] is False
+    assert bundle["policy_profile_ref"] == "aegis.exercise.policy.v1"
     assert len(bundle["manifest_sha256"]) == 64
     assert "Unsigned" in bundle["integrity_note"]
 
