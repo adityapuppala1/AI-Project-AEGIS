@@ -168,3 +168,20 @@ validation for current curated synthetic sources and tests missing/naive/
 future-dated observation values. This is a backend integration hardening
 change built on PR #19. **CI deliberately not triggered** due to budget limits;
 local run remains pending. PR is draft, no merge to `main`.
+
+## Consolidated demo acceptance (current release candidate)
+
+Rather than more stacked micro-PRs, the branch
+`feat/ciphercop-integrated-demo-rc` merges the work *within one new branch*
+and adds the original missing demo modules: fictional AgencySync tasks,
+playbook evidence references, ReplayLab tabletop fresh/stale source script,
+PolicyStudio manifest, Audit360 JSON evidence export and guided scenario.
+**This is a development branch, not a merge to `main`.**
+
+The [release audit](CIPHERCOP_2026_RELEASE_AUDIT.md) tracks ten original
+modules and separates code coverage from real acceptance. Start/end commit
+timestamps for the candidate will be recorded after the PR is opened, using
+GitHub metadata, not assumed engineering hours. A full integrated test suite
+and Windows Docker checks have not yet passed on this candidate; prior
+verified 143 tests on PR #17 must not be misrepresented as a new CI run.
+CI remains opt-in to conserve the user’s GitHub Actions budget.
