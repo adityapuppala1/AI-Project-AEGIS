@@ -4,7 +4,7 @@
 - Windows 10/11 with WSL2 enabled; Docker Desktop using WSL2 backend.
 - Git for Windows, PowerShell and optionally VS Code.
 - Docker Desktop memory target: approximately 4–6 GB for this lightweight stack; keep other heavy apps closed.
-- Ports 3000, 8000 and 5432 available.
+- Host ports 3000 and 8000 available. PostgreSQL uses port 5432 **inside Docker only**; no Windows port 5432 is required.
 - This environment is **exercise-only**; never use it for real warnings or emergency dispatch.
 
 ## Clone and run
@@ -16,6 +16,30 @@ git switch feat/windows-local-dev
 powershell -ExecutionPolicy Bypass -File .\scripts\start-windows.ps1
 ```
 Open http://localhost:3000 (command center), http://localhost:3000/admin (admin preview) and http://localhost:8000/docs (API reference).
+
+## Fix for Windows error: `listen tcp4 127.0.0.1:5432: bind ... forbidden by its access permissions`
+
+Older versions of this branch published the database's port 5432 to Windows. That is unnecessary and can conflict with local PostgreSQL, Windows reserved ports, or local security software. The Compose configuration now **removes the host port mapping** without changing the internal database connection.
+
+If you previously attempted to start the stack, update your branch and restart from the repository root:
+
+```powershell
+git switch feat/windows-local-dev
+git pull --ff-only origin feat/windows-local-dev
+docker compose down
+docker compose up --build -d
+docker compose ps
+```
+
+`docker compose down` **does not delete the PostgreSQL volume**. Do **not** add `-v` unless you deliberately want to delete local database data. The first successful database initialization seeds two exercise incidents.
+
+To inspect PostgreSQL without exposing it to Windows:
+
+```powershell
+docker compose exec db psql -U aegis -d aegis -c "SELECT count(*) FROM incidents;"
+```
+
+If you still see a port error, check whether it mentions **3000 or 8000** instead; those host ports are still required for browser access.
 
 ## Common commands
 ```powershell
@@ -31,7 +55,7 @@ Stop using `powershell -ExecutionPolicy Bypass -File .\scripts\stop-windows.ps1`
 On the **first** startup, PostgreSQL runs `db/schema.sql` and `db/seed.sql`. Two synthetic Hyderabad incidents are inserted. The dashboard loads them from the API and PostGIS. To reset the database **and permanently delete local database contents**, run `docker compose down -v` before restarting. Never use that command on valuable data.
 
 ## Security and troubleshooting
-- Database/API/frontend ports bind only to 127.0.0.1.
+- Frontend/API ports bind only to 127.0.0.1. PostgreSQL has no published host port; API reaches it at `db:5432` on the internal Docker network.
 - Database password defaults to a development-only value. Set `POSTGRES_PASSWORD` in your PowerShell environment before starting if needed; use the same value consistently for the existing volume.
 - If Docker cannot start, open Docker Desktop and check WSL2 integration.
 - If ports are occupied, stop conflicting local services.
