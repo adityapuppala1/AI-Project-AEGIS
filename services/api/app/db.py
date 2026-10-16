@@ -1,13 +1,14 @@
 import os
 import psycopg
 from psycopg.rows import dict_row
+from app.intelligence_store import DEMO_AGENCY
 
 def list_incidents():
     with psycopg.connect(os.environ["DATABASE_URL"], row_factory=dict_row) as conn:
         with conn.cursor() as cur:
             cur.execute("""SELECT id::text, hazard_type, status,
                 ST_Y(location) AS lat, ST_X(location) AS lon, created_at
-                FROM incidents ORDER BY created_at DESC LIMIT 100""")
+                FROM incidents WHERE agency_id = %s ORDER BY created_at DESC LIMIT 100""", (str(DEMO_AGENCY),))
             rows = cur.fetchall()
     return [{**row, "created_at": row["created_at"].isoformat()} for row in rows]
 
@@ -24,8 +25,10 @@ def query_incidents(*, search="", status=None, sort="created_at", direction="des
     """Paginate read-only synthetic incidents; do not export PII or real agency records."""
     sort_column = INCIDENT_SORT_COLUMNS[sort]
     sort_direction = "ASC" if direction == "asc" else "DESC"
-    clauses = []
-    params = []
+    # Public exercise search is confined to the hard-coded synthetic seed agency.
+    # Future real-agency searches must use verified OIDC and ABAC instead.
+    clauses = ["agency_id = %s"]
+    params = [str(DEMO_AGENCY)]
     if search:
         # Treat user-provided % and _ as literal characters, not wildcard patterns.
         escaped = search.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
