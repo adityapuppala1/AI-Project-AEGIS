@@ -33,8 +33,9 @@ def require_role(operator: Operator, allowed: set[str]) -> None:
 
 @lru_cache(maxsize=4)
 def _jwk_client(url: str) -> jwt.PyJWKClient:
-    # Key caching prevents repeated network retrieval for each bearer token.
-    return jwt.PyJWKClient(url, cache_keys=True, timeout=5, lifespan=300)
+    # Cache the JWKS response for five minutes, but never cache individual
+    # signing keys indefinitely: rotated/revoked keys must eventually expire.
+    return jwt.PyJWKClient(url, cache_keys=False, cache_jwk_set=True, timeout=5, lifespan=300)
 
 
 def _configuration() -> tuple[str, str, str]:
