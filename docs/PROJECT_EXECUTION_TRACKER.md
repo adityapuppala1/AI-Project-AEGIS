@@ -83,3 +83,15 @@ Branch `feat/integration-readiness-gates` adds:
 Start/end UTC/IST and actual CI results must be updated only after
 GitHub records these events. Prior P0 effort estimates remain planning
 ranges and no real operational integration is certified.
+
+
+## P0 release security-schema audit — PR #16 scope
+
+Branch `feat/release-preflight-constraints` implements a companion,
+read-only constraint inspection of the independent checker trigger,
+unique-approval index, GIS indexes and required PostgreSQL extensions. This
+addresses a gap in the earlier table/fixture-only readiness checks. The
+new check is wired into Windows verification and the **manual-only**
+full Compose CI job. GitHub commit windows and CI results will be recorded
+after review validation. Windows device testing remains pending while
+`Adys_ROG` is offline.
