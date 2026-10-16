@@ -17,14 +17,25 @@ services:
     # Do not publish host port 5432: Windows may reserve it, and the API
     # already connects internally through DATABASE_URL.
     mem_limit: 1g
+  seed:
+    image: postgis/postgis:16-3.4
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD:-aegis_local_only}
+    volumes:
+      - ./db/seed.sql:/seed.sql:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["sh", "-c", "psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /seed.sql"]
+    restart: "no"
   api:
     build: ./services/api
     environment:
       DATABASE_URL: postgresql://aegis:${POSTGRES_PASSWORD:-aegis_local_only}@db:5432/aegis
       CORS_ORIGIN: http://localhost:3000
     depends_on:
-      db:
-        condition: service_healthy
+      seed:
+        condition: service_completed_successfully
     ports:
       - "127.0.0.1:8000:8000"
     mem_limit: 512m
