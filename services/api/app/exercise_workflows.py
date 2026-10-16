@@ -35,6 +35,17 @@ class ChangeProposal(BaseModel):
     rationale: str | None = Field(default=None, max_length=2000)
 
 
+@router.get("/identity")
+def identity_context(operator: Operator = Depends(get_operator)):
+    """Allow a signed-in operator to inspect their verified agency/role scope."""
+    return {
+        "subject": operator.subject,
+        "agency_id": str(operator.agency_id),
+        "roles": sorted(operator.roles),
+        "exercise_only": True,
+    }
+
+
 @router.get("")
 def proposals(operator: Operator = Depends(get_operator)):
     require_role(operator, {"incident_operator", "incident_checker", "incident_auditor"})
