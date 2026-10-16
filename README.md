@@ -292,3 +292,13 @@ independent-checker approval trigger, unique approval index, geographic
 query indexes and required Postgres extensions. A missing protection causes
 failure instead of a misleading green preflight. This is a synthetic-only
 integration gate and not production certification.
+
+
+## Approval Workbench: scoped incident discovery
+
+In `fix/agency-scoped-approval-incidents`, the protected incident selector
+uses the signed operator's agency and role rather than the public
+demonstration registry. Signed-out users cannot query eligible approval
+incidents. On failed refresh or session loss, stale selector choices are
+cleared. This closes a cross-module consistency issue; live government
+warnings and dispatch remain disabled.
