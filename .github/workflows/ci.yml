@@ -1,13 +1,23 @@
 name: AEGIS CI
-# Budget-conscious CI: drafts and each intermediate commit do not automatically run CI.
-# Run quick checks once when a PR is marked ready for review, or manually.
+# Opt-in only: no CI on pushes, PR creation, updates or ready-for-review.
+# Apply PR label ci:api / ci:web / ci:all *only when explicitly needed*.
+# Remove and reapply the label to request a later run. Full Docker is manual only.
 on:
   pull_request:
-    types: [ready_for_review]
+    types: [labeled]
   workflow_dispatch:
     inputs:
+      suite:
+        description: "Only run the checks selected (saves runner minutes)"
+        type: choice
+        required: true
+        default: api
+        options:
+          - api
+          - web
+          - all
       run_compose:
-        description: "Also run full Docker Compose integration smoke test (slower)"
+        description: "Also run full Docker Compose integration smoke test (expensive)"
         type: boolean
         required: true
         default: false
@@ -18,6 +28,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   api:
+    if: ${{ (github.event_name == 'pull_request' && (github.event.label.name == 'ci:api' || github.event.label.name == 'ci:all')) || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'api' || inputs.suite == 'all')) }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -35,6 +46,7 @@ jobs:
         working-directory: services/api
         run: python -m app.model_lab --check
   web:
+    if: ${{ (github.event_name == 'pull_request' && (github.event.label.name == 'ci:web' || github.event.label.name == 'ci:all')) || (github.event_name == 'workflow_dispatch' && (inputs.suite == 'web' || inputs.suite == 'all')) }}
     runs-on: ubuntu-latest
     defaults:
       run:
