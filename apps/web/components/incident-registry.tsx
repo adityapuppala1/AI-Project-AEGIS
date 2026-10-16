@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { ArrowDown, ArrowDownUp, ArrowUp, ChevronLeft, ChevronRight, MapPin, RefreshCw, Search, SlidersHorizontal } from "lucide-react";
 import { AppShell } from "./app-shell";
 import { StatusBadge } from "./status-badge";
@@ -157,7 +158,7 @@ export function IncidentRegistry() {
           </tr></thead>
           <tbody className="divide-y divide-stroke">
             {items.map(item => <tr key={item.id} className="transition-colors hover:bg-elevated/40">
-              <td className="px-5 py-4 font-semibold">{item.hazard_type}</td>
+              <td className="px-5 py-4 font-semibold"><Link href={"/incidents/" + item.id} className="rounded-sm text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent" title="Inspect exercise evidence and chronology">{item.hazard_type}</Link></td>
               <td className="px-5 py-4"><StatusBadge status={item.status}/></td>
               <td className="px-5 py-4 font-mono text-xs tabular-nums text-muted"><MapPin size={13} aria-hidden="true" className="mr-1 inline"/>{item.lat?.toFixed(4) ?? "—"}, {item.lon?.toFixed(4) ?? "—"}</td>
               <td className="px-5 py-4 text-xs text-muted">{new Date(item.created_at).toLocaleString()}</td>
