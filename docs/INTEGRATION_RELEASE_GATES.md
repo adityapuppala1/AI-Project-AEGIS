@@ -148,3 +148,25 @@ failed refresh, or an invalidated agency selection. API tests cover
 anonymous/role-denied results and agency-bound SQL. This work does not
 provision a real IdP or enable real operations. Manual IdP browser E2E
 with multiple independently authenticated operators is still required.
+
+## Release Candidate — original full demo integration
+
+The consolidated branch `feat/ciphercop-integrated-demo-rc` adds:
+- additive `009_exercise_agency_sync.sql` and seven fictional tasks/13 events;
+- read-only AgencySync board and Audit360 case export with unsigned digest;
+- versioned read-only PolicyStudio manifest;
+- interactive original-rule synthetic index demo (not trained AI);
+- opt-in local-only source freshness rehearsal with deterministic run IDs;
+- single guided `/demo` journey connecting the existing modules;
+- new negative tests, schema readiness counts and Windows smoke checks.
+
+**These features are not release-tested merely because code is committed.**
+Full review must check at least one clean PostGIS volume, one backed-up old
+volume, `python -m app.scenario_runner --confirm-synthetic` on a disposable
+exercise volume, idempotent rerun, API test suite, production Next build,
+keyboard/screen reader, model disclaimers and OIDC refusal behavior.
+A provisioned real IdP is required to actually demonstrate independent
+operator/checker approval.
+
+See the authoritative
+[CipherCop Release Audit](CIPHERCOP_2026_RELEASE_AUDIT.md).
