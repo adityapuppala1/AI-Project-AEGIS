@@ -43,7 +43,9 @@ def evaluate_readiness(case: dict, nearby: dict) -> dict:
                or item.get("impact_status") != "not_assessed" for item in assets)):
         raise ValueError("Unknown infrastructure impact claim")
     if (not isinstance(evidence, list) or len(evidence) > 50
-        or any(not isinstance(item, dict) or item.get("synthetic") is not True for item in evidence)):
+        or any(not isinstance(item, dict) or item.get("synthetic") is not True
+               or item.get("quality_status") not in ("synthetic_curated", "synthetic_unverified")
+               for item in evidence)):
         raise ValueError("Unknown or non-synthetic evidence")
     if (not isinstance(assessment, dict)
         or assessment.get("status") != "not_assessed"
@@ -75,7 +77,20 @@ def evaluate_readiness(case: dict, nearby: dict) -> dict:
         {"code": "proximity_is_not_impact",
          "description": "Fictional facilities nearby do not establish physical exposure, damage or causality."},
     ])
-    enough_demo_context = bool(counts["fresh"] and evidence)
+    # A recent but unverified synthetic sample (or unverified case evidence)
+    # cannot make the exercise context appear corroborated.
+    curated_fresh = sum(item["freshness"] == "fresh" and
+                        item.get("quality_status") == "synthetic_curated"
+                        for item in sources)
+    curated_evidence = sum(item.get("quality_status") == "synthetic_curated"
+                           for item in evidence)
+    if counts["fresh"] and not curated_fresh:
+        reasons.append({"code": "no_curated_current_demo_source",
+                        "description": "Recent observations exist, but none is a curated exercise fixture."})
+    if evidence and not curated_evidence:
+        reasons.append({"code": "no_curated_case_evidence",
+                        "description": "Only unverified synthetic case evidence is attached."})
+    enough_demo_context = bool(curated_fresh and curated_evidence)
     return {
         "incident_id": case_id,
         "source": "synthetic_exercise",
@@ -92,6 +107,8 @@ def evaluate_readiness(case: dict, nearby: dict) -> dict:
         "source_freshness_counts": {key: counts[key] for key in sorted(FRESHNESS)},
         "fictional_assets_nearby": len(assets),
         "synthetic_evidence_records": len(evidence),
+        "curated_current_sources": curated_fresh,
+        "curated_evidence_records": curated_evidence,
         "reasons": reasons,
         "recommendation_draft": [
             "Verify exercise evidence, observation timestamps and quality labels. Request independent corroboration for missing or stale observations.",
