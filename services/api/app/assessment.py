@@ -4,7 +4,8 @@ No flood forecasting, numeric risk inference, real dispatch recommendations,
 real asset impact claims, or operational approval is generated here.
 """
 from collections import Counter
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
+from app.source_health import classify_source
 from uuid import UUID
 
 FRESHNESS = frozenset({"fresh", "delayed", "stale", "no_data", "clock_anomaly"})
@@ -52,9 +53,9 @@ def evaluate_readiness(case: dict, nearby: dict) -> dict:
         or assessment.get("status") != "not_assessed"
         or assessment.get("calibrated_probability") is not None):
         raise ValueError("Unvalidated incident-specific risk must remain unavailable")
-    # A "fresh" string cannot establish even simulated timeliness without
-    # an observed timestamp and a server-side reference clock. Reject missing,
-    # naive, malformed and implausibly future-dated timestamps.
+    # Recalculate *all* source statuses, rather than trusting a string from
+    # a previous component. The same classifier is used by Source Health.
+    # A mismatch is a simulation data integrity error, never evidence.
     reference_text = nearby.get("as_of")
     if not isinstance(reference_text, str):
         raise ValueError("Missing reference clock for simulated source provenance")
@@ -64,20 +65,42 @@ def evaluate_readiness(case: dict, nearby: dict) -> dict:
         raise ValueError("Invalid simulated reference clock") from exc
     if reference.tzinfo is None or reference.utcoffset() is None:
         raise ValueError("Reference clock must be timezone aware")
-    for source in sources:
-        if source["freshness"] != "fresh":
-            continue
-        observed_text = source.get("observed_at")
-        if not isinstance(observed_text, str):
-            raise ValueError("Current exercise source requires an observed timestamp")
+
+    def event_time(value: object, label: str) -> datetime | None:
+        if value is None:
+            return None
+        if not isinstance(value, str):
+            raise ValueError(label + " must be a timezone-aware ISO timestamp")
         try:
-            observed = datetime.fromisoformat(observed_text.replace("Z", "+00:00"))
+            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
         except ValueError as exc:
-            raise ValueError("Malformed current observation timestamp") from exc
-        if observed.tzinfo is None or observed.utcoffset() is None:
-            raise ValueError("Observation timestamp must include timezone")
-        if observed > reference + timedelta(seconds=120):
-            raise ValueError("Source observation exceeds allowed clock tolerance")
+            raise ValueError("Malformed " + label) from exc
+        if parsed.tzinfo is None or parsed.utcoffset() is None:
+            raise ValueError(label + " must include timezone")
+        return parsed
+
+    for source in sources:
+        expected = source.get("expected_interval_seconds")
+        warning = source.get("warning_multiplier")
+        stale = source.get("stale_multiplier")
+        if (type(expected) is not int or not 60 <= expected <= 86400
+            or type(warning) not in (int, float)
+            or type(stale) not in (int, float)):
+            raise ValueError("Missing or invalid freshness threshold provenance")
+        observed = event_time(source.get("observed_at"), "observed_at")
+        ingested = event_time(source.get("ingested_at"), "ingested_at")
+        if (observed is None) != (ingested is None):
+            raise ValueError("Incomplete exercise reading timestamp pair")
+        try:
+            calculated = classify_source(
+                observed_at=observed, ingested_at=ingested,
+                as_of=reference, expected_interval_seconds=expected,
+                warning_multiplier=float(warning), stale_multiplier=float(stale),
+            )
+        except (TypeError, ValueError) as exc:
+            raise ValueError("Invalid exercise source freshness configuration") from exc
+        if calculated["status"] != source["freshness"]:
+            raise ValueError("Exercise source freshness conflicts with its timestamps")
 
     counts = Counter(item["freshness"] for item in sources)
     reasons = []
