@@ -129,7 +129,9 @@ export function DemoJourney({ snapshot }: { snapshot: Snapshot }) {
     <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="Demonstration environment snapshot">
       {[
         ["Local database", snapshot.database === "ready" ? "Fixtures present" : snapshot.database === "not_ready" ? "Not ready" : "Unavailable", "Schema and seeds, not field readiness"],
+        ["Source registry", snapshot.sourceAvailable ? "Demo sources available" : "Unavailable", "No real feeds connected"],
         ["Case evidence", snapshot.caseAvailable ? "Demo case found" : "Unavailable", "Synthetic incident only"],
+        ["Offline Model Lab", snapshot.modelLabAvailable ? "Synthetic model report" : "Unavailable", "Not a calibrated flood forecast"],
         ["Assessment", snapshot.assessmentState === "simulated_context_for_human_review" ? "Demo context available" :
          snapshot.assessmentState === "insufficient_simulated_context" ? "Insufficient demo context" : "Unavailable", "Never a validated flood prediction"],
         ["AgencySync", snapshot.taskCount === null ? "Unavailable" : snapshot.taskCount + " scripted tasks",
