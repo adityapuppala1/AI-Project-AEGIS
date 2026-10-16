@@ -69,6 +69,7 @@ export function IncidentIntelligence({ workspace }: { workspace: IncidentWorkspa
       <Link href="/incidents" className="inline-flex items-center gap-2 text-sm font-semibold text-accent hover:underline">
         <ArrowLeft size={16}/> Incident Registry
       </Link>
+      <Link href="/agency-sync" className="control">Fictional agency tasks <ArrowRight size={15}/></Link>
       <Link href="/approvals" className="control">
         <ClipboardCheck size={16}/> Exercise Approval Workbench <ArrowRight size={15}/>
       </Link>
