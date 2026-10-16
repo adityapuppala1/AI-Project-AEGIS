@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Activity, Database, LockKeyhole, RadioTower, Settings2, ShieldCheck, SlidersHorizontal } from "lucide-react";
 import { AppShell } from "../../components/app-shell";
 
@@ -15,13 +15,56 @@ const integrations = [
   { name: "Authorized edge vision", purpose: "Environmental imagery observations" },
 ];
 export default function AdminPage() {
-  const [mode, setMode] = useState<(typeof modes)[number]["id"]>("recommend");
+  const [mode, setMode] = useState<(typeof modes)[number]["id"]>("observe");
+  const [profile, setProfile] = useState<{
+    policy_version: string;
+    effective_mode: string;
+    oidc_required_for_proposals: boolean;
+    independent_checker_required: boolean;
+    live_public_warning_enabled: false;
+    live_dispatch_enabled: false;
+    policy_editor_enabled: false;
+  } | null>(null);
+  const [profileError, setProfileError] = useState("");
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch("/api/policy", { cache: "no-store", signal: controller.signal })
+      .then(async response => {
+        if (!response.ok) throw new Error("Exercise policy profile unavailable");
+        const data = await response.json();
+        if (data.policy_version !== "aegis.exercise.policy.v1" ||
+            data.live_public_warning_enabled !== false ||
+            data.live_dispatch_enabled !== false || data.policy_editor_enabled !== false) {
+          throw new Error("Unsafe policy classification");
+        }
+        if (!controller.signal.aborted) setProfile(data);
+      })
+      .catch(reason => {if (!controller.signal.aborted) setProfileError(reason instanceof Error ? reason.message : "Unavailable");});
+    return () => controller.abort();
+  }, []);
   const [auditPreview, setAuditPreview] = useState(true);
   const selected = modes.find(item => item.id === mode)!;
   return <AppShell title="Administration" description="Preview future policy controls, data sources and governance requirements. Nothing on this screen changes backend authorization.">
     <div className="mb-5 flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-700 dark:text-amber-300">
-      <LockKeyhole className="mt-0.5 shrink-0" size={18}/><div><strong>Configuration preview only</strong><p className="mt-1 text-xs leading-5">Authentication, role-based policy enforcement and persistent administration are not implemented in this exercise UI. Critical actions remain unavailable.</p></div>
+      <LockKeyhole className="mt-0.5 shrink-0" size={18}/><div><strong>Configuration preview only</strong><p className="mt-1 text-xs leading-5">Real IdP provisioning, live policy editing and administrative persistence are not implemented in this preview. Protected proposal APIs independently enforce signed agency roles and critical real-world actions remain unavailable.</p></div>
     </div>
+    <section className="panel mb-5 p-5" aria-label="Versioned effective exercise policy">
+      <h2 className="text-base font-bold">Effective Exercise Policy · Read-only manifest</h2>
+      {profileError && <p role="alert" className="mt-3 text-sm text-rose-700 dark:text-rose-300">{profileError}. No configuration value is assumed.</p>}
+      {!profile && !profileError && <p className="mt-3 text-sm text-muted">Loading local exercise policy…</p>}
+      {profile && <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {[
+          ["Policy version", profile.policy_version],
+          ["Effective mode", profile.effective_mode.replaceAll("_", " ")],
+          ["Independent checker", profile.independent_checker_required ? "Required" : "Unavailable"],
+          ["Live warnings / dispatch", profile.live_public_warning_enabled || profile.live_dispatch_enabled ? "Unexpected" : "Disabled"],
+        ].map(([label,value]) => <div key={label} className="rounded-xl bg-elevated p-4">
+          <p className="text-xs font-semibold text-muted">{label}</p>
+          <p className="mt-2 text-sm font-bold">{value}</p>
+        </div>)}
+      </div>}
+      <p className="mt-3 text-xs leading-6 text-muted">The controls below are local visual previews only. They cannot update this server-side policy or enable external action integrations.</p>
+    </section>
     <div className="grid gap-5 xl:grid-cols-[minmax(0,1.3fr)_minmax(320px,1fr)]">
       <section className="panel">
         <div className="panel-heading"><h2 className="flex items-center gap-2 text-base font-bold"><SlidersHorizontal size={18} className="text-accent"/> AI operating mode</h2><span className="eyebrow">Preview</span></div>
