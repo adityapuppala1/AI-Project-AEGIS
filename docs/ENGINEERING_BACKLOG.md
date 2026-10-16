@@ -138,3 +138,18 @@ A full Docker integration run remains an **opt-in** manual workflow,
 not a GitHub action fired on every commit. All PRs are still stacked
 and pending sequential review. See
 [Integration Release Gates](INTEGRATION_RELEASE_GATES.md).
+
+## Demo integration release candidate — single source of truth
+
+Current recommended development branch:
+`feat/ciphercop-integrated-demo-rc`.
+
+The original Product Vision demo's missing AgencySync, integrated walkthrough,
+PolicyStudio read-only policy provenance and Audit360 synthetic export are
+now implemented on that branch. The rule-based index and offline model
+evaluation are **not** proven flood forecasts; department events are scripted,
+not communications with agencies. Finish P0 gates, not more unconnected
+prototypes: restore/upgrade PostGIS, execute full tests, validate UI/IdP
+boundaries, accessibility, and owner-reviewed merge.
+
+See [original plan versus delivered state](CIPHERCOP_2026_RELEASE_AUDIT.md).
