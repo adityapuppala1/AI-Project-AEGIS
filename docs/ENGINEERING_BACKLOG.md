@@ -61,3 +61,20 @@ Next DataFusion work: source signature verification, authorized real data
 connectors, measured provider latencies, idempotent event capture,
 corroboration and simulation replay. These require separate approval before
 connecting production emergency data.
+
+
+## DataFusion ingestion prototype implemented — October 2026
+
+Branch `feat/datafusion-exercise-ingestion` adds:
+- bundled synthetic JSON observation v1 contract and strict Pydantic validation;
+- guarded local CLI replay (no new HTTP writes);
+- source ID and measurement-unit checks against the synthetic registry;
+- canonical SHA-256 fingerprint, event UUID idempotency, conflict quarantine;
+- transactional ledger/history storage plus bounded metadata-only quarantine;
+- idempotent migration, local Windows helper and replay/status UI;
+- contract, negative, duplicate and rerun behavior tests.
+
+Follow-up P1 work remains: authorized source adapters, signed device messages,
+real provider contracts, system-to-system auth, delivery queues with offsets,
+dead-letter retention and per-agency ABAC/RLS. No claim of live operational
+prediction or resilience until integrated testing with permitted sources.
