@@ -42,3 +42,17 @@ Source Health rather than hidden during ingestion. Browser access is
 read-only at `/ingestion`. Next P1 design must add approved external source
 credentials, full ABAC, transport identity, bounded queues, durable retries,
 DLQ retention, source signature validation and incident correlation.
+
+## Reproducible synthetic model evaluation
+
+The `app.model_scenarios` fixture generator creates 216 fictional cases
+across 24 scenario groups. `app.model_lab` trains an offline logistic
+baseline on 18 groups and measures standard diagnostics on 6 disjoint
+holdout groups, producing a versioned SHA-256-linked report. A unit test
+and CLI `python -m app.model_lab --check` recompute the report exactly.
+
+The application serves this signed-off artifact through a *read-only*
+FastAPI Model Lab endpoint and Next.js dashboard. No online inference or
+incident-scoring adapter is enabled. No actual flood labels or official
+data have been integrated; model metrics cannot be used as real-world
+predictive performance claims. See [model methodology](MODEL_EVALUATION_LAB.md).
