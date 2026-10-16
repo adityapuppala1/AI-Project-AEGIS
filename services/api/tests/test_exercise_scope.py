@@ -23,6 +23,7 @@ class DummyConnection:
 
 
 def test_public_exercise_registry_uses_explicit_demo_scope(monkeypatch):
+    monkeypatch.setenv("DATABASE_URL", "postgresql://unit-test.invalid/demo")
     statements = []
     monkeypatch.setattr(db.psycopg, "connect", lambda *_args, **_kwargs: DummyConnection(statements))
     assert db.list_incidents() == []
