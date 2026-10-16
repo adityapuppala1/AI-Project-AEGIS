@@ -78,3 +78,18 @@ Follow-up P1 work remains: authorized source adapters, signed device messages,
 real provider contracts, system-to-system auth, delivery queues with offsets,
 dead-letter retention and per-agency ABAC/RLS. No claim of live operational
 prediction or resilience until integrated testing with permitted sources.
+
+
+## Milestone: safe geospatial candidate search
+
+The branch `feat/spatial-incident-correlation` establishes spatial
+source/asset candidates with PostGIS geography distances, bounded radii,
+synthetic jurisdiction scoping, source freshness, fictional GIS labels,
+and a responsive incident-level inspector.
+
+**Do not conflate proximity with exposure or forecasting.** The algorithm
+does not infer risk, casualties, flood-depth, damage, or agency priority.
+The next P1 tasks are validated hazard footprints, official geodata
+licensing/permission checks, real source-to-incident temporal
+corroboration, and measured model accuracy. See
+[Spatial Correlation Explorer](SPATIAL_CORRELATION_EXPLORER.md).
