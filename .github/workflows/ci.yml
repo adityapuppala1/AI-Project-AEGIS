@@ -114,6 +114,7 @@ jobs:
           for name, minimum in {
               "incidents": 5, "sources": 4, "source_samples": 24,
               "timeline_events": 7, "evidence": 5, "geo_assets": 5,
+              "agency_tasks": 7, "agency_task_events": 13,
           }.items():
               assert data["fixture_counts"][name] >= minimum, (name, data)
           PY
@@ -138,6 +139,17 @@ jobs:
           assert data["real_world_risk_probability"] is None
           assert data["operational_actions_enabled"] is False
           PY
+          curl -fsS http://127.0.0.1:8000/v1/exercise/agency-tasks > /tmp/aegis-agency-sync.json
+          python - <<'PY'
+          import json
+          data=json.load(open("/tmp/aegis-agency-sync.json"))
+          assert data["source"] == "synthetic_exercise"
+          assert data["outbound_messages_sent"] is False
+          assert data["acknowledgements_are_scripted"] is True
+          assert data["total_in_scope"] >= 7
+          PY
+          curl -fsS http://127.0.0.1:3000/demo > /dev/null
+          curl -fsS http://127.0.0.1:3000/agency-sync > /dev/null
           code=$(curl -sS -o /dev/null -w "%{http_code}" -X POST http://127.0.0.1:8000/v1/live/public-warning)
           test "$code" = 403
       - name: Verify replay idempotency in temporary CI volume
