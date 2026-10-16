@@ -106,3 +106,10 @@ def read_exercise_source_history(
     if result is None:
         raise HTTPException(status_code=404, detail="Exercise source not found")
     return result
+
+
+@app.get("/v1/exercise/ingestion/status")
+def read_exercise_ingestion_status():
+    """Safe synthetic replay counters; no write endpoint is exposed."""
+    from app.ingestion_store import ingestion_overview
+    return ingestion_overview()

@@ -168,3 +168,25 @@ Migration 006 and the source fixtures run idempotently for fresh and existing
 PostgreSQL volumes. Do not delete your volume just to update. No physical
 devices, official feeds or actual disaster risk model is connected.
 See [Source Health & Freshness Architecture](docs/SOURCE_HEALTH_OBSERVATORY.md).
+
+
+## DataFusion event replay milestone
+
+Branch: `feat/datafusion-exercise-ingestion`. The `/ingestion` screen shows
+versioned synthetic event validation, accepted unique IDs and quarantined
+metadata. It does **not** accept live data, images, real camera streams or
+government connectors. The replay runs only by a local Docker CLI.
+
+```powershell
+git fetch origin
+git switch feat/datafusion-exercise-ingestion
+docker compose down
+docker compose up --build -d
+powershell -ExecutionPolicy Bypass -File .\scripts\replay-windows.ps1
+```
+
+View `http://localhost:3000/ingestion`. First replay of the bundled nine
+records should accept three unique events, flag one duplicate and quarantine
+five unique invalid/conflicting fingerprints. Subsequent replay does not
+add accepted rows or repeat quarantine rows. Do **not** reset Postgres volumes
+for this feature. See [DataFusion replay design](docs/DATAFUSION_INGESTION.md).

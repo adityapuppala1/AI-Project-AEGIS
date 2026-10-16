@@ -80,3 +80,12 @@ with readable labels, a small Recharts trend and expandable table equivalent.
 Low-power Windows devices retain a 2D view. No new Magic UI or Three.js
 dependencies are introduced. The Command Center card explicitly says these
 are **synthetic** observations rather than live-source health claims.
+
+
+## DataFusion ingestion status
+
+The `/ingestion` screen uses the same light/dark Tailwind theme, source
+quality disclaimers, simple data cards and categorized quarantines. Charts
+are intentionally omitted when a precise count table better conveys
+validation failures. The Command Center provides an unobtrusive summary,
+and the browser never auto-invokes the replay CLI or any external source.

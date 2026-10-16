@@ -1,0 +1,97 @@
+{
+  "dataset": "aegis.synthetic.replay.v1",
+  "description": "Deterministic hackathon-only fixture: accepted, duplicate, conflict and invalid records. No actual devices or external data.",
+  "records": [
+    {
+      "contract_version": "aegis.exercise.observation.v1",
+      "event_id": "d4000000-0000-4000-8000-000000000001",
+      "source_id": "c3000000-0000-4000-8000-000000000001",
+      "synthetic": true,
+      "observed_at": "2026-10-15T09:00:00Z",
+      "metric_value": 35.125,
+      "metric_unit": "mm",
+      "quality_status": "synthetic_curated"
+    },
+    {
+      "contract_version": "aegis.exercise.observation.v1",
+      "event_id": "d4000000-0000-4000-8000-000000000002",
+      "source_id": "c3000000-0000-4000-8000-000000000002",
+      "synthetic": true,
+      "observed_at": "2026-10-15T09:10:00Z",
+      "metric_value": 82.5,
+      "metric_unit": "cm",
+      "quality_status": "synthetic_curated"
+    },
+    {
+      "contract_version": "aegis.exercise.observation.v1",
+      "event_id": "d4000000-0000-4000-8000-000000000003",
+      "source_id": "c3000000-0000-4000-8000-000000000003",
+      "synthetic": true,
+      "observed_at": "2026-10-15T09:20:00Z",
+      "metric_value": 4,
+      "metric_unit": "reports",
+      "quality_status": "synthetic_unverified"
+    },
+    {
+      "contract_version": "aegis.exercise.observation.v1",
+      "event_id": "d4000000-0000-4000-8000-000000000001",
+      "source_id": "c3000000-0000-4000-8000-000000000001",
+      "synthetic": true,
+      "observed_at": "2026-10-15T09:00:00Z",
+      "metric_value": 35.125,
+      "metric_unit": "mm",
+      "quality_status": "synthetic_curated"
+    },
+    {
+      "contract_version": "aegis.exercise.observation.v1",
+      "event_id": "d4000000-0000-4000-8000-000000000005",
+      "source_id": "c3000000-0000-4000-8000-000000000001",
+      "synthetic": true,
+      "observed_at": "2026-10-15T09:00:00Z",
+      "metric_value": 12,
+      "metric_unit": "cm",
+      "quality_status": "synthetic_curated"
+    },
+    {
+      "contract_version": "aegis.exercise.observation.v1",
+      "event_id": "d4000000-0000-4000-8000-000000000006",
+      "source_id": "c3000000-0000-4000-8000-000000000099",
+      "synthetic": true,
+      "observed_at": "2026-10-15T09:00:00Z",
+      "metric_value": 18,
+      "metric_unit": "mm",
+      "quality_status": "synthetic_curated"
+    },
+    {
+      "contract_version": "aegis.exercise.observation.v1",
+      "event_id": "d4000000-0000-4000-8000-000000000007",
+      "source_id": "c3000000-0000-4000-8000-000000000002",
+      "synthetic": true,
+      "observed_at": "2100-01-01T00:00:00Z",
+      "metric_value": 15,
+      "metric_unit": "cm",
+      "quality_status": "synthetic_curated"
+    },
+    {
+      "contract_version": "aegis.exercise.observation.v1",
+      "event_id": "d4000000-0000-4000-8000-000000000008",
+      "source_id": "c3000000-0000-4000-8000-000000000001",
+      "synthetic": true,
+      "observed_at": "2026-10-15T09:00:00Z",
+      "metric_value": 9,
+      "metric_unit": "mm",
+      "quality_status": "synthetic_curated",
+      "unexpected": "not allowed"
+    },
+    {
+      "contract_version": "aegis.exercise.observation.v1",
+      "event_id": "d4000000-0000-4000-8000-000000000001",
+      "source_id": "c3000000-0000-4000-8000-000000000001",
+      "synthetic": true,
+      "observed_at": "2026-10-15T09:00:00Z",
+      "metric_value": 40.125,
+      "metric_unit": "mm",
+      "quality_status": "synthetic_curated"
+    }
+  ]
+}
