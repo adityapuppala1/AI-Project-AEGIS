@@ -42,3 +42,28 @@ Browse `http://localhost:3000` for the Command Center, `/incidents`, `/playbooks
 The API reads synthetic incidents from PostgreSQL/PostGIS. An idempotent Compose seed service adds exercise incidents even when an existing database volume is present; no database reset is required. Telemetry is a deterministic **synthetic fixture**. The map uses external OpenStreetMap tiles and requires internet. This is not a real emergency forecasting or dispatch system.
 
 See [UI design system](docs/UI_DESIGN_SYSTEM.md) and [Windows local setup](docs/WINDOWS_LOCAL_SETUP.md).
+
+
+## Authenticated exercise approvals (development milestone)
+
+The latest branch `feat/oidc-agency-authorization` adds OIDC-verified operator
+identities, cryptographically signed agency/role claims and agency-isolated,
+transactional maker-checker proposals. Public alerts and real responder dispatch
+remain **disabled**.
+
+To inspect this work on Windows without affecting your database:
+
+```powershell
+git fetch origin
+git switch feat/oidc-agency-authorization
+docker compose down
+docker compose up --build -d
+```
+
+The public exercise dashboard remains at `http://localhost:3000`.
+Protected proposal endpoints fail closed with HTTP 503 until a trusted IdP is
+configured. No demo logins or hardcoded operator credentials are shipped.
+Review [OIDC identity and authorization](docs/OIDC_IDENTITY_AND_AUTHORIZATION.md)
+and [workflow security](docs/WORKFLOW_SECURITY.md).
+
+`main` remains untouched; changes are reviewed through stacked draft PRs.
