@@ -24,3 +24,21 @@
 ## Hosting roadmap
 
 Local Docker Compose for development; AWS ECS/RDS/S3/KMS/EventBridge/SQS as reference production design. Government hosting, agency authorization and data residency require a separate compliance review.
+
+
+## DataFusion exercise ingestion v1
+
+A first event-plane slice is now implemented with a bundled synthetic
+fixture, Pydantic v1 event validation, agency-scoped registered source lookup,
+measurement-unit checks, event UUID / canonical fingerprint idempotency,
+local PostgreSQL ledger and metadata-only quarantine. Input processing is
+transactional and deterministic; the local replay serializes writers via an
+advisory transaction lock.
+
+The capability is **not a production event stream**: no live external
+ingest endpoint, Kinesis/Kafka, signed devices or durable broker offsets
+are deployed. Delayed and stale timestamps are kept; data age is visible in
+Source Health rather than hidden during ingestion. Browser access is
+read-only at `/ingestion`. Next P1 design must add approved external source
+credentials, full ABAC, transport identity, bounded queues, durable retries,
+DLQ retention, source signature validation and incident correlation.
