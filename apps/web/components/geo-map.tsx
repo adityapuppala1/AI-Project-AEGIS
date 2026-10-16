@@ -30,7 +30,7 @@ export function GeoMap({ incidents, selectedId, onSelect }: {
           container: containerRef.current,
           center: [78.4772, 17.385],
           zoom: 10.7,
-          attributionControl: true,
+          attributionControl: { compact: true },
           style: {
             version: 8,
             sources: { osm: { type: "raster", tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"], tileSize: 256, attribution: "© OpenStreetMap contributors" } },
