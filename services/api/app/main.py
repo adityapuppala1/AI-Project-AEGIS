@@ -194,3 +194,10 @@ def export_synthetic_incident_audit(incident_id: UUID):
     if result is None:
         raise HTTPException(status_code=404, detail="Synthetic incident audit not found")
     return result
+
+
+@app.get("/v1/exercise/policy")
+def current_exercise_policy_profile():
+    """Read-only policy documentation; no browser-operable authorization toggle."""
+    from app.policy_profile import exercise_policy_profile
+    return exercise_policy_profile()
