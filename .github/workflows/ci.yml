@@ -150,6 +150,25 @@ jobs:
           PY
           curl -fsS http://127.0.0.1:3000/demo > /dev/null
           curl -fsS http://127.0.0.1:3000/agency-sync > /dev/null
+          curl -fsS http://127.0.0.1:8000/v1/exercise/policy > /tmp/aegis-policy.json
+          python - <<'PY'
+          import json
+          data=json.load(open("/tmp/aegis-policy.json"))
+          assert data["policy_version"] == "aegis.exercise.policy.v1"
+          assert data["live_public_warning_enabled"] is False
+          assert data["live_dispatch_enabled"] is False
+          PY
+          curl -fsS "http://127.0.0.1:8000/v1/exercise/incidents/22222222-2222-4222-8222-222222222222/audit" > /tmp/aegis-audit.json
+          python - <<'PY'
+          import json
+          data=json.load(open("/tmp/aegis-audit.json"))
+          assert data["bundle_version"] == "aegis.exercise.audit360.v1"
+          assert data["contains_real_agency_records"] is False
+          assert data["outbound_messages_sent"] is False
+          assert len(data["manifest_sha256"]) == 64
+          PY
+          curl -fsS http://127.0.0.1:3000/audit > /dev/null
+          curl -fsS http://127.0.0.1:3000/admin > /dev/null
           code=$(curl -sS -o /dev/null -w "%{http_code}" -X POST http://127.0.0.1:8000/v1/live/public-warning)
           test "$code" = 403
       - name: Verify replay idempotency in temporary CI volume
@@ -166,6 +185,25 @@ jobs:
           assert (b["accepted"], b["duplicate"], b["quarantined"]) == (0, 4, 5), b
           PY
           docker compose exec -T api python -m app.doctor
+          docker compose exec -T api python -m app.scenario_runner --confirm-synthetic --run-id e8000000-0000-4000-8000-000000000001 > /tmp/aegis-tabletop-first.json
+          docker compose exec -T api python -m app.scenario_runner --confirm-synthetic --run-id e8000000-0000-4000-8000-000000000001 > /tmp/aegis-tabletop-repeat.json
+          python - <<'PY'
+          import json
+          first=json.load(open("/tmp/aegis-tabletop-first.json"))
+          again=json.load(open("/tmp/aegis-tabletop-repeat.json"))
+          assert first["accepted_samples"] == 3
+          assert again["accepted_samples"] == 0 and again["duplicate_samples"] == 3
+          PY
+          curl -fsS http://127.0.0.1:8000/v1/exercise/sources > /tmp/aegis-scenario-sources.json
+          python - <<'PY'
+          import json
+          data=json.load(open("/tmp/aegis-scenario-sources.json"))
+          by_id={item["id"]: item["health"]["status"] for item in data["sources"]}
+          assert by_id["c3000000-0000-4000-8000-000000000001"] == "fresh"
+          assert by_id["c3000000-0000-4000-8000-000000000002"] == "delayed"
+          assert by_id["c3000000-0000-4000-8000-000000000003"] == "stale"
+          assert by_id["c3000000-0000-4000-8000-000000000004"] == "no_data"
+          PY
       - name: Show diagnostics on failure
         if: failure()
         run: docker compose logs --tail=120
