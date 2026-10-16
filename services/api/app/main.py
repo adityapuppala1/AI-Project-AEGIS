@@ -146,3 +146,20 @@ def read_exercise_readiness(
     if result is None:
         raise HTTPException(status_code=404, detail="Synthetic exercise case or geography not found")
     return result
+
+
+@app.get("/v1/exercise/system/readiness")
+def exercise_stack_readiness():
+    """Lightweight read-only DB/fixture check, never an operational readiness claim."""
+    import psycopg
+    from app.doctor import inspect_stack
+    try:
+        report = inspect_stack()
+    except (psycopg.Error, KeyError) as exc:
+        raise HTTPException(
+            status_code=503,
+            detail="Synthetic exercise database is unavailable",
+        ) from exc
+    if report["status"] != "ready":
+        raise HTTPException(status_code=503, detail=report)
+    return report
