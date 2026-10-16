@@ -1,5 +1,16 @@
 -- Additive tables for the *synthetic-only* Incident Intelligence workspace.
 -- These are NOT the authorization audit trail or operational evidence vault.
+-- An explicit demo flag protects public exercise endpoints from future real cases.
+ALTER TABLE incidents ADD COLUMN IF NOT EXISTS is_exercise_fixture BOOLEAN NOT NULL DEFAULT FALSE;
+UPDATE incidents SET is_exercise_fixture = TRUE
+WHERE agency_id = '11111111-1111-4111-8111-111111111111'
+  AND id IN ('22222222-2222-4222-8222-222222222222',
+             '33333333-3333-4333-8333-333333333333',
+             '44444444-4444-4444-8444-444444444444',
+             '55555555-5555-4555-8555-555555555555',
+             '66666666-6666-4666-8666-666666666666');
+CREATE INDEX IF NOT EXISTS incidents_demo_scope_idx
+    ON incidents (agency_id, created_at DESC) WHERE is_exercise_fixture IS TRUE;
 CREATE TABLE IF NOT EXISTS exercise_incident_events (
     id UUID PRIMARY KEY,
     incident_id UUID NOT NULL REFERENCES incidents(id) ON DELETE CASCADE,
