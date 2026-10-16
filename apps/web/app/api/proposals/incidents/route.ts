@@ -1,6 +1,6 @@
 /** Protected BFF: agency-scoped synthetic cases eligible for the approval form. */
 import { NextResponse } from "next/server";
-import { configuration, readSession } from "../../../../../lib/auth-server";
+import { configuration, readSession } from "../../../../lib/auth-server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
