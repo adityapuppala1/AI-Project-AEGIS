@@ -129,3 +129,19 @@ implementation commit `d9b4a334bacbd186d91ad5e9632d5ce0ec03a629`;
 this tracker-only change intentionally does not rerun CI. PR remains a
 stacked draft and has not been merged to `main`. Real IdP MFA,
 two-operator browser tests and Windows Docker verification remain pending.
+
+
+## PR #18 — cost-controlled CI policy and local tests
+
+Branch `chore/opt-in-ci-and-gates` stops CI from running automatically on
+`ready_for_review`. On this branch the workflow runs only for deliberate
+`ci:api`, `ci:web`, `ci:all` PR labels or manually selected workflow runs.
+The full Docker job remains manual-only. A PowerShell script provides fast
+local Python/TypeScript checks, with the Next.js build opt-in.
+No GitHub CI run was requested for the PR #18 milestone in order to
+respect exhausted Actions limits. Validation therefore remains **local or
+pending**, not a claimed new CI pass. See [CI Cost Policy](CI_COST_POLICY.md).
+
+Timing will be recorded only from GitHub commit metadata, not inferred
+engineering work hours. Existing release/security/Windows integration gates
+remain pending, and main is unchanged.
