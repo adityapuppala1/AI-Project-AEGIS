@@ -325,3 +325,22 @@ feature branch. When verification fails, review
 The exercise public warning path must remain 403, and anonymous exercise
 proposals must remain 401/503. Full detail:
 [Integration Release Gates](INTEGRATION_RELEASE_GATES.md).
+
+
+## Audit PostgreSQL approval and spatial constraints
+
+After starting the latest integration-hardening branch:
+
+```powershell
+git fetch origin
+git switch feat/release-preflight-constraints
+docker compose up --build -d
+docker compose exec -T api python -m app.doctor
+docker compose exec -T api python -m app.migration_audit
+powershell -ExecutionPolicy Bypass -File .\\scripts\\verify-windows.ps1
+```
+
+Both audit commands are **read-only**. Do not reset the database volume.
+The second audit fails if PostgreSQL has lost required unique approval,
+independent checker, GIS-index or extension protections. See
+[release verification](INTEGRATION_RELEASE_GATES.md).

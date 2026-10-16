@@ -83,3 +83,24 @@ Branch `feat/integration-readiness-gates` adds:
 Start/end UTC/IST and actual CI results must be updated only after
 GitHub records these events. Prior P0 effort estimates remain planning
 ranges and no real operational integration is certified.
+
+
+## P0 release security-schema audit — PR #16 scope
+
+Branch `feat/release-preflight-constraints` implements a companion,
+read-only constraint inspection of the independent checker trigger,
+unique-approval index, GIS indexes and required PostgreSQL extensions. This
+addresses a gap in the earlier table/fixture-only readiness checks. The
+new check is wired into Windows verification and the **manual-only**
+full Compose CI job. GitHub commit windows and CI results will be recorded
+after review validation. Windows device testing remains pending while
+`Adys_ROG` is offline.
+
+
+## PR #16 — migration constraint audit
+
+| Milestone | First commit (IST) | Last implementation commit (IST) | Git commit window | Review outcome |
+|---|---|---|---|---|
+| [#16](https://github.com/adityapuppala1/AI-Project-AEGIS/pull/16) — read-only unique-approval, checker-trigger and GIS-index preflight | 17 Oct 00:12:35 | 17 Oct 00:13:49 | **1m 14s** | [139 API tests, model report, web build and Compose manifest passed](https://github.com/adityapuppala1/AI-Project-AEGIS/actions/runs/38949615398) |
+
+This is a **Git commit window**, not an estimate of actual labor. PR #16 is a stacked draft, not merged into `main`. The optional full Docker/Windows integration audit remains pending; the connected Windows device is offline. No multi-agent execution capability is exposed in the connected tools, so no separate autonomous agents were launched.

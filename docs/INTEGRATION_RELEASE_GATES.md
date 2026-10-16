@@ -110,3 +110,22 @@ Recommended gate sequence:
 
 No paid cloud resources, official telemetry ingestion, identity provider,
 public warning issuance or responder dispatch is enabled by this gate.
+
+
+## Release Gate 0.1 — database security constraints
+
+The structural fixture preflight now has a complementary **read-only** security
+schema audit: `docker compose exec -T api python -m app.migration_audit`.
+It checks PostGIS/pg_trgm extensions, important spatial/history indexes,
+the **unique approval per proposal index**, and that the PostgreSQL
+**independent checker trigger** is present and enabled. A missing or disabled
+guard fails with exit code 1 rather than silently reporting readiness.
+
+The Windows smoke script and optional manually triggered full Docker CI job
+invoke this audit without changing data. Unit tests check missing guards,
+parameterized SQL catalog queries, and fail-closed results. The regular
+API CI remains lightweight and does **not** start Docker automatically.
+
+The audit does **not** replace an authenticated two-operator OIDC workflow,
+Postgres integration testing, security review, or evidence of operational
+readiness. Do not merge draft PRs until those gates are cleared.

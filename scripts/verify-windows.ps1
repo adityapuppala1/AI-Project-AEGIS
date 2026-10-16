@@ -32,6 +32,10 @@ Assert-True $ready "Exercise API responds locally"
 
 $report = Get-Json "http://localhost:8000/v1/exercise/system/readiness"
 Assert-True ($report.status -eq "ready" -and $report.mode -eq "synthetic_exercise") "Schema and fixture preflight"
+
+# Verify security constraints in the local database without modifying anything.
+& docker compose exec -T api python -m app.migration_audit
+Assert-True ($LASTEXITCODE -eq 0) "Required GIS indexes, unique approvals and independent-checker trigger"
 Assert-True ($report.checks.operational_actions_enabled -eq $false) "No operational action path"
 Assert-True ($report.checks.real_integrations_connected -eq $false) "No real data connectors"
 

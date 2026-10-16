@@ -281,3 +281,14 @@ verifies major module endpoints, expected synthetic-only classification,
 and blocked real warning actions. Do not delete your local Postgres volume.
 
 See [Integrated acceptance gates](docs/INTEGRATION_RELEASE_GATES.md).
+
+
+## Release readiness — security-schema verification
+
+On branch `feat/release-preflight-constraints`, the Windows smoke test now
+includes a read-only security-schema audit. Run
+`docker compose exec -T api python -m app.migration_audit` to verify the
+independent-checker approval trigger, unique approval index, geographic
+query indexes and required Postgres extensions. A missing protection causes
+failure instead of a misleading green preflight. This is a synthetic-only
+integration gate and not production certification.
