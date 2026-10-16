@@ -28,6 +28,7 @@ export function SpatialAnalysis({ incidentId }: { incidentId: string }) {
   useEffect(() => {
     const controller = new AbortController();
     setLoading(true);
+    setData(null); // Radius changes never retain old candidates as current results.
     fetch("/api/incidents/" + encodeURIComponent(incidentId) + "/correlation?radius_m=" + radius, {
       cache: "no-store", signal: controller.signal,
     })
