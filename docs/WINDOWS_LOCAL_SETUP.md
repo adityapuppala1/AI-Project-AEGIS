@@ -113,3 +113,21 @@ or set up fake production logins. See
 Existing database volumes receive an idempotent additive migration automatically
 through the one-shot `migrate` service. Avoid `docker compose down -v` unless
 you explicitly intend to destroy local data.
+
+## Browser approval-workbench branch
+
+To run the latest approved-for-review development branch, with uncommitted
+work saved separately before switching:
+
+```powershell
+git fetch origin
+git switch feat/browser-oidc-approvals
+docker compose down
+docker compose up --build -d
+```
+
+Visit `http://localhost:3000/approvals`. Without an approved OIDC provider
+the page is intentionally locked while Command Center, incident registry and
+playbooks stay available. See
+[browser SSO configuration](BROWSER_SSO_AND_APPROVAL_WORKBENCH.md)
+for the optional identity-provider setup and required short-lived encryption key.
