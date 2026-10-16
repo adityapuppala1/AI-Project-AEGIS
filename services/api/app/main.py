@@ -1,7 +1,7 @@
 """AEGIS exercise-only API foundation; no live alerts or dispatch."""
 from datetime import datetime, timezone
 from typing import Literal
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
 
 app = FastAPI(title="AEGIS Exercise API", version="0.1.0")
@@ -59,3 +59,19 @@ def exercise_telemetry():
 # Exercise workflow is disabled unless explicitly enabled in an isolated developer environment.
 from app.exercise_workflows import router as exercise_workflow_router
 app.include_router(exercise_workflow_router)
+
+@app.get("/v1/exercise/incidents/query")
+def search_exercise_incidents(
+    search: str = Query(default="", max_length=120),
+    status: Literal["new", "review", "active", "resolved"] | None = None,
+    sort: Literal["created_at", "hazard_type", "status"] = "created_at",
+    direction: Literal["asc", "desc"] = "desc",
+    page: int = Query(default=1, ge=1, le=10000),
+    page_size: int = Query(default=10, ge=1, le=50),
+):
+    from app.db import query_incidents
+    return query_incidents(
+        search=search.strip(), status=status, sort=sort,
+        direction=direction, page=page, page_size=page_size,
+    )
+

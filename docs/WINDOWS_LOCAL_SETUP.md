@@ -142,3 +142,25 @@ Expected: no implicit operator identity; anonymous approvals return 401
 or 503 (depending on IdP configuration); backend reports exercise mode.
 Do not paste or commit real OIDC bearer tokens into GitHub, chat, screenshots
 or console logs.
+
+## UX search and help milestone
+
+To run the current feature branch after saving your own uncommitted edits:
+
+```powershell
+git fetch origin
+git switch feat/ux-discovery-data-grid
+docker compose down
+docker compose up --build -d
+docker compose ps
+```
+
+Visit `http://localhost:3000/incidents` for the searchable incident grid,
+press Ctrl+K (or Command+K) from any page for global navigation, and
+visit `http://localhost:3000/help` for curated self-help articles.
+
+The Compose `migrate` service automatically applies the new idempotent
+`004_incident_search.sql` trigram/status indexes, even when the PostgreSQL
+volume is already initialized. Do **not** run `docker compose down -v`
+for routine upgrades. This branch is exercise-only; no live alerts, dispatch
+or real-model inference are connected.

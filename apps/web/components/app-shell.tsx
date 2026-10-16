@@ -6,16 +6,18 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import {
   Activity, BookOpenCheck, ChevronRight, Command, LayoutDashboard,
-  Menu, Moon, Settings2, ShieldCheck, Sun, X, ClipboardCheck,
+  Menu, Moon, Settings2, ShieldCheck, Sun, X, ClipboardCheck, LifeBuoy,
 } from "lucide-react";
 
 import { OperatorAuth } from "./operator-auth";
+import { GlobalSearch } from "./global-search";
 
 const navigation = [
   { href: "/", label: "Command Center", icon: LayoutDashboard },
   { href: "/incidents", label: "Incident Registry", icon: Activity },
   { href: "/approvals", label: "Approval Workbench", icon: ClipboardCheck },
   { href: "/playbooks", label: "Response Playbooks", icon: BookOpenCheck },
+  { href: "/help", label: "Help & Learning", icon: LifeBuoy },
   { href: "/admin", label: "Administration", icon: Settings2 },
 ];
 
@@ -78,6 +80,7 @@ export function AppShell({ children, title, description }: { children: ReactNode
             <span className="hidden items-center gap-2 rounded-full border border-amber-400/25 bg-amber-400/10 px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-300 sm:inline-flex">
               <span className="status-dot bg-amber-400"/> Simulation mode
             </span>
+            <GlobalSearch />
             <ThemeToggle />
             <OperatorAuth />
           </div>
