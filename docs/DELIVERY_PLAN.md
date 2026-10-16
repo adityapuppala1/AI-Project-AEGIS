@@ -13,3 +13,18 @@
 ## Definition of done
 
 All demo measurements labeled synthetic if synthetic; API contract tests pass; no operational warning or dispatch endpoints enabled; logs retain actors, rationale, source provenance and model version.
+
+## Actual implementation reconciliation — October 2026
+
+The complete original ten-module delivery is now mapped in
+[CIPHERCOP_2026_RELEASE_AUDIT.md](CIPHERCOP_2026_RELEASE_AUDIT.md).
+The integrated **synthetic exercise code** is in
+`feat/ciphercop-integrated-demo-rc`; status remains draft and unmerged.
+
+Earlier dated milestones describe *planned exit checks*, not acceptance that
+can be inferred from Git commits. Foundations, synthetic GIS, versioned
+offline model evaluation and a tabletop task/history workflow have code in
+feature branches. The integrated Docker/browser E2E, real OIDC checker test,
+accessibility, security and judge rehearsal gates are **still pending**.
+Only after those gates pass can the synthetic hackathon demo be called done.
+Real emergency source and warning capabilities are not part of this release.
