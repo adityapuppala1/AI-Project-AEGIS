@@ -35,3 +35,8 @@ def exercise_risk(event: Observation):
 @app.post("/v1/live/public-warning")
 def deny_live_warning():
     raise HTTPException(status_code=403, detail="Live public warnings are not available in this exercise environment")
+
+@app.get("/v1/exercise/incidents")
+def exercise_incidents():
+    from app.db import list_incidents
+    return list_incidents()
