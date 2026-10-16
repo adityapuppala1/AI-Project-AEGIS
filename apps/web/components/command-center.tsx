@@ -29,6 +29,7 @@ export function CommandCenter() {
   return <AppShell title="Command Center" description="Geospatial awareness, simulated hazard observations and human-controlled response coordination.">
     <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-500/25 bg-amber-500/5 px-4 py-3">
       <div className="flex items-center gap-2 text-xs font-semibold text-amber-700 dark:text-amber-300"><ShieldCheck size={17}/><span>EXERCISE ONLY — all incidents and telemetry are synthetic; no operational warnings or dispatch.</span></div>
+      <Link href="/demo" className="control text-xs">Run guided exercise <ArrowRight size={14}/></Link>
       <span className="text-xs text-muted">{lastSynced ? `Last sync: ${new Date(lastSynced).toLocaleTimeString()}` : "Awaiting first sync"}</span>
     </div>
     {error && <div role="alert" className="mb-5 flex items-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-700 dark:text-rose-300">
@@ -46,6 +47,11 @@ export function CommandCenter() {
     </section>
     <SourceHealthSummary/>
     <IngestionStatusSummary/>
+    <section className="panel mt-5 flex flex-wrap items-center justify-between gap-3 p-4 sm:p-5" aria-label="Fictional agency task workflow">
+      <div><h2 className="text-sm font-bold">AgencySync · Exercise Acknowledgements</h2>
+        <p className="mt-1 text-xs text-muted">Explore scripted task acknowledgements with no outbound departmental messaging.</p></div>
+      <Link href="/agency-sync" className="control text-xs">Explore fictional tasks <ArrowRight size={14}/></Link>
+    </section>
     <div className="mt-5 grid gap-5 2xl:grid-cols-[minmax(0,1.55fr)_minmax(350px,1fr)]">
       <section className="panel min-w-0 overflow-hidden" aria-label="Exercise geospatial overview">
         <div className="panel-heading"><div><h2 className="flex items-center gap-2 text-base font-bold"><MapPinned size={18} className="text-accent"/> Geospatial Overview</h2><p className="mt-1 text-xs text-muted">Hyderabad · incident positions from PostGIS</p></div><span className="rounded-full bg-accent/10 px-3 py-1 text-xs font-semibold text-accent">MapLibre / OSM</span></div>
