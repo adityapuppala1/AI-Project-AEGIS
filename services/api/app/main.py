@@ -126,3 +126,10 @@ def exercise_geospatial_candidates(
     if data is None:
         raise HTTPException(status_code=404, detail="Synthetic exercise incident not found")
     return data
+
+
+@app.get("/v1/exercise/model-lab/report")
+def synthetic_model_evaluation_report():
+    """Read-only, versioned offline baseline report; NOT a real forecast API."""
+    from app.model_lab import saved_report
+    return saved_report()
