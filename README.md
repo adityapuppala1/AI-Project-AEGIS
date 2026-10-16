@@ -4,7 +4,19 @@ CipherCop 2026 · AI-powered disaster prediction, preparedness and accountable r
 
 ## Status
 
-**Foundation / exercise-only prototype.** Not an emergency-warning or dispatch system. All hazard scoring is synthetic and unvalidated.
+**Consolidated synthetic demo release candidate (in development).** The latest integrated branch is `feat/ciphercop-integrated-demo-rc`, combining the original GeoCommand, DataFusion, Incident Fusion, response guidance, ApprovalGuard, AgencySync, PolicyStudio, ReplayLab and Audit360 demo surfaces. **No real warnings, dispatch or validated flood forecasting.** The current release candidate still requires tests and owner approval; `main` is unchanged.
+
+**Start here:** [Original-plan reconciliation and acceptance gates](docs/CIPHERCOP_2026_RELEASE_AUDIT.md) · [Guided exercise](http://localhost:3000/demo) (after local startup).
+
+```powershell
+git fetch origin
+git switch feat/ciphercop-integrated-demo-rc
+docker compose up --build -d
+docker compose exec -T api python -m app.doctor
+powershell -ExecutionPolicy Bypass -File .\\scripts\\verify-windows.ps1
+```
+
+An optional local-only scenario refresh (`scripts/run-tabletop-windows.ps1 -ConfirmExercise`) appends three fictional readings without deleting source history. The `/demo` page guides the original scenario through the rule-only index, case evidence, playbook, human approval gate, scripted AgencySync acknowledgements and Audit360 export. No official provider is connected.
 
 ## Run API
 
