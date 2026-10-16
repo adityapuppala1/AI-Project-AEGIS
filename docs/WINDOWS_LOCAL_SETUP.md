@@ -259,3 +259,21 @@ verified flooding, exposure or real infrastructure damage.
 `008_exercise_geospatial.sql` and `seed_geospatial.sql` are applied
 idempotently by Docker Compose. Do not delete existing database volumes.
 See [setup and spatial data contract](SPATIAL_CORRELATION_EXPLORER.md).
+
+## Model Evaluation Lab (offline synthetic baseline)
+
+```powershell
+git fetch origin
+git switch feat/synthetic-model-evaluation
+docker compose down
+docker compose up --build -d
+docker compose exec -T api python -m app.model_lab --check
+```
+
+View `http://localhost:3000/model-lab` for the computed offline synthetic
+holdout evaluation, provenance and confusion matrix. The check verifies
+that the committed report matches exactly the seeded training generator.
+The new module requires no additional packages, database migrations, live
+data feeds or paid cloud resources. There is no actual hazard prediction
+endpoint or real emergency dispatch.
+Read [Model Lab methodology and limitations](MODEL_EVALUATION_LAB.md).

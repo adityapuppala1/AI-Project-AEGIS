@@ -13,6 +13,8 @@ type Guide = {
   href?: string;
 };
 const guides: Guide[] = [
+  { title: "What does the Model Evaluation Lab measure?", category: "AI transparency", description: "Synthetic holdout testing is not forecasting accuracy",
+    answer: "The lab tests a reproducible logistic baseline on artificially generated scenarios. Entire scenario groups are held out to help demonstrate leakage prevention and the evaluation pipeline. ROC AUC, Brier score and confusion counts apply only to this synthetic dataset; they do not establish real flood predictive skill or calibrated warning probabilities.", href: "/model-lab" },
   { title: "How do I start AEGIS on Windows?", category: "Getting started", description: "Run the Docker Compose development environment",
     answer: "Open PowerShell in the AI-Project-AEGIS folder, run docker compose up --build -d, and visit http://localhost:3000. Use docker compose ps and docker compose logs if containers do not start." },
   { title: "Why is my Approval Workbench locked?", category: "Security", description: "Understanding secure operator sign-in",
