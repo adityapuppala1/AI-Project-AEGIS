@@ -71,6 +71,17 @@ Assert-True ($agencyTasks.returned -ge 7 -and $agencyTasks.acknowledgements_are_
 $task = Get-Json "http://localhost:8000/v1/exercise/agency-tasks/f6000000-0000-4000-8000-000000000001"
 Assert-True ($task.source -eq "synthetic_exercise" -and $task.events.Count -ge 2) "Scripted acknowledgement audit trail"
 
+$audit = Get-Json "http://localhost:8000/v1/exercise/incidents/$incident/audit"
+Assert-True ($audit.source -eq "synthetic_exercise" -and $audit.contains_real_agency_records -eq $false) "Audit360 exports public exercise fixtures only"
+Assert-True ($audit.manifest_sha256.Length -eq 64 -and $audit.outbound_messages_sent -eq $false) "Audit360 checksum and no messages"
+
+$policy = Get-Json "http://localhost:8000/v1/exercise/policy"
+Assert-True ($policy.policy_version -eq "aegis.exercise.policy.v1" -and $policy.live_public_warning_enabled -eq $false) "Versioned policy disables real warnings"
+
+$exampleInput = @{ source_id = "AEGIS-EXERCISE-ONLY"; rainfall_mm_hour = 35; water_index = 45; drainage_condition = "moderate"; observed_at = (Get-Date).ToUniversalTime().ToString("o") } | ConvertTo-Json
+$teachingIndex = Invoke-RestMethod -Uri "http://localhost:8000/v1/exercise/risk" -Method POST -ContentType "application/json" -Body $exampleInput -TimeoutSec 10
+Assert-True ($teachingIndex.kind -eq "synthetic_rule_demo" -and $teachingIndex.requires_human_verification -eq $true) "Illustrative risk index is explicitly synthetic"
+
 $ingest = Get-Json "http://localhost:8000/v1/exercise/ingestion/status"
 Assert-True ($ingest.mode -eq "synthetic_exercise" -and $ingest.live_ingestion_enabled -eq $false) "No external ingestion route"
 
@@ -80,6 +91,8 @@ Check-Status "http://localhost:3000/incidents/$incident" @("200") "Incident Inte
 Check-Status "http://localhost:3000/sources" @("200") "Source Health page"
 Check-Status "http://localhost:3000/model-lab" @("200") "Model Evaluation Lab page"
 Check-Status "http://localhost:3000/agency-sync" @("200") "Fictional AgencySync page"
+Check-Status "http://localhost:3000/audit" @("200") "Audit360 exercise export page"
+Check-Status "http://localhost:3000/admin" @("200") "PolicyStudio read-only administration page"
 Check-Status "http://localhost:3000/demo" @("200") "Guided CipherCop exercise"
 Check-Status "http://localhost:3000/ingestion" @("200") "Ingestion Monitor page"
 Check-Status "http://localhost:3000/approvals" @("200") "Exercise Approvals page renders without unauthorized login"
