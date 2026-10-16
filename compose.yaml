@@ -10,6 +10,7 @@ services:
       - ./db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
       - ./db/migrations/002_governance.sql:/docker-entrypoint-initdb.d/015-governance.sql:ro
       - ./db/migrations/003_identity_scopes.sql:/docker-entrypoint-initdb.d/016-identity-scopes.sql:ro
+      - ./db/migrations/004_incident_search.sql:/docker-entrypoint-initdb.d/017-incident-search.sql:ro
       - ./db/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U aegis -d aegis"]
@@ -26,10 +27,11 @@ services:
     volumes:
       - ./db/migrations/002_governance.sql:/migration.sql:ro
       - ./db/migrations/003_identity_scopes.sql:/identity-scopes.sql:ro
+      - ./db/migrations/004_incident_search.sql:/incident-search.sql:ro
     depends_on:
       db:
         condition: service_healthy
-    command: ["sh", "-c", "psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /migration.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /identity-scopes.sql"]
+    command: ["sh", "-c", "psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /migration.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /identity-scopes.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /incident-search.sql"]
     restart: "no"
   seed:
     image: postgis/postgis:16-3.4
