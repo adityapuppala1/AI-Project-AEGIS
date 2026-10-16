@@ -147,3 +147,24 @@ docker compose up --build -d
 ```
 
 See [Incident Intelligence contract](docs/INCIDENT_INTELLIGENCE_WORKSPACE.md).
+
+
+## DataFusion milestone: Source Health & Freshness
+
+The branch `feat/source-health-freshness` introduces a **synthetic-only**
+Source Freshness Observatory at `http://localhost:3000/sources`.
+The screen separates stale, delayed, missing and clock-anomalous observations,
+shows per-source history in an accessible chart/table, and links to the
+Command Center, universal search and Help Center.
+
+```powershell
+git fetch origin
+git switch feat/source-health-freshness
+docker compose down
+docker compose up --build -d
+```
+
+Migration 006 and the source fixtures run idempotently for fresh and existing
+PostgreSQL volumes. Do not delete your volume just to update. No physical
+devices, official feeds or actual disaster risk model is connected.
+See [Source Health & Freshness Architecture](docs/SOURCE_HEALTH_OBSERVATORY.md).
