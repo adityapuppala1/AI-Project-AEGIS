@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, BookOpenCheck, ClipboardCheck, Compass, Database, FlaskConical, RadioTower, ShieldAlert, UsersRound, Workflow, Archive } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpenCheck, ClipboardCheck, Compass, Database, FlaskConical, RadioTower, ShieldAlert, UsersRound, Workflow, Archive, Calculator } from "lucide-react";
 
 type ReadinessState = "ready" | "not_ready" | "unavailable";
 interface Snapshot {
@@ -60,6 +60,15 @@ const steps = [
     link: "Explore PostGIS candidates",
     icon: Compass,
     playbook: "Step 02 · Geographic review",
+  },
+  {
+    title: "Try the illustrative hazard index",
+    subtitle: "Rule calculation, never probability",
+    description: "Change fictional rainfall, water index and drainage controls. The original teaching rule calculates a 0–100 demonstration index; it is not trained AI and cannot validate a real flood forecast.",
+    href: "/demo#synthetic-risk",
+    link: "Open synthetic index calculator",
+    icon: Calculator,
+    playbook: "Training-only numerical example",
   },
   {
     title: "Review model limitations",
