@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, BookOpenCheck, ClipboardCheck, Compass, Database, FlaskConical, RadioTower, ShieldAlert, UsersRound, Workflow } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpenCheck, ClipboardCheck, Compass, Database, FlaskConical, RadioTower, ShieldAlert, UsersRound, Workflow, Archive } from "lucide-react";
 
 type ReadinessState = "ready" | "not_ready" | "unavailable";
 interface Snapshot {
@@ -96,6 +96,15 @@ const steps = [
     link: "Open AgencySync",
     icon: UsersRound,
     playbook: "Step 05 · Simulated response history",
+  },
+  {
+    title: "Export the synthetic case trace",
+    subtitle: "Audit360 checksum and reviewed evidence",
+    description: "Download a bounded synthetic incident bundle containing case chronology, evidence references, human-review checklist and scripted department events. Its SHA-256 is an unsigned content checksum, not a legal audit attestation.",
+    href: "/audit",
+    link: "Open Audit360 export",
+    icon: Archive,
+    playbook: "Review traceability and provenance",
   },
 ];
 
