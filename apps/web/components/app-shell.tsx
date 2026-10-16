@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import {
   Activity, BookOpenCheck, ChevronRight, Command, LayoutDashboard,
-  Menu, Moon, Settings2, ShieldCheck, Sun, X, ClipboardCheck, LifeBuoy, RadioTower, Workflow, BrainCircuit, Route, UsersRound,
+  Menu, Moon, Settings2, ShieldCheck, Sun, X, ClipboardCheck, LifeBuoy, RadioTower, Workflow, BrainCircuit, Route, UsersRound, Archive,
 } from "lucide-react";
 
 import { OperatorAuth } from "./operator-auth";
@@ -21,6 +21,7 @@ const navigation = [
   { href: "/model-lab", label: "Model Evaluation Lab", icon: BrainCircuit },
   { href: "/approvals", label: "Approval Workbench", icon: ClipboardCheck },
   { href: "/agency-sync", label: "AgencySync Tasks", icon: UsersRound },
+  { href: "/audit", label: "Audit360 Export", icon: Archive },
   { href: "/playbooks", label: "Response Playbooks", icon: BookOpenCheck },
   { href: "/help", label: "Help & Learning", icon: LifeBuoy },
   { href: "/admin", label: "Administration", icon: Settings2 },
