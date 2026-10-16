@@ -47,6 +47,10 @@ services:
     environment:
       DATABASE_URL: postgresql://aegis:${POSTGRES_PASSWORD:-aegis_local_only}@db:5432/aegis
       CORS_ORIGIN: http://localhost:3000
+      # These are nonsecret public OIDC metadata; absent config fails closed.
+      OIDC_ISSUER: ${OIDC_ISSUER:-}
+      OIDC_AUDIENCE: ${OIDC_AUDIENCE:-}
+      OIDC_JWKS_URL: ${OIDC_JWKS_URL:-}
     depends_on:
       seed:
         condition: service_completed_successfully
