@@ -13,6 +13,9 @@ from app.agency_sync_store import (
 )
 from app.assessment_adapter import exercise_readiness
 from app.intelligence_store import incident_workspace
+from app.model_lab import VERSION as OFFLINE_MODEL_VERSION
+from app.policy_profile import PROFILE_VERSION as POLICY_PROFILE_VERSION
+from app.ingestion_contract import CONTRACT as INGESTION_CONTRACT_VERSION
 
 
 def export_exercise_case(incident_id: UUID) -> dict | None:
@@ -43,6 +46,10 @@ def export_exercise_case(incident_id: UUID) -> dict | None:
         "source": "synthetic_exercise",
         "incident_id": str(incident_id),
         "playbook_ref": PLAYBOOK_VERSION,
+        "ingestion_contract_ref": INGESTION_CONTRACT_VERSION,
+        "offline_synthetic_model_card_ref": OFFLINE_MODEL_VERSION,
+        "incident_forecast_model_attached": False,
+        "policy_profile_ref": POLICY_PROFILE_VERSION,
         "incident_workspace": case,
         "readiness_checklist": assessment,
         "agency_task_board": board,
