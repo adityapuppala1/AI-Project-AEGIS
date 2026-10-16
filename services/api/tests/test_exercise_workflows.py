@@ -130,3 +130,15 @@ def test_proposal_listing_scoped_to_verified_agency(monkeypatch):
 def test_live_public_warning_remains_blocked():
     authenticate("incident_checker")
     assert client.post("/v1/live/public-warning").status_code == 403
+
+
+def test_verified_identity_context():
+    authenticate("incident_auditor", "audit-officer-1")
+    response = client.get("/v1/exercise/proposals/identity")
+    assert response.status_code == 200
+    assert response.json() == {
+        "subject": "audit-officer-1",
+        "agency_id": str(AGENCY_ID),
+        "roles": ["incident_auditor"],
+        "exercise_only": True,
+    }
