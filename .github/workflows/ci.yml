@@ -31,6 +31,9 @@ jobs:
       - name: Test exercise API
         working-directory: services/api
         run: python -m pytest -q
+      - name: Verify committed synthetic evaluation report
+        working-directory: services/api
+        run: python -m app.model_lab --check
   web:
     runs-on: ubuntu-latest
     defaults:
