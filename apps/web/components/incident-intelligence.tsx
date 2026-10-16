@@ -222,7 +222,7 @@ export function IncidentIntelligence({ workspace }: { workspace: IncidentWorkspa
       </div>}
       {view === "interpretation" && <div className="grid gap-5 p-5 lg:grid-cols-2">
         <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-5">
-          <h4 className="flex items-center gap-2 text-sm font-bold"><BrainCircuit size={18} className="text-amber-600 dark:text-amber-300"/> No trained forecast</h4>
+          <h4 className="flex items-center gap-2 text-sm font-bold"><BrainCircuit size={18} className="text-amber-600 dark:text-amber-300"/> No trained forecast for this incident</h4>
           <p className="mt-3 text-sm leading-6 text-muted">{workspace.assessment.message}</p>
           <dl className="mt-4 space-y-2 text-xs text-muted">
             <div><dt className="inline">Model version: </dt><dd className="inline font-semibold">Not available</dd></div>
@@ -238,6 +238,7 @@ export function IncidentIntelligence({ workspace }: { workspace: IncidentWorkspa
             Any future operational workflow requires authorized human oversight.
           </p>
           <p className="mt-4 text-xs text-muted">Response generated {timeInIndia(workspace.generated_at)}</p>
+          <Link href="/model-lab" className="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-accent hover:underline">Explore offline synthetic model evaluation <ArrowRight size={14}/></Link>
         </div>
       </div>}
     </section>
