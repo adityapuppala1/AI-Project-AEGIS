@@ -8,6 +8,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./db/migrations/002_governance.sql:/docker-entrypoint-initdb.d/015-governance.sql:ro
       - ./db/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U aegis -d aegis"]
@@ -17,6 +18,17 @@ services:
     # Do not publish host port 5432: Windows may reserve it, and the API
     # already connects internally through DATABASE_URL.
     mem_limit: 1g
+  migrate:
+    image: postgis/postgis:16-3.4
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD:-aegis_local_only}
+    volumes:
+      - ./db/migrations/002_governance.sql:/migration.sql:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["sh", "-c", "psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /migration.sql"]
+    restart: "no"
   seed:
     image: postgis/postgis:16-3.4
     environment:
@@ -24,8 +36,8 @@ services:
     volumes:
       - ./db/seed.sql:/seed.sql:ro
     depends_on:
-      db:
-        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     command: ["sh", "-c", "psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /seed.sql"]
     restart: "no"
   api:

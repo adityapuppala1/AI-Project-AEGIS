@@ -55,3 +55,7 @@ def exercise_telemetry():
             for i, amount in enumerate(rainfall)
         ],
     }
+
+# Exercise workflow is disabled unless explicitly enabled in an isolated developer environment.
+from app.exercise_workflows import router as exercise_workflow_router
+app.include_router(exercise_workflow_router)
