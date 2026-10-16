@@ -173,3 +173,19 @@ A separate Source Observatory is added at `/sources` in the
 The source data is **synthetic**, not a live connection or an AI prediction.
 Status colors are paired with text. Reduced motion is respected.
 See [Source Health & Freshness](SOURCE_HEALTH_OBSERVATORY.md).
+
+
+## DataFusion replay observability milestone
+
+The branch `feat/datafusion-exercise-ingestion` adds `/ingestion`,
+a read-only screen for accepted synthetic events and rejected reason codes.
+A compact status summary appears on the Command Center, and global search
+and Help route users to the new information.
+
+The UI intentionally **does not expose a "Run Replay" network action**.
+Replays use a bundled reviewed JSON file via the local Docker API container
+CLI, preserving clear boundaries between a visual workflow and untrusted
+data ingestion. Quality/freshness indicators never imply a trained flood
+prediction or real government source verification.
+
+See [DataFusion Ingestion architecture](DATAFUSION_INGESTION.md).
