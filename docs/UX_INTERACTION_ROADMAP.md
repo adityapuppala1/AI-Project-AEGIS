@@ -189,3 +189,16 @@ data ingestion. Quality/freshness indicators never imply a trained flood
 prediction or real government source verification.
 
 See [DataFusion Ingestion architecture](DATAFUSION_INGESTION.md).
+
+
+## Spatial Candidate Explorer — next P1 slice
+
+The synthetic incident details page now includes source proximity and
+fictional facility discovery. Operators can select 1, 3, or 5 km radius,
+inspect per-source staleness, see bounded candidate distances, and read
+verification guidance. No risk chart, artificial impact score or animated
+warning suggests that proximity alone demonstrates a hazard.
+
+The query uses PostGIS geography distance in meters; the UI remains
+accessible with text explanations and no new heavy mapping/3D libraries.
+See [Spatial Correlation Explorer](SPATIAL_CORRELATION_EXPLORER.md).
