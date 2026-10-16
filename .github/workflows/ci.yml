@@ -93,6 +93,7 @@ jobs:
         run: |
           set -euo pipefail
           docker compose exec -T api python -m app.doctor
+          docker compose exec -T api python -m app.migration_audit
           curl -fsS http://127.0.0.1:8000/v1/exercise/system/readiness > /tmp/aegis-ready.json
           python - <<'PY'
           import json
