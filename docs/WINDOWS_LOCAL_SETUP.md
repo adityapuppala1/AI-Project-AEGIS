@@ -188,3 +188,32 @@ The sample case page is
 The evidence and timeline are simulated, NOT field-verified observations or
 secure production audit records. See
 [Incident Intelligence Workspace](INCIDENT_INTELLIGENCE_WORKSPACE.md).
+
+
+## Source Freshness development milestone
+
+Update your 16 GB Windows local environment:
+
+```powershell
+git fetch origin
+git switch feat/source-health-freshness
+docker compose down
+docker compose up --build -d
+docker compose ps
+```
+
+Open `http://localhost:3000/sources`. The simulation begins with four
+registered sources and 24 seeded readings. Existing stored fixtures age
+naturally and can become stale; Docker startup never pretends they are fresh.
+
+If the page cannot load, check:
+
+```powershell
+docker compose logs --tail=100 migrate seed api web
+docker compose exec db psql -U aegis -d aegis -c "SELECT COUNT(*) FROM exercise_data_sources;"
+```
+
+The migration/seed scripts are additive/idempotent. Never run
+`docker compose down -v` casually. The Source Freshness screen is a
+synthetic observability prototype, not an operational flood warning feed.
+Read [the full runbook](SOURCE_HEALTH_OBSERVATORY.md).
