@@ -89,3 +89,12 @@ quality disclaimers, simple data cards and categorized quarantines. Charts
 are intentionally omitted when a precise count table better conveys
 validation failures. The Command Center provides an unobtrusive summary,
 and the browser never auto-invokes the replay CLI or any external source.
+
+
+## PostGIS correlation interface
+
+The Incident Intelligence details panel now includes a separate
+radius-controlled candidate explorer. Spatial distance appears alongside
+source freshness and unambiguous *fictional* asset labels. Long explanatory
+copy is used where a compact badge might imply false certainty.
+No decorative animation or false map-impact overlay is used.
