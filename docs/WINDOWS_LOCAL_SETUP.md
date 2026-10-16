@@ -95,3 +95,21 @@ docker compose exec db psql -U aegis -d aegis -c "SELECT count(*) FROM incidents
 The frontend uses the API through internal Next.js route handlers; browser requests to `/api/incidents` and `/api/telemetry` should return exercise JSON when the backend is healthy.
 
 **Resource note:** The Next.js production build can require more temporary RAM than its runtime container. On a 16 GB laptop, keep Docker Desktop's WSL2 memory allocation around 4–6 GB or higher if builds fail, and close memory-intensive applications.
+
+
+## Authenticated proposal branch
+
+For the OIDC and agency-authorization milestone, use
+`git fetch origin` then `git switch feat/oidc-agency-authorization`.
+Run `docker compose up --build -d` as usual.
+
+The exercise web dashboard remains available even if no IdP is configured.
+Protected proposal endpoints are **intentionally unavailable** until
+`OIDC_ISSUER`, `OIDC_AUDIENCE`, and `OIDC_JWKS_URL` are configured for an
+approved identity provider. Do not use untrusted tokens, paste JWTs into URLs,
+or set up fake production logins. See
+[OIDC setup and signed claim contract](OIDC_IDENTITY_AND_AUTHORIZATION.md).
+
+Existing database volumes receive an idempotent additive migration automatically
+through the one-shot `migrate` service. Avoid `docker compose down -v` unless
+you explicitly intend to destroy local data.
