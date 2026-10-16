@@ -2,22 +2,24 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { BookOpenCheck, ClipboardCheck, Command, LayoutDashboard, LifeBuoy, Search, Settings2, X, Activity, RadioTower, Workflow, BrainCircuit } from "lucide-react";
+import { BookOpenCheck, ClipboardCheck, Command, LayoutDashboard, LifeBuoy, Search, Settings2, X, Activity, RadioTower, Workflow, BrainCircuit, Route, UsersRound } from "lucide-react";
 import type { Incident } from "../lib/types";
 
 type CommandItem = { label: string; description: string; href: string; kind: "page" | "incident" };
 const pages: CommandItem[] = [
   { label: "Command Center", description: "System overview and geospatial map", href: "/", kind: "page" },
+  { label: "Exercise Walkthrough", description: "Nine-stage integrated CipherCop simulation", href: "/demo", kind: "page" },
   { label: "Incident Registry", description: "Search, sort and filter exercise incidents", href: "/incidents", kind: "page" },
   { label: "Source Freshness", description: "Inspect delayed and missing synthetic data feeds", href: "/sources", kind: "page" },
   { label: "DataFusion Replay", description: "Review synthetic ingestion, duplicates and quarantine", href: "/ingestion", kind: "page" },
   { label: "Model Evaluation Lab", description: "Synthetic holdout metrics, calibration and limitations", href: "/model-lab", kind: "page" },
   { label: "Approval Workbench", description: "Authenticated maker-checker workflow", href: "/approvals", kind: "page" },
+  { label: "AgencySync Tasks", description: "Fictional acknowledgements and department timelines", href: "/agency-sync", kind: "page" },
   { label: "Response Playbooks", description: "Emergency exercise procedures", href: "/playbooks", kind: "page" },
   { label: "Administration", description: "Policy and integration previews", href: "/admin", kind: "page" },
   { label: "Self Help & FAQ", description: "Guides, shortcuts, troubleshooting and AI explanations", href: "/help", kind: "page" },
 ];
-const icons = [LayoutDashboard, Activity, RadioTower, Workflow, BrainCircuit, ClipboardCheck, BookOpenCheck, Settings2, LifeBuoy];
+const icons = [LayoutDashboard, Route, Activity, RadioTower, Workflow, BrainCircuit, ClipboardCheck, UsersRound, BookOpenCheck, Settings2, LifeBuoy];
 const searchUrl = (term: string) => "/incidents?q=" + encodeURIComponent(term);
 
 export function GlobalSearch() {
