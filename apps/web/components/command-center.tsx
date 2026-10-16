@@ -64,6 +64,7 @@ export function CommandCenter() {
           <h3 className="mt-3 text-sm font-bold">{selected.hazard_type}</h3>
           <p className="mt-2 text-xs text-muted">ID {selected.id.slice(0,8)} · {selected.lat.toFixed(4)}, {selected.lon.toFixed(4)}</p>
           <p className="mt-2 text-xs text-muted">Synthetic record. Operational actions are disabled.</p>
+          <Link href={"/incidents/" + selected.id} className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline">Open intelligence workspace <ArrowRight size={14}/></Link>
         </div></div>}
       </section>
     </div>

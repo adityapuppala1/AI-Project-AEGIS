@@ -164,3 +164,27 @@ The Compose `migrate` service automatically applies the new idempotent
 volume is already initialized. Do **not** run `docker compose down -v`
 for routine upgrades. This branch is exercise-only; no live alerts, dispatch
 or real-model inference are connected.
+
+
+## Incident Intelligence development branch
+
+To inspect the source provenance and chronology milestone after saving any
+uncommitted changes:
+
+```powershell
+git fetch origin
+git switch feat/incident-intelligence-workspace
+docker compose down
+docker compose up --build -d
+docker compose ps
+```
+
+The added `005_incident_intelligence.sql` migration and
+`seed_intelligence.sql` run idempotently in fresh and existing local volumes.
+Do not reset the PostgreSQL volume just to adopt these additions.
+
+The sample case page is
+`http://localhost:3000/incidents/22222222-2222-4222-8222-222222222222`.
+The evidence and timeline are simulated, NOT field-verified observations or
+secure production audit records. See
+[Incident Intelligence Workspace](INCIDENT_INTELLIGENCE_WORKSPACE.md).

@@ -134,3 +134,25 @@ accuracy claims. Never allow an LLM to invoke live dispatch or warning APIs.
   explainability console, real-time event streams and approved feeds.
 - CI is manual/ready-for-review only; run one combined validation milestone,
   not per-commit GitHub Action runs. All code stays in user's sole repo.
+
+
+## Incident Intelligence milestone — implementation status
+
+The branch `feat/incident-intelligence-workspace` implements:
+- A detailed, mobile-responsive incident workspace with live PostGIS **exercise**
+  case metadata, map marker, source provenance and synthetic timeline tabs.
+- Explicit absence of any validated AI prediction rather than fabricated
+  confidence values or made-up response actions.
+- Read-only, UUID-validated `/v1/exercise/incidents/{id}` API with bounded
+  50-source/100-event records and 404/422 handling.
+- Named synthetic source/time records and idempotent migration/seed.
+- Safer public exercise query isolation via `is_exercise_fixture` and
+  hard-coded demo agency constraints.
+- Direct links from command palette, case grid, and Command Center map/feed,
+  plus synthetic bookmarkable filter views.
+
+The workspace remains an **exercise-only** UX; future encrypted evidence files,
+real agency ABAC, accurate weather sources, trained models, and live multi-agency
+coordination are outside this implementation.
+
+See [feature-specific contract](INCIDENT_INTELLIGENCE_WORKSPACE.md).

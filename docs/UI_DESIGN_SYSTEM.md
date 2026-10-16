@@ -57,3 +57,15 @@ Current branch: `feat/ux-discovery-data-grid`.
 
 See [Magic UI review](MAGIC_UI_FEASIBILITY.md) and
 [full UX interaction roadmap](UX_INTERACTION_ROADMAP.md).
+
+
+## Detailed Incident Experience
+
+The Incident Intelligence workspace follows the same tokens and responsive
+layout, with clear simulated-data banners and tab-like category buttons for
+source manifests, historical event chronology, and AI transparency. The
+interface exposes observed/ingested times, ingestion delay, fixture provenance,
+and explicit model-absence and action-disablement states. Critical text does
+not depend on color or motion. Real evidentiary-chain and encrypted-media
+workflows remain separate milestones. See
+[Incident Intelligence Workspace](INCIDENT_INTELLIGENCE_WORKSPACE.md).
