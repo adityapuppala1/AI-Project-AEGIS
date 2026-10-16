@@ -26,7 +26,8 @@ def incident_workspace(incident_id: UUID) -> dict | None:
             cur.execute(
                 """SELECT id::text, hazard_type, status, created_at,
                           ST_Y(location) AS lat, ST_X(location) AS lon
-                   FROM incidents WHERE id = %s AND agency_id = %s""",
+                   FROM incidents WHERE id = %s AND agency_id = %s
+                     AND is_exercise_fixture IS TRUE""",
                 (str(incident_id), str(DEMO_AGENCY)),
             )
             incident = cur.fetchone()
