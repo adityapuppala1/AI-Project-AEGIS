@@ -16,7 +16,9 @@
     "maplibre-gl": "^5.6.2",
     "next-themes": "^0.4.6",
     "recharts": "^2.15.4",
-    "clsx": "^2.1.1"
+    "clsx": "^2.1.1",
+    "jose": "^5.9.6",
+    "server-only": "0.0.1"
   },
   "devDependencies": {
     "typescript": "^5.9.3",
