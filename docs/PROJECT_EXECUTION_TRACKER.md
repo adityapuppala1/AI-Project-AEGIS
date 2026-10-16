@@ -159,3 +159,12 @@ closed on unrecognized quality fields.
 requested. The CI policy remains opt-in, so the new branch is **unverified
 by CI** until a local run or explicit later review. Time entries and CI
 outcome must be added from GitHub metadata, not invented.
+
+
+## PR #20 — assessment observation-time provenance
+
+Branch `fix/assessment-source-provenance` adds fail-closed timestamp
+validation for current curated synthetic sources and tests missing/naive/
+future-dated observation values. This is a backend integration hardening
+change built on PR #19. **CI deliberately not triggered** due to budget limits;
+local run remains pending. PR is draft, no merge to `main`.

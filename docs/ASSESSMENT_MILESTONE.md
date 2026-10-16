@@ -123,3 +123,14 @@ the outcome. Unknown evidence-quality values fail closed.
 A curated exercise fixture only means prepared simulation data; it does
 **not** mean real-world verification. There remains no calibrated flood
 probability, actual impact conclusion, live action or operator approval.
+
+
+## Freshness provenance follow-up
+
+The current-source check now rejects a bare `fresh` status unless the source
+also has a timezone-aware `observed_at`, evaluated against the timezone-aware
+`as_of` reference time from the PostGIS source query. Malformed, missing,
+timezone-naive and implausibly future-dated (>120 seconds) observations fail
+closed. The check does not override the underlying source freshness classifier
+or claim actual sensor verification. This prevents incomplete simulated source
+data from satisfying the curated evidence review gate.
