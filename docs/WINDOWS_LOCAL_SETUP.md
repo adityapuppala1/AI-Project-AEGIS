@@ -360,3 +360,21 @@ The authenticated API is
 through protected `GET /api/proposals/incidents`. No access tokens are
 returned to browser JavaScript. Real IdP/MFA testing and two-user
 independent checker verification remain required before pilot use.
+
+
+## Avoid GitHub Actions charges when checking code
+
+On branch `chore/opt-in-ci-and-gates`, run targeted local Python and
+TypeScript checks without contacting GitHub Actions:
+
+```powershell
+git fetch origin
+git switch chore/opt-in-ci-and-gates
+powershell -ExecutionPolicy Bypass -File .\scripts\verify-code-local.ps1 -Suite api
+powershell -ExecutionPolicy Bypass -File .\scripts\verify-code-local.ps1 -Suite web
+```
+
+These commands require installed local Python API dependencies and existing
+`apps/web/node_modules`. Pass `-ProductionBuild` to explicitly run the
+more expensive frontend production build locally. They do not replace the
+separate PostGIS/browser E2E tests. See [CI Cost Policy](CI_COST_POLICY.md).

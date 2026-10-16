@@ -302,3 +302,23 @@ demonstration registry. Signed-out users cannot query eligible approval
 incidents. On failed refresh or session loss, stale selector choices are
 cleared. This closes a cross-module consistency issue; live government
 warnings and dispatch remain disabled.
+
+
+## GitHub Actions: strict opt-in to conserve minutes
+
+The `chore/opt-in-ci-and-gates` milestone changes CI to **explicit invocation
+only** on this feature branch. A routine push, draft PR, or ready-for-review
+event does not start Python/Next.js builds. To intentionally run only the API
+checks, add the `ci:api` label to the PR; `ci:web` runs frontend only,
+and `ci:all` runs both. Full Docker Compose remains separate manual-only.
+
+Prefer local verification first:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\verify-code-local.ps1 -Suite api
+powershell -ExecutionPolicy Bypass -File .\scripts\verify-code-local.ps1 -Suite web
+```
+
+Read [CI Cost Policy](docs/CI_COST_POLICY.md). This policy has not been merged
+into `main`, so older feature branches still have their original workflow
+until reviewed/updated; avoid marking old PRs ready for review for now.
