@@ -41,7 +41,8 @@ Assert-True ($report.checks.real_integrations_connected -eq $false) "No real dat
 
 $expected = @{
   incidents = 5; sources = 4; source_samples = 24;
-  timeline_events = 7; evidence = 5; geo_assets = 5
+  timeline_events = 7; evidence = 5; geo_assets = 5;
+  agency_tasks = 7; agency_task_events = 13
 }
 foreach ($key in $expected.Keys) {
   $actual = $report.fixture_counts.$key
@@ -64,6 +65,12 @@ Assert-True ($source.source -eq "synthetic_exercise" -and $source.real_connector
 $model = Get-Json "http://localhost:8000/v1/exercise/model-lab/report"
 Assert-True ($model.source -eq "synthetic_generated_fixture" -and $model.calibrated_real_world_probability -eq $false) "Model lab remains offline synthetic"
 
+$agencyTasks = Get-Json "http://localhost:8000/v1/exercise/agency-tasks?limit=50"
+Assert-True ($agencyTasks.source -eq "synthetic_exercise" -and $agencyTasks.outbound_messages_sent -eq $false) "No real department messages sent"
+Assert-True ($agencyTasks.returned -ge 7 -and $agencyTasks.acknowledgements_are_scripted -eq $true) "Fictional task board seeded"
+$task = Get-Json "http://localhost:8000/v1/exercise/agency-tasks/f6000000-0000-4000-8000-000000000001"
+Assert-True ($task.source -eq "synthetic_exercise" -and $task.events.Count -ge 2) "Scripted acknowledgement audit trail"
+
 $ingest = Get-Json "http://localhost:8000/v1/exercise/ingestion/status"
 Assert-True ($ingest.mode -eq "synthetic_exercise" -and $ingest.live_ingestion_enabled -eq $false) "No external ingestion route"
 
@@ -72,6 +79,8 @@ Check-Status "http://localhost:3000/incidents" @("200") "Incident Registry page"
 Check-Status "http://localhost:3000/incidents/$incident" @("200") "Incident Intelligence page"
 Check-Status "http://localhost:3000/sources" @("200") "Source Health page"
 Check-Status "http://localhost:3000/model-lab" @("200") "Model Evaluation Lab page"
+Check-Status "http://localhost:3000/agency-sync" @("200") "Fictional AgencySync page"
+Check-Status "http://localhost:3000/demo" @("200") "Guided CipherCop exercise"
 Check-Status "http://localhost:3000/ingestion" @("200") "Ingestion Monitor page"
 Check-Status "http://localhost:3000/approvals" @("200") "Exercise Approvals page renders without unauthorized login"
 Check-Status "http://localhost:3000/help" @("200") "Help Center page"
