@@ -55,7 +55,9 @@ def check_record(raw: object, *, as_of: datetime) -> tuple[ExerciseObservationV1
         payload = ExerciseObservationV1.model_validate_json(json.dumps(raw))
     except (ValueError, TypeError):
         return None, "invalid_contract"
-    if payload.observed_at > as_of.astimezone(timezone.utc) + FUTURE_TOLERANCE:
+    # SQLite/PostgreSQL sample storage requires ingested_at >= observed_at.
+    # Fail closed for any future observation rather than writing future-dated samples.
+    if payload.observed_at > as_of.astimezone(timezone.utc):
         return None, "future_observation"
     return payload, None
 
