@@ -163,3 +163,24 @@ def exercise_stack_readiness():
     if report["status"] != "ready":
         raise HTTPException(status_code=503, detail=report)
     return report
+
+
+@app.get("/v1/exercise/agency-tasks")
+def list_synthetic_agency_tasks(
+    incident_id: UUID | None = None,
+    state: Literal["prepared", "acknowledged", "closed"] | None = None,
+    limit: int = Query(default=50, ge=1, le=50),
+):
+    """Read-only fictional AgencySync exercise tasks; never dispatches."""
+    from app.agency_sync_store import agency_task_board
+    return agency_task_board(incident_id=incident_id, state=state, limit=limit)
+
+
+@app.get("/v1/exercise/agency-tasks/{task_id}")
+def synthetic_agency_task_history(task_id: UUID):
+    """Scripted exercise acknowledgements, not real inter-agency messages."""
+    from app.agency_sync_store import agency_task_detail
+    detail = agency_task_detail(task_id)
+    if detail is None:
+        raise HTTPException(status_code=404, detail="Synthetic task not found")
+    return detail
