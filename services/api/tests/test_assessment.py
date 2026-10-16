@@ -28,8 +28,10 @@ def demo_inputs():
         "actual_asset_impact_known": False,
         "operational_actions_enabled": False,
         "radius_m": 3000,
+        "as_of": "2026-10-16T17:00:00+00:00",
         "nearby_sources": [
-            {"synthetic": True, "freshness": "fresh", "quality_status": "synthetic_curated"},
+            {"synthetic": True, "freshness": "fresh", "quality_status": "synthetic_curated",
+             "observed_at": "2026-10-16T16:55:00+00:00"},
             {"synthetic": True, "freshness": "stale", "quality_status": "synthetic_unverified"},
         ],
         "nearby_assets": [{"synthetic": True, "impact_status": "not_assessed"}],
@@ -154,3 +156,25 @@ def test_unknown_case_evidence_quality_fails_closed():
     case["evidence"][0]["quality_status"] = "official_verified"
     with pytest.raises(ValueError, match="Unknown or non-synthetic evidence"):
         evaluate_readiness(case, geo)
+
+
+@pytest.mark.parametrize("mutation", [
+    lambda c,g: g.pop("as_of"),
+    lambda c,g: g.update(as_of="not-a-date"),
+    lambda c,g: g.update(as_of="2026-10-16T17:00:00"),
+    lambda c,g: g["nearby_sources"][0].pop("observed_at"),
+    lambda c,g: g["nearby_sources"][0].update(observed_at="invalid"),
+    lambda c,g: g["nearby_sources"][0].update(observed_at="2026-10-16T16:55:00"),
+    lambda c,g: g["nearby_sources"][0].update(observed_at="2026-10-16T17:30:00+00:00"),
+])
+def test_fresh_simulated_sources_require_valid_clock_provenance(mutation):
+    case, geo = demo_inputs()
+    mutation(case, geo)
+    with pytest.raises(ValueError):
+        evaluate_readiness(case, geo)
+
+
+def test_utc_timestamp_offsets_are_normalized_for_comparison():
+    case, geo = demo_inputs()
+    geo["nearby_sources"][0]["observed_at"] = "2026-10-16T22:25:00+05:30"
+    assert evaluate_readiness(case, geo)["curated_current_sources"] == 1
