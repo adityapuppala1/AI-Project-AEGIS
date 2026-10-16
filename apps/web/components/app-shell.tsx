@@ -48,7 +48,7 @@ export function AppShell({ children, title, description }: { children: ReactNode
     <div className="min-h-screen lg:flex">
       <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:rounded-lg focus:bg-surface focus:p-3">Skip to content</a>
       {menuOpen && <button className="fixed inset-0 z-30 bg-black/60 lg:hidden" aria-label="Close navigation" onClick={() => setMenuOpen(false)} />}
-      <aside className={`fixed inset-y-0 left-0 z-40 flex w-[264px] flex-col border-r border-stroke bg-surface transition-transform duration-200 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${menuOpen ? "translate-x-0" : "-translate-x-full"}`}>
+      <aside className={`fixed inset-y-0 left-0 z-40 flex w-[264px] flex-col overflow-y-auto border-r border-stroke bg-surface transition-transform duration-200 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${menuOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex h-20 items-center justify-between border-b border-stroke px-6">
           <Link href="/" className="flex items-center gap-3" aria-label="AEGIS home">
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/15 text-accent"><Command size={22}/></span>
