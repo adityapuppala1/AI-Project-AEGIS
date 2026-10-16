@@ -1,5 +1,6 @@
 import { AppShell } from "../../components/app-shell";
 import { DemoJourney } from "../../components/demo-journey";
+import { RiskExercisePanel } from "../../components/risk-exercise-panel";
 
 export const dynamic = "force-dynamic";
 const CASE = "22222222-2222-4222-8222-222222222222";
@@ -56,5 +57,6 @@ export default async function ExerciseWalkthroughPage() {
   return <AppShell title="CipherCop Exercise Walkthrough"
     description="Follow one transparent, end-to-end urban-waterlogging scenario through evidence, uncertainty, human governance and fictional agency follow-up.">
     <DemoJourney snapshot={snapshot}/>
+    <RiskExercisePanel/>
   </AppShell>;
 }
