@@ -277,3 +277,26 @@ The new module requires no additional packages, database migrations, live
 data feeds or paid cloud resources. There is no actual hazard prediction
 endpoint or real emergency dispatch.
 Read [Model Lab methodology and limitations](MODEL_EVALUATION_LAB.md).
+
+
+## Unified synthetic incident assessment milestone
+
+After saving any uncommitted local edits, run:
+
+```powershell
+git fetch origin
+git switch feat/assessment-integration-v1
+docker compose down
+docker compose up --build -d
+docker compose ps
+```
+
+At `http://localhost:3000/incidents/22222222-2222-4222-8222-222222222222`,
+the new Human Assessment Readiness panel provides explanation codes,
+source freshness counts and a **human-only** evidence checklist. Its
+read-only endpoint is
+`/v1/exercise/incidents/{id}/readiness?radius_m=3000`.
+
+No extra database migrations, runtime dependencies, provider setup or paid
+services are required for this milestone. This is not real emergency advice.
+See [assessment safety contract](ASSESSMENT_MILESTONE.md).
