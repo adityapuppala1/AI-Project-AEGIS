@@ -102,6 +102,16 @@ def evaluate_readiness(case: dict, nearby: dict) -> dict:
         if calculated["status"] != source["freshness"]:
             raise ValueError("Exercise source freshness conflicts with its timestamps")
 
+    def verified_exercise_id(value: object, kind: str) -> str:
+        if not isinstance(value, str):
+            raise ValueError("Missing synthetic " + kind + " reference")
+        try:
+            return str(UUID(value))
+        except ValueError as exc:
+            raise ValueError("Invalid synthetic " + kind + " reference") from exc
+
+    source_refs = [verified_exercise_id(item.get("id"), "source") for item in sources]
+    evidence_refs = [verified_exercise_id(item.get("id"), "evidence") for item in evidence]
     counts = Counter(item["freshness"] for item in sources)
     reasons = []
     if not sources:
@@ -160,6 +170,15 @@ def evaluate_readiness(case: dict, nearby: dict) -> dict:
         "synthetic_evidence_records": len(evidence),
         "curated_current_sources": curated_fresh,
         "curated_evidence_records": curated_evidence,
+        "playbook": {
+            "version": "AEGIS-URBAN-FLOOD-EXERCISE-v0.1",
+            "status": "illustrative_not_approved_operational_sop",
+            "step_refs": ["URB-01", "URB-02", "URB-03", "URB-04", "URB-05"],
+            "synthetic_evidence_ids": sorted(set(evidence_refs))[:50],
+            "synthetic_source_ids": sorted(set(source_refs))[:20],
+            "generated_by": "deterministic_exercise_checklist_not_ai_forecast",
+            "operational_actions_enabled": False,
+        },
         "reasons": reasons,
         "recommendation_draft": [
             "Verify exercise evidence, observation timestamps and quality labels. Request independent corroboration for missing or stale observations.",
