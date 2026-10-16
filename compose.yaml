@@ -13,6 +13,7 @@ services:
       - ./db/migrations/004_incident_search.sql:/docker-entrypoint-initdb.d/017-incident-search.sql:ro
       - ./db/migrations/005_incident_intelligence.sql:/docker-entrypoint-initdb.d/018-incident-intelligence.sql:ro
       - ./db/migrations/006_exercise_source_health.sql:/docker-entrypoint-initdb.d/019-source-health.sql:ro
+      - ./db/migrations/007_exercise_ingestion.sql:/docker-entrypoint-initdb.d/020-exercise-ingestion.sql:ro
       - ./db/seed_intelligence.sql:/docker-entrypoint-initdb.d/03-intelligence-seed.sql:ro
       - ./db/seed_sources.sql:/docker-entrypoint-initdb.d/04-source-seed.sql:ro
       - ./db/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
@@ -34,10 +35,11 @@ services:
       - ./db/migrations/004_incident_search.sql:/incident-search.sql:ro
       - ./db/migrations/005_incident_intelligence.sql:/incident-intelligence.sql:ro
       - ./db/migrations/006_exercise_source_health.sql:/source-health.sql:ro
+      - ./db/migrations/007_exercise_ingestion.sql:/ingestion.sql:ro
     depends_on:
       db:
         condition: service_healthy
-    command: ["sh", "-c", "psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /migration.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /identity-scopes.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /incident-search.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /incident-intelligence.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /source-health.sql"]
+    command: ["sh", "-c", "psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /migration.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /identity-scopes.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /incident-search.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /incident-intelligence.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /source-health.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /ingestion.sql"]
     restart: "no"
   seed:
     image: postgis/postgis:16-3.4
