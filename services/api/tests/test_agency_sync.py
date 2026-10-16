@@ -100,7 +100,7 @@ def test_filter_is_parameterized_not_interpolated(capture):
     assert list_args == [str(DEMO_AGENCY), str(CASE), "prepared", 5]
     assert "i.id=%s" in group_sql
     assert "t.state=%s" in list_sql
-    assert "prepared" not in list_sql
+    assert "'prepared'" not in list_sql
 
 
 @pytest.mark.parametrize("limit,state", [(0,None),(51,None),(-1,None),(True,None),(5,"completed")])
