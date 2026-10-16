@@ -104,3 +104,28 @@ after review validation. Windows device testing remains pending while
 | [#16](https://github.com/adityapuppala1/AI-Project-AEGIS/pull/16) — read-only unique-approval, checker-trigger and GIS-index preflight | 17 Oct 00:12:35 | 17 Oct 00:13:49 | **1m 14s** | [139 API tests, model report, web build and Compose manifest passed](https://github.com/adityapuppala1/AI-Project-AEGIS/actions/runs/38949615398) |
 
 This is a **Git commit window**, not an estimate of actual labor. PR #16 is a stacked draft, not merged into `main`. The optional full Docker/Windows integration audit remains pending; the connected Windows device is offline. No multi-agent execution capability is exposed in the connected tools, so no separate autonomous agents were launched.
+
+
+## Approval incident scope P0 regression fix (PR #17 scope)
+
+Branch `fix/agency-scoped-approval-incidents` connects the authenticated
+Approval Workbench incident selector to a signed-agency synthetic-only API
+rather than the public command-center list. It enforces roles, the
+`is_exercise_fixture` marker, parameterized agency queries and clears
+stale UI results after auth/refresh failure. Tests cover no IdP, role
+denial and cross-agency query scope.
+
+Milestone time and CI result will be recorded from GitHub after review.
+This is **not** a substitute for real OIDC integration testing.
+
+## PR #17 — agency-scoped Approval Workbench selector (verified)
+
+| Milestone | First commit (IST) | Last implementation commit (IST) | Commit window | Validation |
+|---|---|---|---|---|
+| [#17](https://github.com/adityapuppala1/AI-Project-AEGIS/pull/17) — authenticated proposal incident discovery and stale-choice cleanup | 17 Oct 00:24:16 | 17 Oct 00:26:26 | **2m 10s** | [143 API tests, reproducible model artifact, frontend/Compose checks passed](https://github.com/adityapuppala1/AI-Project-AEGIS/actions/runs/38951230417) |
+
+This is a *Git commit interval*, not total engineering time. CI validated the
+implementation commit `d9b4a334bacbd186d91ad5e9632d5ce0ec03a629`;
+this tracker-only change intentionally does not rerun CI. PR remains a
+stacked draft and has not been merged to `main`. Real IdP MFA,
+two-operator browser tests and Windows Docker verification remain pending.

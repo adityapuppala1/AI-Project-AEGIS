@@ -129,3 +129,22 @@ API CI remains lightweight and does **not** start Docker automatically.
 The audit does **not** replace an authenticated two-operator OIDC workflow,
 Postgres integration testing, security review, or evidence of operational
 readiness. Do not merge draft PRs until those gates are cleared.
+
+
+## Approval workbench agency-scoped incident discovery
+
+The browser Approval Workbench must never populate its incident selector
+from the public exercise registry after an OIDC login. Its source is now
+`GET /api/proposals/incidents`, which uses the short-lived encrypted,
+HttpOnly operator session and sends the bearer token **server-side** only
+to `GET /v1/exercise/proposals/incidents`. FastAPI verifies the signed
+agency ID and appropriate role. Database SQL checks both
+`agency_id` and `is_exercise_fixture IS TRUE` with a hard result cap.
+A user from another agency receives an empty eligible list rather than
+the public demonstration cases.
+
+The workbench also clears the cached selector and proposals after logout,
+failed refresh, or an invalidated agency selection. API tests cover
+anonymous/role-denied results and agency-bound SQL. This work does not
+provision a real IdP or enable real operations. Manual IdP browser E2E
+with multiple independently authenticated operators is still required.

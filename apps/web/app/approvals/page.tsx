@@ -49,19 +49,20 @@ export default function ApprovalWorkbench() {
       const sessionResponse = await fetch("/api/auth/session", { cache: "no-store" });
       const session = await sessionResponse.json() as AuthState;
       setAuth(session);
-      if (!session.authenticated) { setProposals([]); return; }
+      if (!session.authenticated) { setProposals([]); setIncidents([]); setSelectedIncident(""); return; }
       const [casesResponse, approvalsResponse] = await Promise.all([
-        fetch("/api/incidents", { cache: "no-store" }),
+        fetch("/api/proposals/incidents", { cache: "no-store", credentials: "same-origin" }),
         fetch("/api/proposals", { cache: "no-store" }),
       ]);
       if (!casesResponse.ok || !approvalsResponse.ok) throw new Error("Could not load agency proposals");
       const cases: Incident[] = await casesResponse.json();
       const tasks: Proposal[] = await approvalsResponse.json();
       setIncidents(cases);
-      setSelectedIncident(current => current || cases[0]?.id || "");
+      setSelectedIncident(current => cases.some(item => item.id === current) ? current : cases[0]?.id || "");
       setProposals(tasks);
       setError("");
     } catch (cause) {
+      setIncidents([]); setSelectedIncident(""); setProposals([]);
       setError(cause instanceof Error ? cause.message : "Exercise service unavailable");
     } finally { setLoading(false); }
   }, []);

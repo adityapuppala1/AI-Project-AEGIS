@@ -135,3 +135,22 @@ def list_proposals(agency_id: UUID):
             )
             rows = cur.fetchall()
     return [_convert(row) for row in rows]
+
+
+def list_agency_exercise_incidents(agency_id: UUID) -> list[dict]:
+    """Only signed-agency synthetic cases can appear in maker/checker forms.
+
+    Do not reuse the unauthenticated public demo incident feed here: an
+    operator in another agency must not be offered cases they cannot manage.
+    """
+    with psycopg.connect(os.environ["DATABASE_URL"], row_factory=dict_row) as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """SELECT id::text, hazard_type, status, created_at
+                   FROM incidents
+                   WHERE agency_id=%s AND is_exercise_fixture IS TRUE
+                   ORDER BY created_at DESC, id ASC LIMIT 100""",
+                (str(agency_id),),
+            )
+            rows = cur.fetchall()
+    return [_convert(row) for row in rows]
