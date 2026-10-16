@@ -31,8 +31,13 @@ def demo_inputs():
         "as_of": "2026-10-16T17:00:00+00:00",
         "nearby_sources": [
             {"synthetic": True, "freshness": "fresh", "quality_status": "synthetic_curated",
-             "observed_at": "2026-10-16T16:55:00+00:00"},
-            {"synthetic": True, "freshness": "stale", "quality_status": "synthetic_unverified"},
+             "observed_at": "2026-10-16T16:55:00+00:00",
+             "ingested_at": "2026-10-16T16:56:00+00:00",
+             "expected_interval_seconds": 900, "warning_multiplier": 1.5, "stale_multiplier": 4.0},
+            {"synthetic": True, "freshness": "stale", "quality_status": "synthetic_unverified",
+             "observed_at": "2026-10-15T10:00:00+00:00",
+             "ingested_at": "2026-10-15T10:02:00+00:00",
+             "expected_interval_seconds": 1800, "warning_multiplier": 1.5, "stale_multiplier": 4.0},
         ],
         "nearby_assets": [{"synthetic": True, "impact_status": "not_assessed"}],
     }
@@ -56,6 +61,8 @@ def test_human_checklist_never_claims_real_risk_or_operation():
 def test_no_fresh_sources_requires_more_context():
     case, geo = demo_inputs()
     geo["nearby_sources"][0]["freshness"] = "delayed"
+    geo["nearby_sources"][0]["observed_at"] = "2026-10-16T16:30:00+00:00"
+    geo["nearby_sources"][0]["ingested_at"] = "2026-10-16T16:32:00+00:00"
     result = evaluate_readiness(case, geo)
     assert result["context_state"] == "insufficient_simulated_context"
     assert any(r["code"] == "no_current_simulated_samples" for r in result["reasons"])
@@ -178,3 +185,31 @@ def test_utc_timestamp_offsets_are_normalized_for_comparison():
     case, geo = demo_inputs()
     geo["nearby_sources"][0]["observed_at"] = "2026-10-16T22:25:00+05:30"
     assert evaluate_readiness(case, geo)["curated_current_sources"] == 1
+
+
+@pytest.mark.parametrize("mutation", [
+    lambda g: g["nearby_sources"][0].update(freshness="fresh", observed_at="2026-10-15T16:55:00+00:00"),
+    lambda g: g["nearby_sources"][0].update(freshness="stale"),
+    lambda g: g["nearby_sources"][0].pop("expected_interval_seconds"),
+    lambda g: g["nearby_sources"][0].update(warning_multiplier=100),
+    lambda g: g["nearby_sources"][0].update(stale_multiplier=float("nan")),
+    lambda g: g["nearby_sources"][0].pop("ingested_at"),
+    lambda g: g["nearby_sources"][0].update(ingested_at="2026-10-16T16:54:00+00:00"),
+    lambda g: g["nearby_sources"][0].update(ingested_at="2026-10-16T17:45:00+00:00"),
+])
+def test_claimed_source_freshness_must_match_observation_and_thresholds(mutation):
+    case, geographic = demo_inputs()
+    mutation(geographic)
+    with pytest.raises(ValueError):
+        evaluate_readiness(case, geographic)
+
+
+def test_truthful_delayed_reading_is_insufficient_but_not_malformed():
+    case, geographic = demo_inputs()
+    geographic["nearby_sources"][0]["freshness"] = "delayed"
+    geographic["nearby_sources"][0]["observed_at"] = "2026-10-16T16:30:00+00:00"
+    geographic["nearby_sources"][0]["ingested_at"] = "2026-10-16T16:32:00+00:00"
+    result = evaluate_readiness(case, geographic)
+    assert result["context_state"] == "insufficient_simulated_context"
+    assert result["curated_current_sources"] == 0
+    assert result["source_freshness_counts"]["delayed"] == 1
