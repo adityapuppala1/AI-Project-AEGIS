@@ -40,7 +40,7 @@ def create_proposal(
         with conn.cursor(row_factory=dict_row) as cur:
             # Agency filtering is also enforced here, not only in FastAPI.
             cur.execute(
-                "SELECT id FROM incidents WHERE id=%s AND agency_id=%s",
+                "SELECT id FROM incidents WHERE id=%s AND agency_id=%s AND is_exercise_fixture IS TRUE",
                 (incident_id, str(agency_id)),
             )
             if not cur.fetchone():
@@ -78,7 +78,7 @@ def transition(
                 """SELECT p.id::text, p.incident_id::text, p.maker_subject, p.action_type, p.status
                    FROM action_proposals AS p
                    JOIN incidents AS i ON i.id = p.incident_id
-                   WHERE p.id=%s AND i.agency_id=%s
+                   WHERE p.id=%s AND i.agency_id=%s AND i.is_exercise_fixture IS TRUE
                    FOR UPDATE OF p""",
                 (proposal_id, str(agency_id)),
             )
@@ -128,7 +128,7 @@ def list_proposals(agency_id: UUID):
                           p.action_type, p.proposal, p.status, p.created_at, p.updated_at
                    FROM action_proposals AS p
                    JOIN incidents AS i ON i.id = p.incident_id
-                   WHERE i.agency_id=%s
+                   WHERE i.agency_id=%s AND i.is_exercise_fixture IS TRUE
                    ORDER BY p.created_at DESC
                    LIMIT 100""",
                 (str(agency_id),),

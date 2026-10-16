@@ -300,3 +300,28 @@ read-only endpoint is
 No extra database migrations, runtime dependencies, provider setup or paid
 services are required for this milestone. This is not real emergency advice.
 See [assessment safety contract](ASSESSMENT_MILESTONE.md).
+
+
+## End-to-end P0 integration and nondestructive smoke
+
+From the project root, after saving your local uncommitted changes:
+
+```powershell
+git fetch origin
+git switch feat/integration-readiness-gates
+docker compose up --build -d
+docker compose ps
+docker compose exec -T api python -m app.doctor
+powershell -ExecutionPolicy Bypass -File .\scripts\verify-windows.ps1
+```
+
+Expected: the doctor reports `status=ready`; every smoke assertion passes.
+This does not run a simulation replay or write to PostgreSQL. It requires
+the containers to be running and verifies paths from the current stacked
+feature branch. When verification fails, review
+`docker compose logs --tail=120 db migrate seed api web`.
+
+**Never run `docker compose down -v`** during routine updates.
+The exercise public warning path must remain 403, and anonymous exercise
+proposals must remain 401/503. Full detail:
+[Integration Release Gates](INTEGRATION_RELEASE_GATES.md).

@@ -258,3 +258,26 @@ docker compose up --build -d
 
 See [Assessment architecture](docs/ASSESSMENT_MILESTONE.md) and
 [Execution tracker](docs/PROJECT_EXECUTION_TRACKER.md).
+
+
+## Integration Gate 0: read-only stack preflight
+
+The `feat/integration-readiness-gates` branch adds a database/fixture
+readiness checker and a nondestructive Windows smoke script. It also restricts
+the authenticated **exercise** maker-checker database queries to explicitly
+marked synthetic incidents.
+
+```powershell
+git fetch origin
+git switch feat/integration-readiness-gates
+docker compose up --build -d
+docker compose exec -T api python -m app.doctor
+powershell -ExecutionPolicy Bypass -File .\scripts\verify-windows.ps1
+```
+
+The checker verifies required migrations and minimum fixture counts but
+**does not validate real operational readiness**. The Windows script
+verifies major module endpoints, expected synthetic-only classification,
+and blocked real warning actions. Do not delete your local Postgres volume.
+
+See [Integrated acceptance gates](docs/INTEGRATION_RELEASE_GATES.md).

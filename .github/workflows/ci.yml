@@ -88,6 +88,59 @@ jobs:
           python -c 'import json; rows=json.load(open("/tmp/aegis-incidents.json")); assert len(rows)>=5, rows; print("Seeded exercise incidents:",len(rows))'
           curl -fsS http://127.0.0.1:3000/api/telemetry > /tmp/aegis-telemetry.json
           python -c 'import json; data=json.load(open("/tmp/aegis-telemetry.json")); assert data["source"]=="synthetic_fixture"'
+      - name: Exercise end-to-end schema and fixture checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker compose exec -T api python -m app.doctor
+          curl -fsS http://127.0.0.1:8000/v1/exercise/system/readiness > /tmp/aegis-ready.json
+          python - <<'PY'
+          import json
+          data=json.load(open("/tmp/aegis-ready.json"))
+          assert data["status"] == "ready", data
+          for name, minimum in {
+              "incidents": 5, "sources": 4, "source_samples": 24,
+              "timeline_events": 7, "evidence": 5, "geo_assets": 5,
+          }.items():
+              assert data["fixture_counts"][name] >= minimum, (name, data)
+          PY
+          curl -fsS http://127.0.0.1:8000/v1/exercise/model-lab/report > /tmp/aegis-model.json
+          python - <<'PY'
+          import json
+          data=json.load(open("/tmp/aegis-model.json"))
+          assert data["source"] == "synthetic_generated_fixture"
+          assert data["calibrated_real_world_probability"] is False
+          PY
+          curl -fsS http://127.0.0.1:3000/api/sources > /tmp/aegis-sources.json
+          python - <<'PY'
+          import json
+          data=json.load(open("/tmp/aegis-sources.json"))
+          assert data["source"] == "synthetic_exercise"
+          assert data["real_connectors_enabled"] is False
+          PY
+          curl -fsS "http://127.0.0.1:8000/v1/exercise/incidents/22222222-2222-4222-8222-222222222222/readiness" > /tmp/aegis-assessment.json
+          python - <<'PY'
+          import json
+          data=json.load(open("/tmp/aegis-assessment.json"))
+          assert data["real_world_risk_probability"] is None
+          assert data["operational_actions_enabled"] is False
+          PY
+          code=$(curl -sS -o /dev/null -w "%{http_code}" -X POST http://127.0.0.1:8000/v1/live/public-warning)
+          test "$code" = 403
+      - name: Verify replay idempotency in temporary CI volume
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker compose exec -T api python -m app.replay > /tmp/aegis-first-replay.json
+          docker compose exec -T api python -m app.replay > /tmp/aegis-repeat-replay.json
+          python - <<'PY'
+          import json
+          a=json.load(open("/tmp/aegis-first-replay.json"))
+          b=json.load(open("/tmp/aegis-repeat-replay.json"))
+          assert (a["accepted"], a["duplicate"], a["quarantined"]) == (3, 1, 5), a
+          assert (b["accepted"], b["duplicate"], b["quarantined"]) == (0, 4, 5), b
+          PY
+          docker compose exec -T api python -m app.doctor
       - name: Show diagnostics on failure
         if: failure()
         run: docker compose logs --tail=120

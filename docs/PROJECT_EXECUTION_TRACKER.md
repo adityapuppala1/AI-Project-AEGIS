@@ -59,3 +59,27 @@ P0 demo consolidation estimate **38–74 engineering hours**. Broader list estim
 ## Latest review gate
 
 PR #14 code SHA `c0683646b7f805d84b3c97e967d006298a03dc36` passed [GitHub Actions run 38946056929](https://github.com/adityapuppala1/AI-Project-AEGIS/actions/runs/38946056929) with **119 cumulative API tests**, reproducible model report, successful TypeScript/Next.js production build and Compose syntax. Full Docker integration remained skipped. This tracker update is documentation-only and intentionally did not retrigger CI. User's connected Windows device was offline when checked; real local E2E validation remains pending.
+
+
+## PR #15 — integration readiness verification
+
+| Milestone | First commit (IST) | Last implementation commit (IST) | Git commit window | CI verified |
+|---|---|---|---|---|
+| [#15](https://github.com/adityapuppala1/AI-Project-AEGIS/pull/15) — schema/fixture doctor, Windows smoke, synthetic governance guard | 16 Oct 23:57:15 | 17 Oct 00:01:59 | **4m 44s** | [135 API tests + model report + web build + Compose manifest](https://github.com/adityapuppala1/AI-Project-AEGIS/actions/runs/38948162732) |
+
+PRs #1–#15 span **5h 04m 01s** from the earliest #1 commit to the last #15 implementation commit (including gaps and excluding later tracking-only changes). Sum of individual PR implementation commit windows **1h 41m 23s**. These are **Git commit interval measurements**, not paid engineering hours or total time spent working. Docker/Windows end-to-end validation, OIDC integration and merges remain outstanding.
+
+## Integration hardening milestone (PR #15 scope)
+
+Branch `feat/integration-readiness-gates` adds:
+- read-only DB schema/migration/fixture preflight (CLI + GET-only endpoint);
+- per-module Windows smoke script that never drops/reseeds a volume;
+- maker-checker SQL synthetic-fixture guard on create/review/list;
+- scoped SQL and default-deny tests;
+- optional **manual-only** Docker end-to-end CI checks for preflight,
+  replay idempotency and absent real risk/action capabilities;
+- integration acceptance checklist for review and consolidation.
+
+Start/end UTC/IST and actual CI results must be updated only after
+GitHub records these events. Prior P0 effort estimates remain planning
+ranges and no real operational integration is certified.
