@@ -86,7 +86,7 @@ export function GlobalSearch() {
     const matches: CommandItem[] = incidents.map(item => ({
       label: item.hazard_type,
       description: "Synthetic case " + item.id.slice(0,8) + " · " + item.status,
-      href: searchUrl(item.hazard_type), kind: "incident",
+      href: "/incidents/" + item.id, kind: "incident",
     }));
     return [...matched, ...matches, ...(term ? [{
       label: 'Open full incident search: "' + query.trim().slice(0,70) + '"',
