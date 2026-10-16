@@ -26,6 +26,7 @@ export function GlobalSearch() {
   const [issue, setIssue] = useState(false);
   const [active, setActive] = useState(0);
   const input = useRef<HTMLInputElement>(null);
+  const dialog = useRef<HTMLElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const close = useCallback(() => {
     setOpen(false);
@@ -39,14 +40,21 @@ export function GlobalSearch() {
     const keyListener = (event: KeyboardEvent) => {
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
-        setOpen(state => !state);
-      } else if (event.key === "Escape") {
-        setOpen(false);
+        if (open) close(); else setOpen(true);
+      } else if (event.key === "Escape" && open) {
+        event.preventDefault();
+        close();
       }
     };
     window.addEventListener("keydown", keyListener);
     return () => window.removeEventListener("keydown", keyListener);
-  }, []);
+  }, [open, close]);
+  useEffect(() => {
+    if (!open) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = previous; };
+  }, [open]);
   useEffect(() => {
     if (open) {
       input.current?.focus();
@@ -92,8 +100,17 @@ export function GlobalSearch() {
     setOpen(false);setQuery("");setIncidents([]);setActive(0);
     router.push(href);
   }
+  function trapFocus(event: React.KeyboardEvent<HTMLElement>) {
+    if (event.key !== "Tab" || !dialog.current) return;
+    const targets = Array.from(dialog.current.querySelectorAll<HTMLElement>(':is(button, input, a[href]):not([disabled])'));
+    if (!targets.length) return;
+    const first = targets[0];
+    const last = targets[targets.length - 1];
+    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+  }
   function handleInputKey(event: React.KeyboardEvent<HTMLInputElement>) {
-    if (event.key === "ArrowDown") {event.preventDefault();setActive(index => Math.min(options.length - 1, index + 1));}
+    if (event.key === "ArrowDown") {event.preventDefault();setActive(index => Math.min(Math.max(0, options.length - 1), index + 1));}
     if (event.key === "ArrowUp") {event.preventDefault();setActive(index => Math.max(0,index - 1));}
     if (event.key === "Enter" && options[active]) { event.preventDefault();navigate(options[active].href); }
   }
@@ -104,7 +121,7 @@ export function GlobalSearch() {
     </button>
     {open && <div className="fixed inset-0 z-[100] flex items-start justify-center px-3 pt-[8vh] sm:pt-[14vh]">
       <button type="button" className="absolute inset-0 bg-[#07101c]/75 backdrop-blur-sm" aria-label="Close global search" onClick={close}/>
-      <section role="dialog" aria-modal="true" aria-label="AEGIS global search" className="relative z-10 w-full max-w-[650px] overflow-hidden rounded-2xl border border-stroke bg-surface shadow-2xl">
+      <section role="dialog" ref={dialog} onKeyDown={trapFocus} aria-modal="true" aria-label="AEGIS global search" className="relative z-10 w-full max-w-[650px] overflow-hidden rounded-2xl border border-stroke bg-surface shadow-2xl">
         <div className="flex items-center gap-3 border-b border-stroke px-4 py-3">
           <Command size={19} className="shrink-0 text-accent"/>
           <input ref={input} className="min-w-0 flex-1 border-0 bg-transparent py-2 text-sm text-ink outline-none placeholder:text-muted"
