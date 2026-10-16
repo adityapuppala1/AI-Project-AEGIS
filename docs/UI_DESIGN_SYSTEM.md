@@ -35,3 +35,25 @@ Do not introduce Three.js into primary operations screens unless a tested task (
 
 ## Production gaps
 The UI is not yet a certified emergency interface. Authentication, authorization, actual CAP integration, live hazard forecasting, map data governance, production monitoring, user acceptance tests and formal agency review remain future work.
+
+## Discovery and self-help milestone (October 2026)
+
+Current branch: `feat/ux-discovery-data-grid`.
+
+- **Incident Registry:** read-only backend-driven search, status filter, sortable
+  columns, page controls and 10/25/50 rows per page. Stale-data warnings and
+  accessible text summaries complement the table.
+- **Global search:** Ctrl/⌘+K opens keyboard-accessible navigation and
+  synthetic incident discovery; typed search is throttled and backend-sourced.
+  The palette is not a full government-wide indexed search system yet.
+- **Help Center:** `/help` features curated searchable FAQs, categories and
+  clear explanations of the prototype's AI and data limitations.
+- **Magic UI feasibility:** decorative components are optional. Original
+  `signal-surface` styling is used for the Help header and respects
+  reduced motion; no external Magic UI registry code has been installed.
+- **Scale:** query pagination uses validated sort allowlists and an idempotent
+  trigram index migration. Production full-text/faceted search, keyset
+  pagination and multi-tenant ABAC remain follow-up milestones.
+
+See [Magic UI review](MAGIC_UI_FEASIBILITY.md) and
+[full UX interaction roadmap](UX_INTERACTION_ROADMAP.md).
