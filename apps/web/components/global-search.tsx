@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { BookOpenCheck, ClipboardCheck, Command, LayoutDashboard, LifeBuoy, Search, Settings2, X, Activity, RadioTower, Workflow, BrainCircuit, Route, UsersRound } from "lucide-react";
+import { BookOpenCheck, ClipboardCheck, Command, LayoutDashboard, LifeBuoy, Search, Settings2, X, Activity, RadioTower, Workflow, BrainCircuit, Route, UsersRound, Archive } from "lucide-react";
 import type { Incident } from "../lib/types";
 
 type CommandItem = { label: string; description: string; href: string; kind: "page" | "incident" };
@@ -15,11 +15,12 @@ const pages: CommandItem[] = [
   { label: "Model Evaluation Lab", description: "Synthetic holdout metrics, calibration and limitations", href: "/model-lab", kind: "page" },
   { label: "Approval Workbench", description: "Authenticated maker-checker workflow", href: "/approvals", kind: "page" },
   { label: "AgencySync Tasks", description: "Fictional acknowledgements and department timelines", href: "/agency-sync", kind: "page" },
+  { label: "Audit360 Export", description: "Download bounded synthetic case provenance and checksum", href: "/audit", kind: "page" },
   { label: "Response Playbooks", description: "Emergency exercise procedures", href: "/playbooks", kind: "page" },
   { label: "Administration", description: "Policy and integration previews", href: "/admin", kind: "page" },
   { label: "Self Help & FAQ", description: "Guides, shortcuts, troubleshooting and AI explanations", href: "/help", kind: "page" },
 ];
-const icons = [LayoutDashboard, Route, Activity, RadioTower, Workflow, BrainCircuit, ClipboardCheck, UsersRound, BookOpenCheck, Settings2, LifeBuoy];
+const icons = [LayoutDashboard, Route, Activity, RadioTower, Workflow, BrainCircuit, ClipboardCheck, UsersRound, Archive, BookOpenCheck, Settings2, LifeBuoy];
 const searchUrl = (term: string) => "/incidents?q=" + encodeURIComponent(term);
 
 export function GlobalSearch() {
