@@ -1,8 +1,16 @@
 name: AEGIS CI
+# Budget-conscious CI: drafts and each intermediate commit do not automatically run CI.
+# Run quick checks once when a PR is marked ready for review, or manually.
 on:
-  push:
-    branches: [main]
   pull_request:
+    types: [ready_for_review]
+  workflow_dispatch:
+    inputs:
+      run_compose:
+        description: "Also run full Docker Compose integration smoke test (slower)"
+        type: boolean
+        required: true
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -31,6 +39,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+      - name: Cache frontend dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-aegis-${{ hashFiles('apps/web/package-lock.json', 'apps/web/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-aegis-
       - name: Install frontend dependencies
         run: npm install --no-audit --no-fund
       - name: Typecheck
@@ -38,6 +53,7 @@ jobs:
       - name: Production build
         run: npm run build
   compose-smoke:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_compose == true }}
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
