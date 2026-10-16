@@ -184,3 +184,13 @@ def synthetic_agency_task_history(task_id: UUID):
     if detail is None:
         raise HTTPException(status_code=404, detail="Synthetic task not found")
     return detail
+
+
+@app.get("/v1/exercise/incidents/{incident_id}/audit")
+def export_synthetic_incident_audit(incident_id: UUID):
+    """Unsigned, public-fixture Audit360 bundle; never includes private approvals."""
+    from app.audit360 import export_exercise_case
+    result = export_exercise_case(incident_id)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Synthetic incident audit not found")
+    return result
