@@ -3,6 +3,8 @@
 ALTER TABLE exercise_data_sources ADD COLUMN IF NOT EXISTS location GEOMETRY(Point,4326);
 CREATE INDEX IF NOT EXISTS exercise_data_sources_geom_idx
     ON exercise_data_sources USING GIST (location);
+CREATE INDEX IF NOT EXISTS exercise_data_sources_geography_idx
+    ON exercise_data_sources USING GIST ((location::geography));
 
 CREATE TABLE IF NOT EXISTS exercise_geo_assets (
     id UUID PRIMARY KEY,
@@ -15,5 +17,7 @@ CREATE TABLE IF NOT EXISTS exercise_geo_assets (
 );
 CREATE INDEX IF NOT EXISTS exercise_geo_assets_geom_idx
     ON exercise_geo_assets USING GIST (location);
+CREATE INDEX IF NOT EXISTS exercise_geo_assets_geography_idx
+    ON exercise_geo_assets USING GIST ((location::geography));
 CREATE INDEX IF NOT EXISTS exercise_geo_assets_agency_idx
     ON exercise_geo_assets (agency_id, asset_kind);
