@@ -217,3 +217,25 @@ The migration/seed scripts are additive/idempotent. Never run
 `docker compose down -v` casually. The Source Freshness screen is a
 synthetic observability prototype, not an operational flood warning feed.
 Read [the full runbook](SOURCE_HEALTH_OBSERVATORY.md).
+
+
+## CLI-only DataFusion replay (new branch)
+
+```powershell
+git fetch origin
+git switch feat/datafusion-exercise-ingestion
+docker compose down
+docker compose up --build -d
+docker compose ps
+powershell -ExecutionPolicy Bypass -File .\scripts\replay-windows.ps1
+```
+
+Navigate to `http://localhost:3000/ingestion`. No external sensor, drone or
+government API is connected, and replay is deliberately **not available as an
+unauthenticated browser POST**. The local container must be running to replay.
+Expected fresh-volume ledger: 3 accepted unique IDs, 5 quarantined unique
+fingerprints. All source readings remain historical synthetic samples.
+
+Migration 007 is additive and idempotent on existing volumes; do not run
+`docker compose down -v`. For detailed CLI, schema, validation, cost
+and security notes see [DataFusion Ingestion](DATAFUSION_INGESTION.md).
