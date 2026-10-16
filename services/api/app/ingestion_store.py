@@ -46,6 +46,8 @@ def replay_records(records: list[object], *, as_of: datetime | None = None) -> d
     results = Counter()
     with psycopg.connect(os.environ["DATABASE_URL"], row_factory=dict_row) as conn:
         with conn.cursor() as cur:
+            # Serialize concurrent local replays so event-id lookups remain atomic.
+            cur.execute("SELECT pg_advisory_xact_lock(4839418221)")
             for raw in records:
                 validated, problem = check_record(raw, as_of=clock)
                 if problem is not None:
