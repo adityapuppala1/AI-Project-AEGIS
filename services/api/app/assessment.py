@@ -4,6 +4,7 @@ No flood forecasting, numeric risk inference, real dispatch recommendations,
 real asset impact claims, or operational approval is generated here.
 """
 from collections import Counter
+from datetime import datetime, timedelta, timezone
 from uuid import UUID
 
 FRESHNESS = frozenset({"fresh", "delayed", "stale", "no_data", "clock_anomaly"})
@@ -51,6 +52,33 @@ def evaluate_readiness(case: dict, nearby: dict) -> dict:
         or assessment.get("status") != "not_assessed"
         or assessment.get("calibrated_probability") is not None):
         raise ValueError("Unvalidated incident-specific risk must remain unavailable")
+    # A "fresh" string cannot establish even simulated timeliness without
+    # an observed timestamp and a server-side reference clock. Reject missing,
+    # naive, malformed and implausibly future-dated timestamps.
+    reference_text = nearby.get("as_of")
+    if not isinstance(reference_text, str):
+        raise ValueError("Missing reference clock for simulated source provenance")
+    try:
+        reference = datetime.fromisoformat(reference_text.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise ValueError("Invalid simulated reference clock") from exc
+    if reference.tzinfo is None or reference.utcoffset() is None:
+        raise ValueError("Reference clock must be timezone aware")
+    for source in sources:
+        if source["freshness"] != "fresh":
+            continue
+        observed_text = source.get("observed_at")
+        if not isinstance(observed_text, str):
+            raise ValueError("Current exercise source requires an observed timestamp")
+        try:
+            observed = datetime.fromisoformat(observed_text.replace("Z", "+00:00"))
+        except ValueError as exc:
+            raise ValueError("Malformed current observation timestamp") from exc
+        if observed.tzinfo is None or observed.utcoffset() is None:
+            raise ValueError("Observation timestamp must include timezone")
+        if observed > reference + timedelta(seconds=120):
+            raise ValueError("Source observation exceeds allowed clock tolerance")
+
     counts = Counter(item["freshness"] for item in sources)
     reasons = []
     if not sources:
