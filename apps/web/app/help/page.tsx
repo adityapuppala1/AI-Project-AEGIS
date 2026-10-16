@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, BookOpenCheck, BrainCircuit, Database, Keyboard, LifeBuoy, LockKeyhole, Search, ShieldCheck, WifiOff } from "lucide-react";
+import { ArrowRight, BookOpenCheck, BrainCircuit, Database, Keyboard, LifeBuoy, LockKeyhole, Search, ShieldCheck } from "lucide-react";
 import { AppShell } from "../../components/app-shell";
 
 type Guide = {
@@ -98,7 +98,6 @@ export default function HelpPage() {
       <ShieldCheck className="mt-1 shrink-0 text-amber-500" size={18}/>
       <span>Emergency procedures must be approved by the responsible agency. These help articles describe a synthetic hackathon application and are not public emergency instructions.</span>
       <span className="ml-auto flex items-center gap-2"><Keyboard size={16}/> Ctrl/⌘ + K for global search</span>
-      <WifiOff className="hidden" size={1} aria-hidden="true"/>
     </div>
   </AppShell>;
 }
