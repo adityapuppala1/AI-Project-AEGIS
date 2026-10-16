@@ -113,3 +113,16 @@ def read_exercise_ingestion_status():
     """Safe synthetic replay counters; no write endpoint is exposed."""
     from app.ingestion_store import ingestion_overview
     return ingestion_overview()
+
+
+@app.get("/v1/exercise/incidents/{incident_id}/correlation")
+def exercise_geospatial_candidates(
+    incident_id: UUID,
+    radius_m: int = Query(default=3000, ge=100, le=5000),
+):
+    """PostGIS proximity exploration of fictional sources and assets only."""
+    from app.spatial_store import spatial_candidates
+    data = spatial_candidates(incident_id, radius_m=radius_m)
+    if data is None:
+        raise HTTPException(status_code=404, detail="Synthetic exercise incident not found")
+    return data
