@@ -108,3 +108,19 @@ shipping any prediction claim: obtain authorized event and sensor datasets,
 set temporal/spatial holdout, define event/horizon labels, evaluate
 reliability and calibration, baseline comparisons, drift/abstention, and
 agency human-approval policy. See [model methodology](MODEL_EVALUATION_LAB.md).
+
+
+## Current P0 Integration Milestone — Human Assessment Readiness
+
+Implemented on branch `feat/assessment-integration-v1`: a read-only
+composition of verified-*synthetic* incident case evidence, bounded GIS
+candidate matches and source freshness into a human-review checklist.
+The endpoint refuses cross-incident context, real data claims, validated
+hazard probabilities, asset impact assertions and operational actions.
+
+**This is a simulated context-checklist, not a real-time model.**
+The next priority is PR stack consolidation, real browser/Windows Docker
+E2E, identity-provider negative testing and security/accessibility review,
+before adding expensive external integrations. Track timestamped progress,
+dependencies and estimated hours in
+[PROJECT_EXECUTION_TRACKER.md](PROJECT_EXECUTION_TRACKER.md).

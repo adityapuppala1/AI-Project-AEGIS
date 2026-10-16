@@ -212,3 +212,13 @@ limitations. Navigation, Help and Incident Intelligence link to the lab.
 Incident-specific screens continue to say no validated forecast is attached.
 The dashboard never displays model outputs as calibrated real-world flood
 probabilities or automated recommendation authorizations.
+
+
+## Unified assessment journey
+
+Incident Intelligence now links evidence/provenance + geospatial
+candidates + source freshness into **Human Assessment Readiness**. The
+result is an explanatory checklist with explicit enough/insufficient
+*synthetic context*, never a score or machine-issued emergency order.
+The existing OIDC-gated Approval Workbench remains the separate path
+for human review. See [assessment contract](ASSESSMENT_MILESTONE.md).

@@ -133,3 +133,16 @@ def synthetic_model_evaluation_report():
     """Read-only, versioned offline baseline report; NOT a real forecast API."""
     from app.model_lab import saved_report
     return saved_report()
+
+
+@app.get("/v1/exercise/incidents/{incident_id}/readiness")
+def read_exercise_readiness(
+    incident_id: UUID,
+    radius_m: int = Query(default=3000, ge=100, le=5000),
+):
+    """Read-only evidence checklist; no hazard forecasting or live operations."""
+    from app.assessment_adapter import exercise_readiness
+    result = exercise_readiness(incident_id, radius_m=radius_m)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Synthetic exercise case or geography not found")
+    return result
