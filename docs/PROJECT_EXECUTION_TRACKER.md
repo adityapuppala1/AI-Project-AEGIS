@@ -117,3 +117,15 @@ denial and cross-agency query scope.
 
 Milestone time and CI result will be recorded from GitHub after review.
 This is **not** a substitute for real OIDC integration testing.
+
+## PR #17 — agency-scoped Approval Workbench selector (verified)
+
+| Milestone | First commit (IST) | Last implementation commit (IST) | Commit window | Validation |
+|---|---|---|---|---|
+| [#17](https://github.com/adityapuppala1/AI-Project-AEGIS/pull/17) — authenticated proposal incident discovery and stale-choice cleanup | 17 Oct 00:24:16 | 17 Oct 00:26:26 | **2m 10s** | [143 API tests, reproducible model artifact, frontend/Compose checks passed](https://github.com/adityapuppala1/AI-Project-AEGIS/actions/runs/38951230417) |
+
+This is a *Git commit interval*, not total engineering time. CI validated the
+implementation commit `d9b4a334bacbd186d91ad5e9632d5ce0ec03a629`;
+this tracker-only change intentionally does not rerun CI. PR remains a
+stacked draft and has not been merged to `main`. Real IdP MFA,
+two-operator browser tests and Windows Docker verification remain pending.
