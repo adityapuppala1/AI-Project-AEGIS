@@ -70,6 +70,7 @@ export function IncidentIntelligence({ workspace }: { workspace: IncidentWorkspa
         <ArrowLeft size={16}/> Incident Registry
       </Link>
       <Link href="/agency-sync" className="control">Fictional agency tasks <ArrowRight size={15}/></Link>
+      <Link href="/audit" className="control">Audit360 export <ArrowRight size={15}/></Link>
       <Link href="/approvals" className="control">
         <ClipboardCheck size={16}/> Exercise Approval Workbench <ArrowRight size={15}/>
       </Link>
