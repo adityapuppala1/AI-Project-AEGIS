@@ -190,3 +190,25 @@ records should accept three unique events, flag one duplicate and quarantine
 five unique invalid/conflicting fingerprints. Subsequent replay does not
 add accepted rows or repeat quarantine rows. Do **not** reset Postgres volumes
 for this feature. See [DataFusion replay design](docs/DATAFUSION_INGESTION.md).
+
+
+## Spatial Correlation Explorer — exercise milestone
+
+The `feat/spatial-incident-correlation` branch adds bounded PostGIS
+geographic candidate discovery to the Incident Intelligence Workspace.
+It shows nearby synthetic feeds with observation freshness, and *fictional*
+hospital/road/shelter/drainage points. This is **not** a flood-impact or
+risk-scoring model and never issues real warnings or dispatch.
+
+```powershell
+git fetch origin
+git switch feat/spatial-incident-correlation
+docker compose down
+docker compose up --build -d
+```
+
+Visit `http://localhost:3000/incidents/22222222-2222-4222-8222-222222222222`
+and use the 1, 3 or 5 km search selector in Spatial Correlation Explorer.
+Migrations and seed fixtures are idempotent on existing Windows volumes.
+
+See [Spatial Correlation architecture](docs/SPATIAL_CORRELATION_EXPLORER.md).
