@@ -212,3 +212,26 @@ and use the 1, 3 or 5 km search selector in Spatial Correlation Explorer.
 Migrations and seed fixtures are idempotent on existing Windows volumes.
 
 See [Spatial Correlation architecture](docs/SPATIAL_CORRELATION_EXPLORER.md).
+
+## Synthetic Model Evaluation Lab
+
+Development branch `feat/synthetic-model-evaluation` adds a reproducible
+**offline, synthetic-only** model-evaluation pipeline and a transparent
+`/model-lab` dashboard. It evaluates grouped held-out artificial scenarios
+using standard classification and illustrative calibration diagnostics.
+**These metrics are not actual flood-prediction accuracy.** There is no
+real-time model inference, official historical flood dataset, automated
+warning, or dispatch connection.
+
+```powershell
+git fetch origin
+git switch feat/synthetic-model-evaluation
+docker compose down
+docker compose up --build -d
+docker compose exec -T api python -m app.model_lab --check
+```
+
+Open `http://localhost:3000/model-lab`. The evaluation report is versioned
+in `services/api/app/fixtures/model_report_v1.json` and the dataset
+is generated with a fixed seed in `services/api/app/model_scenarios.py`.
+See [Model Evaluation Lab](docs/MODEL_EVALUATION_LAB.md).
