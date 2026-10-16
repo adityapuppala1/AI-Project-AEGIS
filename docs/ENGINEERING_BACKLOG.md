@@ -35,3 +35,14 @@
 
 ## Governance milestone
 The pure-Python policy module in `services/api/app/governance.py` currently exercises maker-checker transitions and fail-closed execution. **It is not an authenticated or persisted approvals API.** Next milestone is OIDC identity, PostgreSQL-backed state and append-only audit, followed by authorized approval UX.
+
+## Implementation update: browser OIDC approvals
+
+Implemented on `feat/browser-oidc-approvals` (stacked feature PR): Next.js
+OIDC Code + PKCE sign-in flow, encrypted HttpOnly browser sessions, same-origin
+proxy, exercise approvals UI with role checks, signout and local smoke script.
+
+Still required before real operations: approved IdP integration with two distinct
+test identities and MFA, revocable shared session storage, periodic revalidation
+against member lifecycle, full browser integration testing, production security
+review, and independent agency authority approval.

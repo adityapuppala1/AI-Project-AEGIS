@@ -61,6 +61,13 @@ services:
     build: ./apps/web
     environment:
       API_INTERNAL_URL: http://api:8000
+      APP_ORIGIN: ${APP_ORIGIN:-http://localhost:3000}
+      OIDC_ISSUER: ${OIDC_ISSUER:-}
+      OIDC_AUDIENCE: ${OIDC_AUDIENCE:-}
+      OIDC_JWKS_URL: ${OIDC_JWKS_URL:-}
+      OIDC_CLIENT_ID: ${OIDC_CLIENT_ID:-}
+      OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET:-}
+      BFF_SESSION_KEY_BASE64: ${BFF_SESSION_KEY_BASE64:-}
     depends_on:
       - api
     ports:

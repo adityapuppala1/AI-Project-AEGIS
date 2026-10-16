@@ -67,3 +67,28 @@ Review [OIDC identity and authorization](docs/OIDC_IDENTITY_AND_AUTHORIZATION.md
 and [workflow security](docs/WORKFLOW_SECURITY.md).
 
 `main` remains untouched; changes are reviewed through stacked draft PRs.
+
+## Browser operator login & exercise approvals
+
+The `feat/browser-oidc-approvals` branch adds an OIDC Authorization Code +
+PKCE browser sign-in flow, a short-lived encrypted HttpOnly session, a
+server-side authenticated FastAPI proxy, and the `/approvals` workbench.
+
+**No trusted identity provider configured?** The Command Center works as before;
+the approval interface explains that verified sign-in is required and does not
+create fake operator identities. No public emergency warning or responder
+dispatch is available.
+
+See [browser SSO and approval workbench guide](docs/BROWSER_SSO_AND_APPROVAL_WORKBENCH.md).
+
+### Local authorization security checks
+
+After starting the exercise environment, run the **read-only** checks from PowerShell:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\security-smoke-windows.ps1
+```
+
+Without a configured IdP, this verifies no implicit operator session,
+protected proposals fail closed, and the backend remains in exercise mode.
+It does not replace full integration testing with a registered provider.
