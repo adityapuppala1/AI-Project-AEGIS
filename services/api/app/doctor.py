@@ -21,6 +21,7 @@ REQUIRED_RELATIONS = (
     "exercise_incident_events", "exercise_incident_evidence",
     "exercise_data_sources", "exercise_source_samples", "exercise_geo_assets",
     "exercise_ingestion_ledger", "exercise_ingestion_quarantine",
+    "exercise_agency_tasks", "exercise_agency_task_events",
 )
 REQUIRED_COLUMNS = {
     "incidents": ("is_exercise_fixture",),
@@ -30,6 +31,7 @@ REQUIRED_COLUMNS = {
 MINIMUM_FIXTURES = {
     "incidents": 5, "sources": 4, "source_samples": 24,
     "timeline_events": 7, "evidence": 5, "geo_assets": 5,
+    "agency_tasks": 7, "agency_task_events": 13,
 }
 COUNTS = {
     "incidents": """SELECT COUNT(*) AS n FROM incidents
@@ -55,6 +57,16 @@ COUNTS = {
                      AND e.synthetic IS TRUE""",
     "geo_assets": """SELECT COUNT(*) AS n FROM exercise_geo_assets
                      WHERE agency_id=%s AND synthetic IS TRUE AND id::text LIKE 'e5000000-%'""",
+    "agency_tasks": """SELECT COUNT(*) AS n FROM exercise_agency_tasks AS t
+                       JOIN incidents AS i ON i.id=t.incident_id
+                       WHERE i.agency_id=%s AND i.is_exercise_fixture IS TRUE
+                         AND t.synthetic IS TRUE AND t.id::text LIKE 'f6000000-%'""",
+    "agency_task_events": """SELECT COUNT(*) AS n FROM exercise_agency_task_events AS e
+                             JOIN exercise_agency_tasks AS t ON t.id=e.task_id
+                             JOIN incidents AS i ON i.id=t.incident_id
+                             WHERE i.agency_id=%s AND i.is_exercise_fixture IS TRUE
+                               AND t.synthetic IS TRUE AND e.synthetic IS TRUE
+                               AND e.id::text LIKE 'f7000000-%'""",
 }
 
 
