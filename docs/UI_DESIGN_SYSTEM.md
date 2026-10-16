@@ -98,3 +98,12 @@ radius-controlled candidate explorer. Spatial distance appears alongside
 source freshness and unambiguous *fictional* asset labels. Long explanatory
 copy is used where a compact badge might imply false certainty.
 No decorative animation or false map-impact overlay is used.
+
+## Model evaluation visual pattern
+
+Synthetic model quality is presented as a dedicated research lab, **not** as
+a live operational hazard indicator. Every metric explicitly says synthetic;
+the score chart has an equivalent table; confusion counts are labeled; and
+the source/model version and non-transferability limitations appear adjacent
+to the visualizations. Animations are disabled on technical charts and no
+heavy AI/3D frontend dependencies have been added.
