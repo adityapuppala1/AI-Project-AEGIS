@@ -124,3 +124,17 @@ E2E, identity-provider negative testing and security/accessibility review,
 before adding expensive external integrations. Track timestamped progress,
 dependencies and estimated hours in
 [PROJECT_EXECUTION_TRACKER.md](PROJECT_EXECUTION_TRACKER.md).
+
+
+## Integration Gate 0 hardening branch
+
+`feat/integration-readiness-gates` adds synthetic schema/fixture
+readiness gates with fail-closed HTTP 503, checks on all major local
+endpoints, and a read-only Windows PowerShell verification. Exercise
+approval queries now require `is_exercise_fixture IS TRUE` even when an
+agency-scoped OIDC token exists.
+
+A full Docker integration run remains an **opt-in** manual workflow,
+not a GitHub action fired on every commit. All PRs are still stacked
+and pending sequential review. See
+[Integration Release Gates](INTEGRATION_RELEASE_GATES.md).
