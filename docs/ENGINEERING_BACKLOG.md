@@ -93,3 +93,18 @@ The next P1 tasks are validated hazard footprints, official geodata
 licensing/permission checks, real source-to-incident temporal
 corroboration, and measured model accuracy. See
 [Spatial Correlation Explorer](SPATIAL_CORRELATION_EXPLORER.md).
+
+## P1 Model Evaluation Lab — foundational pipeline
+
+Branch `feat/synthetic-model-evaluation` establishes deterministic
+synthetic scenario generation, grouped train/holdout partitioning,
+versioned model report with dataset hash, transparent logistic baseline,
+ROC AUC/precision/recall/F1/Brier/confusion metrics and an accessible
+React evaluation view. The API is read-only and no real incident model
+inference is performed.
+
+**This is not trained on actual historical flooding data.** Before
+shipping any prediction claim: obtain authorized event and sensor datasets,
+set temporal/spatial holdout, define event/horizon labels, evaluate
+reliability and calibration, baseline comparisons, drift/abstention, and
+agency human-approval policy. See [model methodology](MODEL_EVALUATION_LAB.md).
