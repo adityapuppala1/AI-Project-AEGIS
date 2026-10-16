@@ -17,7 +17,8 @@ def demo_inputs():
         "incident": {"id": INCIDENT_ID, "hazard_type": "Synthetic waterlogging"},
         "source": "synthetic_exercise",
         "operational_actions_enabled": False,
-        "evidence": [{"synthetic": True, "quality_status": "synthetic_curated"}],
+        "evidence": [{"id": "b2000000-0000-4000-8000-000000000001",
+                      "synthetic": True, "quality_status": "synthetic_curated"}],
         "assessment": {"status": "not_assessed", "calibrated_probability": None},
     }
     geo = {
@@ -30,11 +31,13 @@ def demo_inputs():
         "radius_m": 3000,
         "as_of": "2026-10-16T17:00:00+00:00",
         "nearby_sources": [
-            {"synthetic": True, "freshness": "fresh", "quality_status": "synthetic_curated",
+            {"id": "c3000000-0000-4000-8000-000000000001",
+             "synthetic": True, "freshness": "fresh", "quality_status": "synthetic_curated",
              "observed_at": "2026-10-16T16:55:00+00:00",
              "ingested_at": "2026-10-16T16:56:00+00:00",
              "expected_interval_seconds": 900, "warning_multiplier": 1.5, "stale_multiplier": 4.0},
-            {"synthetic": True, "freshness": "stale", "quality_status": "synthetic_unverified",
+            {"id": "c3000000-0000-4000-8000-000000000003",
+             "synthetic": True, "freshness": "stale", "quality_status": "synthetic_unverified",
              "observed_at": "2026-10-15T10:00:00+00:00",
              "ingested_at": "2026-10-15T10:02:00+00:00",
              "expected_interval_seconds": 1800, "warning_multiplier": 1.5, "stale_multiplier": 4.0},
@@ -213,3 +216,30 @@ def test_truthful_delayed_reading_is_insufficient_but_not_malformed():
     assert result["context_state"] == "insufficient_simulated_context"
     assert result["curated_current_sources"] == 0
     assert result["source_freshness_counts"]["delayed"] == 1
+
+
+def test_playbook_is_cited_to_exact_synthetic_case_and_source_ids():
+    case, geographic = demo_inputs()
+    result = evaluate_readiness(case, geographic)
+    playbook = result["playbook"]
+    assert playbook["version"] == "AEGIS-URBAN-FLOOD-EXERCISE-v0.1"
+    assert playbook["generated_by"] == "deterministic_exercise_checklist_not_ai_forecast"
+    assert playbook["operational_actions_enabled"] is False
+    assert playbook["synthetic_evidence_ids"] == ["b2000000-0000-4000-8000-000000000001"]
+    assert len(playbook["synthetic_source_ids"]) == 2
+    assert len(playbook["step_refs"]) == 5
+
+
+@pytest.mark.parametrize("invalid", [None, "not-a-uuid", ""]) 
+def test_missing_or_malformed_source_provenance_id_fails_closed(invalid):
+    case, geographic = demo_inputs()
+    geographic["nearby_sources"][0]["id"] = invalid
+    with pytest.raises(ValueError, match="synthetic source reference"):
+        evaluate_readiness(case, geographic)
+
+
+def test_missing_evidence_reference_id_fails_closed():
+    case, geographic = demo_inputs()
+    del case["evidence"][0]["id"]
+    with pytest.raises(ValueError, match="synthetic evidence reference"):
+        evaluate_readiness(case, geographic)
