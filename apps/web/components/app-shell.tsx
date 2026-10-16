@@ -6,12 +6,15 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import {
   Activity, BookOpenCheck, ChevronRight, Command, LayoutDashboard,
-  Menu, Moon, Settings2, ShieldCheck, Sun, X,
+  Menu, Moon, Settings2, ShieldCheck, Sun, X, ClipboardCheck,
 } from "lucide-react";
+
+import { OperatorAuth } from "./operator-auth";
 
 const navigation = [
   { href: "/", label: "Command Center", icon: LayoutDashboard },
   { href: "/incidents", label: "Incident Registry", icon: Activity },
+  { href: "/approvals", label: "Approval Workbench", icon: ClipboardCheck },
   { href: "/playbooks", label: "Response Playbooks", icon: BookOpenCheck },
   { href: "/admin", label: "Administration", icon: Settings2 },
 ];
@@ -76,7 +79,7 @@ export function AppShell({ children, title, description }: { children: ReactNode
               <span className="status-dot bg-amber-400"/> Simulation mode
             </span>
             <ThemeToggle />
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-stroke bg-elevated text-sm font-bold text-accent" title="Demo workspace; authentication not enabled">DE</span>
+            <OperatorAuth />
           </div>
         </div>
         <main id="main-content" className="mx-auto max-w-[1700px] px-4 pb-12 pt-8 sm:px-8">
