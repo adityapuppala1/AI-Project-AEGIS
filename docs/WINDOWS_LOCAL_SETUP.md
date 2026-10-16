@@ -378,3 +378,38 @@ These commands require installed local Python API dependencies and existing
 `apps/web/node_modules`. Pass `-ProductionBuild` to explicitly run the
 more expensive frontend production build locally. They do not replace the
 separate PostGIS/browser E2E tests. See [CI Cost Policy](CI_COST_POLICY.md).
+
+## Current consolidated CipherCop 2026 exercise candidate
+
+For the original [Product Vision](PRODUCT_VISION.md) demo rather than an
+individual milestone, use only the latest integrated candidate branch:
+
+```powershell
+cd C:\xampp\htdocs\AI-Project-AEGIS
+git fetch origin
+git switch feat/ciphercop-integrated-demo-rc
+docker compose up --build -d
+docker compose ps
+docker compose exec -T api python -m app.doctor
+docker compose exec -T api python -m app.migration_audit
+powershell -ExecutionPolicy Bypass -File .\scripts\verify-windows.ps1
+```
+
+Open `http://localhost:3000/demo`, then visit `/agency-sync`, `/audit`,
+`/admin`, and `/playbooks` from the guided links.
+
+To demonstrate source statuses (fresh/delayed/stale/no-data) **without deleting
+historical rows**, explicitly append three fictional samples using:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\run-tabletop-windows.ps1 -ConfirmExercise
+```
+
+Every generated source is an exercise fixture. Repeating with the same
+`-RunId` UUID does not insert duplicate samples. A new run ID produces a
+new set. This is a database write to synthetic source history and requires
+local operator consent; `verify-windows.ps1` remains read-only.
+
+The approval interface stays locked without an approved OIDC provider.
+Never make up a signed-in checker or bypass role policy to impress judges.
+See [consolidated acceptance matrix](CIPHERCOP_2026_RELEASE_AUDIT.md).
