@@ -134,3 +134,34 @@ def agency_task_detail(task_id: UUID) -> dict | None:
             for row in timeline
         ],
     }
+
+
+def agency_task_events_for_incident(incident_id: UUID) -> list[dict]:
+    """Bounded, seeded exercise-event export; no operational audit records."""
+    with psycopg.connect(os.environ["DATABASE_URL"], row_factory=dict_row) as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """SELECT e.id::text, e.task_id::text, e.kind, e.occurred_at,
+                          e.actor_label, e.summary
+                   FROM exercise_agency_task_events AS e
+                   JOIN exercise_agency_tasks AS t ON t.id=e.task_id
+                   JOIN incidents AS i ON i.id=t.incident_id
+                   WHERE i.id=%s AND i.agency_id=%s
+                     AND i.is_exercise_fixture IS TRUE
+                     AND t.synthetic IS TRUE AND e.synthetic IS TRUE
+                   ORDER BY e.occurred_at ASC, e.id ASC LIMIT 200""",
+                (str(incident_id), str(DEMO_AGENCY)),
+            )
+            rows = cur.fetchall()
+    return [
+        {
+            "id": str(row["id"]),
+            "task_id": str(row["task_id"]),
+            "kind": row["kind"],
+            "occurred_at": row["occurred_at"].isoformat(),
+            "actor_label": row["actor_label"],
+            "summary": row["summary"],
+            "synthetic": True,
+        }
+        for row in rows
+    ]
