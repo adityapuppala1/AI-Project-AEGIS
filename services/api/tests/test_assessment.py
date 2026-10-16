@@ -118,3 +118,39 @@ def test_http_read_only_and_review_required(monkeypatch):
     assert response.json()["real_world_risk_probability"] is None
     assert client.post(f"/v1/exercise/incidents/{INCIDENT_ID}/readiness", json={}).status_code == 405
     assert client.post("/v1/live/public-warning").status_code == 403
+
+
+def test_fresh_but_unverified_source_never_qualifies_demo_context():
+    case, geo = demo_inputs()
+    geo["nearby_sources"][0]["quality_status"] = "synthetic_unverified"
+    result = evaluate_readiness(case, geo)
+    assert result["context_state"] == "insufficient_simulated_context"
+    assert result["curated_current_sources"] == 0
+    assert any(reason["code"] == "no_curated_current_demo_source" for reason in result["reasons"])
+    assert result["real_world_risk_probability"] is None
+
+
+def test_only_unverified_case_evidence_never_qualifies_demo_context():
+    case, geo = demo_inputs()
+    case["evidence"][0]["quality_status"] = "synthetic_unverified"
+    result = evaluate_readiness(case, geo)
+    assert result["context_state"] == "insufficient_simulated_context"
+    assert result["curated_evidence_records"] == 0
+    assert any(reason["code"] == "no_curated_case_evidence" for reason in result["reasons"])
+
+
+def test_curated_evidence_is_still_not_a_validated_risk_forecast():
+    case, geo = demo_inputs()
+    result = evaluate_readiness(case, geo)
+    assert result["curated_current_sources"] == 1
+    assert result["curated_evidence_records"] == 1
+    assert result["context_state"] == "simulated_context_for_human_review"
+    assert result["validated_risk_model"] is False
+    assert result["operational_actions_enabled"] is False
+
+
+def test_unknown_case_evidence_quality_fails_closed():
+    case, geo = demo_inputs()
+    case["evidence"][0]["quality_status"] = "official_verified"
+    with pytest.raises(ValueError, match="Unknown or non-synthetic evidence"):
+        evaluate_readiness(case, geo)

@@ -104,3 +104,22 @@ packages or npm runtime dependencies. No fake operational events are created.
   verification before any real operational workflow.
 
 Do not merge to `main` or claim production readiness solely because CI passes.
+
+
+## Evidence quality prerequisite (P0 integration hardening)
+
+Previously, a fresh but **unverified** synthetic source and any attached
+synthetic case evidence were enough to set
+`simulated_context_for_human_review`. That could overstate even the
+*simulated* context quality.
+
+The quality gate now additionally requires **at least one recent curated
+synthetic source and at least one curated synthetic incident evidence record**.
+Otherwise it returns `insufficient_simulated_context` and explicit reason
+codes `no_curated_current_demo_source` and/or `no_curated_case_evidence`.
+The response exposes the curated record counts, so a reviewer can explain
+the outcome. Unknown evidence-quality values fail closed.
+
+A curated exercise fixture only means prepared simulation data; it does
+**not** mean real-world verification. There remains no calibrated flood
+probability, actual impact conclusion, live action or operator approval.

@@ -145,3 +145,17 @@ pending**, not a claimed new CI pass. See [CI Cost Policy](CI_COST_POLICY.md).
 Timing will be recorded only from GitHub commit metadata, not inferred
 engineering work hours. Existing release/security/Windows integration gates
 remain pending, and main is unchanged.
+
+
+## PR #19 scope — synthetic evidence-quality assessment guard
+
+The branch `fix/assessment-evidence-quality-gate` strengthens
+synthetic-only assessment: a current *unverified* exercise source no longer
+qualifies the case for simulated human-review context, nor does an incident
+whose only case evidence is unverified. Tests cover both scenarios and fail
+closed on unrecognized quality fields.
+
+**Cost control:** draft PR; no GitHub Actions labels or manual dispatch
+requested. The CI policy remains opt-in, so the new branch is **unverified
+by CI** until a local run or explicit later review. Time entries and CI
+outcome must be added from GitHub metadata, not invented.
