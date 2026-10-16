@@ -20,6 +20,8 @@ EXPECTED_INDEXES = (
     "exercise_source_samples_time_idx",
     "exercise_data_sources_geography_idx",
     "exercise_geo_assets_geography_idx",
+    "exercise_agency_tasks_incident_state_idx",
+    "exercise_agency_task_events_time_idx",
 )
 EXPECTED_TRIGGER = "aegis_check_independent_checker"
 
