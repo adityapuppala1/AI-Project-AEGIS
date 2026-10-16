@@ -66,3 +66,32 @@ On the **first** startup, PostgreSQL runs `db/schema.sql` and `db/seed.sql`. Two
 
 ## Development workflow
 Commit only to `adityapuppala1/AI-Project-AEGIS`. Use feature branches and PR review; never merge to main without validation. To run backend tests separately: `cd services/api; python -m pip install -r requirements.txt; python -m pytest -q`.
+
+## New command-center UI branch (October 2026)
+After checking that your current working tree has no uncommitted changes, use:
+```powershell
+git fetch origin
+git switch feat/command-center-ui-v1
+docker compose down
+docker compose up --build -d
+docker compose ps
+```
+You can also run `powershell -ExecutionPolicy Bypass -File .\scripts\start-windows.ps1`.
+
+Available screens:
+- `http://localhost:3000` — Command Center (responsive dark/light theme, MapLibre map, telemetry and incident queue).
+- `http://localhost:3000/incidents` — filterable exercise incident registry.
+- `http://localhost:3000/playbooks` — illustrative response procedures.
+- `http://localhost:3000/admin` — non-persistent policy preview.
+- `http://localhost:8000/docs` — FastAPI OpenAPI reference.
+
+**Existing database volumes:** The `seed` service runs an idempotent `db/seed.sql` script after PostgreSQL becomes healthy. This adds any missing synthetic incidents without erasing existing data. Do **not** run `docker compose down -v` to upgrade. Map tiles are requested from the public OpenStreetMap tile server and require an internet connection. Do not use this external tile service for confidential operational data.
+
+Troubleshooting:
+```powershell
+docker compose logs --tail=80 db seed api web
+docker compose exec db psql -U aegis -d aegis -c "SELECT count(*) FROM incidents;"
+```
+The frontend uses the API through internal Next.js route handlers; browser requests to `/api/incidents` and `/api/telemetry` should return exercise JSON when the backend is healthy.
+
+**Resource note:** The Next.js production build can require more temporary RAM than its runtime container. On a 16 GB laptop, keep Docker Desktop's WSL2 memory allocation around 4–6 GB or higher if builds fail, and close memory-intensive applications.
