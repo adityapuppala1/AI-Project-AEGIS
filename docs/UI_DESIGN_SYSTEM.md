@@ -69,3 +69,14 @@ and explicit model-absence and action-disablement states. Critical text does
 not depend on color or motion. Real evidentiary-chain and encrypted-media
 workflows remain separate milestones. See
 [Incident Intelligence Workspace](INCIDENT_INTELLIGENCE_WORKSPACE.md).
+
+
+## Source Observatory visual system
+
+Source freshness is shown as a separate operator surface rather than adding
+unverified risk scores to the Command Center. The interface uses calm textual
+status indicators, timestamps in IST, age and ingestion lag, colored badges
+with readable labels, a small Recharts trend and expandable table equivalent.
+Low-power Windows devices retain a 2D view. No new Magic UI or Three.js
+dependencies are introduced. The Command Center card explicitly says these
+are **synthetic** observations rather than live-source health claims.

@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import {
   Activity, BookOpenCheck, ChevronRight, Command, LayoutDashboard,
-  Menu, Moon, Settings2, ShieldCheck, Sun, X, ClipboardCheck, LifeBuoy,
+  Menu, Moon, Settings2, ShieldCheck, Sun, X, ClipboardCheck, LifeBuoy, RadioTower,
 } from "lucide-react";
 
 import { OperatorAuth } from "./operator-auth";
@@ -15,6 +15,7 @@ import { GlobalSearch } from "./global-search";
 const navigation = [
   { href: "/", label: "Command Center", icon: LayoutDashboard },
   { href: "/incidents", label: "Incident Registry", icon: Activity },
+  { href: "/sources", label: "Source Freshness", icon: RadioTower },
   { href: "/approvals", label: "Approval Workbench", icon: ClipboardCheck },
   { href: "/playbooks", label: "Response Playbooks", icon: BookOpenCheck },
   { href: "/help", label: "Help & Learning", icon: LifeBuoy },

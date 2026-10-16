@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, BookOpenCheck, BrainCircuit, Database, Keyboard, LifeBuoy, LockKeyhole, Search, ShieldCheck } from "lucide-react";
+import { ArrowRight, BookOpenCheck, BrainCircuit, Database, Keyboard, LifeBuoy, LockKeyhole, RadioTower, Search, ShieldCheck } from "lucide-react";
 import { AppShell } from "../../components/app-shell";
 
 type Guide = {
@@ -29,6 +29,8 @@ const guides: Guide[] = [
     answer: "Press Ctrl+K (Command+K on macOS) for global navigation, or open Incident Registry. Use keyword search, status filters, sortable columns and page size controls. Current universal search only covers navigation and synthetic exercise incidents, not private agency data.", href: "/incidents" },
   { title: "How is approval history audited?", category: "Security", description: "Maker-checker controls and audit records",
     answer: "Exercise proposal transitions are written within PostgreSQL transactions and include actor identities, review rationale and audit events. Production-grade immutable retention, IdP lifecycle and full audit reporting are still on the roadmap." },
+  { title: "What does source freshness mean?", category: "Data", description: "Distinguish delayed, stale, absent and clock-anomalous readings",
+    answer: "The Source Freshness screen compares the age of the latest synthetic observation to each source's configured update interval. Within window, delayed, stale, no data and clock anomaly describe timestamp validity only—not sensor accuracy, provider reliability or flood probability.", href: "/sources" },
   { title: "Why does the data feed show unavailable?", category: "Data", description: "Read freshness and degraded-service states",
     answer: "The Next.js dashboard relies on FastAPI and PostGIS. Check docker compose ps, then docker compose logs --tail=80 api db. The UI indicates stale data rather than silently treating old observations as current." },
   { title: "How do I switch theme or reduce motion?", category: "Getting started", description: "Appearance and accessibility preferences",
@@ -63,6 +65,7 @@ export default function HelpPage() {
     <section className="mb-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Quick links">
       {[
         { label: "Incident Registry", detail: "Search and filter records", icon: Database, href: "/incidents" },
+        { label: "Source Freshness", detail: "Inspect synthetic data timeliness", icon: RadioTower, href: "/sources" },
         { label: "Response Playbooks", detail: "Approved-response preparation", icon: BookOpenCheck, href: "/playbooks" },
         { label: "Operator Approvals", detail: "Maker-checker guidance", icon: LockKeyhole, href: "/approvals" },
         { label: "AI Transparency", detail: "What models can and cannot do", icon: BrainCircuit, href: "#help-articles" },

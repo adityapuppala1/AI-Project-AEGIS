@@ -86,3 +86,23 @@ def read_exercise_incident_workspace(incident_id: UUID):
     if workspace is None:
         raise HTTPException(status_code=404, detail="Exercise incident not found")
     return workspace
+
+
+@app.get("/v1/exercise/sources")
+def read_exercise_sources():
+    """Synthetic feed observability; never represents real data connectivity."""
+    from app.source_store import list_exercise_sources
+    return list_exercise_sources()
+
+
+@app.get("/v1/exercise/sources/{source_id}/history")
+def read_exercise_source_history(
+    source_id: UUID,
+    limit: int = Query(default=24, ge=1, le=48),
+):
+    """Read bounded synthetic sample history, restricted to the demo agency."""
+    from app.source_store import source_history
+    result = source_history(source_id, limit)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Exercise source not found")
+    return result

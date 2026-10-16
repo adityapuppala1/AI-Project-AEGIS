@@ -46,3 +46,18 @@ Still required before real operations: approved IdP integration with two distinc
 test identities and MFA, revocable shared session storage, periodic revalidation
 against member lifecycle, full browser integration testing, production security
 review, and independent agency authority approval.
+
+
+## Source quality vertical slice (implemented on feature branch)
+
+`feat/source-health-freshness` implements the first DataFusion-facing
+read-only slice: synthetic source registration, observed/ingested timestamps,
+deterministic freshness/clock-anomaly classification, safe per-agency fixture
+queries, bounded sample history, source-screen trends, accessibility table,
+manual/visible-tab polling and operator guidance.
+
+**Do not claim actual sensors or official providers are connected.**
+Next DataFusion work: source signature verification, authorized real data
+connectors, measured provider latencies, idempotent event capture,
+corroboration and simulation replay. These require separate approval before
+connecting production emergency data.

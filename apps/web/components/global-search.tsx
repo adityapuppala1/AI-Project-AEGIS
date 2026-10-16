@@ -2,19 +2,20 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { BookOpenCheck, ClipboardCheck, Command, LayoutDashboard, LifeBuoy, Search, Settings2, X, Activity } from "lucide-react";
+import { BookOpenCheck, ClipboardCheck, Command, LayoutDashboard, LifeBuoy, Search, Settings2, X, Activity, RadioTower } from "lucide-react";
 import type { Incident } from "../lib/types";
 
 type CommandItem = { label: string; description: string; href: string; kind: "page" | "incident" };
 const pages: CommandItem[] = [
   { label: "Command Center", description: "System overview and geospatial map", href: "/", kind: "page" },
   { label: "Incident Registry", description: "Search, sort and filter exercise incidents", href: "/incidents", kind: "page" },
+  { label: "Source Freshness", description: "Inspect delayed and missing synthetic data feeds", href: "/sources", kind: "page" },
   { label: "Approval Workbench", description: "Authenticated maker-checker workflow", href: "/approvals", kind: "page" },
   { label: "Response Playbooks", description: "Emergency exercise procedures", href: "/playbooks", kind: "page" },
   { label: "Administration", description: "Policy and integration previews", href: "/admin", kind: "page" },
   { label: "Self Help & FAQ", description: "Guides, shortcuts, troubleshooting and AI explanations", href: "/help", kind: "page" },
 ];
-const icons = [LayoutDashboard, Activity, ClipboardCheck, BookOpenCheck, Settings2, LifeBuoy];
+const icons = [LayoutDashboard, Activity, RadioTower, ClipboardCheck, BookOpenCheck, Settings2, LifeBuoy];
 const searchUrl = (term: string) => "/incidents?q=" + encodeURIComponent(term);
 
 export function GlobalSearch() {
