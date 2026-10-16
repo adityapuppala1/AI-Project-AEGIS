@@ -131,3 +131,14 @@ the page is intentionally locked while Command Center, incident registry and
 playbooks stay available. See
 [browser SSO configuration](BROWSER_SSO_AND_APPROVAL_WORKBENCH.md)
 for the optional identity-provider setup and required short-lived encryption key.
+
+### Verify fail-closed operator security locally
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\security-smoke-windows.ps1
+```
+
+Expected: no implicit operator identity; anonymous approvals return 401
+or 503 (depending on IdP configuration); backend reports exercise mode.
+Do not paste or commit real OIDC bearer tokens into GitHub, chat, screenshots
+or console logs.
