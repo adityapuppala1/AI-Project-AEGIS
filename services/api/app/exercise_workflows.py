@@ -11,7 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from app.governance import Action, DecisionError
 from app.security import Operator, get_operator, require_role
-from app.workflow_store import create_proposal, transition, list_proposals
+from app.workflow_store import create_proposal, transition, list_proposals, list_agency_exercise_incidents
 
 router = APIRouter(prefix="/v1/exercise/proposals", tags=["Authenticated exercise workflow"])
 
@@ -44,6 +44,13 @@ def identity_context(operator: Operator = Depends(get_operator)):
         "roles": sorted(operator.roles),
         "exercise_only": True,
     }
+
+
+@router.get("/incidents")
+def available_exercise_incidents(operator: Operator = Depends(get_operator)):
+    """List only synthetic cases belonging to the authenticated agency."""
+    require_role(operator, {"incident_operator", "incident_checker", "incident_auditor"})
+    return list_agency_exercise_incidents(operator.agency_id)
 
 
 @router.get("")
