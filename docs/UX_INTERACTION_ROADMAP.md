@@ -156,3 +156,20 @@ real agency ABAC, accurate weather sources, trained models, and live multi-agenc
 coordination are outside this implementation.
 
 See [feature-specific contract](INCIDENT_INTELLIGENCE_WORKSPACE.md).
+
+
+## Source Health & Freshness milestone
+
+A separate Source Observatory is added at `/sources` in the
+`feat/source-health-freshness` branch. It provides:
+- per-feed expected observation interval, last observed/ingested timestamps,
+  ingestion delay, current age and quality label;
+- clear *within demo window, delayed, stale, absent, clock-anomalous* statuses;
+- filter/sort/search controls, drill-down trend and equivalent data table;
+- accessible degraded-mode messages, last calculation timestamp and manual refresh;
+- Command Center source-status summary and global command/help navigation;
+- a source trust contract with full documentation and synthetic-only DB scope.
+
+The source data is **synthetic**, not a live connection or an AI prediction.
+Status colors are paired with text. Reduced motion is respected.
+See [Source Health & Freshness](SOURCE_HEALTH_OBSERVATORY.md).
