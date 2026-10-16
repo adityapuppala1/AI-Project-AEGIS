@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowDown, ArrowDownUp, ArrowUp, ChevronLeft, ChevronRight, MapPin, RefreshCw, Search, SlidersHorizontal } from "lucide-react";
+import { ArrowDown, ArrowDownUp, ArrowUp, ChevronLeft, ChevronRight, Link2, MapPin, RefreshCw, Search, SlidersHorizontal } from "lucide-react";
 import { AppShell } from "./app-shell";
 import { StatusBadge } from "./status-badge";
 import type { Incident, IncidentStatus } from "../lib/types";
@@ -44,13 +44,21 @@ export function IncidentRegistry() {
   const [pending, setPending] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastSync, setLastSync] = useState<string | null>(null);
+  const [viewNotice, setViewNotice] = useState("");
 
-  // The URL is read once after hydration, avoiding an SSR dependency on window.
+  // Deep links preserve synthetic-only filter presets; no protected data is stored.
   useEffect(() => {
-    const initial = new URLSearchParams(window.location.search).get("q");
-    if (initial) {
-      setQuery(initial.slice(0, 120));
-    }
+    const url = new URLSearchParams(window.location.search);
+    const initialQuery = url.get("q");
+    const initialStatus = url.get("status");
+    const initialSort = url.get("sort");
+    const initialDirection = url.get("dir");
+    const initialSize = Number(url.get("size"));
+    if (initialQuery) setQuery(initialQuery.slice(0, 120));
+    if (STATUS_OPTIONS.some(value => value.value === initialStatus)) setFilter(initialStatus as StatusFilter);
+    if (SORT_OPTIONS.some(value => value.value === initialSort)) setSort(initialSort as SortKey);
+    if (initialDirection === "asc" || initialDirection === "desc") setDirection(initialDirection);
+    if ([10,25,50].includes(initialSize)) setPageSize(initialSize);
   }, []);
   useEffect(() => {
     const timer = setTimeout(() => setDebounced(query.trim().slice(0, 120)), 300);
@@ -98,6 +106,19 @@ export function IncidentRegistry() {
   const totalPages = result?.total_pages ?? 1;
   const first = count ? ((result?.page ?? page) - 1) * pageSize + 1 : 0;
   const last = Math.min(count, ((result?.page ?? page) - 1) * pageSize + items.length);
+  async function copyViewLink() {
+    const url = new URL(window.location.href);
+    url.search = "";
+    if (query.trim()) url.searchParams.set("q", query.trim().slice(0, 120));
+    if (filter !== "all") url.searchParams.set("status", filter);
+    if (sort !== "created_at") url.searchParams.set("sort", sort);
+    if (direction !== "desc") url.searchParams.set("dir", direction);
+    if (pageSize !== 10) url.searchParams.set("size", String(pageSize));
+    try {
+      await navigator.clipboard.writeText(url.toString());
+      setViewNotice("Current synthetic filter view link copied.");
+    } catch { setViewNotice("Unable to copy link. Use the browser address bar."); }
+  }
   function sortBy(next: SortKey) {
     if (sort === next) setDirection(prev => prev === "asc" ? "desc" : "asc");
     else { setSort(next); setDirection(next === "created_at" ? "desc" : "asc"); }
@@ -140,6 +161,22 @@ export function IncidentRegistry() {
             {[10,25,50].map(size => <option key={size} value={size}>{size}</option>)}
           </select>
         </label>
+      </div>
+      <div className="flex flex-wrap items-center gap-2 border-b border-stroke px-4 py-3 sm:px-5">
+        <span className="text-xs font-semibold text-muted">Quick views</span>
+        <button type="button" className="control !min-h-8 !rounded-full !px-3 !text-xs" onClick={() => { setFilter("review");setQuery(""); }}>
+          Awaiting review
+        </button>
+        <button type="button" className="control !min-h-8 !rounded-full !px-3 !text-xs" onClick={() => { setFilter("active");setQuery(""); }}>
+          Active exercises
+        </button>
+        <button type="button" className="control !min-h-8 !rounded-full !px-3 !text-xs" onClick={() => {setFilter("all");setQuery("");setSort("created_at");setDirection("desc");setPageSize(10);}}>
+          Reset
+        </button>
+        <button type="button" className="control ml-auto !min-h-8 !text-xs" onClick={() => void copyViewLink()}>
+          <Link2 size={14}/> Copy view link
+        </button>
+        {viewNotice && <span role="status" className="w-full text-xs text-muted">{viewNotice}</span>}
       </div>
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stroke bg-elevated/30 px-5 py-2.5 text-xs text-muted">
         <span role="status" aria-live="polite">{pending ? "Refreshing results..." : `Showing ${first}–${last} of ${count} incident records`}</span>
