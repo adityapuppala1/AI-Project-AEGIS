@@ -15,6 +15,7 @@ export function GeoMap({ incidents, selectedId, onSelect }: {
   const markersRef = useRef<Marker[]>([]);
   const onSelectRef = useRef(onSelect);
   const [mapError, setMapError] = useState(false);
+  const [mapReady, setMapReady] = useState(false);
   onSelectRef.current = onSelect;
 
   useEffect(() => {
@@ -39,6 +40,7 @@ export function GeoMap({ incidents, selectedId, onSelect }: {
         map.on("error", () => { /* Individual tile failures do not disable the exercise interface. */ });
         map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
         mapRef.current = map;
+        setMapReady(true);
       } catch {
         if (!disposed) setMapError(true);
       }
@@ -53,12 +55,13 @@ export function GeoMap({ incidents, selectedId, onSelect }: {
   }, []);
 
   useEffect(() => {
-    if (!mapRef.current) return;
+    if (!mapReady || !mapRef.current) return;
     markersRef.current.forEach(marker => marker.remove());
     markersRef.current = [];
     let active = true;
     import("maplibre-gl").then(({ default: maplibregl }) => {
-      if (!active || !mapRef.current) return;
+      const currentMap = mapRef.current;
+      if (!active || !currentMap) return;
       for (const incident of incidents) {
         if (!Number.isFinite(incident.lat) || !Number.isFinite(incident.lon)) continue;
         const marker = document.createElement("button");
@@ -71,11 +74,11 @@ export function GeoMap({ incidents, selectedId, onSelect }: {
         marker.addEventListener("click", () => onSelectRef.current(incident.id));
         markersRef.current.push(new maplibregl.Marker({ element: marker })
           .setLngLat([incident.lon, incident.lat])
-          .addTo(mapRef.current));
+          .addTo(currentMap));
       }
     }).catch(() => setMapError(true));
     return () => { active = false; markersRef.current.forEach(marker => marker.remove()); markersRef.current = []; };
-  }, [incidents, selectedId]);
+  }, [incidents, selectedId, mapReady]);
 
   return (
     <div className="relative h-[320px] w-full sm:h-[390px]">
