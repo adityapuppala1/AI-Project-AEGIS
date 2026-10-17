@@ -37,8 +37,8 @@ recovery and actual signed-in human acceptance remain separate work.
 3. Staged private scripted tasks are implemented: prepare → acknowledge → close,
    with signed operator rationale, atomic audit and idempotent retries. See
    [task rehearsal scope](STAGED_TASK_REHEARSAL.md). Synthetic SLA targets are
-   implemented with laptop native checks passed; production/database/browser
-   acceptance and department-scoped sessions remain pending.
+   accepted on the laptop through production/database/browser gates;
+   department-scoped sessions and reassignment remain pending.
 4. Deferred by the owner: [local IdP activation and certificate trust](LOCAL_IDP_REVIEW.md). If that decision changes,
    verify realm import, PKCE login, MFA and independent maker/checker identities.
 5. With two different people, rehearse evidence-cited draft → independent

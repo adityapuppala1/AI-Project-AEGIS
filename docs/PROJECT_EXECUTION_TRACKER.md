@@ -433,3 +433,14 @@ checks passed 321 tests (13 DB skips), model check and TypeScript. The mirror
 PostGIS assertion follow-up is `44d4693`; Desktop Commander became unresponsive
 during transfer, so production/PostGIS/HTTP/browser gates remain pending and
 department-owned OIDC scope is not implemented.
+
+### Synthetic SLA targets — laptop acceptance recovered
+
+Verified checkpoint `c245a66407ff032bedda45bacc1525ffca5b99b8` on
+`feat/aegis-local-demo-continuation`: production API/web build/start, 13 retained
+PostGIS tests, HTTP/checksum/refusal checks, mobile v2/v3 scripted task fixtures
+and 21 browser smoke checks passed. Initial browser-fixture expansion assumption
+failed and was corrected; exact commands and both outcomes are in the handoff.
+One API/web/database remains running; IdP inactive. Department authorization,
+durable draft recovery, broader grounded assistance/evaluation and human
+acceptance remain open. No CI or push.

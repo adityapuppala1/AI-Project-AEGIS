@@ -20,13 +20,12 @@ Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 
 ## Latest continuation status
 
-Current mirror checkpoint: `282a82690f4b234b125de8e3062564cab5308611`.
-Last verified laptop source: `574503dc1489c3d6b53beae7f4957598bf198162`.
-The mirror is ahead by the SLA database-test follow-up `44d4693` and
-continuity documentation. Do not assume these files reached the laptop.
-The running containers were last accepted for dependency diagnostics; SLA
-production build/start and database/browser acceptance remain pending.
-Detailed historical evidence follows below.
+Laptop and mirror application/test checkpoint:
+`c245a66407ff032bedda45bacc1525ffca5b99b8` on
+`feat/aegis-local-demo-continuation`. Reconnection recovered with the newly
+registered Adys_ROG device. SLA production build/start, PostGIS, HTTP and browser
+acceptance passed on Windows; exact commands and the retained fixture-test
+failure are recorded at the end. The retained database was not reset.
 
 ## Current closure and remaining work
 
@@ -34,7 +33,7 @@ Detailed historical evidence follows below.
 |---|---|
 | Verified automated | Original synthetic observation/evidence/assessment/draft/approval-policy/task/audit chain; private CAP draft; recovery and anonymous/live-action boundaries |
 | Verified on laptop | Saved review focus, bounded explicit-step assistance, source comparison, local dependency diagnostics, page-memory draft recovery and bounded warm HTTP latency |
-| Partial — laptop native checks passed | Synthetic department SLA v3: 321 API tests, 13 database skips, model reproducibility and TypeScript; production/PostGIS/HTTP/browser gates pending |
+| Verified on laptop | Synthetic department SLA v3: prior 321 API tests/model/type checks, production build/start, 13 PostGIS tests, HTTP, targeted v2/v3 browser fixtures and 21 browser smoke checks |
 | Pending engineering | Department-scoped authorization/inbox and reassignment; durable draft recovery; free-form grounded drafting/Q&A and usefulness evaluation |
 | Deferred by owner | Local IdP/trust activation and real two-person MFA/browser approval acceptance; do not reactivate or bypass |
 | Pending human acceptance | Manual screen-reader/operator rehearsal and owner release review |
@@ -42,16 +41,15 @@ Detailed historical evidence follows below.
 
 ### Next execution order
 
-1. Recover laptop command execution and inspect branch, SHA, dirty files and
-   the single-runtime guard before any import or job.
-2. Import the existing SLA test/documentation commits only after confirming the
-   expected clean continuation branch; preserve any new local work.
-3. Hold the shared operation lease for SLA production build/start, retained
-   verification-PostGIS tests, HTTP and targeted/browser smoke checks. Record
-   failures and final results separately; do not mark this slice accepted early.
-4. Implement and verify department scope and durable draft recovery in the
-   existing workflow, then grounded assistance and its evaluation.
-5. Keep owner-deferred identity and manual acceptance gates explicit. Automated
+1. Before each operation inspect laptop Git state and the single-runtime guard;
+   use the shared lease for custom jobs and preserve local changes.
+2. Next engineering slice: department-scoped authorization/inbox and auditable
+   reassignment in the existing proposal workflow. Identity authority must come
+   from verified OIDC claims across both API and BFF; test tokens do not establish
+   actual department participation.
+3. Implement durable draft recovery, then grounded drafting/Q&A and usefulness
+   evaluation within the existing workflow and bounded assistance design.
+4. Keep owner-deferred identity and manual acceptance gates explicit. Automated
    fixtures cannot close these gates or establish real forecasting accuracy.
 
 ## Current implementation
@@ -1103,3 +1101,49 @@ runner status and the CI guide's historical branch-switch example in the mirror.
 `git diff --check`: PASS. No application test was run for these documentation
 changes. These corrections have not been transferred to the laptop. Resume at
 the execution order above after remote command results are available.
+
+## Synthetic SLA acceptance recovered — 17 October 2026
+
+Laptop and mirror branch: `feat/aegis-local-demo-continuation`.
+Verified source/test SHA: `c245a66407ff032bedda45bacc1525ffca5b99b8`
+(application `574503d`, database assertions `44d4693`). Device re-registration
+changed the remote device ID; the old ID was rejected. Fresh inspection found
+expected origin, branch/SHA and clean working tree. Guard found exactly one
+API/web/database and no conflicting job.
+
+Executed on Windows, sequentially under the shared operation lease:
+
+- `.git/sla-resume-build.ps1`: clean-state guarded bundle fast-forward, then
+  `docker compose --project-name ai-project-aegis build api web`; PID 127068,
+  exit 0. Production build passed with an existing Tailwind module-type warning.
+- `scripts/start-windows.ps1 -NoBuild -LocalCopilot`: PID 162300, exit 0.
+  Existing-volume migration/seed and API/web recreation passed. The first
+  remote startup request timed out; agent history had no execution record and
+  no active session before the guarded retry. No duplicate job was launched.
+- `.git/sla-accept.ps1`: retained verification database
+  `aegis_verification_57878ac`, `python -m pytest -q -p no:cacheprovider
+  /integration_tests` via an ephemeral `docker compose run --rm --no-deps`
+  API test job: **13 passed**, one existing Starlette deprecation warning.
+  Includes v3 SLA receipt/policy and acknowledged-event/audit classification.
+  No database/volume reset.
+- `services/api/.venv/Scripts/python.exe scripts/verify-local-http.py`: PASS,
+  including page/readiness routes, private unauthenticated refusals, blocked
+  live warning and Audit360 checksum.
+- Initial `.git/browser-qa/synthetic-sla.cjs` failed waiting for a visible
+  Close button: the fixture assumed details remained expanded across session
+  revalidation. The corrected fixture explicitly reopens the remounted details.
+  Database/HTTP passes remain valid; the initial wrapper exited 1 at this test.
+- `.git/sla-browser-retry.ps1`, PID 79812, exit 0: corrected targeted mobile
+  **v3 and legacy v2** acknowledgement/close flows, required rationale, target
+  classification/disclaimer and no horizontal overflow passed. Fixtures exist
+  only in the test browser; no IdP activation or real proposal write.
+- `node .git/browser-qa/smoke.cjs`: **21 checks**, zero page errors, zero sampled
+  axe violations. Final guard: one API/web/database, no conflicting managed
+  job; clean working tree at the verified SHA.
+
+The synthetic timing slice is accepted. Department identity/ownership/inbox and
+reassignment remain pending; timings classify scripted acknowledgements and
+never send escalation or claim operational SLAs. Prior native evidence remains
+321 passed/13 skipped plus reproducible model and TypeScript; it was not rerun
+for test/documentation-only imports. No push, CI, paid service, trust change,
+IdP activation or live operations occurred. Manual human acceptance remains open.

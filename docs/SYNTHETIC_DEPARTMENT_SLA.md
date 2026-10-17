@@ -15,3 +15,9 @@ without fabricated SLA fields. The legacy one-shot v1 receipt is unchanged.
 Task acknowledgement is still recorded by an incident operator. Department-owned
 identity requires a separately reviewed OIDC role and department-scope claim;
 the UI must never accept a caller-supplied department as authority.
+
+Laptop acceptance at `c245a66`: production build/start, 13 PostGIS tests,
+HTTP/audit checksum, mobile v2/v3 task fixtures and 21 browser smoke checks
+passed. Exact commands, prior native checks and the corrected fixture failure
+are retained in [the handoff](LOCAL_DEMO_HANDOFF.md). Manual department/human
+acceptance remains separate and the owner-deferred IdP remains inactive.
