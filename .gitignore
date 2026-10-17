@@ -10,3 +10,6 @@ __pycache__/
 coverage/
 dist/
 *.tsbuildinfo
+
+# Generated from the pinned MapLibre package before web build/dev.
+apps/web/public/maplibre/

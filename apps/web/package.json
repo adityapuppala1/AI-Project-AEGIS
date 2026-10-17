@@ -6,7 +6,9 @@
     "dev": "next dev -H 0.0.0.0",
     "build": "next build",
     "start": "next start -H 0.0.0.0",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prebuild": "node scripts/prepare-map-worker.cjs",
+    "predev": "node scripts/prepare-map-worker.cjs"
   },
   "dependencies": {
     "clsx": "^2.1.1",

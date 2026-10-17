@@ -30,6 +30,7 @@ export function GeoMap({ incidents, selectedId, onSelect }: {
         if (!containerRef.current) return;
         const maplibregl = await import("maplibre-gl");
         if (disposed || !containerRef.current) return;
+        maplibregl.setWorkerUrl("/maplibre/maplibre-gl-worker.mjs?v=6.14.0");
         map = new maplibregl.Map({
           container: containerRef.current,
           center: [78.4772, 17.385],
@@ -49,7 +50,7 @@ export function GeoMap({ incidents, selectedId, onSelect }: {
         });
         map.on("sourcedata", event => {
           if (!disposed && retryingTiles.current && event.sourceId === "osm" &&
-              (event.sourceDataType === "content" || event.sourceDataType === "idle") && map?.isSourceLoaded("osm")) {
+              "tile" in event && map?.isSourceLoaded("osm")) {
             retryingTiles.current = false;
             setTilesUnavailable(false);
           }
@@ -98,10 +99,11 @@ export function GeoMap({ incidents, selectedId, onSelect }: {
   }, [incidents, selectedId, mapReady]);
 
   function retryTiles() {
-    const source = mapRef.current?.getSource("osm");
-    if (source && "setTiles" in source && typeof source.setTiles === "function") {
+    const map = mapRef.current;
+    if (map?.getSource("osm")) {
       retryingTiles.current = true;
-      source.setTiles(BASE_TILES);
+      // Refresh failed tiles explicitly; setTiles with identical URLs retains failures.
+      map.refreshTiles("osm");
     }
   }
 
