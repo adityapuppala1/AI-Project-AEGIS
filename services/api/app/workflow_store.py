@@ -185,6 +185,9 @@ def proposal_audit(proposal_id: str, agency_id: UUID) -> dict:
     """Private signed-agency evidence, decisions and simulation history."""
     with psycopg.connect(os.environ["DATABASE_URL"], row_factory=dict_row) as conn:
         with conn.cursor() as cur:
+            # Keep all three reads on one MVCC snapshot while reviewers commit.
+            # READ COMMITTED could mix an old proposal with a newer decision.
+            cur.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY")
             cur.execute(
                 """SELECT p.id::text, p.incident_id::text, p.maker_subject, p.status,
                           p.proposal, p.created_at, p.updated_at

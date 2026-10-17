@@ -4,7 +4,8 @@
 param(
   [ValidateSet("api", "web", "all")]
   [string]$Suite = "api",
-  [switch]$ProductionBuild
+  [switch]$ProductionBuild,
+  [string]$PythonExecutable = ""
 )
 $ErrorActionPreference = "Stop"
 Set-Location (Resolve-Path (Join-Path $PSScriptRoot ".."))
@@ -27,28 +28,33 @@ if (Get-Command docker -ErrorAction SilentlyContinue) {
   Write-Host "SKIP: Docker CLI absent; Compose config not validated." -ForegroundColor Yellow
 }
 if ($Suite -eq "api" -or $Suite -eq "all") {
-  Require-Command "python"
+  if (-not $PythonExecutable) {
+    $repoPython = Join-Path (Get-Location) "services/api/.venv/Scripts/python.exe"
+    $PythonExecutable = if (Test-Path $repoPython) { $repoPython } else { "python" }
+  }
+  Require-Command $PythonExecutable
   Push-Location "services/api"
   try {
-    & python -m pytest -q
+    & $PythonExecutable -m pytest -q
     Check-Exit "Python API tests"
-    & python -m app.model_lab --check
+    & $PythonExecutable -m app.model_lab --check
     Check-Exit "Reproducible synthetic model report"
   } finally {
     Pop-Location
   }
 }
 if ($Suite -eq "web" -or $Suite -eq "all") {
-  Require-Command "npm"
+  $npmCommand = if (Get-Command "npm.cmd" -ErrorAction SilentlyContinue) { "npm.cmd" } else { "npm" }
+  Require-Command $npmCommand
   Push-Location "apps/web"
   try {
     if (-not (Test-Path "node_modules")) {
       throw "Frontend node_modules missing. Run 'npm ci --no-audit --no-fund' inside apps/web once."
     }
-    & npm run typecheck
+    & $npmCommand run typecheck
     Check-Exit "Frontend typecheck"
     if ($ProductionBuild) {
-      & npm run build
+      & $npmCommand run build
       Check-Exit "Next.js production build"
     } else {
       Write-Host "SKIP: Next.js production build. Pass -ProductionBuild to enable." -ForegroundColor Yellow

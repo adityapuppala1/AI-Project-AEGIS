@@ -143,3 +143,62 @@ def test_new_accepted_event_links_once_without_quality_promotion(monkeypatch):
     assert payload_digest(event) in evidence[0]["summary"]
     assert payload_digest(conflict) not in evidence[0]["summary"]
     assert sum(event["event_id"] in row["summary"] for row in case["timeline"]) == 1
+
+
+def test_private_audit_keeps_one_snapshot_during_checker_commit(monkeypatch):
+    """A real second connection commits after the audit reads its proposal row."""
+    from app import workflow_store
+    from app.governance import Action
+    monkeypatch.setenv("DATABASE_URL", os.environ["AEGIS_TEST_DATABASE_URL"])
+    run = str(uuid4())
+    maker, checker = "snapshot-maker-" + run, "snapshot-checker-" + run
+    pid = workflow_store.create_proposal(CASE, DEMO_AGENCY, maker, Action.INTERNAL_TRIAGE,
+                                         "SIMULATION: audit snapshot race regression")
+    workflow_store.transition(pid, DEMO_AGENCY, maker, "submit")
+    real_connect = workflow_store.psycopg.connect
+    committed = False
+
+    class CursorProxy:
+        def __init__(self, cursor):
+            self.cursor = cursor
+        def __enter__(self):
+            self.cursor.__enter__()
+            return self
+        def __exit__(self, *args):
+            return self.cursor.__exit__(*args)
+        def __getattr__(self, name):
+            return getattr(self.cursor, name)
+        def fetchone(self):
+            nonlocal committed
+            row = self.cursor.fetchone()
+            if not committed and row and row.get("id") == pid:
+                committed = True
+                with monkeypatch.context() as temporary:
+                    temporary.setattr(workflow_store.psycopg, "connect", real_connect)
+                    workflow_store.transition(pid, DEMO_AGENCY, checker, "approve",
+                                              "SIMULATION: independent checker during audit read")
+            return row
+
+    class ConnectionProxy:
+        def __init__(self, connection):
+            self.connection = connection
+        def __enter__(self):
+            self.connection.__enter__()
+            return self
+        def __exit__(self, *args):
+            return self.connection.__exit__(*args)
+        def cursor(self, *args, **kwargs):
+            return CursorProxy(self.connection.cursor(*args, **kwargs))
+
+    with monkeypatch.context() as scope:
+        scope.setattr(workflow_store.psycopg, "connect",
+                      lambda *args, **kwargs: ConnectionProxy(real_connect(*args, **kwargs)))
+        before = workflow_store.proposal_audit(pid, DEMO_AGENCY)
+    assert committed
+    assert before["proposal"]["status"] == "submitted"
+    assert before["decisions"] == []
+    assert [event["action"] for event in before["events"]] == ["created", "submit"]
+    after = workflow_store.proposal_audit(pid, DEMO_AGENCY)
+    assert after["proposal"]["status"] == "approved"
+    assert len(after["decisions"]) == 1
+    assert [event["action"] for event in after["events"]] == ["created", "submit", "approve"]
