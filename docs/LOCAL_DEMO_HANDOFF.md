@@ -369,3 +369,31 @@ until a verified bundle can be imported safely. Preserve laptop changes; compare
 against the bundle's files before stashing only this agent's known changes and
 fast-forwarding. Review configuration already exists on the laptop at `0fda53d`.
 No identity activation or trust change was attempted during this interruption.
+
+### Reconnection and final verified Windows result
+
+The owner restarted the terminal-based Desktop Commander agent after its
+transport reported fetch failures. Laptop access resumed. The existing build
+log confirmed production image build/start completed; no duplicate build was
+started. Saved `offline-map-results.json` showed **all five checks passed**:
+visible tile failure with retained synthetic markers, disconnected retry keeping
+the warning, successful fixture recovery clearing it, same-origin worker loaded
+without worker/page errors, and missing-WebGL fallback. Application source is
+`481a9f27cc599d007eee487425b4108027b46cdf`.
+
+After reconnecting, `node .git/browser-qa/smoke.cjs` and
+`services/api/.venv/Scripts/python.exe scripts/verify-local-http.py` both ran
+again on the laptop and exited **0**. Browser result: 21 functional checks,
+zero page errors and zero axe violations on the sampled light/dark routes.
+HTTP result: all module/page reads and public audit checksum passed; unconfigured
+protected approval endpoints remained 503 and live-warning writes remained 403.
+API/web remained loopback-only; database healthy. This supersedes the interrupted
+verification status above; real two-human OIDC/MFA and manual accessibility
+acceptance still have not run.
+
+The laptop's four pending application files were compared to the local Git
+bundle: tracked differences empty, new worker helper blob hashes identical.
+A scoped stash preserves those known agent changes before fast-forwarding the
+bundle; no user work was discarded. The complete documentation update is a
+follow-up commit to `65adbd0ce67990f1ae8983332a16fa6633e75a36` on the same
+continuation branch. No push, CI, identity activation or trust change occurred.
