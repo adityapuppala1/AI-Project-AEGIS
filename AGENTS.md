@@ -27,3 +27,5 @@
 - Local dependency diagnostics use fixed IDs/statuses/reason codes and must not expose connection details or raw exceptions. Schema gaps block downstream fixture conclusions; fixture gaps affect only their owning dependency. Remediation may use reviewed additive migrations and idempotent seeds, never a volume reset. See docs/LOCAL_DEPENDENCY_DIAGNOSTICS.md.
 
 - Proposal simulation v3 SLA fields are synthetic rehearsal targets only. Preserve v2 compatibility, record classification in the acknowledgement/audit, and never send escalation or claim a contractual SLA. Department authority must eventually come from verified OIDC scope, never a browser-supplied department. See docs/SYNTHETIC_DEPARTMENT_SLA.md.
+
+- Command Center 3D locators are equal-height schematic symbols, not building geometry, flood extent or severity. Preserve default 2D, reduced-motion camera behavior, tile/WebGL fallback and the HTML incident queue. Selected-case AI focus must remain explicit/cancellable and reset across cases; no background inference or expanded approval authority. See docs/OPERATOR_EXPERIENCE_DESIGN.md.

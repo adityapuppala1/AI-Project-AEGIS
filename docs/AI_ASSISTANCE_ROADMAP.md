@@ -256,3 +256,13 @@ See the handoff for exact commands and limits. This is durable state-machine
 orchestration through explicit requests, not a background autonomous worker.
 Free-form grounded assistance, semantic evaluation and real human acceptance
 remain open.
+
+## Operator experience extension — 17 October 2026
+
+[Research and design](OPERATOR_EXPERIENCE_DESIGN.md) adds an incremental
+Command Center mission layout, selected-case local review focus and optional
+schematic MapLibre depth. No new renderer or hosted model is required. This
+exposes the existing AI selection capability earlier in the case workflow;
+it does not implement free-form drafting or expand agent authority. Laptop
+acceptance is tracked separately in the handoff. Department scope and durable
+draft recovery remain the next engineering priorities.

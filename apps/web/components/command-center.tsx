@@ -64,7 +64,7 @@ export function CommandCenter() {
         <p className="mt-1 text-xs text-muted">Explore scripted task acknowledgements with no outbound departmental messaging.</p></div>
       <Link href="/agency-sync" className="control text-xs">Explore fictional tasks <ArrowRight size={14}/></Link>
     </section>
-    <div className="mt-5 grid gap-5 2xl:grid-cols-[minmax(0,1.55fr)_minmax(350px,1fr)]">
+    <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1.55fr)_minmax(350px,1fr)]">
       <section className="panel min-w-0 overflow-hidden" aria-label="Exercise geospatial overview">
         <div className="panel-heading"><div><h2 className="flex items-center gap-2 text-base font-bold"><MapPinned size={18} className="text-accent"/> Geospatial Overview</h2><p className="mt-1 text-xs text-muted">Hyderabad · incident positions from PostGIS</p></div><span className="rounded-full bg-accent/10 px-3 py-1 text-xs font-semibold text-accent">MapLibre / OSM</span></div>
         <GeoMap incidents={incidents} selectedId={selectedId} onSelect={setSelectedId}/>
@@ -87,6 +87,7 @@ export function CommandCenter() {
           <h3 className="mt-3 text-sm font-bold">{selected.hazard_type}</h3>
           <p className="mt-2 text-xs text-muted">ID {selected.id.slice(0,8)} · {selected.lat.toFixed(4)}, {selected.lon.toFixed(4)}</p>
           <p className="mt-2 text-xs text-muted">Synthetic record. Operational actions are disabled.</p>
+          <h4 className="mt-4 text-sm font-semibold">Case assistance</h4>
           <LocalReviewFocus key={selected.id} incidentId={selected.id}/>
           <Link href={"/incidents/" + selected.id} className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline">Open intelligence workspace <ArrowRight size={14}/></Link>
         </div></div>}

@@ -27,7 +27,7 @@ terrain layers are a later data decision, not fabricated from point positions.
 
 ## Research used
 
-- [MapLibre polygon extrusion example](https://maplibre.org/maplibre-gl-js/docs/examples/3d-extrusion-floorplan/): native polygon extrusion supports the optional symbolic layer in the renderer already installed.
+- [MapLibre native 3D extrusion example](https://maplibre.org/maplibre-gl-js/docs/examples/display-buildings-in-3d/): native polygon extrusion supports the optional symbolic layer in the renderer already installed.
 - [W3C reduced motion guidance](https://www.w3.org/WAI/WCAG22/Techniques/css/C39.html): respect user motion preferences; avoid perpetual ornamental movement in the decision flow.
 - [Anthropic: Building effective agents](https://www.anthropic.com/engineering/building-effective-agents): prefer simple composable workflows, observable boundaries and evaluation before expanding autonomous behavior.
 
