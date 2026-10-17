@@ -157,7 +157,7 @@ def evaluate_readiness(case: dict, nearby: dict) -> dict:
     return {
         "checklist_version": CHECKLIST_VERSION,
         "reference_time": reference.isoformat(),
-        "reference_clock": "synthetic_scenario_not_live_time",
+        "reference_clock": "source_freshness_evaluation_time",
         "unknowns": [
             "Cross-source measurement agreement has not been evaluated.",
             "Real flood likelihood, depth and infrastructure impact are unknown.",

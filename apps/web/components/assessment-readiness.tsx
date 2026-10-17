@@ -8,7 +8,7 @@ type Freshness = "fresh" | "delayed" | "stale" | "no_data" | "clock_anomaly";
 type Readiness = {
   checklist_version: "aegis.exercise.context.v1";
   reference_time: string;
-  reference_clock: "synthetic_scenario_not_live_time";
+  reference_clock: "source_freshness_evaluation_time";
   unknowns: string[];
   next_review_step: string;
   incident_id: string;
@@ -77,7 +77,7 @@ export function AssessmentReadiness({ incidentId }: { incidentId: string }) {
       if (!response.ok) throw new Error("Exercise assessment could not be loaded");
       const data = await response.json() as Readiness;
       if (data.checklist_version !== "aegis.exercise.context.v1" ||
-          data.reference_clock !== "synthetic_scenario_not_live_time" ||
+          data.reference_clock !== "source_freshness_evaluation_time" ||
           typeof data.reference_time !== "string" || !Number.isFinite(Date.parse(data.reference_time)) ||
           !Array.isArray(data.unknowns) || !data.unknowns.every(item => typeof item === "string") ||
           typeof data.next_review_step !== "string" ||
@@ -143,7 +143,7 @@ export function AssessmentReadiness({ incidentId }: { incidentId: string }) {
       <div className="rounded-xl border border-stroke bg-elevated/40 p-4 lg:col-span-2">
         <h4 className="text-sm font-bold">Context and limits</h4>
         <dl className="mt-3 space-y-2 text-xs leading-6 text-muted">
-          <div><dt className="inline font-semibold">Scenario reference time: </dt><dd className="inline"><time dateTime={result.reference_time}>{result.reference_time}</time> (synthetic clock, not live freshness)</dd></div>
+          <div><dt className="inline font-semibold">Freshness evaluated at: </dt><dd className="inline"><time dateTime={result.reference_time}>{result.reference_time}</time> (synthetic observations, not live sensors)</dd></div>
           <div><dt className="inline font-semibold">Checklist retrieved: </dt><dd className="inline"><time dateTime={checkedAt}>{checkedAt}</time> (browser time; does not refresh observations)</dd></div>
           <div><dt className="inline font-semibold">Checklist version: </dt><dd className="inline">{result.checklist_version}</dd></div>
         </dl>
