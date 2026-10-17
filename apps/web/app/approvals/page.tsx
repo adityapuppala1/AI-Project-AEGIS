@@ -45,6 +45,7 @@ export default function ApprovalWorkbench() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const draftBuffer = useRef(new ExerciseDraftBuffer());
+  const accessScope = useRef("");
   const draftTarget = useRef({ incident: "", action: "internal_triage" });
   const chooseDraft = useCallback((incident: string, action: string) => {
     draftTarget.current = { incident, action };
@@ -61,10 +62,13 @@ export default function ApprovalWorkbench() {
       if (session.authenticated && (!session.subject || !session.agencyId)) {
         setAuth(null); throw new Error("Session identity is incomplete");
       }
+      const nextScope = session.authenticated ? JSON.stringify([session.subject, session.agencyId]) : "";
+      const identityChanged = nextScope !== accessScope.current;
+      accessScope.current = nextScope;
       const changed = draftBuffer.current.setScope(
         session.authenticated && session.roles?.includes("incident_operator") ? session.subject! : "",
         session.authenticated && session.roles?.includes("incident_operator") ? session.agencyId! : "");
-      if (changed || !session.authenticated) {
+      if (changed || identityChanged || !session.authenticated) {
         chooseDraft("", "internal_triage"); setReviewReasons({}); setMessage("");
         setProposals([]); setIncidents([]);
       }
@@ -134,7 +138,7 @@ export default function ApprovalWorkbench() {
         This workbench requires a trusted identity provider with signed agency and role claims.</p></div>
     </div>
 
-    {!auth && <section className="panel p-8 text-center text-sm text-muted">Checking secure operator session...</section>}
+    {!auth && loading && <section className="panel p-8 text-center text-sm text-muted">Checking secure operator session...</section>}
     {!auth && !loading && <section className="panel p-5"><p role="alert">Session verification unavailable. Unsaved text is hidden until your identity is verified.</p><button type="button" className="control mt-3" onClick={() => void reload()}>Retry session verification</button></section>}
 
     {auth && !auth.authenticated && <section className="panel p-8">
