@@ -45,6 +45,16 @@ def create_proposal(
             )
             if not cur.fetchone():
                 raise LookupError("Exercise incident not found")
+            # Capture the exact checklist and citations reviewed by the checker.
+            # Public readers support only the named demo agency; other agencies
+            # retain the existing scoped proposal workflow without a demo snapshot.
+            from app.intelligence_store import DEMO_AGENCY
+            response_draft = None
+            if agency_id == DEMO_AGENCY:
+                from app.assessment_adapter import exercise_readiness
+                response_draft = exercise_readiness(UUID(incident_id))
+                if response_draft is None:
+                    raise DecisionError("Synthetic response context is unavailable")
             cur.execute(
                 """INSERT INTO action_proposals
                    (id, incident_id, maker_subject, action_type, proposal, status)
@@ -54,7 +64,7 @@ def create_proposal(
                     incident_id,
                     maker,
                     action.value,
-                    json.dumps({"rationale": rationale, "exercise_only": True}),
+                    json.dumps({"rationale": rationale, "exercise_only": True, "response_draft": response_draft}),
                 ),
             )
             _audit(
@@ -75,7 +85,7 @@ def transition(
     with psycopg.connect(os.environ["DATABASE_URL"]) as conn:
         with conn.cursor(row_factory=dict_row) as cur:
             cur.execute(
-                """SELECT p.id::text, p.incident_id::text, p.maker_subject, p.action_type, p.status
+                """SELECT p.id::text, p.incident_id::text, p.maker_subject, p.action_type, p.status, p.proposal
                    FROM action_proposals AS p
                    JOIN incidents AS i ON i.id = p.incident_id
                    WHERE p.id=%s AND i.agency_id=%s AND i.is_exercise_fixture IS TRUE
@@ -89,6 +99,21 @@ def transition(
                 row["id"], row["incident_id"], row["maker_subject"],
                 Action(row["action_type"]), Status(row["status"]),
             )
+            if operation == "simulate":
+                from app.proposal_simulation import simulation_receipt
+                if current.status is not Status.APPROVED:
+                    raise DecisionError("Independent approval is required before task simulation")
+                payload = row["proposal"]
+                if payload.get("simulation") is not None:
+                    return current.status.value
+                receipt = simulation_receipt(proposal_id, current.status.value, payload.get("response_draft"))
+                cur.execute(
+                    "UPDATE action_proposals SET proposal=jsonb_set(proposal, '{simulation}', %s::jsonb), updated_at=NOW() WHERE id=%s",
+                    (json.dumps(receipt), proposal_id),
+                )
+                _audit(cur, actor, "simulated_department_tasks", proposal_id,
+                       {"agency_id": str(agency_id), "exercise_only": True, "outbound_messages_sent": False})
+                return current.status.value
             if operation == "submit":
                 updated = submit(current, actor)
             elif operation in ("approve", "reject"):
@@ -154,3 +179,33 @@ def list_agency_exercise_incidents(agency_id: UUID) -> list[dict]:
             )
             rows = cur.fetchall()
     return [_convert(row) for row in rows]
+
+
+def proposal_audit(proposal_id: str, agency_id: UUID) -> dict:
+    """Private signed-agency evidence, decisions and simulation history."""
+    with psycopg.connect(os.environ["DATABASE_URL"], row_factory=dict_row) as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """SELECT p.id::text, p.incident_id::text, p.maker_subject, p.status,
+                          p.proposal, p.created_at, p.updated_at
+                   FROM action_proposals p JOIN incidents i ON i.id=p.incident_id
+                   WHERE p.id=%s AND i.agency_id=%s AND i.is_exercise_fixture IS TRUE""",
+                (proposal_id, str(agency_id)),
+            )
+            row = cur.fetchone()
+            if row is None:
+                raise LookupError("Exercise proposal not found")
+            cur.execute(
+                """SELECT checker_subject, decision, rationale, decided_at FROM approvals
+                   WHERE proposal_id=%s ORDER BY decided_at, id""", (proposal_id,),
+            )
+            decisions = [_convert(item) for item in cur.fetchall()]
+            cur.execute(
+                """SELECT actor_subject, action, occurred_at, details FROM audit_events
+                   WHERE resource_type='exercise_proposal' AND resource_id=%s
+                   ORDER BY occurred_at, id LIMIT 100""", (proposal_id,),
+            )
+            events = [_convert(item) for item in cur.fetchall()]
+    return {"version": "aegis.private.proposal.audit.v1", "exercise_only": True,
+            "operational_actions_enabled": False, "proposal": _convert(row),
+            "decisions": decisions, "events": events}

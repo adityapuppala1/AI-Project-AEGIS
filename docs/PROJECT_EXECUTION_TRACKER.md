@@ -1,6 +1,6 @@
 # AEGIS — Project Execution and Delivery Tracker
 
-Updated: 2026-10-16 · Time zone: Asia/Kolkata (IST) · Repository: `adityapuppala1/AI-Project-AEGIS`.
+Updated: 2026-10-17 · Time zone: Asia/Kolkata (IST) · Repository: `adityapuppala1/AI-Project-AEGIS`.
 
 ## Interpretation
 
@@ -51,7 +51,7 @@ P0 demo consolidation estimate **38–74 engineering hours**. Broader list estim
 ## Cost and deployment boundaries
 
 1. Branch work remains **draft**, not merged into main.
-2. One lightweight CI event after each meaningful review milestone; per-commit CI remains gated.
+2. CI is explicit opt-in only; no Actions or labels are authorized for this local continuation.
 3. Full Docker integration CI requires manual opt-in; local Docker/Windows verification is required.
 4. No paid hosting, official data ingestion, real alert delivery, responder dispatch or unvalidated model claims.
 5. Only `adityapuppala1/AI-Project-AEGIS` is authorized. No additional GitHub account or repository.
@@ -185,3 +185,15 @@ GitHub metadata, not assumed engineering hours. A full integrated test suite
 and Windows Docker checks have not yet passed on this candidate; prior
 verified 143 tests on PR #17 must not be misrepresented as a new CI run.
 CI remains opt-in to conserve the user’s GitHub Actions budget.
+
+## Local continuation — 17 October 2026
+
+Current implementation and executed checks are recorded in
+[LOCAL_DEMO_HANDOFF.md](LOCAL_DEMO_HANDOFF.md). The continuation preserves the
+consolidated baseline and fixes actual PostGIS initialization/readiness failures,
+reproducible frontend installation, and proposal-to-task/audit linkage.
+Linux runner evidence: 219 backend tests including an opt-in real PostGIS chain,
+model artifact reproduction, TypeScript/Next production build, fresh and
+populated-volume migration/seed runs, and HTTP smoke checks. No GitHub CI was
+triggered. Windows laptop and real two-human OIDC browser gates remain pending;
+prior status rows are historical, not evidence of those gates passing.

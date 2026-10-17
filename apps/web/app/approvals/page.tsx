@@ -10,7 +10,7 @@ interface Incident { id: string; hazard_type: string; status: string }
 interface Proposal {
   id: string; incident_id: string; maker_subject: string;
   action_type: string; status: "draft" | "submitted" | "approved" | "rejected";
-  proposal: { rationale?: string; exercise_only?: boolean };
+  proposal: { rationale?: string; exercise_only?: boolean; response_draft?: { context_state: string; recommendation_draft: string[]; playbook: { version: string; synthetic_evidence_ids: string[] } }; simulation?: { tasks: { department: string; state: string }[] } };
   created_at: string;
 }
 const actionTypes = [
@@ -89,7 +89,7 @@ export default function ApprovalWorkbench() {
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Unable to create proposal"); }
     finally { setBusy(false); }
   }
-  async function change(proposal: Proposal, operation: "submit" | "approve" | "reject") {
+  async function change(proposal: Proposal, operation: "submit" | "approve" | "reject" | "simulate") {
     if (busy) return;
     setBusy(true); setError(""); setMessage("");
     try {
@@ -173,6 +173,21 @@ export default function ApprovalWorkbench() {
                 <p className="mt-1 text-xs text-muted">Maker: {proposal.maker_subject} · Incident {proposal.incident_id.slice(0,8)}</p>
               </div><span className={`rounded-full px-3 py-1 text-xs font-semibold capitalize ${statuses[proposal.status] ?? "bg-elevated"}`}>{proposal.status}</span></div>
               <p className="mt-3 text-sm leading-6 text-muted">{proposal.proposal?.rationale || "No rationale recorded"}</p>
+              {proposal.proposal.response_draft && <div className="mt-3 text-sm text-muted">
+                <p>Playbook: {proposal.proposal.response_draft.playbook.version}</p>
+                <p>Captured context: {proposal.proposal.response_draft.context_state.replaceAll("_", " ")}</p>
+                <p>{proposal.proposal.response_draft.playbook.synthetic_evidence_ids.length} synthetic evidence references preserved for review.</p>
+                <ul className="mt-2 list-disc pl-5">{proposal.proposal.response_draft.recommendation_draft.map(step => <li key={step}>{step}</li>)}</ul>
+              </div>}
+              {proposal.status === "approved" && canMake && proposal.proposal.response_draft && !proposal.proposal.simulation &&
+                <button type="button" className="control mt-3" disabled={busy} onClick={() => void change(proposal, "simulate")}>
+                  Simulate department tasks and scripted acknowledgements
+                </button>}
+              {proposal.proposal.simulation && <div className="mt-3 text-sm text-muted">
+                <p>Synthetic receipt only · no messages sent · acknowledgements scripted.</p>
+                <ul className="list-disc pl-5">{proposal.proposal.simulation.tasks.map(task => <li key={task.department}>{task.department}: {task.state}</li>)}</ul>
+              </div>}
+              <a className="mt-3 inline-block text-sm underline" href={`/api/proposals/${proposal.id}/audit`} target="_blank" rel="noreferrer">Open private proposal audit JSON</a>
               {proposal.status === "draft" && canMake && proposal.maker_subject === auth.subject &&
                 <button type="button" className="control mt-3" disabled={busy} onClick={() => void change(proposal, "submit")}>
                   Submit for independent review

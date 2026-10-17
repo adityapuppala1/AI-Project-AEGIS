@@ -149,3 +149,13 @@ remain **acceptance work**, not completed release gates. Target demo:
 For exact historical commit windows and older PR references, see
 [PROJECT_EXECUTION_TRACKER.md](PROJECT_EXECUTION_TRACKER.md). Git commit
 intervals are NOT actual engineering hours.
+
+## Continuation evidence — 17 October 2026
+
+See [current local handoff](LOCAL_DEMO_HANDOFF.md) for executed commands and limits.
+The continuation adds private evidence-snapshotted proposals, approved-only
+scripted department receipts, and an agency-scoped private audit route. Public
+AgencySync and Audit360 still show seeded fixtures and exclude private decisions.
+The code passes Linux local checks and an automated PostGIS/test-signed identity
+chain; this does not clear Windows, real OIDC/MFA, two-human browser, accessibility,
+or owner release gates. No GitHub Actions run or merge was performed.

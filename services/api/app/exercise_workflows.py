@@ -11,7 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from app.governance import Action, DecisionError
 from app.security import Operator, get_operator, require_role
-from app.workflow_store import create_proposal, transition, list_proposals, list_agency_exercise_incidents
+from app.workflow_store import create_proposal, transition, list_proposals, list_agency_exercise_incidents, proposal_audit
 
 router = APIRouter(prefix="/v1/exercise/proposals", tags=["Authenticated exercise workflow"])
 
@@ -27,6 +27,7 @@ class Operation(str, Enum):
     submit = "submit"
     approve = "approve"
     reject = "reject"
+    simulate = "simulate"
 
 
 class ChangeProposal(BaseModel):
@@ -71,6 +72,8 @@ def create(payload: CreateProposal, operator: Operator = Depends(get_operator)):
             payload.rationale,
         )
         return {"id": proposal_id, "status": "draft", "exercise_only": True}
+    except DecisionError as err:
+        raise HTTPException(status_code=409, detail=str(err)) from err
     except LookupError as err:
         # Also covers out-of-agency incidents without disclosing their existence.
         raise HTTPException(status_code=404, detail="Exercise incident not found") from err
@@ -82,7 +85,7 @@ def change(
     payload: ChangeProposal,
     operator: Operator = Depends(get_operator),
 ):
-    if payload.operation is Operation.submit:
+    if payload.operation in (Operation.submit, Operation.simulate):
         require_role(operator, {"incident_operator"})
     else:
         require_role(operator, {"incident_checker"})
@@ -99,3 +102,12 @@ def change(
         raise HTTPException(status_code=404, detail="Exercise proposal not found") from err
     except DecisionError as err:
         raise HTTPException(status_code=409, detail=str(err)) from err
+
+
+@router.get("/{proposal_id}/audit")
+def private_proposal_audit(proposal_id: UUID, operator: Operator = Depends(get_operator)):
+    require_role(operator, {"incident_operator", "incident_checker", "incident_auditor"})
+    try:
+        return proposal_audit(str(proposal_id), operator.agency_id)
+    except LookupError as err:
+        raise HTTPException(status_code=404, detail="Exercise proposal not found") from err

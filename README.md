@@ -18,6 +18,15 @@ powershell -ExecutionPolicy Bypass -File .\\scripts\\verify-windows.ps1
 
 An optional local-only scenario refresh (`scripts/run-tabletop-windows.ps1 -ConfirmExercise`) appends three fictional readings without deleting source history. The `/demo` page guides the original scenario through the rule-only index, case evidence, playbook, human approval gate, scripted AgencySync acknowledgements and Audit360 export. No official provider is connected.
 
+## Current continuation and validation
+
+See [local demo handoff](docs/LOCAL_DEMO_HANDOFF.md) for current branch, commands,
+results and remaining gates. New demo-agency approval drafts retain the case
+assessment and playbook citations. After independent approval, an operator can
+create a proposal-linked scripted department receipt and inspect its private
+audit JSON in `/approvals`. A trusted IdP remains required; no pretend login is
+provided. Public AgencySync/Audit360 remain separate fixture views.
+
 ## Run API
 
 ```bash

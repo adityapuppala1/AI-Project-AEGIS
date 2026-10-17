@@ -142,3 +142,19 @@ def test_verified_identity_context():
         "roles": ["incident_auditor"],
         "exercise_only": True,
     }
+
+
+def test_checker_cannot_run_department_simulation(monkeypatch):
+    authenticate("incident_checker")
+    monkeypatch.setattr(exercise_workflows, "transition", lambda *_: pytest.fail("Unauthorized simulation"))
+    assert client.post(f"/v1/exercise/proposals/{PROPOSAL_ID}/transition",
+                       json={"operation": "simulate"}).status_code == 403
+
+
+def test_private_audit_uses_signed_agency(monkeypatch):
+    authenticate("incident_auditor")
+    captured = []
+    monkeypatch.setattr(exercise_workflows, "proposal_audit",
+                        lambda pid, agency: captured.append((pid, agency)) or {"exercise_only": True})
+    assert client.get(f"/v1/exercise/proposals/{PROPOSAL_ID}/audit").status_code == 200
+    assert captured == [(PROPOSAL_ID, AGENCY_ID)]

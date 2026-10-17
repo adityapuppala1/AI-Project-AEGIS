@@ -2,7 +2,7 @@
 import { NextResponse } from "next/server";
 import { configuration, readSession, sameOrigin, type Role } from "./auth-server";
 
-type Operation = "submit" | "approve" | "reject";
+type Operation = "submit" | "approve" | "reject" | "simulate";
 const ACTIONS = new Set(["internal_triage", "prepare_warning", "propose_dispatch"]);
 const UUID = /^[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12}$/i;
 
@@ -12,7 +12,7 @@ function failure(status: number, error: string) {
 function hasRole(roles: Role[], ...expected: Role[]): boolean {
   return roles.some((role) => expected.includes(role));
 }
-export async function proxyProposals(request: Request, proposalId?: string): Promise<NextResponse> {
+export async function proxyProposals(request: Request, proposalId?: string, audit = false): Promise<NextResponse> {
   let config: ReturnType<typeof configuration>;
   try { config = configuration(); } catch { return failure(503, "Identity provider configuration invalid"); }
   if (!config) return failure(503, "Identity provider not configured");
@@ -31,9 +31,9 @@ export async function proxyProposals(request: Request, proposalId?: string): Pro
     const data = payload as Record<string, unknown>;
     if (proposalId) {
       const operation = data.operation;
-      if (!["submit", "approve", "reject"].includes(String(operation))) return failure(400, "Unsupported workflow operation");
+      if (!["submit", "approve", "reject", "simulate"].includes(String(operation))) return failure(400, "Unsupported workflow operation");
       if (Object.keys(data).some((key) => !["operation", "rationale"].includes(key))) return failure(400, "Unexpected proposal attributes");
-      const role = operation === "submit" ? "incident_operator" : "incident_checker";
+      const role = (operation === "submit" || operation === "simulate") ? "incident_operator" : "incident_checker";
       if (!hasRole(session.roles, role)) return failure(403, "Insufficient role");
       if (data.rationale !== undefined && (typeof data.rationale !== "string" || data.rationale.length > 2000)) return failure(400, "Invalid review rationale");
       body = JSON.stringify({ operation: operation as Operation, rationale: data.rationale });
@@ -51,7 +51,7 @@ export async function proxyProposals(request: Request, proposalId?: string): Pro
   }
   try {
     const base = process.env.API_INTERNAL_URL || "http://localhost:8000";
-    const endpoint = base + "/v1/exercise/proposals" + (proposalId ? "/" + proposalId + "/transition" : "");
+    const endpoint = base + "/v1/exercise/proposals" + (proposalId ? "/" + proposalId + (audit ? "/audit" : "/transition") : "");
     const response = await fetch(endpoint, {
       method: request.method,
       headers: { Authorization: "Bearer " + session.accessToken, ...(isWrite ? { "Content-Type": "application/json" } : {}) },

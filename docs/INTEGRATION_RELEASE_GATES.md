@@ -27,8 +27,8 @@ for a complete end-to-end demo.
    (`workflow_dispatch` with `run_compose=true`). If explicitly enabled,
    it now checks migrations, fixture readiness, models, incident readiness
    and double replay idempotence on an **ephemeral** CI volume.
-6. Lightweight CI continues running only when marking a PR ready for review.
-   It never starts Docker containers automatically per commit.
+6. CI is label/manual opt-in under [CI Cost Policy](CI_COST_POLICY.md).
+   This continuation runs locally only; no labels or Actions are authorized.
 
 ## Ready-for-demo acceptance checklist
 
@@ -170,3 +170,15 @@ operator/checker approval.
 
 See the authoritative
 [CipherCop Release Audit](CIPHERCOP_2026_RELEASE_AUDIT.md).
+
+
+## Current local continuation
+
+[LOCAL_DEMO_HANDOFF.md](LOCAL_DEMO_HANDOFF.md) records actual Linux verification
+and remaining Windows/browser/IdP gates. Run `python scripts/verify-local-http.py`
+against loopback API/web services for repeatable HTTP smoke and audit checksum
+verification. The private `/v1/exercise/proposals/{id}/audit` route requires a
+verified signed-agency identity. The existing transition endpoint accepts
+`simulate` only for an operator and an independently approved evidence-linked
+draft; repeated calls preserve one receipt. This is a scripted local rehearsal,
+not department communication or operational task execution.

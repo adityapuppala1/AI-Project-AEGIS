@@ -42,7 +42,7 @@ COUNTS = {
                                '55555555-5555-4555-8555-555555555555',
                                '66666666-6666-4666-8666-666666666666')""",
     "sources": """SELECT COUNT(*) AS n FROM exercise_data_sources
-                  WHERE agency_id=%s AND synthetic IS TRUE AND id::text LIKE 'c3000000-%'""",
+                  WHERE agency_id=%s AND synthetic IS TRUE AND id::text LIKE 'c3000000-%%'""",
     "source_samples": """SELECT COUNT(*) AS n FROM exercise_source_samples AS x
                          JOIN exercise_data_sources AS s ON s.id=x.source_id
                          WHERE s.agency_id=%s AND s.synthetic IS TRUE
@@ -56,17 +56,17 @@ COUNTS = {
                    WHERE i.agency_id=%s AND i.is_exercise_fixture IS TRUE
                      AND e.synthetic IS TRUE""",
     "geo_assets": """SELECT COUNT(*) AS n FROM exercise_geo_assets
-                     WHERE agency_id=%s AND synthetic IS TRUE AND id::text LIKE 'e5000000-%'""",
+                     WHERE agency_id=%s AND synthetic IS TRUE AND id::text LIKE 'e5000000-%%'""",
     "agency_tasks": """SELECT COUNT(*) AS n FROM exercise_agency_tasks AS t
                        JOIN incidents AS i ON i.id=t.incident_id
                        WHERE i.agency_id=%s AND i.is_exercise_fixture IS TRUE
-                         AND t.synthetic IS TRUE AND t.id::text LIKE 'f6000000-%'""",
+                         AND t.synthetic IS TRUE AND t.id::text LIKE 'f6000000-%%'""",
     "agency_task_events": """SELECT COUNT(*) AS n FROM exercise_agency_task_events AS e
                              JOIN exercise_agency_tasks AS t ON t.id=e.task_id
                              JOIN incidents AS i ON i.id=t.incident_id
                              WHERE i.agency_id=%s AND i.is_exercise_fixture IS TRUE
                                AND t.synthetic IS TRUE AND e.synthetic IS TRUE
-                               AND e.id::text LIKE 'f7000000-%'""",
+                               AND e.id::text LIKE 'f7000000-%%'""",
 }
 
 
