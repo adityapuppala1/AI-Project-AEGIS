@@ -387,3 +387,10 @@ by the transition handler was caught by Linux regression tests and corrected
 in `6611465`. Laptop corrective sync and acceptance are pending; consult the
 current handoff before running another managed batch. This slice retains
 independent approval and does not close durable-agent or human IdP gates.
+
+
+Saved-focus follow-up: corrected source imported and verified on the laptop at
+`5c9bc0e` (API source `6611465`). Native 300/Node 32/PostGIS 10 tests passed,
+production build/startup, HTTP and browser/axe passed. Targeted browser fixtures
+verified saved-focus creation choice, failure recovery and checker display.
+No real human IdP acceptance; current handoff records exact commands and logs.

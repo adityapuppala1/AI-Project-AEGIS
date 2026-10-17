@@ -20,12 +20,13 @@ Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 
 ## Latest continuation status
 
-Saved-focus source `6611465` follows `afd443f`. Laptop import of `afd443f`
-succeeded, but the subsequent verification driver write/start timed out. Its
-execution is unconfirmed. Do not start another laptop batch until inspecting
-`.git/saved-focus-progress.txt`, existing processes and the shared operation lock.
-The corrected `6611465` is currently Linux-only; laptop sync/acceptance is pending.
-See the final section for executed Linux checks and the retained regression.
+Saved-focus source `6611465` is now imported on the laptop through handoff
+`5c9bc0e758df7b0c9626ddc46667c47375747525`. Reconnection inventory process
+93728 and guarded corrective import 115588 both exited 0, with a clean expected
+branch, one API/web/DB and no conflicting AEGIS job. The earlier connection
+interruption below is historical. Windows acceptance passed under
+`.git/verify-saved-focus-resume.ps1` (PID 55660 exit 0), followed by targeted
+saved-focus browser fixtures (PID 143308 exit 0). Exact evidence is below.
 
 ## Current closure and remaining work
 
@@ -36,8 +37,8 @@ See the final section for executed Linux checks and the retained regression.
 | Previously verified on laptop | Opt-in local-model selection preview with original citations and safe fallbacks |
 | Previously closed | Laptop saved-context revalidation acceptance; single-operation lock, duplicate inventory/refusal checks, guarded startup, production builds and final DB/HTTP/browser regression |
 | Verified with revised measurement | Local warm HTTP latency v2 at four workers; client setup excluded and thresholds unchanged; previous v1 failures retained below |
-| Verified this pass on Linux | Optional saved review focus: 300 API tests, 32 Node tests, 10 PostGIS tests, production API/web images and HTTP checks; actual model inference and browser interaction not rerun |
-| Blocked on laptop | Corrective source sync and saved-focus acceptance after Desktop Commander timeouts; last confirmed checkout is `afd443f`, not corrected `6611465` |
+| Verified on Linux and laptop | Optional saved review focus: 300 API tests, 32 Node tests, 10 PostGIS tests, production API/web images and HTTP checks; laptop public browser/axe and targeted saved-focus browser fixtures passed |
+| Closed connection blocker | Corrective laptop import and acceptance completed at `5c9bc0e` (application `6611465`); one API/web/DB, no detected conflicting AEGIS job |
 | Deferred by owner | Local IdP/trust activation and real two-person MFA/browser approval acceptance; do not reactivate or bypass |
 | Pending human acceptance | Manual screen-reader/operator rehearsal and owner release review |
 | Pending engineering | Source agreement metadata/rules, deeper dependency diagnostics, free-form grounded drafting/Q&A, durable bounded agent runner, department-owned task permissions/SLAs and durable draft recovery |
@@ -852,3 +853,63 @@ Blocked: laptop corrective sync/build/tests due connector response failures.
 Deferred by owner: IdP/CA trust activation and real two-person sign-in. Forecasting
 requires authorized real data and domain evaluation. Do not describe this slice
 or its test counts as completion of the whole assistance roadmap.
+
+## Windows saved-focus acceptance recovery — 17 October 2026
+
+Checkout `5c9bc0e758df7b0c9626ddc46667c47375747525`, application source
+`6611465f67a5d1d8e2b467f6ea1b4bef8d44570c`, branch
+`feat/aegis-local-demo-continuation`. Reconnected read-only inspection and
+corrective local-bundle fast-forward succeeded (PIDs 93728 / 115588, exit 0).
+No local edits were overwritten. No duplicate AEGIS service or conflicting job
+was detected; unrelated projects were preserved. The prior connection blocker
+and initial regression remain recorded above as historical failures.
+
+Driver `.git/verify-saved-focus-resume.ps1` runs sequentially with shared leases:
+
+- `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify-code-local.ps1 -Suite all`:
+  **300 passed, 10 skipped**, synthetic model reproduction and TypeScript PASS;
+  one existing Starlette/httpx warning. Database tests run separately below.
+- From `apps/web`,
+  `node --test scripts/tests/exercise-draft-buffer.test.cjs scripts/tests/proposal-proxy.test.cjs scripts/tests/context-route.test.cjs scripts/tests/review-focus-route.test.cjs`:
+  **32 passed**.
+- `docker compose --project-name ai-project-aegis build api web`: production
+  API/web images PASS, including compilation/types/static generation. Existing
+  benign Tailwind module-type warning retained. No package/model download added.
+
+Runtime/database/browser stages follow; only executed results are recorded.
+
+Windows runtime batch completed: PID 55660 exit **0**, 303.74 seconds.
+
+- `scripts/start-windows.ps1 -NoBuild -LocalCopilot`: PASS. Existing database
+  retained; idempotent migrate/seed exited normally. One API/web/DB afterward.
+  Optional local-model API configuration retained; no model runtime started.
+- Leased command:
+  `docker compose --project-name ai-project-aegis run --rm --no-deps -T -v "%CD%/services/api/integration_tests:/integration_tests:ro" api sh -c "export AEGIS_TEST_DATABASE_URL=${DATABASE_URL%/aegis}/aegis_verification_57878ac; python -m pytest -q -p no:cacheprovider /integration_tests"`:
+  **10 passed, 4.07 s**. Retained separate verification DB, appended labelled
+  synthetic cases; no reset. Selection persistence tests use deterministic
+  selectors, not a new real-model inference/quality measurement.
+- `services/api/.venv/Scripts/python.exe scripts/verify-local-http.py`: PASS,
+  including public routes/audit checksum, private refusals and blocked live action.
+- `node .git/browser-qa/smoke.cjs`: PASS desktop/mobile/keyboard/anonymous checks,
+  zero page errors and sampled axe violations. Final runtime inventory PASS,
+  exactly one API/web/DB and no conflicting AEGIS job/native server detected.
+
+Logs: `.git/saved-focus-{native,node,build,start,postgis,http,browser}.log`;
+`.git/saved-focus-progress.txt` records the batch stages. No CI/push/merge,
+IdP/trust activation, paid resource, broad process kill or real operation.
+
+Targeted laptop browser fixture: PID 143308 exit **0**, 11.12 seconds.
+`node .git/browser-qa/saved-focus.cjs` under the shared lease passed mobile
+opt-in/reset, changed-context failed-save retention, successful-save clearing,
+saved model/fallback labels and citations, checker read-only creation controls,
+audit link and horizontal-overflow checks. Zero page errors and zero real
+proposal writes. Identity/model responses were intercepted only in that test
+browser; no deployed auth bypass or actual two-human acceptance is implied.
+Log `.git/saved-focus-panel.log`. Final inventory and clean expected source
+checks passed. Final docs are synced via a guarded local bundle.
+
+Current remaining work: durable bounded runs with retry/cancellation, free-form
+grounded assistance and usefulness evaluation, source comparison/dependency
+metadata, department permissions/SLAs, durable note recovery and human acceptance.
+Saved-selection capture and its laptop automated acceptance are now closed.
+IdP activation and trust remain deferred by owner; no forecast validation claim.

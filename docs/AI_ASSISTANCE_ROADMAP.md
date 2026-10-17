@@ -212,3 +212,10 @@ production images and HTTP passed. Laptop corrective sync/acceptance is blocked
 by remote timeouts; targeted browser interaction remains pending. This closes
 Linux persistence checks for the bounded selection slice, not the durable runner,
 free-form copilot, real human sign-in or prediction programme.
+
+
+Saved-focus laptop acceptance recovered on `5c9bc0e` (application `6611465`):
+300 API tests, 32 Node tests, 10 real PostGIS tests, production images/startup,
+HTTP, public browser/axe and targeted saved-focus mobile/browser fixtures passed.
+One API/web/DB, no conflicting AEGIS job. The earlier connector blocker is closed;
+real human sign-in and the broader assistance roadmap remain open. See handoff.
