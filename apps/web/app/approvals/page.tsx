@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { AlertTriangle, Check, ClipboardCheck, LockKeyhole, Plus, RefreshCw, ShieldCheck, X } from "lucide-react";
+import { ExerciseDraftBuffer } from "../../lib/exercise-draft-buffer";
 import { AppShell } from "../../components/app-shell";
 import { ExerciseReviewBrief, type ReviewBrief } from "../../components/exercise-review-brief";
 
@@ -43,14 +44,32 @@ export default function ApprovalWorkbench() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const draftBuffer = useRef(new ExerciseDraftBuffer());
+  const draftTarget = useRef({ incident: "", action: "internal_triage" });
+  const chooseDraft = useCallback((incident: string, action: string) => {
+    draftTarget.current = { incident, action };
+    setSelectedIncident(incident); setActionType(action);
+    setRationale(draftBuffer.current.read(incident, action));
+  }, []);
 
   const reload = useCallback(async () => {
-    setLoading(true);
+    setLoading(true); setAuth(null);
     try {
       const sessionResponse = await fetch("/api/auth/session", { cache: "no-store" });
+      if (!sessionResponse.ok) { setAuth(null); throw new Error("Session could not be verified; retry Refresh"); }
       const session = await sessionResponse.json() as AuthState;
+      if (session.authenticated && (!session.subject || !session.agencyId)) {
+        setAuth(null); throw new Error("Session identity is incomplete");
+      }
+      const changed = draftBuffer.current.setScope(
+        session.authenticated && session.roles?.includes("incident_operator") ? session.subject! : "",
+        session.authenticated && session.roles?.includes("incident_operator") ? session.agencyId! : "");
+      if (changed || !session.authenticated) {
+        chooseDraft("", "internal_triage"); setReviewReasons({}); setMessage("");
+        setProposals([]); setIncidents([]);
+      }
       setAuth(session);
-      if (!session.authenticated) { setProposals([]); setIncidents([]); setSelectedIncident(""); return; }
+      if (!session.authenticated) { setProposals([]); setIncidents([]); return; }
       const [casesResponse, approvalsResponse] = await Promise.all([
         fetch("/api/proposals/incidents", { cache: "no-store", credentials: "same-origin" }),
         fetch("/api/proposals", { cache: "no-store" }),
@@ -59,16 +78,18 @@ export default function ApprovalWorkbench() {
       const cases: Incident[] = await casesResponse.json();
       const tasks: Proposal[] = await approvalsResponse.json();
       setIncidents(cases);
-      setSelectedIncident(current => cases.some(item => item.id === current) ? current : cases[0]?.id || "");
+      const incident = cases.some(item => item.id === draftTarget.current.incident) ? draftTarget.current.incident : cases[0]?.id || "";
+      chooseDraft(incident, draftTarget.current.action);
       setProposals(tasks);
       setError("");
     } catch (cause) {
-      setIncidents([]); setSelectedIncident(""); setProposals([]);
+      setIncidents([]); setProposals([]);
       setError(cause instanceof Error ? cause.message : "Exercise service unavailable");
     } finally { setLoading(false); }
-  }, []);
+  }, [chooseDraft]);
   useEffect(() => { void reload(); }, [reload]);
-  const canMake = !!auth?.roles?.includes("incident_operator");
+  const canMake = !!auth?.authenticated && !!auth.roles?.includes("incident_operator");
+  const canCreate = canMake && !loading && incidents.some(item => item.id === selectedIncident);
   const canReview = !!auth?.roles?.includes("incident_checker");
 
   async function mutation(url: string, payload: object) {
@@ -80,11 +101,12 @@ export default function ApprovalWorkbench() {
   }
   async function create(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!canMake || !selectedIncident || busy) return;
+    if (!canCreate || busy) return;
     setBusy(true); setError(""); setMessage("");
     try {
       await mutation("/api/proposals", { incident_id: selectedIncident, action_type: actionType, rationale });
       setMessage("Exercise proposal saved as draft. It must be separately submitted and reviewed.");
+      draftBuffer.current.write(selectedIncident, actionType, "");
       setRationale("");
       await reload();
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Unable to create proposal"); }
@@ -113,6 +135,8 @@ export default function ApprovalWorkbench() {
     </div>
 
     {!auth && <section className="panel p-8 text-center text-sm text-muted">Checking secure operator session...</section>}
+    {!auth && !loading && <section className="panel p-5"><p role="alert">Session verification unavailable. Unsaved text is hidden until your identity is verified.</p><button type="button" className="control mt-3" onClick={() => void reload()}>Retry session verification</button></section>}
+
     {auth && !auth.authenticated && <section className="panel p-8">
       <div className="mx-auto max-w-xl text-center">
         <LockKeyhole className="mx-auto mb-4 text-accent" size={35}/>
@@ -144,22 +168,26 @@ export default function ApprovalWorkbench() {
           <form className="space-y-4 p-5" onSubmit={create}>
             {!canMake && <p className="text-sm text-muted">Read-only access. The incident-operator role is required to create proposals.</p>}
             <div><label className="mb-2 block text-xs font-semibold text-muted" htmlFor="exercise-incident">Exercise incident</label>
-              <select id="exercise-incident" className="field" value={selectedIncident} onChange={event => setSelectedIncident(event.target.value)} disabled={!canMake || busy}>
+              <select id="exercise-incident" className="field" value={selectedIncident} onChange={event => chooseDraft(event.target.value, actionType)} disabled={!canMake || busy || loading}>
                 {!incidents.length && <option value="">No incidents available</option>}
                 {incidents.map(item => <option key={item.id} value={item.id}>{item.hazard_type} · {item.id.slice(0,8)}</option>)}
               </select>
             </div>
             <div><label className="mb-2 block text-xs font-semibold text-muted" htmlFor="exercise-action">Proposed action</label>
-              <select id="exercise-action" className="field" value={actionType} onChange={event => setActionType(event.target.value)} disabled={!canMake || busy}>
+              <select id="exercise-action" className="field" value={actionType} onChange={event => chooseDraft(selectedIncident, event.target.value)} disabled={!canCreate || busy}>
                 {actionTypes.map(item => <option value={item.value} key={item.value}>{item.label}</option>)}
               </select>
             </div>
             <div><label className="mb-2 block text-xs font-semibold text-muted" htmlFor="exercise-rationale">Supporting rationale</label>
               <textarea id="exercise-rationale" className="field !h-28 resize-y py-3" minLength={10} maxLength={2000} required
-                value={rationale} onChange={event => setRationale(event.target.value)} disabled={!canMake || busy}
+                value={rationale} onChange={event => {
+                  setRationale(event.target.value);
+                  draftBuffer.current.write(selectedIncident, actionType, event.target.value);
+                }} disabled={!canCreate || busy}
                 placeholder="Explain evidence, affected area, uncertainty, and proposed action..."/>
             </div>
-            <button type="submit" className="control control-primary w-full" disabled={!canMake || !selectedIncident || busy || rationale.trim().length < 10}>
+            <p className="text-xs leading-5 text-muted">Unsaved text stays on this page for up to 10 incident/action drafts. Leaving this page or changing identity clears it. A successful save clears that draft.</p>
+            <button type="submit" className="control control-primary w-full" disabled={!canCreate || busy || rationale.trim().length < 10}>
               <Plus size={16}/> Save exercise draft
             </button>
           </form>
