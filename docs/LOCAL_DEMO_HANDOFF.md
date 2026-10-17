@@ -355,3 +355,17 @@ ignored public assets before dev/build and sets an explicit same-origin URL.
 Windows prebuild and typecheck passed; the final production rebuild and worker-
 aware browser/HTTP rerun are in progress and must not be called verified until
 results are recorded below. Transport PNG fixtures are not geographic evidence.
+
+Connector interruption: after starting the final Windows build/test sequence
+(PowerShell PID 52108), Desktop Commander stopped returning laptop results.
+The device list reported Online but a subsequent read was explicitly queued
+(call fcedefa5-bd55-4858-92cc-92b1e89b18ae). Final worker-aware QA and latest
+production rebuild outcomes are **unknown**, not failed or passed. Do not start
+a duplicate build until the existing process/log is inspected on reconnection.
+The four source changes for `481a9f2` were written to Windows before that build;
+Windows HEAD was still `0fda53d`, with those known application changes uncommitted.
+The current handoff/status documentation commits remain in the Linux checkout
+until a verified bundle can be imported safely. Preserve laptop changes; compare
+against the bundle's files before stashing only this agent's known changes and
+fast-forwarding. Review configuration already exists on the laptop at `0fda53d`.
+No identity activation or trust change was attempted during this interruption.
