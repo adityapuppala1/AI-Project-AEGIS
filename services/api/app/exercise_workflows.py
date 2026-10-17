@@ -113,7 +113,9 @@ def private_proposal_audit(proposal_id: UUID, operator: Operator = Depends(get_o
         raise HTTPException(status_code=404, detail="Exercise proposal not found") from err
 
 
-@router.get("/{proposal_id}/cap-draft")
+@router.get("/{proposal_id}/cap-draft", response_class=Response,
+            responses={200: {"content": {"application/xml": {}},
+                             "description": "Private exercise draft; never transmit"}})
 def private_cap_draft(proposal_id: UUID, operator: Operator = Depends(get_operator)):
     require_role(operator, {"incident_operator", "incident_checker", "incident_auditor"})
     from app.cap_draft import cap_draft_xml

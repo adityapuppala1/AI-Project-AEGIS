@@ -176,6 +176,8 @@ def test_cap_export_is_private_scoped_and_download_only(monkeypatch):
     assert response.status_code == 200
     assert captured == [(PROPOSAL_ID, AGENCY_ID)]
     assert response.headers["content-type"].startswith("application/xml")
+    content = app.openapi()["paths"]["/v1/exercise/proposals/{proposal_id}/cap-draft"]["get"]["responses"]["200"]["content"]
+    assert "application/xml" in content and "application/json" not in content
     assert response.headers["cache-control"] == "no-store"
     assert response.headers["content-disposition"].endswith('-draft.xml"')
     assert client.post(f"/v1/exercise/proposals/{PROPOSAL_ID}/cap-draft").status_code == 405
