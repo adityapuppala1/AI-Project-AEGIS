@@ -5,8 +5,8 @@ and [single-instance local operation guards](SINGLE_INSTANCE_LOCAL_RUNTIME.md)
 passed laptop acceptance: 299 native tests, 31 proxy tests, seven PostGIS tests,
 production builds, guarded startup and HTTP/browser checks. Deterministic context
 only at that checkpoint. [Optional saved review focus](SAVED_REVIEW_FOCUS.md)
-is implemented in the next slice; environment-specific acceptance is in the handoff.
-The durable runner remains pending. Exact source,
+is implemented in the next slice; a bounded explicit-step durable run is also
+accepted locally. Broader free-form assistance remains pending. Exact source,
 commands and the retained startup failure/fix are in [the handoff](LOCAL_DEMO_HANDOFF.md).
 
 Planned 17 October 2026 on `feat/aegis-local-demo-continuation`, after inspecting
@@ -219,3 +219,20 @@ Saved-focus laptop acceptance recovered on `5c9bc0e` (application `6611465`):
 HTTP, public browser/axe and targeted saved-focus mobile/browser fixtures passed.
 One API/web/DB, no conflicting AEGIS job. The earlier connector blocker is closed;
 real human sign-in and the broader assistance roadmap remain open. See handoff.
+
+## Implementation update — bounded durable run
+
+`e01cb4d` closes the bounded explicit-step portion of order 3. The existing
+proposal row stores a server-issued run ID, context fingerprint, fixed tool and
+three-step budget, expected-step retry token, results, status and timestamps.
+Each maker request commits one step and audit event; row locking and expected
+steps make concurrent retries idempotent. Context changes block progress while
+audited cancellation remains available. The run stops at `review_ready` and
+cannot submit, approve, acknowledge tasks or perform operational actions.
+
+Actual laptop acceptance: 308 API tests, 37 Node tests, 13 PostGIS tests,
+production images/startup, HTTP and targeted mobile browser fixtures passed.
+See the handoff for exact commands and limits. This is durable state-machine
+orchestration through explicit requests, not a background autonomous worker.
+Free-form grounded assistance, semantic evaluation and real human acceptance
+remain open.

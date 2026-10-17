@@ -4,7 +4,8 @@ Current extensions: [saved proposal-context revalidation](PROPOSAL_CONTEXT_REVAL
 and [single-instance local operation guards](SINGLE_INSTANCE_LOCAL_RUNTIME.md)
 passed laptop acceptance: 299 native tests, 31 proxy tests, seven PostGIS tests,
 production builds, guarded startup and HTTP/browser checks. Deterministic context
-only; model preview capture and the durable runner remain pending. Exact source,
+only at that checkpoint; saved focus and a bounded explicit-step runner are now
+implemented and accepted locally. Exact source,
 commands and the retained startup failure/fix are in [the handoff](LOCAL_DEMO_HANDOFF.md).
 
 ## Expanded operator-assistance plan

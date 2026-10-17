@@ -4,7 +4,8 @@ Current extensions: [saved proposal-context revalidation](PROPOSAL_CONTEXT_REVAL
 and [single-instance local operation guards](SINGLE_INSTANCE_LOCAL_RUNTIME.md)
 passed laptop acceptance: 299 native tests, 31 proxy tests, seven PostGIS tests,
 production builds, guarded startup and HTTP/browser checks. Deterministic context
-only; model preview capture and the durable runner remain pending. Exact source,
+only at that checkpoint; saved review focus and the bounded explicit-step runner
+are now accepted locally. Broader free-form assistance remains pending. Exact source,
 commands and the retained startup failure/fix are in [the handoff](LOCAL_DEMO_HANDOFF.md).
 
 Updated: 2026-10-17 · Time zone: Asia/Kolkata (IST) · Repository: `adityapuppala1/AI-Project-AEGIS`.
@@ -394,3 +395,12 @@ Saved-focus follow-up: corrected source imported and verified on the laptop at
 production build/startup, HTTP and browser/axe passed. Targeted browser fixtures
 verified saved-focus creation choice, failure recovery and checker display.
 No real human IdP acceptance; current handoff records exact commands and logs.
+
+### Bounded assistance run accepted locally
+
+`e01cb4d` adds a maker-only, draft-only, proposal-linked three-step run with
+durable state/audit, expected-step retry protection, row-lock serialization,
+context revalidation, cancellation and a hard human-review stop. Windows passed
+308 API, 37 Node and 13 PostGIS tests, production builds/startup, HTTP and the
+targeted mobile workflow. One API/web/DB remained. No autonomous background
+worker, submission, approval, task acknowledgement or live action was added.

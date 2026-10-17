@@ -908,8 +908,7 @@ browser; no deployed auth bypass or actual two-human acceptance is implied.
 Log `.git/saved-focus-panel.log`. Final inventory and clean expected source
 checks passed. Final docs are synced via a guarded local bundle.
 
-Current remaining work: durable bounded runs with retry/cancellation, free-form
-grounded assistance and usefulness evaluation, source comparison/dependency
+Current remaining work: free-form grounded assistance and usefulness evaluation, source comparison/dependency
 metadata, department permissions/SLAs, durable note recovery and human acceptance.
 Saved-selection capture and its laptop automated acceptance are now closed.
 IdP activation and trust remain deferred by owner; no forecast validation claim.
@@ -936,3 +935,36 @@ Initial Linux implementation checks:
 
 These are not laptop/database/browser acceptance. Source transfer and the real
 PostGIS concurrency/context-change tests remain pending at this checkpoint.
+
+### Bounded assistance laptop acceptance
+
+Final application source `e01cb4df5527c0b7c20861a3a761a5e1a908eb7c`.
+The initial `15ed29d` laptop batch passed, then review identified that cancellation
+should remain available during changed/unavailable context. The follow-up source
+makes cancellation available while retaining context checks for start/advance
+and exposes restart after cancellation. The final guarded batch PID 71936 exited
+0 in 120.96 seconds; the earlier result is retained as intermediate evidence.
+
+- `scripts/verify-code-local.ps1 -Suite all`: **308 passed, 13 skipped**,
+  reproducible synthetic model report and TypeScript PASS; one existing warning.
+- Four established Node files: **37 passed**. Strict roles/payloads, required
+  expected-step token and cancellation rationale are covered.
+- `docker compose --project-name ai-project-aegis build api web`: PASS,
+  production API/web images. `scripts/start-windows.ps1 -NoBuild -LocalCopilot`:
+  PASS against the retained DB; no model runtime/inference claim.
+- Retained verification-DB Compose suite: **13 passed, 4.34 s**. Real row locks
+  cover concurrent same-step retries, ordered resume, terminal cancellation,
+  cancellation after context change, changed-context progress refusal with
+  unchanged prior state/audit, maker scope and hard stop before submission.
+- `scripts/verify-local-http.py`: PASS. Browser-only fixture
+  `.git/browser-qa/bounded-assistance.cjs`: PASS mobile start, expected-step
+  advance, cancel, restart and `review_ready` stop; no submit/approve/real writes.
+  The previous full public browser/axe smoke passed on `15ed29d`; final UI delta
+  was the targeted cancelled-run restart button and passed its fixture check.
+- Final inventory: exactly one API/web/DB, no detected conflicting AEGIS job.
+
+Logs `.git/bounded-final-{native,node,build,start,postgis,http,panel}.log` and
+progress `PASS`. No database reset, CI/push/merge, IdP/trust change, model
+download, paid service or real operation. This closes the bounded durable
+explicit-step runner slice. It does not add a background worker, free-form
+model loop, semantic evaluation, human identity acceptance or prediction.
