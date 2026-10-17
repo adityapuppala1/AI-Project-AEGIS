@@ -26,6 +26,13 @@ $job = Fixture 'api' 'verification-job'
 $job.OneOff = $true
 Expect-Failure { Test-AegisRuntimeInventory -Containers @($job) -Root $root } 'one-off job'
 Write-Host 'PASS: healthy, duplicate, missing, project, checkout and active-job inventory cases'
+$ownedJob = [PSCustomObject]@{Name='docker-compose.exe'; CommandLine='docker-compose --project-name ai-project-aegis up -d'}
+if (-not (Test-AegisComposeOperation -Process $ownedJob -Root $root)) { throw 'Owned Compose job missed' }
+$ownedJob.CommandLine = 'docker-compose --project-name unrelated up -d'
+if (Test-AegisComposeOperation -Process $ownedJob -Root $root) { throw 'Unrelated Compose job misclassified' }
+$ownedJob.CommandLine = 'docker-compose --project-name ai-project-aegis ps'
+if (Test-AegisComposeOperation -Process $ownedJob -Root $root) { throw 'Read-only inspection misclassified' }
+Write-Host 'PASS: owned mutating Compose job recognition; unrelated/read-only commands excluded'
 
 # A second OS process must be refused while the first owns the actual lock.
 # Validate exception cleanup too; no stale-file deletion or PID guessing.

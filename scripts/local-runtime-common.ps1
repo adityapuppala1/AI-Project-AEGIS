@@ -67,6 +67,13 @@ function Test-AegisRuntimeInventory([object[]]$Containers, [string]$Root, [switc
   }
 }
 
+function Test-AegisComposeOperation($Process, [string]$Root) {
+  return ($Process.Name -match '^(docker|docker-compose)(\.exe)?$' -and $Process.CommandLine -and
+    ($Process.CommandLine -match '--project-name[ =]+ai-project-aegis\b' -or
+     $Process.CommandLine.IndexOf($Root, [StringComparison]::OrdinalIgnoreCase) -ge 0) -and
+    $Process.CommandLine -match '\b(up|build|run|stop|down|start|restart|exec)\b')
+}
+
 function Assert-AegisSingleRuntime([switch]$RequireRunning) {
   if ($env:COMPOSE_PROJECT_NAME -and $env:COMPOSE_PROJECT_NAME -ne 'ai-project-aegis') {
     throw 'COMPOSE_PROJECT_NAME must be ai-project-aegis. Refusing to create a second stack.'
@@ -76,9 +83,14 @@ function Assert-AegisSingleRuntime([switch]$RequireRunning) {
   $containers = @(Get-AegisRuntimeContainers)
   Test-AegisRuntimeInventory -Containers $containers -Root $root -RequireRunning:$RequireRunning
   if ($env:OS -eq 'Windows_NT') {
+    $processes = @(Get-CimInstance Win32_Process -ErrorAction Stop)
+    $composeJobs = @($processes | Where-Object { Test-AegisComposeOperation -Process $_ -Root $root })
+    if ($composeJobs.Count -gt 0) {
+      throw "An AEGIS Compose operation is still active (PID $($composeJobs.ProcessId -join ',')). Inspect it before starting another job."
+    }
     # Only classify explicitly owned server commands. Never print raw command
     # lines (which may contain secrets) or kill all node/python processes.
-    $native = @(Get-CimInstance Win32_Process -ErrorAction Stop | Where-Object {
+    $native = @($processes | Where-Object {
       $_.ProcessId -ne $PID -and $_.Name -match '^(node|python|pythonw)(\.exe)?$' -and
       $_.CommandLine -and $_.CommandLine.IndexOf($root, [StringComparison]::OrdinalIgnoreCase) -ge 0 -and
       $_.CommandLine -match 'uvicorn|next-server|next[\\/].*bin[\\/]next|server\.js'

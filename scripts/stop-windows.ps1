@@ -3,7 +3,7 @@ $ErrorActionPreference = "Stop"
 Invoke-AegisLocalOperation -Name "stop-windows.ps1" -Action {
   Assert-AegisSingleRuntime
   Set-Location (Resolve-Path (Join-Path $PSScriptRoot ".."))
-  docker compose stop
+  cmd.exe /d /c 'docker compose --project-name ai-project-aegis stop 2>&1'
   if ($LASTEXITCODE -ne 0) { throw "Compose stop failed." }
   Write-Host "AEGIS stopped. Containers and database volume retained."
 }
