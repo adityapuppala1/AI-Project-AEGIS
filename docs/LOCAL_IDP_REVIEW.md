@@ -107,9 +107,11 @@ Do not remove arbitrary roots, delete application volumes, or reset databases.
 
 ## Validation status
 
-Two static security-contract tests passed in the Linux runner, and the opt-in
-Compose configuration parsed successfully with an empty, non-credential review
-fixture. Registry manifest digests were read on the laptop. These checks do not
-establish a running provider, successful realm import, login/MFA, or trusted TLS.
-Windows syntax checks and the actual two-human rehearsal remain pending until
-the laptop connector is responsive and the owner approves activation/trust.
+Two static security-contract tests passed in both the Linux runner and the
+actual Windows laptop (`python -m pytest -q tests/test_local_idp_review_config.py`
+from services/api). The opt-in Compose configuration parsed on both machines
+with an empty non-credential review fixture. On Windows, PowerShell parsed the
+helper and its default read-only invocation completed successfully. Registry
+manifest digests were read on the laptop. These checks do not establish a
+running provider, successful realm import, login/MFA, or trusted TLS. Activation,
+certificate trust and the actual two-human rehearsal remain pending owner review.

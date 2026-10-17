@@ -212,3 +212,15 @@ fictional rows and history was preserved. Automated Chrome checks found light
 contrast defects which were fixed; see the current handoff for final browser
 results and exact SHAs. Manual assistive-technology, performance, owner review
 and actual independent-human IdP approval gates remain separate.
+
+### Recovery, latency and identity review follow-up
+
+Actual Windows backup restoration into a separate database passed doctor and
+schema validation. The bounded read-only local benchmark passed all five p95
+targets with no HTTP errors; this does not establish production capacity.
+The identity-provider review package passes static contract/syntax checks but
+has not been activated, trusted or exercised with two people. Production npm
+audit reports zero findings; seven development-toolchain findings remain open,
+and the single-stage image still retains build dependencies. These remaining
+gates prevent a blanket security/release-complete claim. Current evidence is
+in [LOCAL_DEMO_HANDOFF.md](LOCAL_DEMO_HANDOFF.md).

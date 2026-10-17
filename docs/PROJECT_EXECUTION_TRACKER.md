@@ -228,3 +228,15 @@ on the three audited pages in both light and dark themes.
 [Current handoff](LOCAL_DEMO_HANDOFF.md) records exact commands, scope, final
 browser outcome and remaining real IdP/manual release gates. Old Windows-
 pending entries above are historical and do not supersede this evidence.
+
+### Additional local acceptance gates
+
+The laptop restored the retained backup into a separate database and passed
+schema/doctor checks. A bounded local latency run measured 100 requests with
+zero errors and all predefined p95 targets passing. Production dependency audit
+is now zero after MapLibre/PostCSS/sharp updates; seven development-toolchain
+findings remain open. The owner requested a local-only IdP review package:
+[configuration and activation boundary](LOCAL_IDP_REVIEW.md) are prepared, with
+Windows/Linux static tests and syntax checks passing. Provider startup,
+certificate trust and independent human MFA acceptance are still pending.
+See [handoff](LOCAL_DEMO_HANDOFF.md) for the latest source and browser evidence.

@@ -170,3 +170,12 @@ AgencySync and Audit360 still show seeded fixtures and exclude private decisions
 The code passes Linux local checks and an automated PostGIS/test-signed identity
 chain; this does not clear Windows, real OIDC/MFA, two-human browser, accessibility,
 or owner release gates. No GitHub Actions run or merge was performed.
+
+Windows follow-up: the actual laptop has since passed native API/frontend,
+separate PostGIS integration, existing-volume Compose startup, browser sampled
+accessibility, audit checksum, retained-backup restoration and bounded local
+latency checks; exact scope and SHAs are in the handoff. The local identity
+provider is prepared for review only, with static checks passing. Real OIDC/MFA
+and independent human acceptance remain uncleared. Production npm audit is
+zero; seven development-toolchain advisories remain open. No blanket release
+or security certification is implied.

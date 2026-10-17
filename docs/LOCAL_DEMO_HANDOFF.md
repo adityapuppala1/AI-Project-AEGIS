@@ -284,3 +284,74 @@ later, use the documented confirmed synthetic scenario command; do not reset
 the database. Actual two-human approval still requires approved OIDC provider
 configuration and separately provisioned users. Signed TEST-key integration
 tests do not clear that gate.
+
+## Additional Windows gates — 17 October 2026
+
+Branch remains `feat/aegis-local-demo-continuation`; starting source for this
+round was `1547e5fed6f97e46bacf6303d2aab547f0ee4f25`. Local commits
+`d5f8091` add map fallback and bounded latency verification, `254ccc4` patch
+frontend production dependency advisories, and `0fda53d` prepare the opt-in
+identity provider review package. No origin push or CI was triggered.
+
+### Verified backup recovery and bounded latency
+
+The retained pre-upgrade dump was restored with `pg_restore --exit-on-error
+--no-owner --no-privileges` into **aegis_restore_fe36bd885d4542018ad7cf432563a4c5**.
+`python -m app.doctor && python -m app.migration_audit` ran through the API image
+with DATABASE_URL overridden to that separate database: PASS. Restored counts:
+5 incidents, 24 samples, 5 evidence items, 7 timeline items, 7 tasks and 13 audit
+events; security schema passed. The application's active database was preserved.
+The backup, restored database and separate integration database remain available.
+
+Actual laptop command:
+`services/api/.venv/Scripts/python.exe scripts/benchmark-local.py --output .git/aegis-local-benchmark.json`
+completed with exit 0: concurrency 4, 20 measured requests per route, one excluded
+warm-up each, zero errors, all predefined local targets passed. P95 milliseconds:
+health 140.84, incident registry 217.53, assessment 196.70, case audit 314.53,
+guided demo 397.22. Total recorded duration 6.17 seconds. This measures local
+software latency only; production capacity and forecasting accuracy are not
+established.
+
+### Dependency audit and identity review
+
+Windows `npm.cmd run typecheck` passed after updating MapLibre to 6.14.0,
+PostCSS to 8.5.30 and the sharp override to 0.35.5. MapLibre 6 requires named
+module exports; both map imports were adapted. `npm.cmd audit --omit=dev`
+reported **zero vulnerabilities**. Full `npm.cmd audit` still reports **7**
+(5 high, 2 moderate), involving braces and postcss-selector-parser through the
+Tailwind 3 development toolchain. These are pending remediation; the current
+single-stage web image still contains build dependencies. The runtime audit
+must not be represented as a complete image or dependency security clearance.
+
+The owner requested a local-only identity setup **for review**. Configuration
+and exact future commands are in [LOCAL_IDP_REVIEW.md](LOCAL_IDP_REVIEW.md).
+Windows and Linux each ran both static IdP security-contract tests successfully;
+Compose override syntax parsed on both. Windows PowerShell parsed the helper,
+and its default read-only invocation passed. No credentials generated, provider
+started, root certificate trusted or OIDC gate enabled. Actual provider realm
+import, HTTPS trust, login/MFA and two different human operators remain pending.
+
+### Remaining acceptance work
+
+- Partial: local IdP configuration is reviewable; activation and CurrentUser
+  certificate-trust change await the owner's decision, then real two-person MFA
+  rehearsal and proposal-specific task/audit acceptance must run.
+- Pending: development-toolchain advisories, manual screen-reader/operator
+  accessibility rehearsal and owner release review.
+- Verified scope remains local synthetic exercise only. No live emergency
+  operations, paid infrastructure, destructive reset or main merge occurred.
+
+### Map recovery follow-up
+
+Application source `481a9f27cc599d007eee487425b4108027b46cdf` explicitly refreshes
+failed raster tiles and recognizes successful tile events. On the preceding
+iteration, Windows `node .git/browser-qa/offline-map.cjs` passed four checks:
+visible tile failure with retained markers, failed retry retaining the warning,
+successful transport-fixture recovery clearing it, and missing-WebGL fallback.
+That run also exposed a worker-loading console error in MapLibre 6: its default
+ESM worker URL cannot be inferred from Next's bundled chunk URL. The final
+source copies the pinned package's worker/shared module/license into generated,
+ignored public assets before dev/build and sets an explicit same-origin URL.
+Windows prebuild and typecheck passed; the final production rebuild and worker-
+aware browser/HTTP rerun are in progress and must not be called verified until
+results are recorded below. Transport PNG fixtures are not geographic evidence.
