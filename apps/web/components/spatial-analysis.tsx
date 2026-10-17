@@ -84,7 +84,7 @@ export function SpatialAnalysis({ incidentId }: { incidentId: string }) {
     </div>
     {error && <p role="alert" className="border-b border-rose-500/20 bg-rose-500/10 px-5 py-3 text-sm text-rose-700 dark:text-rose-300">{error}. No proximity conclusions can be drawn.</p>}
     <div className="flex items-start gap-3 border-b border-amber-500/20 bg-amber-500/5 px-5 py-4">
-      <ShieldAlert className="mt-0.5 shrink-0 text-amber-600 dark:text-amber-300" size={18}/>
+      <ShieldAlert className="mt-0.5 shrink-0 text-amber-700 dark:text-amber-300" size={18}/>
       <p className="text-xs leading-6 text-amber-800 dark:text-amber-200">
         <strong>Not an impact forecast.</strong> A location within {radius/1000} km is a geographic
         candidate only. No source corroboration, flooding, affected facilities, public alerts or

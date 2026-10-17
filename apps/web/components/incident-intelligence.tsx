@@ -76,7 +76,7 @@ export function IncidentIntelligence({ workspace }: { workspace: IncidentWorkspa
       </Link>
     </div>
     <div role="note" className="mb-5 flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4">
-      <ShieldAlert className="mt-0.5 shrink-0 text-amber-600 dark:text-amber-300" size={20}/>
+      <ShieldAlert className="mt-0.5 shrink-0 text-amber-700 dark:text-amber-300" size={20}/>
       <p className="text-xs leading-6 text-amber-800 dark:text-amber-200">
         <strong>SIMULATION · Not a real public-safety incident.</strong> All sources, people labels,
         timestamps and event narratives on this page are synthetic exercise fixtures.
@@ -225,7 +225,7 @@ export function IncidentIntelligence({ workspace }: { workspace: IncidentWorkspa
       </div>}
       {view === "interpretation" && <div className="grid gap-5 p-5 lg:grid-cols-2">
         <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-5">
-          <h4 className="flex items-center gap-2 text-sm font-bold"><BrainCircuit size={18} className="text-amber-600 dark:text-amber-300"/> No trained forecast for this incident</h4>
+          <h4 className="flex items-center gap-2 text-sm font-bold"><BrainCircuit size={18} className="text-amber-700 dark:text-amber-300"/> No trained forecast for this incident</h4>
           <p className="mt-3 text-sm leading-6 text-muted">{workspace.assessment.message}</p>
           <dl className="mt-4 space-y-2 text-xs text-muted">
             <div><dt className="inline">Model version: </dt><dd className="inline font-semibold">Not available</dd></div>

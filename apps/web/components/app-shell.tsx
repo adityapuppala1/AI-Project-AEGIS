@@ -69,7 +69,7 @@ export function AppShell({ children, title, description }: { children: ReactNode
         </div>
         <div className="mt-auto p-4">
           <div className="rounded-xl border border-amber-400/30 bg-amber-400/10 p-4">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-300"><ShieldCheck size={15}/> Exercise environment</div>
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300"><ShieldCheck size={15}/> Exercise environment</div>
             <p className="mt-2 text-xs leading-5 text-muted">Synthetic data only. No real emergency alerts or responder dispatch.</p>
           </div>
           <p className="mt-4 px-2 text-[11px] text-muted">AEGIS v0.2 · CipherCop 2026</p>
@@ -83,7 +83,7 @@ export function AppShell({ children, title, description }: { children: ReactNode
             <span className="text-xs font-semibold text-muted sm:hidden">AEGIS / Exercise</span>
           </div>
           <div className="flex items-center gap-3">
-            <span className="hidden items-center gap-2 rounded-full border border-amber-400/25 bg-amber-400/10 px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-300 sm:inline-flex">
+            <span className="hidden items-center gap-2 rounded-full border border-amber-400/25 bg-amber-400/10 px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300 sm:inline-flex">
               <span className="status-dot bg-amber-400"/> Simulation mode
             </span>
             <GlobalSearch />

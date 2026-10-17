@@ -95,7 +95,7 @@ export function CommandCenter() {
         </div>
       </section>
       <section className="panel">
-        <div className="panel-heading"><h2 className="flex items-center gap-2 text-base font-bold"><Waves size={18} className="text-accent"/> Response Readiness</h2><span className="rounded-full bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-600 dark:text-amber-300">Planning preview</span></div>
+        <div className="panel-heading"><h2 className="flex items-center gap-2 text-base font-bold"><Waves size={18} className="text-accent"/> Response Readiness</h2><span className="rounded-full bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-700 dark:text-amber-300">Planning preview</span></div>
         <div className="space-y-4 p-5">
           {[
             ["Verify incoming observations", "Source freshness and evidence review", "01"],

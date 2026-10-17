@@ -20,7 +20,7 @@ export function ModelLabDashboard({ report }: { report: ModelReport }) {
     }));
   return <>
     <div className="mb-5 flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4">
-      <ShieldAlert size={20} className="mt-0.5 shrink-0 text-amber-600 dark:text-amber-300"/>
+      <ShieldAlert size={20} className="mt-0.5 shrink-0 text-amber-700 dark:text-amber-300"/>
       <div>
         <p className="text-sm font-bold text-amber-800 dark:text-amber-200">SIMULATION ONLY — never a real flood forecast</p>
         <p className="mt-1 text-xs leading-6 text-amber-800 dark:text-amber-200">

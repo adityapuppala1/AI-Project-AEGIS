@@ -84,7 +84,7 @@ export default function AdminPage() {
       </section>
     </div>
     <div className="mt-5 grid gap-4 sm:grid-cols-3">
-      {[{icon:LockKeyhole,title:"Maker-checker",desc:"Separate reviewer identity required for consequential actions."},{icon:Database,title:"Data provenance",desc:"Source identity, freshness and evidence lineage."},{icon:Activity,title:"Model governance",desc:"Versioned evaluation, drift checks and controlled rollout."}].map(item => <div className="panel p-5" key={item.title}><item.icon size={21} className="text-accent"/><h3 className="mt-3 text-sm font-bold">{item.title}</h3><p className="mt-2 text-xs leading-5 text-muted">{item.desc}</p><span className="mt-4 inline-block text-[11px] font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-300">Planned capability</span></div>)}
+      {[{icon:LockKeyhole,title:"Maker-checker",desc:"Separate reviewer identity required for consequential actions."},{icon:Database,title:"Data provenance",desc:"Source identity, freshness and evidence lineage."},{icon:Activity,title:"Model governance",desc:"Versioned evaluation, drift checks and controlled rollout."}].map(item => <div className="panel p-5" key={item.title}><item.icon size={21} className="text-accent"/><h3 className="mt-3 text-sm font-bold">{item.title}</h3><p className="mt-2 text-xs leading-5 text-muted">{item.desc}</p><span className="mt-4 inline-block text-[11px] font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-300">Planned capability</span></div>)}
     </div>
   </AppShell>;
 }

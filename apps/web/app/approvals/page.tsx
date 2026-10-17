@@ -202,7 +202,7 @@ export default function ApprovalWorkbench() {
                   <button type="button" className="control" disabled={busy || !(reviewReasons[proposal.id]?.trim())} onClick={() => void change(proposal, "reject")}><X size={16}/> Reject draft</button>
                 </div>
               </div>}
-              {proposal.status === "submitted" && proposal.maker_subject === auth.subject && <p className="mt-3 text-xs text-amber-600 dark:text-amber-300">You cannot approve your own proposal.</p>}
+              {proposal.status === "submitted" && proposal.maker_subject === auth.subject && <p className="mt-3 text-xs text-amber-700 dark:text-amber-300">You cannot approve your own proposal.</p>}
             </article>)}
           </div>
         </section>

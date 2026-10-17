@@ -149,7 +149,7 @@ export function GlobalSearch() {
               <span className="text-[11px] text-muted">{option.kind === "incident" ? "CASE" : "PAGE"}</span>
             </button>;
           })}
-          {issue && <p role="status" className="px-4 py-2 text-xs text-amber-600 dark:text-amber-300">Incident search is unavailable; page navigation still works.</p>}
+          {issue && <p role="status" className="px-4 py-2 text-xs text-amber-700 dark:text-amber-300">Incident search is unavailable; page navigation still works.</p>}
           {waiting && <p className="px-4 py-2 text-xs text-muted" role="status">Searching exercise incidents...</p>}
         </div>
         <div className="flex items-center justify-between gap-3 border-t border-stroke px-4 py-3 text-[11px] text-muted">
