@@ -455,3 +455,13 @@ WebGL-failure acceptance remain unconfirmed during a connector interruption.
 See [design research](OPERATOR_EXPERIENCE_DESIGN.md) and the current handoff.
 This is a UI integration of existing bounded AI; department authorization,
 durable drafts, free-form grounded assistance and human acceptance remain open.
+
+### UI acceptance and opt-in tab recovery — verified on laptop
+
+Recovered final UI/HTTP results and explicit WebGL/keyboard fallback passed
+at `92f057c`. Recovery source `cbb4d432ca19d3a04bd92c294fad778840e5e8d9`
+passed TypeScript, 10 Node tests, production build/start, targeted mobile
+reload/isolation tests, 21 browser smoke checks and HTTP/checksum/refusals.
+One API/web/database remains running. See handoff for exact commands/transcripts
+and tab-only retention limits; department permissions, grounded free-form AI
+and human acceptance remain pending.

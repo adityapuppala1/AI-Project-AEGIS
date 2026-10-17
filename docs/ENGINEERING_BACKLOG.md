@@ -22,9 +22,10 @@ for evidence-grounded review. An opt-in [local model selection preview](LOCAL_RE
 adds bounded review focus. The bounded explicit-step durable runner is accepted
 locally; free-form grounded drafting/Q&A and usefulness evaluation remain pending.
 
-[Unsaved workbench drafts](UNSAVED_EXERCISE_DRAFTS.md) now isolate page-memory
-notes by incident/action and clear them across identity changes. Durable browser
-recovery and actual signed-in human acceptance remain separate work.
+[Unsaved workbench drafts](UNSAVED_EXERCISE_DRAFTS.md) now support opt-in,
+identity-scoped same-tab reload recovery with eight-hour expiry and bounded
+retention; laptop acceptance passed. Cross-device/server backup and actual
+signed-in human acceptance remain separate work.
 
 ## Current synthetic demo priorities — 17 October 2026
 

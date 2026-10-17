@@ -20,13 +20,12 @@ Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 
 ## Latest continuation status
 
-Current application checkpoint: `92f057c49a7cdf69f6ba7621708ad498a1e1663c`
-on `feat/aegis-local-demo-continuation`, imported on laptop and mirror. The
-operator-experience extension adds a mission header, case-linked local review
-focus and optional schematic 3D. Production build/start and targeted desktop/
-mobile checks passed. Final full browser/HTTP output and explicit WebGL fallback
-acceptance are pending retrieval/execution; see the latest section below.
-Prior synthetic SLA acceptance is complete and retained below.
+Current application checkpoint: `cbb4d432ca19d3a04bd92c294fad778840e5e8d9` on
+`feat/aegis-local-demo-continuation`, imported on laptop and mirror. Operator
+UI/3D acceptance at `92f057c` is now fully recovered, including explicit WebGL
+failure and keyboard fallback. Opt-in tab draft recovery passed Windows TypeScript, all ten buffer tests,
+production build/start, targeted mobile recovery, 21 browser smoke checks and
+HTTP/checksum/refusal checks. Exact commands and limitations follow below.
 
 ## Current closure and remaining work
 
@@ -35,7 +34,8 @@ Prior synthetic SLA acceptance is complete and retained below.
 | Verified automated | Original synthetic observation/evidence/assessment/draft/approval-policy/task/audit chain; private CAP draft; recovery and anonymous/live-action boundaries |
 | Verified on laptop | Saved review focus, bounded explicit-step assistance, source comparison, local dependency diagnostics, page-memory draft recovery and bounded warm HTTP latency |
 | Verified on laptop | Synthetic department SLA v3: prior 321 API tests/model/type checks, production build/start, 13 PostGIS tests, HTTP, targeted v2/v3 browser fixtures and 21 browser smoke checks |
-| Pending engineering | Department-scoped authorization/inbox and reassignment; durable draft recovery; free-form grounded drafting/Q&A and usefulness evaluation |
+| Pending engineering | Department-scoped authorization/inbox and reassignment; free-form grounded drafting/Q&A and usefulness evaluation |
+| Verified bounded recovery | Opt-in same-tab reload/navigation recovery; cross-device/server backup and guaranteed browser-restart recovery are outside this slice |
 | Deferred by owner | Local IdP/trust activation and real two-person MFA/browser approval acceptance; do not reactivate or bypass |
 | Pending human acceptance | Manual screen-reader/operator rehearsal and owner release review |
 | Needs external validation | Authorized historical datasets/domain evaluation before real forecast claims or operational integrations |
@@ -1194,3 +1194,54 @@ the last successful source import (`92f057c`).
 No GitHub push/CI, paid provider, IdP/trust activation or live operation.
 Department authorization, durable draft recovery, grounded free-form Q&A and
 usefulness evaluation remain pending; this UI slice does not close that backlog.
+
+## UI acceptance recovered; tab recovery underway — 17 October 2026
+
+Recovered PID 102328 completed with exit 0 at `92f057c`: production web build,
+guarded startup, both 1440/390 targeted UI checks, all 21 browser smoke checks
+(zero page errors/axe violations), HTTP/refusal/live-action/checksum checks and
+final single-instance inventory passed. Explicit WebGL-failure wrapper
+`.git/operator-fallback.ps1`, PID 49676, exit 0: disabled 3D control, keyboard
+case selection and retained evidence/AI controls passed. This closes the prior
+UI acceptance uncertainty. No duplicate build/start was needed.
+
+Tab recovery source `cbb4d43` adds explicit opt-in, eight-hour sessionStorage
+recovery for at most ten rationale drafts, verified identity/agency isolation,
+expiry and memory fallback, with sign-out clearing. This closes a hard-reload
+recovery gap once browser acceptance passes; it does not claim cross-device
+backup or durable browser-restart storage. Department scope/inbox and broader
+grounded assistance/evaluation remain pending.
+
+Windows `.git/draft-recovery-check.ps1`, PID 117300, has imported the expected
+clean branch, passed `npm.cmd run typecheck` and
+`node --test scripts/tests/exercise-draft-buffer.test.cjs` (**10 passed**).
+Production web build/start remains in progress. Transcript:
+`.git/draft-recovery-check.log`. The guarded browser wrapper and fixtures are
+prepared; do not count their checks until actual results arrive.
+
+### Tab recovery acceptance complete
+
+Verified Windows source: `cbb4d432ca19d3a04bd92c294fad778840e5e8d9`,
+branch `feat/aegis-local-demo-continuation`.
+`.git/draft-recovery-check.ps1` PID 117300 exited 0: TypeScript, **10 Node
+tests**, production web build and `start-windows.ps1 -NoBuild -LocalCopilot`
+passed. `.git/draft-recovery-browser.ps1` PID 50344 exited 0:
+
+- `node .git/browser-qa/draft-recovery.cjs`: mobile default-off behavior, opt-in
+  restoration after reload, different-user clearing, disabling recovery,
+  no overflow/page errors and zero automatic proposal writes passed.
+- `node .git/browser-qa/smoke.cjs`: **21 checks**, no page errors or sampled
+  axe violations.
+- `services/api/.venv/Scripts/python.exe scripts/verify-local-http.py`: all
+  routes, private refusals, blocked live warning and audit checksum passed.
+- Final guard: exactly one API/web/database and no conflicting managed job;
+  working tree clean. Retained database, no destructive reset.
+
+Both wrapper transcripts remain in `.git/draft-recovery-*.log` on the laptop.
+This is bounded same-tab recovery, not cross-device backup. Browser fixtures do
+not establish actual IdP or human approval acceptance. No API/storage-schema
+change was made; the existing PostGIS suite was not rerun for browser-only
+recovery. Remaining engineering is department authority/inbox/reassignment and
+free-form grounded assistance/usefulness evaluation. Human identity/accessibility
+and owner acceptance remain deferred; no CI/push, paid model, trust activation,
+real forecast claim or live action occurred.

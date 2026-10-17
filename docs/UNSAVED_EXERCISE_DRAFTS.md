@@ -1,37 +1,39 @@
 # Unsaved exercise proposal text
 
-The approval workbench retains up to ten incident/action rationale drafts in
-page memory. Operators can switch cases/actions and use the workbench Refresh
-button without applying one case's rationale to another case. Failed case-list
-refreshes retain the intended target and text, while disabling creation until
-that target appears in the newly loaded authorized case list.
+The approval workbench retains up to ten incident/action rationale drafts, with
+2,000 characters per entry. Page memory is the default. Operators can opt in to
+"Recover unsaved rationale after reload in this tab" on a trusted device.
 
-Successful saves clear only that draft. Failed saves retain its text. No save
-or retry happens automatically; a failed request is not confirmation that the
-server committed nothing. Check the queue before repeating an uncertain save.
-Independent submission, checker approval and server-side agency/role checks
-remain required.
+Opt-in recovery stores only the scoped rationale entries, a format version and
+an expiry in sessionStorage. It never stores credentials, tokens, model output,
+checker notes or task acknowledgements. Recovery is valid for eight hours from
+activation, without extending the deadline on typing. Expired/invalid copies
+are removed when next checked; browser storage is not a timed secure-erasure
+mechanism. Closing a tab normally clears sessionStorage, but browser restore
+behavior varies. This is tab reload/navigation recovery, not a cross-device
+backup or a guarantee across browser restarts.
 
-Identity/agency changes, loss of operator access and sign-out clear retained
-rationales. Other workbench review/task notes are cleared on identity/agency
-changes too. During session verification the private workbench is hidden. A
-session failure offers an explicit retry; after verifying the same identity,
-its page-memory draft can be restored. It is not displayed under another
-identity. None of this creates a trusted browser authorization boundary.
+Nothing is restored before the authenticated session supplies the same subject
+and agency with incident-operator access. The new authorized case list must
+contain the selected case before editing/saving. Other subjects/agencies,
+anonymous sessions and loss of operator access discard recovery. Sign-out
+attempts remove the tab copy. Disabling recovery removes the stored copy while
+retaining current editable page memory. Browser-storage failures fall back to
+page memory and turn off the recovery checkbox. This is not an authorization
+boundary; server OIDC/agency/role and independent approval checks still apply.
 
-No localStorage/sessionStorage, credentials or server auto-save is used. Leaving
-or hard-reloading the page destroys this memory. Entries are bounded to ten
-incident/action pairs and 2,000 characters each; oldest entries are evicted
-when the limit is exceeded. This closes recovery during case/action switching
-and workbench refresh, not durable recovery across browser restarts.
+Successful saves clear only that draft in both memory and the recovery copy.
+Failed saves retain text. No save, retry, submission or approval happens
+automatically. After an uncertain save, inspect the queue before retrying.
+Changing cases/actions keeps their notes separate. Failed session verification
+hides the private workbench; it does not display stored text under an unverified
+identity. Review/task notes remain page-memory only.
 
-## Acceptance limits
+## Acceptance
 
-Six isolated Node tests exercise target/scope isolation, anonymous refusal,
-clearing after saves, and entry/text bounds. Browser-only synthetic session and
-proposal responses exercise the form without an actual IdP or real proposal
-write. These fixtures exist only in the test browser; deployed authentication
-is unchanged. Actual two-human signed-in acceptance remains deferred while the
-owner keeps the IdP inactive. See the [current handoff](LOCAL_DEMO_HANDOFF.md)
-for exact source and executed results, and the [roadmap](AI_ASSISTANCE_ROADMAP.md)
-for remaining AI, agent, forecast and responsiveness work.
+Node tests cover scope/target isolation, bounds, successful-save clearing,
+opt-in restoration, expiry, disabling recovery, malformed storage and storage
+failure. Browser-only signed-in fixtures test reload and identity changes;
+these are not a real human IdP acceptance test. Exact executed commands and
+results are in [the handoff](LOCAL_DEMO_HANDOFF.md). Recovery implementation
+source: `cbb4d43`; do not infer acceptance from this document alone.

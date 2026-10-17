@@ -29,3 +29,5 @@
 - Proposal simulation v3 SLA fields are synthetic rehearsal targets only. Preserve v2 compatibility, record classification in the acknowledgement/audit, and never send escalation or claim a contractual SLA. Department authority must eventually come from verified OIDC scope, never a browser-supplied department. See docs/SYNTHETIC_DEPARTMENT_SLA.md.
 
 - Command Center 3D locators are equal-height schematic symbols, not building geometry, flood extent or severity. Preserve default 2D, reduced-motion camera behavior, tile/WebGL fallback and the HTML incident queue. Selected-case AI focus must remain explicit/cancellable and reset across cases; no background inference or expanded approval authority. See docs/OPERATOR_EXPERIENCE_DESIGN.md.
+
+- Unsaved rationale recovery is opt-in sessionStorage with verified subject/agency/operator scope, bounded entries and expiry. Never persist credentials, checker notes or task actions. Keep memory fallback, erase recovery on identity/access changes and sign-out, and never auto-submit recovered text. Run exercise-draft-buffer Node and browser reload/isolation checks for changes.

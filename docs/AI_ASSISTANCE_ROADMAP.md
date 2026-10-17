@@ -266,3 +266,12 @@ exposes the existing AI selection capability earlier in the case workflow;
 it does not implement free-form drafting or expand agent authority. Laptop
 acceptance is tracked separately in the handoff. Department scope and durable
 draft recovery remain the next engineering priorities.
+
+## Implementation update — opt-in tab recovery
+
+`cbb4d43` adds opt-in same-tab reload/navigation recovery for rationale text,
+verified identity/agency scope, eight-hour expiry, bounded entries and graceful
+memory-only fallback. Laptop TypeScript, 10 Node tests, production/runtime,
+mobile recovery, 21 browser smoke and HTTP checks passed. This closes the
+hard-reload gap within one tab, not cross-device or guaranteed browser-restart
+backup. Department scope and grounded free-form AI/evaluation remain open.
