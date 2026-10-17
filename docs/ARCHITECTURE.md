@@ -103,3 +103,13 @@ receipt and audit events commit in one transaction. Signed agency/operator scope
 is unchanged. V1 completed receipts and legacy one-shot calls are preserved;
 preparing or simulating twice never replaces an existing receipt. This adds no
 schema/service/transport and does not model real department identity or SLAs.
+
+## Incident context explanation
+
+The existing read-only readiness response additionally exposes its checklist
+version, source freshness evaluation reference time, explicit unknowns and next
+human-review step. The existing incident panel displays these fields and every
+freshness bucket. This reuses the deterministic assessment and existing API/BFF;
+no model provider, worker, migration or authorization change is introduced.
+See [context semantics](INCIDENT_CONTEXT_PANEL.md). A generic service failure
+is displayed as unavailable, not attributed to an unobserved dependency.

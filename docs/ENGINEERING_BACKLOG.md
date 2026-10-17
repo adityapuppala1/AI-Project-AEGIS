@@ -4,7 +4,9 @@
 
 See [AI assistance and prediction roadmap](AI_ASSISTANCE_ROADMAP.md) for the
 ordered next slices, user benefits, evaluation gates and existing pending work.
-These are planned capabilities, not verified features.
+The roadmap distinguishes delivered slices from planned capabilities.
+The [incident context panel](INCIDENT_CONTEXT_PANEL.md) is the first extension;
+source agreement detection and per-dependency diagnostics remain pending.
 
 ## Current synthetic demo priorities — 17 October 2026
 

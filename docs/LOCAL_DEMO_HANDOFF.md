@@ -2,9 +2,9 @@
 
 Updated: 17 October 2026 (IST). Repository: `adityapuppala1/AI-Project-AEGIS`.
 Branch: `feat/aegis-local-demo-continuation`; integration baseline `b71172c`.
-Latest tested API source: `413dd9765c0a50781411457d66cc87fd2fd55daa`;
-web follow-ups: `4ce96a2` strict task fields and `cb9650b` department control labels
-(final label-only production rebuild is awaiting laptop confirmation).
+Latest context-panel source: `061e35a103f2722d6ee07399ad37ed9cc34eb875`;
+prior staged-task source: `413dd97`; proxy follow-up `4ce96a2` and control
+labels `cb9650b` passed. Exact current acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
@@ -32,7 +32,7 @@ a subsequent documentation-only commit records the results below.
 
 | Gate | Executed evidence |
 |---|---|
-| Latest API/model | Windows: `python -m pytest -q` **254 passed, 6 skipped**; `python -m app.model_lab --check` PASS. Prior Linux CAP suite: 239 passed, 4 skipped. One upstream Starlette/httpx deprecation warning |
+| Latest API/model | Windows: `python -m pytest -q` **256 passed, 6 skipped**; `python -m app.model_lab --check` PASS. Prior Linux CAP suite: 239 passed, 4 skipped. One upstream Starlette/httpx deprecation warning |
 | Real database | Latest laptop run: **6 integration tests passed**, separate `aegis_verification_57878ac` DB, including concurrent checker/audit and task retry regressions |
 | Latest frontend in Linux | `npm install --ignore-scripts --no-audit --no-fund`, `npm run typecheck`, `npm run build`: PASS on Tailwind 4.3.3; full `npm audit --json`: **zero vulnerabilities**, no suppression |
 | Latest Windows dependency/type check | `npm.cmd ci --no-audit --no-fund` and `npm.cmd run typecheck`: PASS; `npm.cmd audit --json`: **zero vulnerabilities including development dependencies**, no suppression |
@@ -257,3 +257,58 @@ Planning is based on source `9c9b67c`; no AI model, agent worker or new forecast
 was enabled. The outstanding laptop confirmation/documentation sync and deferred
 human acceptance above remain open. Documentation saved in the Linux mirror;
 no laptop sync or new runtime tests claimed. Branch unchanged.
+
+## Laptop continuity closure — 17 October 2026
+
+The previously pending `cb9650b` final label rebuild was confirmed on the laptop:
+`.git/staged-labels-result.txt` reports typecheck, production web build and HTTP
+PASS. Startup inspection found a clean continuation branch and running loopback
+API/web plus healthy database. Documentation commits `9c9b67c` and `aee1c97`
+were fast-forwarded locally together with context source `405c6dd`, then clock
+semantics correction `061e35a`. No pull/push or remote branch change was needed.
+This supersedes the historical connector-blocked status immediately above.
+
+## Incident context extension — 17 October 2026
+
+Source `061e35a103f2722d6ee07399ad37ed9cc34eb875` extends the incident panel
+with freshness evaluation time/version, separate browser retrieval time, all
+freshness counts, explicit unknowns and a next human-review step. See
+[scope and clock semantics](INCIDENT_CONTEXT_PANEL.md). No generative model,
+conflict detector, per-dependency diagnosis or live inference is claimed.
+
+Executed on Windows: `powershell -NoProfile -ExecutionPolicy Bypass -File
+scripts/verify-code-local.ps1 -Suite all`: **256 passed, 6 DB skips**, model
+reproduction and native typecheck PASS. Nine proxy tests passed before the
+clock-label follow-up; no proxy source changed. `docker compose up --build -d
+api web`: production API/web rebuild PASS. Initial HTTP invocation used a
+wrong Python path, corrected to `services/api/.venv/Scripts/python.exe`. The
+first post-restart HTTP run then hit a connection closure; after confirming
+startup, all routes/checksum/refusal checks passed. A browser assertion that
+incorrectly expected an immutable scenario clock failed; the actual adapter
+uses server evaluation time. Labels and the assertion were corrected; neither
+failed command is acceptance evidence. Latest acceptance results follow below.
+
+### Current acceptance / connector blocker
+
+The final Windows HTTP smoke passed explicitly in process 88056 after startup;
+production logs confirm API/web ready. Corrected-clock native/build logs are
+`.git/context-clock-{native,build}.log`; initial API/proxy/browser evidence is
+in `.git/context-{native,proxy,browser}.log`. Full initial browser smoke was
+completed before the clock-label correction; do not claim that as final source
+browser acceptance. The earlier six real PostGIS tests remain prior evidence.
+
+Final remaining commands (not yet verified on `061e35a`):
+- `node .git/browser-qa/smoke.cjs`
+- `node .git/browser-qa/context-final.cjs` (mobile counts, timestamp semantics,
+  failed refresh removes conclusion, retry recovery, no page errors)
+- The six-test separate-DB command in the staged-workflow section above.
+
+The prepared `.git/verify-context-acceptance.ps1` write request
+`946e8a04-cfb0-4611-967e-f4512fb854d1` timed out without a device response;
+its subsequent start request also timed out. Do not assume it ran, and do not
+blindly rerun it: inspect the script, any running process and
+`.git/context-clock-progress.txt` and
+`.git/context-clock-{panel,browser,http-final}.log` first.
+Source was synced through `061e35a` before the connector failed; this final
+documentation commit is saved only in the Linux mirror pending safe sync.
+No unverified test is marked passed and no reset or external action occurred.

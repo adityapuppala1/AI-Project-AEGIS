@@ -29,6 +29,8 @@ with rationale, and inspect their private
 audit JSON in `/approvals`. A trusted IdP remains required; no pretend login is
 provided. Public AgencySync/Audit360 remain separate fixture views.
 [Staged task scope](docs/STAGED_TASK_REHEARSAL.md) explains retries and legacy receipts.
+The incident [context panel](docs/INCIDENT_CONTEXT_PANEL.md) exposes freshness
+evaluation time, missing context and explicit unknowns without inventing a forecast.
 Approved warning-preparation proposals also support a private
 [exercise CAP XML draft](docs/CAP_EXERCISE_DRAFTS.md) download; no messages are sent.
 

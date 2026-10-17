@@ -2,7 +2,8 @@
 
 Planned 17 October 2026 on `feat/aegis-local-demo-continuation`, after inspecting
 source at `9c9b67c98db33e016bd8242db5fb0e1528c1045f`. This document records
-proposed work, not delivered capabilities or fresh verification. Continue the
+proposed work; implementation updates below distinguish delivered slices from
+remaining capabilities. Continue the
 Next.js/FastAPI/PostGIS architecture and the existing observation → evidence →
 assessment → draft → independent approval → scripted tasks → audit flow.
 
@@ -43,7 +44,7 @@ activate integrations or dispatch messages.
 
 | Order / owner role | Slice and operator benefit | Exit evidence / dependencies |
 |---|---|---|
-| 0 / integration | Finish current closure: inspect laptop final label build/HTTP result, sync saved documentation, confirm branch/SHA and clean tree | Check existing `.git/staged-labels-*` logs before rerunning jobs. Connector response currently blocks confirmation; no resets |
+| 0 / integration | Prior label build/HTTP confirmed and saved planning documentation synced; finish current context acceptance and final handoff sync | Source through `061e35a` is on the laptop. Latest connector timeout blocks remaining browser/DB confirmation and final docs sync; inspect existing jobs/logs before rerunning. No resets |
 | 1 / API + UX | Incident context panel: freshness, conflicting/missing evidence, dependency state, last successful assessment, explicit unknowns and next permitted step | Deterministic fixtures for stale/missing/conflicting sources and API/DB failure; timestamps/versions visible; no invented confidence. Reuse readiness/assessment contracts |
 | 2 / API + UX | Grounded Response Copilot: summarize the selected case, answer evidence questions, draft playbook-based options and list missing information | Every factual statement links to an authorized evidence/playbook ID; invalid citations/unsupported output rejected; unknowns explicitly retained; cross-agency and prompt-injection tests; reviewer can edit/reject. Deterministic fallback works without a model |
 | 3 / API | Durable bounded agent run: gather → quality check → draft → validate → stop for review | Persist run ID, input snapshot/version, permitted tools, bounded steps/time/output budget, cancellation and audit. Resume/retry/crash/concurrent requests do not duplicate writes; revalidate changed evidence before submission. No automatic task acknowledgement or approval |
@@ -56,7 +57,8 @@ Order 5 measurements begin during order 1; optimize only demonstrated bottleneck
 Order 4 dataset/target design can proceed independently, but no external data or
 model service is connected by this plan. Each slice must join the same case
 workflow and ship with a small acceptance demo, not another isolated dashboard.
-The next implementation slice is **order 1**, after order 0 can be confirmed.
+The next feature slice is grounded drafting after the current context
+acceptance and remaining context gaps are addressed.
 
 ## Model and agent design decisions
 
@@ -99,10 +101,22 @@ any real forecasting claim. Do not automatically retrain or deploy new models.
 
 ## Operating constraints and status
 
-All rows above are planned unless the source reconciliation explicitly says
-implemented. Existing tests are recorded in [current handoff](LOCAL_DEMO_HANDOFF.md),
+Rows above describe target scope; the implementation update below records
+partial progress and the handoff records executed acceptance. Existing tests are recorded in [current handoff](LOCAL_DEMO_HANDOFF.md),
 not rerun for this planning change. Preserve the owner's inactive IdP decision,
 independent approval, synthetic labels and no live dispatch. No paid deployments,
 GitHub Actions/labels, push, merge, trust changes or destructive resets are part
 of this plan. Scope estimates should follow the first measured slice and model
 benchmark rather than promising a completion date without those inputs.
+
+## Implementation update — incident context slice
+
+Source `061e35a103f2722d6ee07399ad37ed9cc34eb875` adds explicit unknowns,
+freshness evaluation time/version, browser retrieval time, all freshness
+counts and a context-dependent next review step to the existing panel. See
+[context panel scope](INCIDENT_CONTEXT_PANEL.md). Source agreement detection
+and per-dependency diagnostics remain pending; this does not complete all of
+order 1. Exact acceptance results and laptop sync are in the handoff. The next
+feature slice is grounded drafting with a deterministic fallback, retaining
+ordinary authenticated submission and independent review. Generative model
+selection and durable agent execution are still planned, not enabled.

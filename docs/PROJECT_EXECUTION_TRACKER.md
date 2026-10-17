@@ -301,3 +301,16 @@ research, performance and department-owned exercise coordination. All new
 slices are planned, not tested. IdP stays inactive; human acceptance deferred.
 Documentation-only validation: `git diff --check` and local Markdown target
 existence checks; no application suite rerun and no laptop sync claimed.
+
+### Incident context implementation — 17 October 2026
+
+`405c6dd` adds explicit unknowns, freshness buckets and a human-review next
+step in the existing case readiness panel; `061e35a` corrects the reference
+clock label to the server freshness evaluation time. Windows native API
+**256 passed, 6 skipped**, model/type checks and production API/web rebuild
+passed. HTTP/checksum/refusal smoke passed after container startup. Prior
+label-only build confirmation and the two documentation bundles were recovered
+and synced to the laptop. Targeted browser/recovery and latest six-test DB
+acceptance remain separately tracked in the current handoff. No IdP activation,
+trust change, model provider, live prediction or dispatch enabled. Broader
+context agreement/dependency diagnostics and subsequent AI phases remain pending.
