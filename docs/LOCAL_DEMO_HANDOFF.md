@@ -20,29 +20,39 @@ Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 
 ## Latest continuation status
 
-Saved-focus source `6611465` is now imported on the laptop through handoff
-`5c9bc0e758df7b0c9626ddc46667c47375747525`. Reconnection inventory process
-93728 and guarded corrective import 115588 both exited 0, with a clean expected
-branch, one API/web/DB and no conflicting AEGIS job. The earlier connection
-interruption below is historical. Windows acceptance passed under
-`.git/verify-saved-focus-resume.ps1` (PID 55660 exit 0), followed by targeted
-saved-focus browser fixtures (PID 143308 exit 0). Exact evidence is below.
+Current mirror checkpoint: `282a82690f4b234b125de8e3062564cab5308611`.
+Last verified laptop source: `574503dc1489c3d6b53beae7f4957598bf198162`.
+The mirror is ahead by the SLA database-test follow-up `44d4693` and
+continuity documentation. Do not assume these files reached the laptop.
+The running containers were last accepted for dependency diagnostics; SLA
+production build/start and database/browser acceptance remain pending.
+Detailed historical evidence follows below.
 
 ## Current closure and remaining work
 
 | Status | Scope |
 |---|---|
 | Verified automated | Original synthetic observation/evidence/assessment/draft/approval-policy/task/audit chain; private CAP draft; recovery and anonymous/live-action boundaries |
-| Verified workbench | Page-memory rationale recovery by incident/action, failed refresh/save retention, success clearing, identity/agency/access-loss clearing; explicit session-retry state |
-| Previously verified on laptop | Opt-in local-model selection preview with original citations and safe fallbacks |
-| Previously closed | Laptop saved-context revalidation acceptance; single-operation lock, duplicate inventory/refusal checks, guarded startup, production builds and final DB/HTTP/browser regression |
-| Verified with revised measurement | Local warm HTTP latency v2 at four workers; client setup excluded and thresholds unchanged; previous v1 failures retained below |
-| Verified on Linux and laptop | Optional saved review focus: 300 API tests, 32 Node tests, 10 PostGIS tests, production API/web images and HTTP checks; laptop public browser/axe and targeted saved-focus browser fixtures passed |
-| Closed connection blocker | Corrective laptop import and acceptance completed at `5c9bc0e` (application `6611465`); one API/web/DB, no detected conflicting AEGIS job |
+| Verified on laptop | Saved review focus, bounded explicit-step assistance, source comparison, local dependency diagnostics, page-memory draft recovery and bounded warm HTTP latency |
+| Partial — laptop native checks passed | Synthetic department SLA v3: 321 API tests, 13 database skips, model reproducibility and TypeScript; production/PostGIS/HTTP/browser gates pending |
+| Pending engineering | Department-scoped authorization/inbox and reassignment; durable draft recovery; free-form grounded drafting/Q&A and usefulness evaluation |
 | Deferred by owner | Local IdP/trust activation and real two-person MFA/browser approval acceptance; do not reactivate or bypass |
 | Pending human acceptance | Manual screen-reader/operator rehearsal and owner release review |
-| Pending engineering | Free-form grounded drafting/Q&A and usefulness evaluation, department-owned task permissions/SLAs and durable draft recovery |
-| Needs external validation | Authorized historical datasets/domain evaluation before real forecast claims or operational integrations; synthetic software tests do not establish these |
+| Needs external validation | Authorized historical datasets/domain evaluation before real forecast claims or operational integrations |
+
+### Next execution order
+
+1. Recover laptop command execution and inspect branch, SHA, dirty files and
+   the single-runtime guard before any import or job.
+2. Import the existing SLA test/documentation commits only after confirming the
+   expected clean continuation branch; preserve any new local work.
+3. Hold the shared operation lease for SLA production build/start, retained
+   verification-PostGIS tests, HTTP and targeted/browser smoke checks. Record
+   failures and final results separately; do not mark this slice accepted early.
+4. Implement and verify department scope and durable draft recovery in the
+   existing workflow, then grounded assistance and its evaluation.
+5. Keep owner-deferred identity and manual acceptance gates explicit. Automated
+   fixtures cannot close these gates or establish real forecasting accuracy.
 
 ## Current implementation
 
@@ -1073,3 +1083,23 @@ the existing verified incident-operator role. A future slice must add an
 IdP-issued department role/scope across API and BFF; it must not trust a browser
 department field. No IdP/trust, database, CI, push or live-operation change was
 made here.
+
+## Continuation connection check — 17 October 2026
+
+Mirror inspected on `feat/aegis-local-demo-continuation` at
+`282a82690f4b234b125de8e3062564cab5308611`; working tree was clean before
+this documentation correction. Authorized Git remote matches the repository.
+Desktop Commander listed Adys_ROG online (last seen 22 seconds), but the prior
+file-info call `9665ee98-9750-4904-806e-ca5ba0810d83` had failed with
+`Timeout - no response from device`. A fresh read-only PowerShell inspection
+(Get-Location, Git remote/branch/SHA/status, and
+`scripts/check-local-runtime.ps1 -RequireRunning`) returned
+`MCP request timed out` without process output. Laptop state and duplicate
+inventory therefore remain unverified; no repeated command, service change,
+import, build or test was launched.
+
+Corrected the handoff's stale opening summary, the backlog's already-delivered
+runner status and the CI guide's historical branch-switch example in the mirror.
+`git diff --check`: PASS. No application test was run for these documentation
+changes. These corrections have not been transferred to the laptop. Resume at
+the execution order above after remote command results are available.

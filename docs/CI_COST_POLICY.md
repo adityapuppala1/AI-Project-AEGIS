@@ -31,8 +31,9 @@ No automatic full Docker builds are enabled.
 From your local AEGIS repository (with dependencies already installed):
 
 ```powershell
-git fetch origin
-git switch chore/opt-in-ci-and-gates
+# Keep the current continuation checkout; inspect local changes first.
+git status --short
+git branch --show-current
 powershell -ExecutionPolicy Bypass -File .\scripts\verify-code-local.ps1 -Suite api
 powershell -ExecutionPolicy Bypass -File .\scripts\verify-code-local.ps1 -Suite web
 ```
