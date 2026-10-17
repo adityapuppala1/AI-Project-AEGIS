@@ -1,6 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.ts";
 
 :root {
   --canvas: 246 248 251;
@@ -31,7 +30,7 @@ body { min-width: 320px; }
   .eyebrow { @apply text-[11px] font-bold uppercase tracking-[.19em] text-muted; }
   .control { @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-stroke bg-surface px-3 text-sm font-semibold text-ink transition-colors hover:bg-elevated disabled:cursor-not-allowed disabled:opacity-50; }
   .control-primary { @apply border-transparent bg-accent text-white hover:opacity-90 dark:text-[#071923]; }
-  .field { @apply h-10 w-full rounded-xl border border-stroke bg-elevated px-3 text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none; }
+  .field { @apply h-10 w-full rounded-xl border border-stroke bg-elevated px-3 text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-hidden; }
   .status-dot { @apply inline-block h-2 w-2 shrink-0 rounded-full; }
 }
 .aegis-map { position: relative; height: 100%; min-height: 300px; overflow: hidden; border-radius: 0 0 1rem 1rem; background: #132c3b; }

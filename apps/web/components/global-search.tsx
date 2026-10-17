@@ -130,7 +130,7 @@ export function GlobalSearch() {
       <section role="dialog" ref={dialog} onKeyDown={trapFocus} aria-modal="true" aria-label="AEGIS global search" className="relative z-10 w-full max-w-[650px] overflow-hidden rounded-2xl border border-stroke bg-surface shadow-2xl">
         <div className="flex items-center gap-3 border-b border-stroke px-4 py-3">
           <Command size={19} className="shrink-0 text-accent"/>
-          <input ref={input} className="min-w-0 flex-1 border-0 bg-transparent py-2 text-sm text-ink outline-none placeholder:text-muted"
+          <input ref={input} className="min-w-0 flex-1 border-0 bg-transparent py-2 text-sm text-ink outline-hidden placeholder:text-muted"
             role="combobox" aria-autocomplete="list" aria-controls="aegis-global-results" aria-expanded={true}
             aria-activedescendant={options[active] ? "aegis-command-" + active : undefined}
             placeholder="Search navigation, incidents, documentation..." aria-label="Universal search term"
