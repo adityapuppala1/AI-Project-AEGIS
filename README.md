@@ -6,11 +6,12 @@ CipherCop 2026 · AI-powered disaster prediction, preparedness and accountable r
 
 **Consolidated synthetic demo release candidate (in development).** The latest integrated branch is `feat/ciphercop-integrated-demo-rc`, combining the original GeoCommand, DataFusion, Incident Fusion, response guidance, ApprovalGuard, AgencySync, PolicyStudio, ReplayLab and Audit360 demo surfaces. **No real warnings, dispatch or validated flood forecasting.** The current release candidate still requires tests and owner approval; `main` is unchanged.
 
+**Latest verified local continuation:** `feat/aegis-local-demo-continuation` (transferred locally; not pushed). See [current handoff](docs/LOCAL_DEMO_HANDOFF.md).
+
 **Start here:** [Original-plan reconciliation and acceptance gates](docs/CIPHERCOP_2026_RELEASE_AUDIT.md) · [Guided exercise](http://localhost:3000/demo) (after local startup).
 
 ```powershell
-git fetch origin
-git switch feat/ciphercop-integrated-demo-rc
+# Run from the verified continuation checkout. Inspect git status before switching branches.
 docker compose up --build -d
 docker compose exec -T api python -m app.doctor
 powershell -ExecutionPolicy Bypass -File .\\scripts\\verify-windows.ps1

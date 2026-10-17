@@ -211,3 +211,20 @@ both populated and isolated fresh Linux stacks.
 Build trust uses optional BuildKit CA secrets, not disabled TLS or embedded CA
 files. [Current handoff](LOCAL_DEMO_HANDOFF.md) records commands and remaining
 Windows/real-IdP/browser gates. No CI, push, paid deployment or merge occurred.
+
+
+## Windows laptop continuation — 17 October 2026
+
+Desktop Commander connected to Adys_ROG and verified the actual authorized
+Windows checkout. Fetched the remote baseline and imported this chat's local
+continuation bundles; no push or CI was triggered. Readable PostgreSQL backup
+preceded the non-destructive existing-volume upgrade. Executed 218 native API
+tests plus 3 PostGIS integration tests in a dedicated local database, native
+frontend typecheck/build, Docker rebuild/start, Windows/HTTP/audit smoke and
+idempotent case-linked replay. Browser desktop/mobile/keyboard checks exposed
+contrast defects addressed by source commits `4fb2578` and `1733461`.
+The final rerun passed 21 browser functional checks and found zero axe violations
+on the three audited pages in both light and dark themes.
+[Current handoff](LOCAL_DEMO_HANDOFF.md) records exact commands, scope, final
+browser outcome and remaining real IdP/manual release gates. Old Windows-
+pending entries above are historical and do not supersede this evidence.

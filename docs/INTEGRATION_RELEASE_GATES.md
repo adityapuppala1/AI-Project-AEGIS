@@ -196,3 +196,19 @@ Real PostGIS tests prove this evidence appears in the approval snapshot and
 that evidence-write failure rolls back ingestion. See the current handoff for
 exact evidence; Windows and actual independent human OIDC acceptance remain
 separate, uncleared gates.
+
+
+### Actual Windows laptop verification
+
+On 17 October the registered Adys_ROG laptop was connected and its actual
+`C:\xampp\htdocs\AI-Project-AEGIS` checkout inspected. The clean integration
+baseline was updated with verified local Git bundles, preserving main and all
+existing database volumes. A readable pg_dump backup was saved before upgrade.
+Native API tests: 218 passed; a separate laptop PostGIS test database passed all
+3 integration tests. Native frontend typecheck/build, complete Compose rebuild
+and existing-volume startup, Windows smoke, public audit checksum, and the
+case-linked replay script passed. Source freshness rehearsal added only three
+fictional rows and history was preserved. Automated Chrome checks found light
+contrast defects which were fixed; see the current handoff for final browser
+results and exact SHAs. Manual assistive-technology, performance, owner review
+and actual independent-human IdP approval gates remain separate.

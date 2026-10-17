@@ -9,9 +9,10 @@ The continuation branch `feat/aegis-local-demo-continuation` has **221 passing
 local tests**, case-linked accepted replay evidence, API/web Docker image builds,
 a running Linux Compose stack and passing loopback HTTP/audit smoke. Detailed
 commands and SHAs are in [LOCAL_DEMO_HANDOFF.md](LOCAL_DEMO_HANDOFF.md). Historical
-candidate acceptance rows below predate this continuation. Windows laptop,
-real independent human OIDC approval, browser interaction/accessibility and
-owner release gates remain uncleared. No CI or merge was requested.
+candidate acceptance rows below predate this continuation. Windows laptop
+startup, backed-up volume upgrade, native builds, API/PostGIS tests and HTTP
+smoke have now passed on Adys_ROG. Real independent human OIDC approval, manual
+screen-reader/accessibility review and owner release gates remain uncleared. No CI or merge was requested.
 
 ## No misleading delivery claims
 
