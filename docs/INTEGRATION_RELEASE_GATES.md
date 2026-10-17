@@ -182,3 +182,17 @@ verified signed-agency identity. The existing transition endpoint accepts
 `simulate` only for an operator and an independently approved evidence-linked
 draft; repeated calls preserve one receipt. This is a scripted local rehearsal,
 not department communication or operational task execution.
+
+
+### Docker and observation-to-case follow-up
+
+Local Linux application images now build and run as a complete Compose stack;
+container preflight/security/model and full HTTP smoke passed. Both populated
+and isolated fresh full Compose stacks were checked in Linux. Optional
+`compose.proxy-ca.yaml` supplies a build-only trusted CA bundle. The local
+replay CLI's `--incident-id` option explicitly associates accepted observations
+with synthetic case evidence/chronology, preserving quality and timestamps.
+Real PostGIS tests prove this evidence appears in the approval snapshot and
+that evidence-write failure rolls back ingestion. See the current handoff for
+exact evidence; Windows and actual independent human OIDC acceptance remain
+separate, uncleared gates.

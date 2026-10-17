@@ -1,0 +1,14 @@
+# Optional HTTPS proxy trust for builds; never included in the runtime image.
+# Use explicitly: docker compose -f compose.yaml -f compose.proxy-ca.yaml build
+services:
+  api:
+    build:
+      secrets:
+        - proxy_ca
+  web:
+    build:
+      secrets:
+        - proxy_ca
+secrets:
+  proxy_ca:
+    file: ${AEGIS_BUILD_CA_FILE:?Set AEGIS_BUILD_CA_FILE to your trusted CA bundle}

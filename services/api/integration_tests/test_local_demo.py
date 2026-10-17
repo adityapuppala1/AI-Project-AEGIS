@@ -6,7 +6,7 @@ JWTs are signed by ephemeral TEST keys; this is NOT real IdP/human acceptance.
 import os
 from datetime import datetime, timedelta, timezone
 from types import SimpleNamespace
-from uuid import uuid4
+from uuid import NAMESPACE_URL, UUID, uuid4, uuid5
 
 import jwt
 import pytest
@@ -31,9 +31,10 @@ def test_postgis_demo_chain_and_negative_authorization(monkeypatch):
     assert inspect_stack()["status"] == "ready"  # Exercises real psycopg placeholders.
     assert inspect_security_schema()["status"] == "ready"
     records = load_bundled_fixture()
-    replay_records(records)
+    linked = replay_records(records, incident_id=UUID(CASE))
+    assert linked["linked_evidence"] in {0, 3}
     first_counts = inspect_stack()["fixture_counts"]
-    replay_records(records)
+    assert replay_records(records, incident_id=UUID(CASE))["linked_evidence"] == 0
     assert inspect_stack()["fixture_counts"] == first_counts
     run = uuid4()
     assert replay_tabletop(run)["accepted_samples"] == 3
@@ -84,8 +85,61 @@ def test_postgis_demo_chain_and_negative_authorization(monkeypatch):
         assert len(audit["decisions"]) == 1
         assert audit["decisions"][0]["checker_subject"] != audit["proposal"]["maker_subject"]
         payload = audit["proposal"]["proposal"]
-        assert payload["response_draft"]["playbook"]["synthetic_evidence_ids"]
+        cited = payload["response_draft"]["playbook"]["synthetic_evidence_ids"]
+        replay_ids = {str(uuid5(NAMESPACE_URL, f"aegis-case-replay-evidence:{CASE}:{item['event_id']}"))
+                      for item in records[:3]}
+        assert replay_ids.issubset(set(cited))
+        evidence = client.get(f"/v1/exercise/incidents/{CASE}").json()["evidence"]
+        linked_rows = [item for item in evidence if item["id"] in replay_ids]
+        assert len(linked_rows) == 3
+        assert any(item["quality_status"] == "synthetic_unverified" for item in linked_rows)
+        assert all("accepted payload SHA256" in item["summary"] for item in linked_rows)
         assert len(payload["simulation"]["tasks"]) == 3
         assert payload["simulation"]["outbound_messages_sent"] is False
         assert [e["action"] for e in audit["events"]].count("simulated_department_tasks") == 1
         assert client.post("/v1/live/public-warning", headers=checker).status_code == 403
+
+
+def test_case_replay_rolls_back_partial_writes(monkeypatch):
+    from app import ingestion_store
+    monkeypatch.setenv("DATABASE_URL", os.environ["AEGIS_TEST_DATABASE_URL"])
+    record = {**load_bundled_fixture()[0], "event_id": str(uuid4())}
+    before = ingestion_store.ingestion_overview()
+    before_samples = inspect_stack()["fixture_counts"]["source_samples"]
+    def fail_attachment(*args):
+        raise ValueError("Injected evidence write failure")
+    monkeypatch.setattr(ingestion_store, "_attach_case_evidence", fail_attachment)
+    with pytest.raises(ValueError, match="Injected"):
+        ingestion_store.replay_records([{"invalid": str(uuid4())}, record], incident_id=UUID(CASE))
+    after = ingestion_store.ingestion_overview()
+    assert after["accepted_events"] == before["accepted_events"]
+    assert after["quarantine_records"] == before["quarantine_records"]
+    assert inspect_stack()["fixture_counts"]["source_samples"] == before_samples
+    with pytest.raises(LookupError, match="Synthetic exercise incident"):
+        ingestion_store.replay_records([record], incident_id=uuid4())
+    assert ingestion_store.ingestion_overview()["accepted_events"] == before["accepted_events"]
+
+
+def test_new_accepted_event_links_once_without_quality_promotion(monkeypatch):
+    from app.intelligence_store import incident_workspace
+    from app.ingestion_contract import payload_digest
+    monkeypatch.setenv("DATABASE_URL", os.environ["AEGIS_TEST_DATABASE_URL"])
+    event = {**load_bundled_fixture()[0], "event_id": str(uuid4()),
+             "quality_status": "synthetic_unverified",
+             "observed_at": (datetime.now(timezone.utc) - timedelta(minutes=5)).isoformat()}
+    conflict = {**event, "metric_value": 123.456}
+    wrong_unit = {**event, "event_id": str(uuid4()), "metric_unit": "cm"}
+    result = replay_records([event, conflict, wrong_unit], incident_id=UUID(CASE))
+    assert result["accepted"] == result["linked_evidence"] == 1
+    assert result["quarantined"] == 2
+    again = replay_records([event], incident_id=UUID(CASE))
+    assert again["accepted"] == again["linked_evidence"] == 0
+    evidence_id = str(uuid5(NAMESPACE_URL, f"aegis-case-replay-evidence:{CASE}:{event['event_id']}"))
+    case = incident_workspace(UUID(CASE))
+    evidence = [row for row in case["evidence"] if row["id"] == evidence_id]
+    assert len(evidence) == 1
+    assert evidence[0]["quality_status"] == "synthetic_unverified"
+    assert datetime.fromisoformat(evidence[0]["observed_at"]) == datetime.fromisoformat(event["observed_at"])
+    assert payload_digest(event) in evidence[0]["summary"]
+    assert payload_digest(conflict) not in evidence[0]["summary"]
+    assert sum(event["event_id"] in row["summary"] for row in case["timeline"]) == 1

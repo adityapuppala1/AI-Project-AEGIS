@@ -197,3 +197,17 @@ model artifact reproduction, TypeScript/Next production build, fresh and
 populated-volume migration/seed runs, and HTTP smoke checks. No GitHub CI was
 triggered. Windows laptop and real two-human OIDC browser gates remain pending;
 prior status rows are historical, not evidence of those gates passing.
+
+
+## Follow-up local integration — replay evidence and Docker
+
+The same continuation branch now explicitly links accepted synthetic replay
+observations to a selected demo incident, preserving quality/timestamps/digests
+and rejecting duplicate/conflicting attachments. The guided journey follows
+proposal-specific tasks/audit after approval. Local verification: **221 tests**,
+including 3 real PostGIS integration tests, production API/web Docker builds,
+container doctor/security/model checks and complete loopback HTTP smoke on
+both populated and isolated fresh Linux stacks.
+Build trust uses optional BuildKit CA secrets, not disabled TLS or embedded CA
+files. [Current handoff](LOCAL_DEMO_HANDOFF.md) records commands and remaining
+Windows/real-IdP/browser gates. No CI, push, paid deployment or merge occurred.

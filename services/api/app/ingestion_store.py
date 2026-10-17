@@ -6,7 +6,7 @@ from a code-reviewed fixture, using one PostgreSQL transaction.
 import os
 from collections import Counter
 from datetime import datetime, timezone
-from uuid import NAMESPACE_URL, uuid5
+from uuid import NAMESPACE_URL, UUID, uuid5
 
 import psycopg
 from psycopg.rows import dict_row
@@ -37,17 +37,74 @@ def quarantine(cur, raw: object, reason: str) -> None:
     )
 
 
-def replay_records(records: list[object], *, as_of: datetime | None = None) -> dict:
+
+def _attach_case_evidence(cur, incident_id: UUID, event_id: UUID, digest: str) -> int:
+    """Explicit tabletop association, never inferred causality or corroboration.
+
+    Read stored validated data, not the current input payload. The digest binds
+    duplicate replay requests to the original accepted event. Quarantined or
+    conflicting records never reach this path.
+    """
+    cur.execute(
+        """SELECT l.source_id::text, l.observed_at, l.received_at,
+                  l.metric_value, l.metric_unit, x.quality_status, s.name, s.source_kind
+           FROM exercise_ingestion_ledger l
+           JOIN exercise_source_samples x ON x.id=l.event_id AND x.source_id=l.source_id
+           JOIN exercise_data_sources s ON s.id=l.source_id
+           WHERE l.event_id=%s AND l.payload_sha256=%s AND s.agency_id=%s
+             AND l.synthetic IS TRUE AND x.synthetic IS TRUE AND s.synthetic IS TRUE""",
+        (str(event_id), digest, str(DEMO_AGENCY)),
+    )
+    stored = cur.fetchone()
+    if stored is None:
+        raise ValueError("Accepted synthetic event provenance is unavailable")
+    evidence_id = uuid5(NAMESPACE_URL, f"aegis-case-replay-evidence:{incident_id}:{event_id}")
+    chronology_id = uuid5(NAMESPACE_URL, f"aegis-case-replay-timeline:{incident_id}:{event_id}")
+    summary = (
+        f"SIMULATION: Explicit local replay association. Event {event_id}; "
+        f"source {stored['source_id']}; accepted payload SHA256 {digest}; "
+        f"reading {stored['metric_value']} {stored['metric_unit']}. "
+        "Association is not inferred causality, independent corroboration or real flood evidence."
+    )
+    cur.execute(
+        """INSERT INTO exercise_incident_evidence
+           (id,incident_id,source_label,source_kind,summary,observed_at,ingested_at,quality_status)
+           VALUES (%s,%s,%s,%s,%s,%s,%s,%s) ON CONFLICT (id) DO NOTHING RETURNING id""",
+        (str(evidence_id), str(incident_id), stored["name"],
+         "exercise_report" if stored["source_kind"] == "field_report" else "exercise_sensor",
+         summary, stored["observed_at"], stored["received_at"], stored["quality_status"]),
+    )
+    added = int(cur.fetchone() is not None)
+    cur.execute(
+        """INSERT INTO exercise_incident_events
+           (id,incident_id,event_type,occurred_at,summary,actor_label)
+           VALUES (%s,%s,'observation',%s,%s,'Local synthetic replay')
+           ON CONFLICT (id) DO NOTHING""",
+        (str(chronology_id), str(incident_id), stored["observed_at"], summary),
+    )
+    return added
+
+def replay_records(records: list[object], *, as_of: datetime | None = None, incident_id: UUID | None = None) -> dict:
     if not 1 <= len(records) <= MAX_BATCH_SIZE:
         raise ValueError("A replay needs between 1 and 100 exercise records")
     clock = as_of or datetime.now(timezone.utc)
     if clock.tzinfo is None:
         raise ValueError("as_of must have a timezone")
+    if incident_id is not None and not isinstance(incident_id, UUID):
+        raise ValueError("Exercise incident identifier must be a UUID")
     results = Counter()
     with psycopg.connect(os.environ["DATABASE_URL"], row_factory=dict_row) as conn:
         with conn.cursor() as cur:
             # Serialize concurrent local replays so event-id lookups remain atomic.
             cur.execute("SELECT pg_advisory_xact_lock(4839418221)")
+            if incident_id is not None:
+                cur.execute(
+                    """SELECT id FROM incidents WHERE id=%s AND agency_id=%s
+                       AND is_exercise_fixture IS TRUE FOR SHARE""",
+                    (str(incident_id), str(DEMO_AGENCY)),
+                )
+                if cur.fetchone() is None:
+                    raise LookupError("Synthetic exercise incident not found")
             for raw in records:
                 validated, problem = check_record(raw, as_of=clock)
                 if problem is not None:
@@ -79,6 +136,9 @@ def replay_records(records: list[object], *, as_of: datetime | None = None) -> d
                 if previous:
                     if previous["payload_sha256"] == digest:
                         results["duplicate"] += 1
+                        if incident_id is not None:
+                            results["linked_evidence"] += _attach_case_evidence(
+                                cur, incident_id, validated.event_id, digest)
                     else:
                         quarantine(cur, raw, "event_conflict")
                         results["event_conflict"] += 1
@@ -105,11 +165,16 @@ def replay_records(records: list[object], *, as_of: datetime | None = None) -> d
                         validated.metric_value, validated.quality_status,
                     ),
                 )
+                if incident_id is not None:
+                    results["linked_evidence"] += _attach_case_evidence(
+                        cur, incident_id, validated.event_id, digest)
                 results["accepted"] += 1
         # Transaction is committed only if all queries succeed; partial
         # failures roll back ledger, quarantine and sample rows together.
     return {
         "mode": "synthetic_exercise",
+        "incident_id": str(incident_id) if incident_id else None,
+        "linked_evidence": results["linked_evidence"],
         "processed": len(records),
         "accepted": results["accepted"],
         "duplicate": results["duplicate"],

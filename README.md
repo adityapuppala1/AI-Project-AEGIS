@@ -27,6 +27,17 @@ create a proposal-linked scripted department receipt and inspect its private
 audit JSON in `/approvals`. A trusted IdP remains required; no pretend login is
 provided. Public AgencySync/Audit360 remain separate fixture views.
 
+For a case-linked local replay, run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\replay-windows.ps1 -IncidentId 22222222-2222-4222-8222-222222222222
+```
+
+Accepted observations become idempotent case evidence with original times and
+quality labels. Create a new draft afterward to capture those citations.
+For builds behind a trusted HTTPS proxy, see
+[local build and handoff notes](docs/LOCAL_DEMO_HANDOFF.md#docker-builds-behind-a-trusted-https-proxy).
+
 ## Run API
 
 ```bash

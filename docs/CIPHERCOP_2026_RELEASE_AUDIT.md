@@ -3,6 +3,16 @@
 **Audit:** 17 October 2026 · **Demo deadline:** 30 November–1 December 2026  
 **Repository:** `adityapuppala1/AI-Project-AEGIS` · **Candidate branch:** `feat/ciphercop-integrated-demo-rc`
 
+## Current local continuation evidence
+
+The continuation branch `feat/aegis-local-demo-continuation` has **221 passing
+local tests**, case-linked accepted replay evidence, API/web Docker image builds,
+a running Linux Compose stack and passing loopback HTTP/audit smoke. Detailed
+commands and SHAs are in [LOCAL_DEMO_HANDOFF.md](LOCAL_DEMO_HANDOFF.md). Historical
+candidate acceptance rows below predate this continuation. Windows laptop,
+real independent human OIDC approval, browser interaction/accessibility and
+owner release gates remain uncleared. No CI or merge was requested.
+
 ## No misleading delivery claims
 
 The product specification is in [PRODUCT_VISION.md](PRODUCT_VISION.md).
@@ -69,7 +79,7 @@ This command requires explicit consent; it never deletes historical samples,
 connects a live source, or sends a message. Use a fixed `-RunId <UUID>` for
 repeatable idempotency; a new run ID appends a new isolated scenario.
 
-## Acceptance and blockers to *actually finishing* the hackathon demo
+## Baseline acceptance snapshot (before the local continuation)
 
 | Gate | Required evidence | Status |
 |---|---|---|

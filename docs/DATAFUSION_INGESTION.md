@@ -14,7 +14,7 @@ injections and unauthorized external actions.
 
 ```text
 Code-reviewed synthetic JSON fixture
-  → strict Pydantic v1 event-contract validation
+  → strict version-1 observation contract validation (Pydantic 2)
   → bounded payload + timezone + nonfuture timestamp checks
   → source registration and unit validation (PostgreSQL)
   → idempotent event ledger (UUID + canonical payload fingerprint)
@@ -131,3 +131,35 @@ A production-capable DataFusion system requires:
 Cost guideline: do not deploy AWS/Kinesis/MSK until measured throughput
 and authorized data justify cloud cost. This milestone uses local Postgres
 only and adds no new runtime Python/npm dependencies.
+
+## Explicit replay-to-case association
+
+To rehearse one case through ingestion, evidence, assessment and approval:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\replay-windows.ps1 -IncidentId 22222222-2222-4222-8222-222222222222
+```
+
+Equivalent local container command:
+
+```sh
+docker compose exec -T api python -m app.replay --incident-id 22222222-2222-4222-8222-222222222222
+```
+
+Only a case explicitly marked synthetic in the named demo agency is eligible.
+Accepted events (including matching previously accepted duplicates) are copied
+from stored validated observations into case evidence and chronology in the
+same transaction. Deterministic case/event IDs prevent duplicate evidence.
+Conflicts and quarantined records never attach. Evidence retains original
+observation/ingestion timestamps and curated/unverified labels, and cites the
+event/source UUIDs and accepted payload digest. Association is an explicit
+local rehearsal choice, not automatic correlation or corroboration.
+
+The bundled historical readings stay stale. The separate confirmed tabletop
+source-refresh CLI is still available when demonstrating freshness. Create a
+**new** proposal after linking to capture these evidence citations; existing
+proposal snapshots remain unchanged. The guided `/demo` journey then uses that
+proposal's independent review, scripted department receipt and private audit,
+rather than treating public seeded department tasks as its result.
+
+This adds no HTTP mutation route, database reset, real source or live action.

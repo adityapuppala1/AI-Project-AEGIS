@@ -56,3 +56,17 @@ FastAPI Model Lab endpoint and Next.js dashboard. No online inference or
 incident-scoring adapter is enabled. No actual flood labels or official
 data have been integrated; model metrics cannot be used as real-world
 predictive performance claims. See [model methodology](MODEL_EVALUATION_LAB.md).
+
+
+## Explicit synthetic replay-to-case evidence
+
+The existing modular monolith now supports an optional incident UUID on the
+local replay CLI. It validates the selected case's demo-agency/fixture scope,
+then associates only accepted observation records with existing case evidence
+and chronology tables under the same transaction/advisory lock. Deterministic
+case/event IDs make attachment idempotent. Source quality and original times
+are preserved; summaries cite accepted event/source UUIDs and payload digests.
+This is explicit tabletop association, not inferred physical correlation.
+No live ingest endpoint, automatic incident creation or new runtime service is
+introduced. Proposal snapshots preserve the checklist/citations at draft time;
+independent approval gates a private scripted task receipt and audit history.
