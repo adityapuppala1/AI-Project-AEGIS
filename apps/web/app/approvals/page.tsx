@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { AlertTriangle, Check, ClipboardCheck, LockKeyhole, Plus, RefreshCw, ShieldCheck, X } from "lucide-react";
 import { AppShell } from "../../components/app-shell";
+import { ExerciseReviewBrief, type ReviewBrief } from "../../components/exercise-review-brief";
 
 type Role = "incident_operator" | "incident_checker" | "incident_auditor";
 interface AuthState { authenticated: boolean; configured: boolean; subject?: string; agencyId?: string; roles?: Role[] }
@@ -10,7 +11,7 @@ interface Incident { id: string; hazard_type: string; status: string }
 interface Proposal {
   id: string; incident_id: string; maker_subject: string;
   action_type: string; status: "draft" | "submitted" | "approved" | "rejected";
-  proposal: { rationale?: string; exercise_only?: boolean; response_draft?: { context_state: string; recommendation_draft: string[]; playbook: { version: string; synthetic_evidence_ids: string[] } }; simulation?: { version?: string; tasks: { id?: string; department: string; state: string; events?: { kind: string; occurred_at: string; actor_subject?: string; rationale?: string }[] }[] } };
+  proposal: { rationale?: string; exercise_only?: boolean; response_draft?: { review_brief?: ReviewBrief; context_state: string; recommendation_draft: string[]; playbook: { version: string; synthetic_evidence_ids: string[] } }; simulation?: { version?: string; tasks: { id?: string; department: string; state: string; events?: { kind: string; occurred_at: string; actor_subject?: string; rationale?: string }[] }[] } };
   created_at: string;
 }
 const actionTypes = [
@@ -177,6 +178,7 @@ export default function ApprovalWorkbench() {
               <p className="mt-3 text-sm leading-6 text-muted">{proposal.proposal?.rationale || "No rationale recorded"}</p>
               {proposal.proposal.response_draft && <div className="mt-3 text-sm text-muted">
                 <p>Playbook: {proposal.proposal.response_draft.playbook.version}</p>
+                {proposal.proposal.response_draft.review_brief && <ExerciseReviewBrief brief={proposal.proposal.response_draft.review_brief}/>}
                 <p>Captured context: {proposal.proposal.response_draft.context_state.replaceAll("_", " ")}</p>
                 <p>{proposal.proposal.response_draft.playbook.synthetic_evidence_ids.length} synthetic evidence references preserved for review.</p>
                 <ul className="mt-2 list-disc pl-5">{proposal.proposal.response_draft.recommendation_draft.map(step => <li key={step}>{step}</li>)}</ul>

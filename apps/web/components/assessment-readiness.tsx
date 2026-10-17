@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { ExerciseReviewBrief, type ReviewBrief } from "./exercise-review-brief";
 import { AlertTriangle, ArrowRight, BrainCircuit, CheckCircle2, ClipboardCheck, RefreshCw, ShieldAlert } from "lucide-react";
 
 type Freshness = "fresh" | "delayed" | "stale" | "no_data" | "clock_anomaly";
 type Readiness = {
+  review_brief?: ReviewBrief;
   checklist_version: "aegis.exercise.context.v1";
   reference_time: string;
   reference_clock: "source_freshness_evaluation_time";

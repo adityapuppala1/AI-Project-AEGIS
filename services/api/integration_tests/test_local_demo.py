@@ -110,6 +110,10 @@ def test_postgis_demo_chain_and_negative_authorization(monkeypatch):
         assert audit["decisions"][0]["checker_subject"] != audit["proposal"]["maker_subject"]
         payload = audit["proposal"]["proposal"]
         cited = payload["response_draft"]["playbook"]["synthetic_evidence_ids"]
+        brief = payload["response_draft"]["review_brief"]
+        assert brief["findings"][0]["evidence_ids"] == cited
+        assert brief["generated_by"] == "deterministic_template_no_model"
+        assert brief["operational_actions_enabled"] is False
         replay_ids = {str(uuid5(NAMESPACE_URL, f"aegis-case-replay-evidence:{CASE}:{item['event_id']}"))
                       for item in records[:3]}
         assert replay_ids.issubset(set(cited))

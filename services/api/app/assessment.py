@@ -155,6 +155,35 @@ def evaluate_readiness(case: dict, nearby: dict) -> dict:
                         "description": "Only unverified synthetic case evidence is attached."})
     enough_demo_context = bool(curated_fresh and curated_evidence)
     return {
+        "review_brief": {
+            "version": "aegis.exercise.review-brief.v1",
+            "generated_by": "deterministic_template_no_model",
+            "synthetic": True,
+            "operational_actions_enabled": False,
+            "findings": [
+                {
+                    "text": f"This exercise case contains {len(evidence)} synthetic evidence records; {curated_evidence} are curated fixtures. Curated does not mean field-verified.",
+                    "evidence_ids": sorted(set(evidence_refs)),
+                    "source_ids": [],
+                },
+                {
+                    "text": f"Within {radius} m, {len(sources)} synthetic geographic source candidates were checked; {curated_fresh} are curated and within their configured observation window. Proximity is not corroboration.",
+                    "evidence_ids": [],
+                    "source_ids": sorted(set(source_refs)),
+                },
+            ],
+            "review_options": [
+                {"playbook_step": "URB-01", "text": "Review original evidence, quality labels and source timestamps; request missing independent corroboration."},
+                {"playbook_step": "URB-03", "text": (
+                    "Resolve missing or uncurated context before preparing an exercise recommendation."
+                    if not enough_demo_context else
+                    "Prepare a human-authored exercise recommendation citing these references and their limitations."
+                )},
+                {"playbook_step": "URB-04", "text": "Any submitted exercise proposal requires a different authorized checker; this brief cannot approve or execute it."},
+            ],
+            "limitations": [item["description"] for item in reasons],
+            "playbook_version": "AEGIS-URBAN-FLOOD-EXERCISE-v0.1",
+        },
         "checklist_version": CHECKLIST_VERSION,
         "reference_time": reference.isoformat(),
         "reference_clock": "source_freshness_evaluation_time",
