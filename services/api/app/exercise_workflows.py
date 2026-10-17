@@ -111,7 +111,6 @@ def change(
             operator.subject,
             payload.operation.value,
             payload.rationale,
-            **({"include_review_focus": True} if payload.include_review_focus else {}),
             **task_args,
         )
         return {"id": str(proposal_id), "status": status, "exercise_only": True}
