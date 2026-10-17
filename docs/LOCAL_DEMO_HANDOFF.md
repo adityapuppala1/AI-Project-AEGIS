@@ -922,7 +922,7 @@ API/web/DB and no conflicting AEGIS job. The existing architecture is retained.
 
 The next slice adds a proposal-linked, maker-only, draft-only three-step state
 machine; see [contract](BOUNDED_ASSISTANCE_RUN.md). It persists one explicit
-step per request under the proposal row lock, revalidates context, handles
+step per request under the proposal row lock, revalidates before progress, handles
 same-step retries idempotently, supports audited cancellation and stops at
 human review. No background service, schema migration, automatic submission,
 approval, task acknowledgement, model claim or live action.

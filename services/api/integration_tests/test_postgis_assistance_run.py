@@ -75,6 +75,9 @@ def test_cancel_and_context_change_fail_closed(monkeypatch):
         workflow_store.transition(fresh, DEMO_AGENCY, maker, "advance_assistance",
                                   assistance_step="gather_references")
     assert workflow_store.proposal_audit(fresh, DEMO_AGENCY) == before
+    assert workflow_store.transition(fresh, DEMO_AGENCY, maker, "cancel_assistance",
+                                     "SIMULATION: context changed; stop run") == "draft"
+    assert workflow_store.proposal_audit(fresh, DEMO_AGENCY)["proposal"]["proposal"]["assistance_run"]["status"] == "cancelled"
 
 
 def test_nonmaker_cannot_operate_run(monkeypatch):

@@ -138,13 +138,15 @@ def transition(
                     raise DecisionError("Assistance runs are available only while the proposal is a draft")
                 if current.maker_subject != actor:
                     raise DecisionError("Only the proposal maker may operate its assistance run")
-                checked_context = _revalidate_context(row, agency_id)
                 payload = row["proposal"]
                 if operation == "start_assistance":
+                    checked_context = _revalidate_context(row, agency_id)
                     assistance, changed = start_run(payload, actor)
                 elif operation == "advance_assistance":
+                    checked_context = _revalidate_context(row, agency_id)
                     assistance, changed = advance_run(payload.get("assistance_run"), payload, actor, assistance_step or "")
                 else:
+                    checked_context = None
                     assistance, changed = cancel_run(payload.get("assistance_run"), actor, reason or "")
                 if not changed:
                     return current.status.value

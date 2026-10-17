@@ -238,7 +238,7 @@ export default function ApprovalWorkbench() {
                   <ol className="mt-1 list-decimal pl-5">{proposal.proposal.assistance_run.completed_steps.map(item => <li key={item.step}>{item.step.replaceAll("_", " ")}</li>)}</ol>
                   <p>No submission, approval, dispatch or acknowledgement is performed by this run.</p>
                 </div>}
-                {canMake && proposal.maker_subject === auth.subject && !proposal.proposal.assistance_run && <button type="button" className="control mt-2" disabled={busy} onClick={() => void change(proposal, "start_assistance")}>Start bounded assistance</button>}
+                {canMake && proposal.maker_subject === auth.subject && (!proposal.proposal.assistance_run || proposal.proposal.assistance_run.status === "cancelled") && <button type="button" className="control mt-2" disabled={busy} onClick={() => void change(proposal, "start_assistance")}>{proposal.proposal.assistance_run ? "Start a new bounded run" : "Start bounded assistance"}</button>}
                 {canMake && proposal.maker_subject === auth.subject && proposal.proposal.assistance_run?.status === "running" && <div className="mt-2 flex flex-wrap gap-2">
                   <button type="button" className="control" disabled={busy} onClick={() => void change(proposal, "advance_assistance")}>Run next bounded step</button>
                   <input className="field max-w-sm" aria-label={`Cancellation rationale for ${proposal.id}`} maxLength={2000} placeholder="Cancellation rationale (required)" value={reviewReasons[`${proposal.id}:assistance`] || ""} onChange={event => setReviewReasons(value => ({...value,[`${proposal.id}:assistance`]:event.target.value}))}/>

@@ -19,11 +19,11 @@ completed expected step is idempotent, while skipped or stale steps fail. Each
 committed change has a proposal audit event. Database transactions make a
 crash before commit leave no partial step.
 
-Every start, advance and cancellation revalidates the current bounded context
-fingerprint. Changed or unavailable evidence refuses the write. Only the signed
-proposal maker can operate a run, and only while the proposal is a draft.
-Cancellation requires rationale and is terminal; starting again creates a new
-run and preserves earlier audit events.
+Every start and advance revalidates the current bounded context fingerprint.
+Changed or unavailable evidence refuses progress. Cancellation remains available
+during a context outage or change, requires rationale and is terminal. Only the
+signed proposal maker can operate a run, and only while the proposal is a draft.
+Starting again creates a new run and preserves earlier audit events.
 
 This is durable workflow orchestration, not a background worker or autonomous
 model loop. It resumes through explicit API calls after interruption and has no
