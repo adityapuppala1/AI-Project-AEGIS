@@ -5,8 +5,8 @@
 
 ## Current local continuation evidence
 
-The continuation branch `feat/aegis-local-demo-continuation` has **221 passing
-local tests**, case-linked accepted replay evidence, API/web Docker image builds,
+The continuation branch `feat/aegis-local-demo-continuation` has native API/model
+checks and separate real PostGIS integration evidence, case-linked replay, API/web image builds,
 a running Linux Compose stack and passing loopback HTTP/audit smoke. Detailed
 commands and SHAs are in [LOCAL_DEMO_HANDOFF.md](LOCAL_DEMO_HANDOFF.md). Historical
 candidate acceptance rows below predate this continuation. Windows laptop
@@ -179,3 +179,14 @@ provider is prepared for review only, with static checks passing. Real OIDC/MFA
 and independent human acceptance remain uncleared. Production npm audit is
 zero; seven development-toolchain advisories remain open. No blanket release
 or security certification is implied.
+
+
+Current dependency/runtime follow-up (`65167dd`): native Windows and Linux API
+suite **220 passed, 3 database tests skipped**, model reproduction passed, with
+prior separate laptop PostGIS evidence retained. Tailwind 4 upgrade removed the
+remaining braces dependency chain; full npm audit (including dev) is **zero** on
+both machines. Windows standalone/non-root web build, 21 browser checks, five
+map checks, five registry/reduced-motion checks, sampled light/dark axe, HTTP/
+audit checksum and bounded latency all passed. This supersedes earlier open npm
+advisory counts above. The local IdP remains inactive; actual two-human MFA,
+manual accessibility and owner release acceptance remain open.

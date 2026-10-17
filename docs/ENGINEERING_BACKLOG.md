@@ -2,8 +2,9 @@
 
 ## Current synthetic demo priorities — 17 October 2026
 
-1. Finish dependency/runtime hardening and execute native/container/browser
-   regression checks; do not hide remaining advisories behind a production-only audit.
+1. Dependency/runtime hardening is complete for this local scope: Tailwind 4,
+   full npm audit zero on Windows/Linux, non-root standalone image, and laptop
+   browser/HTTP regression passed. Retain the executed evidence in the handoff.
 2. After owner approval of [local IdP activation and certificate trust](LOCAL_IDP_REVIEW.md),
    verify realm import, PKCE login, MFA and independent maker/checker identities.
 3. With two different people, rehearse evidence-cited draft → independent

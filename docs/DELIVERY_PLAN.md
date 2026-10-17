@@ -28,7 +28,7 @@ commands are recorded in [LOCAL_DEMO_HANDOFF.md](LOCAL_DEMO_HANDOFF.md).
 | Simulated tasks/acknowledgements → audit | Approved-only private scripted receipts and audit implemented/tested; actual two-human end-to-end acceptance pending |
 | Browser/accessibility | Automated desktop/mobile/keyboard, sampled light/dark axe and map-failure/recovery checks passed; manual screen-reader/operator review pending |
 | Recovery and latency | Separate backup restoration and bounded local software latency check passed; no production capacity claim |
-| Security/release | Production npm audit zero at last verification; development-toolchain advisories and owner review remain open. See current handoff for hardening follow-up |
+| Security/release | Full npm audit zero on Windows/Linux after Tailwind 4 upgrade; standalone non-root runtime/browser regression passed; owner review pending |
 
 The dated windows above are planning milestones. Historical branch delivery
 and CI evidence do not establish current acceptance. Official data feeds,

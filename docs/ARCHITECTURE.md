@@ -70,3 +70,15 @@ This is explicit tabletop association, not inferred physical correlation.
 No live ingest endpoint, automatic incident creation or new runtime service is
 introduced. Proposal snapshots preserve the checklist/citations at draft time;
 independent approval gates a private scripted task receipt and audit history.
+
+
+## Local web runtime packaging
+
+The console still uses Next.js/React, Tailwind and MapLibre. Tailwind 4 retains
+the existing theme configuration and uses its PostCSS integration. Compose web
+builds use Next standalone tracing in a separate runner stage under UID 1000;
+static assets and pinned same-origin map workers are copied explicitly. The
+runtime excludes the full development installation (including Tailwind/braces).
+This changes packaging, not the API, data model or approval boundaries. The
+optional local IdP override remains review-only until owner activation/trust
+approval and does not replace default locked authentication behavior.

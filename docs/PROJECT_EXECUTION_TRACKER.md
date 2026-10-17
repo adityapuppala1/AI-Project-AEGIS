@@ -8,7 +8,10 @@ Use `feat/aegis-local-demo-continuation` and [the current handoff](LOCAL_DEMO_HA
 Earlier PR tables, pending statements and effort estimates below are historical;
 they do not override the executed Windows evidence. The current continuation
 adds standalone/non-root web packaging and a Tailwind 4 security upgrade, with
-full npm audit zero in Linux and final Windows acceptance tracked in the handoff.
+full npm audit zero on Windows/Linux. Final laptop native, Docker, browser, map,
+registry, HTTP/checksum and bounded latency checks passed on `65167dd`; runtime
+UID is 1000 and Tailwind/braces are absent from the image. Exact commands and
+results are tracked in the handoff.
 Independent human OIDC/MFA, manual screen-reader/operator acceptance and owner
 release review remain pending. No CI, push or merge is authorized.
 
