@@ -6,6 +6,11 @@ import { AlertTriangle, ArrowRight, BrainCircuit, CheckCircle2, ClipboardCheck, 
 
 type Freshness = "fresh" | "delayed" | "stale" | "no_data" | "clock_anomaly";
 type Readiness = {
+  checklist_version: "aegis.exercise.context.v1";
+  reference_time: string;
+  reference_clock: "synthetic_scenario_not_live_time";
+  unknowns: string[];
+  next_review_step: string;
   incident_id: string;
   radius_m: number;
   source: "synthetic_exercise";
@@ -40,6 +45,7 @@ export function AssessmentReadiness({ incidentId }: { incidentId: string }) {
   const [result, setResult] = useState<Readiness | null>(null);
   const [busy, setBusy] = useState(true);
   const [error, setError] = useState("");
+  const [checkedAt, setCheckedAt] = useState("");
   const [copyResult, setCopyResult] = useState("");
   async function copyExerciseReview() {
     if (!result) return;
@@ -62,6 +68,7 @@ export function AssessmentReadiness({ incidentId }: { incidentId: string }) {
   useEffect(() => {
     const controller = new AbortController();
     setResult(null);
+    setCopyResult("");
     setBusy(true);
     setError("");
     fetch(`/api/incidents/${encodeURIComponent(incidentId)}/readiness?radius_m=${radius}`, {
@@ -69,7 +76,12 @@ export function AssessmentReadiness({ incidentId }: { incidentId: string }) {
     }).then(async response => {
       if (!response.ok) throw new Error("Exercise assessment could not be loaded");
       const data = await response.json() as Readiness;
-      if (data.incident_id !== incidentId || data.radius_m !== radius ||
+      if (data.checklist_version !== "aegis.exercise.context.v1" ||
+          data.reference_clock !== "synthetic_scenario_not_live_time" ||
+          typeof data.reference_time !== "string" || !Number.isFinite(Date.parse(data.reference_time)) ||
+          !Array.isArray(data.unknowns) || !data.unknowns.every(item => typeof item === "string") ||
+          typeof data.next_review_step !== "string" ||
+          data.incident_id !== incidentId || data.radius_m !== radius ||
           data.source !== "synthetic_exercise" ||
           data.assessment_kind !== "explainable_context_checklist_only" ||
           data.context_state !== "simulated_context_for_human_review" &&
@@ -88,7 +100,10 @@ export function AssessmentReadiness({ incidentId }: { incidentId: string }) {
           !Array.isArray(data.playbook.synthetic_source_ids)) {
         throw new Error("Assessment classification not verified");
       }
-      if (!controller.signal.aborted) setResult(data);
+      if (!controller.signal.aborted) {
+        setResult(data);
+        setCheckedAt(new Date().toISOString());
+      }
     }).catch(reason => {
       if (!controller.signal.aborted) setError(reason instanceof Error ? reason.message : "Unavailable");
     }).finally(() => { if (!controller.signal.aborted) setBusy(false); });
@@ -125,6 +140,20 @@ export function AssessmentReadiness({ incidentId }: { incidentId: string }) {
       {error}. No simulated conclusion is available.
     </p>}
     {result && <div className="grid gap-5 p-5 lg:grid-cols-2">
+      <div className="rounded-xl border border-stroke bg-elevated/40 p-4 lg:col-span-2">
+        <h4 className="text-sm font-bold">Context and limits</h4>
+        <dl className="mt-3 space-y-2 text-xs leading-6 text-muted">
+          <div><dt className="inline font-semibold">Scenario reference time: </dt><dd className="inline"><time dateTime={result.reference_time}>{result.reference_time}</time> (synthetic clock, not live freshness)</dd></div>
+          <div><dt className="inline font-semibold">Checklist retrieved: </dt><dd className="inline"><time dateTime={checkedAt}>{checkedAt}</time> (browser time; does not refresh observations)</dd></div>
+          <div><dt className="inline font-semibold">Checklist version: </dt><dd className="inline">{result.checklist_version}</dd></div>
+        </dl>
+        <p className="mt-3 text-xs font-semibold">Not established by this checklist</p>
+        <ul className="mt-2 list-disc space-y-1 pl-5 text-xs leading-6 text-muted">
+          {result.unknowns.map(item => <li key={item}>{item}</li>)}
+        </ul>
+        <p className="mt-3 text-sm"><strong>Next human review step:</strong> {result.next_review_step}</p>
+        <Link href="/sources" className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-accent">Inspect source history <ArrowRight size={14}/></Link>
+      </div>
       <div>
         <h4 className="flex items-center gap-2 text-sm font-bold">
           {result.context_state === "insufficient_simulated_context" ?
@@ -137,7 +166,10 @@ export function AssessmentReadiness({ incidentId }: { incidentId: string }) {
         <dl className="mt-4 grid grid-cols-2 gap-3 text-xs">
           {[
             ["Current-window demo feeds", result.source_freshness_counts.fresh],
+            ["Delayed demo feeds", result.source_freshness_counts.delayed],
             ["Stale demo feeds", result.source_freshness_counts.stale],
+            ["Feeds without data", result.source_freshness_counts.no_data],
+            ["Feeds with clock anomalies", result.source_freshness_counts.clock_anomaly],
             ["Synthetic evidence records", result.synthetic_evidence_records],
             ["Nearby fictional assets", result.fictional_assets_nearby],
           ].map(([label,value]) => <div key={label} className="rounded-xl bg-elevated p-3">

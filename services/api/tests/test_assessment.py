@@ -243,3 +243,23 @@ def test_missing_evidence_reference_id_fails_closed():
     del case["evidence"][0]["id"]
     with pytest.raises(ValueError, match="synthetic evidence reference"):
         evaluate_readiness(case, geographic)
+
+
+def test_context_exposes_scenario_clock_version_and_unknowns():
+    case, geo = demo_inputs()
+    result = evaluate_readiness(case, geo)
+    assert result["reference_time"] == geo["as_of"]
+    assert result["reference_clock"] == "synthetic_scenario_not_live_time"
+    assert result["checklist_version"] == "aegis.exercise.context.v1"
+    assert any("agreement has not been evaluated" in item for item in result["unknowns"])
+    assert "independent checker" in result["next_review_step"]
+    # Repeating a scenario preserves its reference clock, not the wall clock.
+    assert evaluate_readiness(case, geo) == result
+
+
+def test_missing_context_directs_review_instead_of_drafting():
+    case, geo = demo_inputs()
+    case["evidence"] = []
+    result = evaluate_readiness(case, geo)
+    assert "before drafting" in result["next_review_step"]
+    assert result["real_world_risk_probability"] is None

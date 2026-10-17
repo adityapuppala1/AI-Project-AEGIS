@@ -8,6 +8,8 @@ from datetime import datetime, timezone
 from app.source_health import classify_source
 from uuid import UUID
 
+CHECKLIST_VERSION = "aegis.exercise.context.v1"
+
 FRESHNESS = frozenset({"fresh", "delayed", "stale", "no_data", "clock_anomaly"})
 
 
@@ -153,6 +155,19 @@ def evaluate_readiness(case: dict, nearby: dict) -> dict:
                         "description": "Only unverified synthetic case evidence is attached."})
     enough_demo_context = bool(curated_fresh and curated_evidence)
     return {
+        "checklist_version": CHECKLIST_VERSION,
+        "reference_time": reference.isoformat(),
+        "reference_clock": "synthetic_scenario_not_live_time",
+        "unknowns": [
+            "Cross-source measurement agreement has not been evaluated.",
+            "Real flood likelihood, depth and infrastructure impact are unknown.",
+            "Nearby sources are geographic candidates, not independent corroboration.",
+        ],
+        "next_review_step": (
+            "Review missing or uncurated case evidence and current source observations before drafting."
+            if not enough_demo_context else
+            "Review cited evidence and its limitations; any exercise draft still requires an independent checker."
+        ),
         "incident_id": case_id,
         "source": "synthetic_exercise",
         "assessment_kind": "explainable_context_checklist_only",
