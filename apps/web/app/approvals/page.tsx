@@ -10,10 +10,11 @@ import { ExerciseReviewBrief, type ReviewBrief } from "../../components/exercise
 type Role = "incident_operator" | "incident_checker" | "incident_auditor";
 interface AuthState { authenticated: boolean; configured: boolean; subject?: string; agencyId?: string; roles?: Role[] }
 interface Incident { id: string; hazard_type: string; status: string }
+interface AssistanceRun { id: string; status: "running" | "review_ready" | "cancelled"; next_step?: string | null; step_budget: number; completed_steps: { step: string; completed_at: string; result: Record<string,unknown> }[]; operational_actions_enabled: false; needs_accountable_human_review: true }
 interface Proposal {
   id: string; incident_id: string; maker_subject: string;
   action_type: string; status: "draft" | "submitted" | "approved" | "rejected";
-  proposal: { review_focus?: Focus; rationale?: string; exercise_only?: boolean; response_draft?: { review_brief?: ReviewBrief; context_state: string; recommendation_draft: string[]; playbook: { version: string; synthetic_evidence_ids: string[] } }; simulation?: { version?: string; tasks: { id?: string; department: string; state: string; events?: { kind: string; occurred_at: string; actor_subject?: string; rationale?: string }[] }[] } };
+  proposal: { assistance_run?: AssistanceRun; review_focus?: Focus; rationale?: string; exercise_only?: boolean; response_draft?: { review_brief?: ReviewBrief; context_state: string; recommendation_draft: string[]; playbook: { version: string; synthetic_evidence_ids: string[] } }; simulation?: { version?: string; tasks: { id?: string; department: string; state: string; events?: { kind: string; occurred_at: string; actor_subject?: string; rationale?: string }[] }[] } };
   created_at: string;
 }
 const actionTypes = [
@@ -119,13 +120,14 @@ export default function ApprovalWorkbench() {
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Unable to create proposal"); }
     finally { setBusy(false); }
   }
-  async function change(proposal: Proposal, operation: "submit" | "approve" | "reject" | "simulate" | "prepare_tasks" | "acknowledge_task" | "close_task", taskId?: string) {
+  async function change(proposal: Proposal, operation: "submit" | "approve" | "reject" | "simulate" | "prepare_tasks" | "acknowledge_task" | "close_task" | "start_assistance" | "advance_assistance" | "cancel_assistance", taskId?: string) {
     if (busy) return;
     setBusy(true); setError(""); setMessage("");
-    const reasonKey = taskId ? `${proposal.id}:${taskId}` : proposal.id;
+    const reasonKey = taskId ? `${proposal.id}:${taskId}` : operation === "cancel_assistance" ? `${proposal.id}:assistance` : proposal.id;
     try {
-      await mutation(`/api/proposals/${proposal.id}/transition`, { operation, rationale: reviewReasons[reasonKey] || undefined, ...(taskId ? { task_id: taskId } : {}) });
-      const label = { submit: "submitted", approve: "approved", reject: "rejected", simulate: "simulated", prepare_tasks: "prepared scripted tasks", acknowledge_task: "recorded scripted acknowledgement", close_task: "closed scripted task" }[operation];
+      await mutation(`/api/proposals/${proposal.id}/transition`, { operation, rationale: reviewReasons[reasonKey] || undefined, ...(taskId ? { task_id: taskId } : {}),
+        ...(operation === "advance_assistance" ? { assistance_step: proposal.proposal.assistance_run?.next_step } : {}) });
+      const label = { submit: "submitted", approve: "approved", reject: "rejected", simulate: "simulated", prepare_tasks: "prepared scripted tasks", acknowledge_task: "recorded scripted acknowledgement", close_task: "closed scripted task", start_assistance: "started bounded assistance", advance_assistance: "advanced bounded assistance", cancel_assistance: "cancelled bounded assistance" }[operation];
       setMessage(`Exercise: ${label}. No messages sent or operational action taken.`);
       setReviewReasons(current => ({ ...current, [reasonKey]: "" }));
       await reload();
@@ -226,6 +228,22 @@ export default function ApprovalWorkbench() {
                 <h3 className="text-sm font-bold">Saved review focus</h3>
                 <p className="mt-1 text-xs text-muted">Captured when this draft was created. Selection is not evidence validation or approval.</p>
                 <ReviewFocusDetails focus={proposal.proposal.review_focus}/>
+              </section>}
+              {proposal.status === "draft" && <section className="mt-3 rounded-xl border border-stroke p-3" aria-label="Bounded assistance run">
+                <h3 className="text-sm font-bold">Bounded assistance run</h3>
+                {!proposal.proposal.assistance_run && <p className="mt-1 text-xs text-muted">Optional three-step review: gather saved references, check recorded quality, validate the draft, then stop for human review.</p>}
+                {proposal.proposal.assistance_run && <div className="mt-2 text-xs leading-6 text-muted">
+                  <p>Status: <strong>{proposal.proposal.assistance_run.status.replaceAll("_", " ")}</strong> · {proposal.proposal.assistance_run.completed_steps.length}/{proposal.proposal.assistance_run.step_budget} steps</p>
+                  {proposal.proposal.assistance_run.next_step && <p>Next explicit step: {proposal.proposal.assistance_run.next_step.replaceAll("_", " ")}</p>}
+                  <ol className="mt-1 list-decimal pl-5">{proposal.proposal.assistance_run.completed_steps.map(item => <li key={item.step}>{item.step.replaceAll("_", " ")}</li>)}</ol>
+                  <p>No submission, approval, dispatch or acknowledgement is performed by this run.</p>
+                </div>}
+                {canMake && proposal.maker_subject === auth.subject && !proposal.proposal.assistance_run && <button type="button" className="control mt-2" disabled={busy} onClick={() => void change(proposal, "start_assistance")}>Start bounded assistance</button>}
+                {canMake && proposal.maker_subject === auth.subject && proposal.proposal.assistance_run?.status === "running" && <div className="mt-2 flex flex-wrap gap-2">
+                  <button type="button" className="control" disabled={busy} onClick={() => void change(proposal, "advance_assistance")}>Run next bounded step</button>
+                  <input className="field max-w-sm" aria-label={`Cancellation rationale for ${proposal.id}`} maxLength={2000} placeholder="Cancellation rationale (required)" value={reviewReasons[`${proposal.id}:assistance`] || ""} onChange={event => setReviewReasons(value => ({...value,[`${proposal.id}:assistance`]:event.target.value}))}/>
+                  <button type="button" className="control" disabled={busy || (reviewReasons[`${proposal.id}:assistance`] || "").trim().length < 10} onClick={() => void change(proposal, "cancel_assistance")}>Cancel run</button>
+                </div>}
               </section>}
               {proposal.status === "approved" && canMake && proposal.proposal.response_draft && !proposal.proposal.simulation &&
                 <button type="button" className="control mt-3" disabled={busy} onClick={() => void change(proposal, "prepare_tasks")}>

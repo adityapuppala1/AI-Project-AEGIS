@@ -122,3 +122,38 @@ test('saved focus accepts only boolean opt-in, never caller model content', asyn
     assert.equal(calls.length, 0);
   });
 });
+
+for (const operation of ['start_assistance', 'advance_assistance', 'cancel_assistance']) {
+  test('bounded assistance operation ' + operation + ' is operator-only', async () => {
+    const body = { operation, ...(operation === 'cancel_assistance' ? { rationale: 'SIMULATION: operator stopped run' } : {}),
+      ...(operation === 'advance_assistance' ? { assistance_step: 'gather_references' } : {}) };
+    await withFetch(new Response('{}'), async calls => {
+      const result = await loadProxy({ accessToken: 'unit-only-token', roles: ['incident_operator'] })(writeRequest(body), id);
+      assert.equal(result.status, 200); assert.deepEqual(JSON.parse(calls[0].options.body), body);
+    });
+    await withFetch(null, async calls => {
+      assert.equal((await loadProxy({ accessToken: 'unit-only-token', roles: ['incident_checker'] })(writeRequest(body), id)).status, 403);
+      assert.equal(calls.length, 0);
+    });
+  });
+}
+
+test('assistance cancellation requires rationale', async () => {
+  await withFetch(null, async calls => {
+    const operator = loadProxy({ accessToken: 'unit-only-token', roles: ['incident_operator'] });
+    assert.equal((await operator(writeRequest({ operation: 'cancel_assistance' }), id)).status, 400);
+    assert.equal((await operator(writeRequest({ operation: 'cancel_assistance', rationale: 'short' }), id)).status, 400);
+    assert.equal(calls.length, 0);
+  });
+});
+
+test('assistance step is required only for advancing', async () => {
+  await withFetch(null, async calls => {
+    const operator = loadProxy({ accessToken: 'unit-only-token', roles: ['incident_operator'] });
+    for (const body of [{ operation: 'advance_assistance' },
+      { operation: 'advance_assistance', assistance_step: 'invent_action' },
+      { operation: 'start_assistance', assistance_step: 'gather_references' }])
+      assert.equal((await operator(writeRequest(body), id)).status, 400);
+    assert.equal(calls.length, 0);
+  });
+});

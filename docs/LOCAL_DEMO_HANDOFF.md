@@ -913,3 +913,26 @@ grounded assistance and usefulness evaluation, source comparison/dependency
 metadata, department permissions/SLAs, durable note recovery and human acceptance.
 Saved-selection capture and its laptop automated acceptance are now closed.
 IdP activation and trust remain deferred by owner; no forecast validation claim.
+
+## Bounded assistance run — implementation in progress
+
+Starting branch/source `feat/aegis-local-demo-continuation` / `06527e5` was
+clean in both checkouts. Laptop inventory PID 113888 exited 0 with exactly one
+API/web/DB and no conflicting AEGIS job. The existing architecture is retained.
+
+The next slice adds a proposal-linked, maker-only, draft-only three-step state
+machine; see [contract](BOUNDED_ASSISTANCE_RUN.md). It persists one explicit
+step per request under the proposal row lock, revalidates context, handles
+same-step retries idempotently, supports audited cancellation and stops at
+human review. No background service, schema migration, automatic submission,
+approval, task acknowledgement, model claim or live action.
+
+Initial Linux implementation checks:
+
+- From `services/api`, `/workspace/scratch/aegis-venv/bin/python -m pytest -q`:
+  **308 passed, 13 skipped**, one existing Starlette/httpx warning.
+- From `apps/web`, `npm run typecheck` and the four established Node files:
+  PASS, **37 tests**.
+
+These are not laptop/database/browser acceptance. Source transfer and the real
+PostGIS concurrency/context-change tests remain pending at this checkpoint.

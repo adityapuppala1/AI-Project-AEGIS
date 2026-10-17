@@ -112,6 +112,7 @@ def transition(
     operation: str,
     reason: str | None = None,
     task_id: str | None = None,
+    assistance_step: str | None = None,
 ) -> str:
     # Lock the proposal row to serialize concurrent checker decisions.
     with psycopg.connect(os.environ["DATABASE_URL"]) as conn:
@@ -131,6 +132,34 @@ def transition(
                 row["id"], row["incident_id"], row["maker_subject"],
                 Action(row["action_type"]), Status(row["status"]),
             )
+            if operation in {"start_assistance", "advance_assistance", "cancel_assistance"}:
+                from app.assistance_run import advance_run, cancel_run, start_run
+                if current.status is not Status.DRAFT:
+                    raise DecisionError("Assistance runs are available only while the proposal is a draft")
+                if current.maker_subject != actor:
+                    raise DecisionError("Only the proposal maker may operate its assistance run")
+                checked_context = _revalidate_context(row, agency_id)
+                payload = row["proposal"]
+                if operation == "start_assistance":
+                    assistance, changed = start_run(payload, actor)
+                elif operation == "advance_assistance":
+                    assistance, changed = advance_run(payload.get("assistance_run"), payload, actor, assistance_step or "")
+                else:
+                    assistance, changed = cancel_run(payload.get("assistance_run"), actor, reason or "")
+                if not changed:
+                    return current.status.value
+                cur.execute(
+                    "UPDATE action_proposals SET proposal=jsonb_set(proposal, '{assistance_run}', %s::jsonb), updated_at=NOW() WHERE id=%s",
+                    (json.dumps(assistance), proposal_id),
+                )
+                _audit(cur, actor, operation, proposal_id, {
+                    "agency_id": str(agency_id), "exercise_only": True,
+                    "run_id": assistance["id"], "run_status": assistance["status"],
+                    "completed_step_count": len(assistance["completed_steps"]),
+                    "checked_context_fingerprint": checked_context,
+                    "operational_actions_enabled": False,
+                })
+                return current.status.value
             if operation in {"simulate", "prepare_tasks", "acknowledge_task", "close_task"}:
                 from app.proposal_simulation import simulation_receipt, prepare_task_receipt, advance_task
                 if current.status is not Status.APPROVED:

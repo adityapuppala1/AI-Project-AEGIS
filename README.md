@@ -41,6 +41,8 @@ An optional [local model review focus](docs/LOCAL_REVIEW_FOCUS.md) selects exist
 review items on demand; base startup uses a labelled template fallback.
 Operators can opt in to [save a selection with a draft](docs/SAVED_REVIEW_FOCUS.md)
 for later independent review; see the handoff for verification status.
+Draft makers can also use a [bounded durable assistance run](docs/BOUNDED_ASSISTANCE_RUN.md)
+to check captured references and quality one explicit step at a time before submission.
 Approved warning-preparation proposals also support a private
 [exercise CAP XML draft](docs/CAP_EXERCISE_DRAFTS.md) download; no messages are sent.
 

@@ -262,3 +262,26 @@ def test_review_focus_opt_in_uses_verified_creation(monkeypatch):
         assert client.post("/v1/exercise/proposals", json={**valid_proposal(), "include_review_focus": value}).status_code == 422
     assert client.post("/v1/exercise/proposals", json={**valid_proposal(), "review_focus": {"model": "forged"}}).status_code == 422
     assert len(captured) == 1
+
+
+@pytest.mark.parametrize("operation", ["start_assistance", "advance_assistance", "cancel_assistance"])
+def test_assistance_operations_require_operator_and_signed_identity(monkeypatch, operation):
+    captured = []
+    monkeypatch.setattr(exercise_workflows, "transition", lambda *a, **k: captured.append((a, k)) or "draft")
+    authenticate("incident_checker")
+    body = {"operation": operation, "rationale": "SIMULATION: stop bounded run"}
+    if operation == "advance_assistance": body["assistance_step"] = "gather_references"
+    assert client.post(f"/v1/exercise/proposals/{PROPOSAL_ID}/transition", json=body).status_code == 403
+    authenticate("incident_operator", "run-maker")
+    response = client.post(f"/v1/exercise/proposals/{PROPOSAL_ID}/transition", json=body)
+    assert response.status_code == 200
+    assert captured[0][0][:4] == (PROPOSAL_ID, AGENCY_ID, "run-maker", operation)
+
+
+def test_assistance_step_shape_is_strict(monkeypatch):
+    authenticate("incident_operator")
+    monkeypatch.setattr(exercise_workflows, "transition", lambda *_a, **_k: pytest.fail("Unexpected store call"))
+    for body in ({"operation": "advance_assistance"},
+                 {"operation": "advance_assistance", "assistance_step": "invent_action"},
+                 {"operation": "start_assistance", "assistance_step": "gather_references"}):
+        assert client.post(f"/v1/exercise/proposals/{PROPOSAL_ID}/transition", json=body).status_code == 422

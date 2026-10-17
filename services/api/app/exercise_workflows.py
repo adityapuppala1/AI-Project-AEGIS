@@ -33,6 +33,9 @@ class Operation(str, Enum):
     prepare_tasks = "prepare_tasks"
     acknowledge_task = "acknowledge_task"
     close_task = "close_task"
+    start_assistance = "start_assistance"
+    advance_assistance = "advance_assistance"
+    cancel_assistance = "cancel_assistance"
 
 
 class ChangeProposal(BaseModel):
@@ -40,6 +43,7 @@ class ChangeProposal(BaseModel):
     operation: Operation
     rationale: str | None = Field(default=None, max_length=2000)
     task_id: Literal["control_room", "infrastructure", "communications"] | None = None
+    assistance_step: Literal["gather_references", "check_quality", "validate_draft"] | None = None
 
 
 @router.get("/identity")
@@ -95,16 +99,22 @@ def change(
     payload: ChangeProposal,
     operator: Operator = Depends(get_operator),
 ):
-    if payload.operation in (Operation.submit, Operation.simulate, Operation.prepare_tasks, Operation.acknowledge_task, Operation.close_task):
+    if payload.operation in (Operation.submit, Operation.simulate, Operation.prepare_tasks, Operation.acknowledge_task, Operation.close_task,
+                             Operation.start_assistance, Operation.advance_assistance, Operation.cancel_assistance):
         require_role(operator, {"incident_operator"})
     else:
         require_role(operator, {"incident_checker"})
     task_operation = payload.operation in (Operation.acknowledge_task, Operation.close_task)
     if task_operation != (payload.task_id is not None):
         raise HTTPException(status_code=422, detail="Task identifier required only for task transitions")
+    assistance_advance = payload.operation is Operation.advance_assistance
+    if assistance_advance != (payload.assistance_step is not None):
+        raise HTTPException(status_code=422, detail="Assistance step required only when advancing a run")
     from app.assessment_adapter import ContextUnavailable
     try:
         task_args = {"task_id": payload.task_id} if task_operation else {}
+        if assistance_advance:
+            task_args["assistance_step"] = payload.assistance_step
         status = transition(
             str(proposal_id),
             operator.agency_id,
