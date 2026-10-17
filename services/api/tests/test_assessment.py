@@ -47,6 +47,40 @@ def demo_inputs():
     return case, geo
 
 
+def test_context_fingerprint_ignores_retrieval_time_and_list_order():
+    case, geo = demo_inputs()
+    before = evaluate_readiness(case, geo)["context_fingerprint"]
+    case["generated_at"] = "later retrieval"
+    geo["as_of"] = "2026-10-16T17:00:01+00:00"
+    geo["nearby_sources"].reverse()
+    assert evaluate_readiness(case, geo)["context_fingerprint"] == before
+
+
+@pytest.mark.parametrize("change", [
+    lambda c, g: c["evidence"][0].update(summary="Changed supporting evidence"),
+    lambda c, g: c["evidence"][0].update(quality_status="synthetic_unverified"),
+    lambda c, g: g["nearby_sources"][0].update(metric_value=12.5),
+    lambda c, g: g["nearby_sources"][0].update(metric_unit="different unit"),
+    lambda c, g: g["nearby_sources"][0].update(warning_multiplier=2.0),
+    lambda c, g: g.update(radius_m=2000),
+    lambda c, g: g["nearby_assets"][0].update(name="Changed fictional asset"),
+    lambda c, g: c["incident"].update(status="closed"),
+])
+def test_context_fingerprint_detects_changed_review_inputs(change):
+    case, geo = demo_inputs()
+    before = evaluate_readiness(case, geo)["context_fingerprint"]
+    change(case, geo)
+    assert evaluate_readiness(case, geo)["context_fingerprint"] != before
+
+
+def test_context_fingerprint_detects_aging_without_new_samples():
+    case, geo = demo_inputs()
+    before = evaluate_readiness(case, geo)["context_fingerprint"]
+    geo["as_of"] = "2026-10-16T17:30:00+00:00"
+    geo["nearby_sources"][0]["freshness"] = "delayed"
+    assert evaluate_readiness(case, geo)["context_fingerprint"] != before
+
+
 def test_human_checklist_never_claims_real_risk_or_operation():
     case, geo = demo_inputs()
     result = evaluate_readiness(case, geo)

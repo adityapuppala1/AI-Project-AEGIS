@@ -100,6 +100,7 @@ def change(
     task_operation = payload.operation in (Operation.acknowledge_task, Operation.close_task)
     if task_operation != (payload.task_id is not None):
         raise HTTPException(status_code=422, detail="Task identifier required only for task transitions")
+    from app.assessment_adapter import ContextUnavailable
     try:
         task_args = {"task_id": payload.task_id} if task_operation else {}
         status = transition(
@@ -111,6 +112,8 @@ def change(
             **task_args,
         )
         return {"id": str(proposal_id), "status": status, "exercise_only": True}
+    except ContextUnavailable as err:
+        raise HTTPException(status_code=503, detail={"code": err.code}) from err
     except LookupError as err:
         raise HTTPException(status_code=404, detail="Exercise proposal not found") from err
     except DecisionError as err:

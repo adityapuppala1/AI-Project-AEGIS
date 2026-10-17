@@ -28,6 +28,21 @@ def _audit(cur, actor: str, operation: str, resource_id: str, details: dict):
     )
 
 
+def _revalidate_context(row: dict, agency_id: UUID) -> str | None:
+    """Fail closed for demo drafts; never silently rewrite a reviewed snapshot."""
+    from app.intelligence_store import DEMO_AGENCY
+    if agency_id != DEMO_AGENCY:
+        return None  # Other agencies do not use the public demo context reader.
+    from app.assessment_adapter import exercise_readiness
+    captured = (row["proposal"].get("response_draft") or {}).get("context_fingerprint")
+    if not captured:
+        raise DecisionError("This proposal lacks a versioned context snapshot. Create a new draft and review it.")
+    current = exercise_readiness(UUID(row["incident_id"]))
+    if current is None or current.get("context_fingerprint") != captured:
+        raise DecisionError("Exercise evidence or context changed. Create a new draft and review the current references.")
+    return captured
+
+
 def create_proposal(
     incident_id: str,
     agency_id: UUID,
@@ -128,6 +143,14 @@ def transition(
                 updated = submit(current, actor)
             elif operation in ("approve", "reject"):
                 updated = review(current, actor, operation == "approve", reason or "")
+            else:
+                raise DecisionError("Unknown transition")
+            # Policy checks precede context reads; rejection remains available
+            # even if evidence changed or the context service is unavailable.
+            checked_context = None
+            if operation in {"submit", "approve"}:
+                checked_context = _revalidate_context(row, agency_id)
+            if operation in ("approve", "reject"):
                 cur.execute(
                     """INSERT INTO approvals(id, proposal_id, checker_subject, decision, rationale)
                        VALUES (%s,%s,%s,%s,%s)""",
@@ -137,8 +160,6 @@ def transition(
                         updated.decision_reason,
                     ),
                 )
-            else:
-                raise DecisionError("Unknown transition")
             cur.execute(
                 "UPDATE action_proposals SET status=%s, updated_at=NOW() WHERE id=%s",
                 (updated.status.value, proposal_id),
@@ -150,6 +171,7 @@ def transition(
                     "to": updated.status.value,
                     "agency_id": str(agency_id),
                     "exercise_only": True,
+                    "checked_context_fingerprint": checked_context,
                 },
             )
     return updated.status.value

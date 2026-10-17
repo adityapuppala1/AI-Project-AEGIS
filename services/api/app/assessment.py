@@ -4,11 +4,40 @@ No flood forecasting, numeric risk inference, real dispatch recommendations,
 real asset impact claims, or operational approval is generated here.
 """
 from collections import Counter
+import hashlib
+import json
 from datetime import datetime, timezone
 from app.source_health import classify_source
 from uuid import UUID
 
 CHECKLIST_VERSION = "aegis.exercise.context.v1"
+PLAYBOOK_VERSION = "AEGIS-URBAN-FLOOD-EXERCISE-v0.1"
+
+
+def context_fingerprint(case: dict, nearby: dict) -> str:
+    """Identify the bounded checked inputs, excluding retrieval-clock churn.
+
+    Freshness classes remain included: aging across a configured window must
+    invalidate an old review even if no new sample has arrived. This is a
+    change detector, not a signature or a database-wide ingestion barrier.
+    """
+    def ordered(items):
+        return sorted(items, key=lambda item: json.dumps(item, sort_keys=True))
+
+    inputs = {
+        "version": "aegis.exercise.review-inputs.v1",
+        "checklist_version": CHECKLIST_VERSION,
+        "playbook_version": PLAYBOOK_VERSION,
+        "incident": case["incident"],
+        "assessment": case["assessment"],
+        "evidence": ordered(case["evidence"]),
+        "radius_m": nearby["radius_m"],
+        "center": nearby.get("center"),
+        "sources": ordered(nearby["nearby_sources"]),
+        "assets": ordered(nearby["nearby_assets"]),
+    }
+    canonical = json.dumps(inputs, sort_keys=True, separators=(",", ":"), allow_nan=False)
+    return "sha256:" + hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 FRESHNESS = frozenset({"fresh", "delayed", "stale", "no_data", "clock_anomaly"})
 
@@ -155,6 +184,7 @@ def evaluate_readiness(case: dict, nearby: dict) -> dict:
                         "description": "Only unverified synthetic case evidence is attached."})
     enough_demo_context = bool(curated_fresh and curated_evidence)
     return {
+        "context_fingerprint": context_fingerprint(case, nearby),
         "review_brief": {
             "version": "aegis.exercise.review-brief.v1",
             "generated_by": "deterministic_template_no_model",
@@ -182,7 +212,7 @@ def evaluate_readiness(case: dict, nearby: dict) -> dict:
                 {"playbook_step": "URB-04", "text": "Any submitted exercise proposal requires a different authorized checker; this brief cannot approve or execute it."},
             ],
             "limitations": [item["description"] for item in reasons],
-            "playbook_version": "AEGIS-URBAN-FLOOD-EXERCISE-v0.1",
+            "playbook_version": PLAYBOOK_VERSION,
         },
         "checklist_version": CHECKLIST_VERSION,
         "reference_time": reference.isoformat(),
@@ -215,7 +245,7 @@ def evaluate_readiness(case: dict, nearby: dict) -> dict:
         "curated_current_sources": curated_fresh,
         "curated_evidence_records": curated_evidence,
         "playbook": {
-            "version": "AEGIS-URBAN-FLOOD-EXERCISE-v0.1",
+            "version": PLAYBOOK_VERSION,
             "status": "illustrative_not_approved_operational_sop",
             "step_refs": ["URB-01", "URB-02", "URB-03", "URB-04", "URB-05"],
             "synthetic_evidence_ids": sorted(set(evidence_refs))[:50],

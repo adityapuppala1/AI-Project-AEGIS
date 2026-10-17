@@ -235,3 +235,17 @@ def test_create_context_failure_is_unavailable_not_success(monkeypatch):
     response = client.post("/v1/exercise/proposals", json=valid_proposal())
     assert response.status_code == 503
     assert response.json() == {"detail": {"code": "case_context_unavailable"}}
+
+
+@pytest.mark.parametrize("operation,role", [("submit", "incident_operator"), ("approve", "incident_checker")])
+def test_transition_context_failure_is_sanitized_and_not_success(monkeypatch, operation, role):
+    from app.assessment_adapter import ContextUnavailable
+    authenticate(role)
+    def failed(*_a, **_kw):
+        raise ContextUnavailable("geographic_context_unavailable")
+    monkeypatch.setattr(exercise_workflows, "transition", failed)
+    response = client.post(f"/v1/exercise/proposals/{PROPOSAL_ID}/transition", json={
+        "operation": operation, "rationale": "Independent exercise review",
+    })
+    assert response.status_code == 503
+    assert response.json() == {"detail": {"code": "geographic_context_unavailable"}}
