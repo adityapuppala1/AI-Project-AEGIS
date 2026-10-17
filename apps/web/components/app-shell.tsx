@@ -20,6 +20,7 @@ const navigation = [
   { href: "/ingestion", label: "DataFusion Replay", icon: Workflow },
   { href: "/model-lab", label: "Model Evaluation Lab", icon: BrainCircuit },
   { href: "/approvals", label: "Approval Workbench", icon: ClipboardCheck },
+  { href: "/department-tasks", label: "Department Inbox", icon: ClipboardCheck },
   { href: "/agency-sync", label: "AgencySync Tasks", icon: UsersRound },
   { href: "/audit", label: "Audit360 Export", icon: Archive },
   { href: "/playbooks", label: "Response Playbooks", icon: BookOpenCheck },

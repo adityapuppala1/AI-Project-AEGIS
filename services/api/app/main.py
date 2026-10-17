@@ -60,6 +60,8 @@ def exercise_telemetry():
 # Exercise workflow is disabled unless explicitly enabled in an isolated developer environment.
 from app.exercise_workflows import router as exercise_workflow_router
 app.include_router(exercise_workflow_router)
+from app.department_tasks import router as department_tasks_router
+app.include_router(department_tasks_router)
 
 @app.get("/v1/exercise/incidents/query")
 def search_exercise_incidents(

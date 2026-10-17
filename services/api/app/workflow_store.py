@@ -113,7 +113,12 @@ def transition(
     reason: str | None = None,
     task_id: str | None = None,
     assistance_step: str | None = None,
+    department_id: str | None = None,
 ) -> str:
+    # Department authority is provided only by verified authentication, never JSON.
+    if department_id is not None and (operation not in {"acknowledge_task", "close_task"}
+                                      or task_id != department_id):
+        raise DecisionError("Task outside verified department scope")
     # Lock the proposal row to serialize concurrent checker decisions.
     with psycopg.connect(os.environ["DATABASE_URL"]) as conn:
         with conn.cursor(row_factory=dict_row) as cur:
@@ -185,7 +190,9 @@ def transition(
                 if task_id is not None:
                     task = next(item for item in receipt["tasks"] if item.get("id") == task_id)
                     details.update({"task_id": task_id, "rationale": (reason or "").strip(),
-                                    "scripted": True, "sla_policy": receipt.get("sla_policy"),
+                                    "scripted": True, "department_id": task_id,
+                                    "authority": "department" if department_id else "exercise_coordinator",
+                                    "sla_policy": receipt.get("sla_policy"),
                                     "sla_status": task.get("sla_status"), "due_at": task.get("due_at")})
                 _audit(cur, actor, audit_action, proposal_id, details)
                 return current.status.value
@@ -294,3 +301,27 @@ def proposal_audit(proposal_id: str, agency_id: UUID) -> dict:
     return {"version": "aegis.private.proposal.audit.v1", "exercise_only": True,
             "operational_actions_enabled": False, "proposal": _convert(row),
             "decisions": decisions, "events": events}
+
+
+def list_department_tasks(agency_id: UUID, department_id: str):
+    """Return only the department's staged tasks, without private proposal content."""
+    from app.proposal_simulation import TASK_IDS
+    if department_id not in TASK_IDS:
+        raise DecisionError("Invalid department scope")
+    with psycopg.connect(os.environ["DATABASE_URL"], row_factory=dict_row) as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """SELECT p.id::text AS proposal_id, p.incident_id::text, task AS task
+                   FROM action_proposals p JOIN incidents i ON i.id=p.incident_id
+                   CROSS JOIN LATERAL jsonb_array_elements(
+                     COALESCE(p.proposal->'simulation'->'tasks', '[]'::jsonb)) task
+                   WHERE i.agency_id=%s AND i.is_exercise_fixture IS TRUE
+                     AND p.status='approved'
+                     AND p.proposal->'simulation'->>'version' IN
+                       ('aegis.proposal.simulation.v2', 'aegis.proposal.simulation.v3')
+                     AND p.proposal->'simulation' @> '{"synthetic":true,"outbound_messages_sent":false,"operational_actions_enabled":false,"acknowledgements_are_scripted":true}'::jsonb
+                     AND task->>'id'=%s
+                   ORDER BY p.created_at DESC, p.id LIMIT 100""",
+                (str(agency_id), department_id),
+            )
+            return [_convert(row) for row in cur.fetchall()]

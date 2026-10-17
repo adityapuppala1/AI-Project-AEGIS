@@ -112,3 +112,17 @@ def test_oidc_configuration_missing_is_unavailable(monkeypatch):
     with pytest.raises(HTTPException) as exc:
         security.decode_operator_token("test-token")
     assert exc.value.status_code == 503
+
+
+def test_signed_department_scope(signed_jwt):
+    operator = decode_operator_token(signed_jwt(aegis_roles=["department_operator"], aegis_department_id="infrastructure"))
+    assert operator.department_id == "infrastructure"
+    with pytest.raises(HTTPException):
+        require_role(operator, {"incident_checker", "incident_operator"})
+
+
+@pytest.mark.parametrize("department", [None, "", "other", ["control_room"], 1])
+def test_department_role_requires_valid_signed_department(signed_jwt, department):
+    with pytest.raises(HTTPException) as exc:
+        decode_operator_token(signed_jwt(aegis_roles=["department_operator"], aegis_department_id=department))
+    assert exc.value.status_code == 403

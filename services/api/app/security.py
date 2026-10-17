@@ -21,9 +21,10 @@ class Operator:
     subject: str
     agency_id: UUID
     roles: frozenset[str]
+    department_id: str | None = None
 
 
-ALLOWED_ROLES = frozenset({"incident_operator", "incident_checker", "incident_auditor"})
+ALLOWED_ROLES = frozenset({"incident_operator", "incident_checker", "incident_auditor", "department_operator"})
 
 
 def require_role(operator: Operator, allowed: set[str]) -> None:
@@ -81,7 +82,11 @@ def decode_operator_token(token: str) -> Operator:
         agency_id = UUID(str(raw_agency))
     except (ValueError, TypeError, AttributeError) as exc:
         raise HTTPException(status_code=403, detail="Invalid agency scope") from exc
-    return Operator(subject=subject, agency_id=agency_id, roles=roles)
+    department = claims.get("aegis_department_id")
+    if department is not None or "department_operator" in roles:
+        if not isinstance(department, str) or department not in {"control_room", "infrastructure", "communications"}:
+            raise HTTPException(status_code=403, detail="Invalid department scope")
+    return Operator(subject=subject, agency_id=agency_id, roles=roles, department_id=department)
 
 
 def get_operator(credentials: HTTPAuthorizationCredentials | None = Depends(_bearer)) -> Operator:

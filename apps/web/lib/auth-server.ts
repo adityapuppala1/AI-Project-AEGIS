@@ -10,12 +10,13 @@ import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { EncryptJWT, createRemoteJWKSet, jwtDecrypt, jwtVerify, type JWTPayload } from "jose";
 
-export type Role = "incident_operator" | "incident_checker" | "incident_auditor";
+export type Role = "incident_operator" | "incident_checker" | "incident_auditor" | "department_operator";
 export interface OperatorSession {
   accessToken: string;
   subject: string;
   agencyId: string;
   roles: Role[];
+  departmentId?: string;
   exp: number;
 }
 export interface AuthConfig {
@@ -34,7 +35,7 @@ interface OidcDocument {
   jwks_uri: string;
 }
 interface AuthFlow { state: string; nonce: string; verifier: string }
-const ALL_ROLES: Role[] = ["incident_operator", "incident_checker", "incident_auditor"];
+const ALL_ROLES: Role[] = ["incident_operator", "incident_checker", "incident_auditor", "department_operator"];
 
 export function configuration(): AuthConfig | null {
   const issuer = process.env.OIDC_ISSUER?.trim();
@@ -124,7 +125,11 @@ export function extractScope(payload: JWTPayload): Omit<OperatorSession, "access
     !Array.isArray(roles) || roles.length === 0 ||
     roles.some((role) => typeof role !== "string" || !ALL_ROLES.includes(role as Role)) ||
     typeof exp !== "number" || exp <= Date.now()/1000) throw new Error("Access token scope invalid");
-  return { subject, agencyId: agency, roles: [...new Set(roles)] as Role[], exp };
+  const departmentId = payload.aegis_department_id;
+  if (departmentId !== undefined || roles.includes("department_operator")) {
+    if (typeof departmentId !== "string" || !["control_room", "infrastructure", "communications"].includes(departmentId)) throw new Error("Department scope invalid");
+  }
+  return { subject, agencyId: agency, ...(typeof departmentId === "string" ? { departmentId } : {}), roles: [...new Set(roles)] as Role[], exp };
 }
 
 export async function readSession(): Promise<OperatorSession | null> {
@@ -140,8 +145,9 @@ export async function readSession(): Promise<OperatorSession | null> {
       !Array.isArray(payload.roles) || typeof payload.exp !== "number") return null;
     if (payload.exp <= Date.now()/1000) return null;
     if (payload.roles.some((role) => typeof role !== "string" || !ALL_ROLES.includes(role as Role))) return null;
-    return { accessToken: payload.accessToken, subject: payload.sub,
-      agencyId: payload.agencyId, roles: payload.roles as Role[], exp: payload.exp };
+    const scope = extractScope({ sub: payload.sub, aegis_agency_id: payload.agencyId,
+      aegis_roles: payload.roles, aegis_department_id: payload.departmentId, exp: payload.exp });
+    return { accessToken: payload.accessToken, ...scope };
   } catch { return null; }
 }
 

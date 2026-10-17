@@ -46,10 +46,10 @@ export async function GET(request: NextRequest) {
     if (ttl <= 0) return errorResult(401);
     const encrypted = await encryptData(config, {
       accessToken: tokens.access_token, sub: operator.subject,
-      agencyId: operator.agencyId, roles: operator.roles,
+      agencyId: operator.agencyId, roles: operator.roles, departmentId: operator.departmentId,
     }, ttl);
     if (encrypted.length > 3900) return errorResult(401);
-    const response = NextResponse.redirect(config.origin + "/approvals");
+    const response = NextResponse.redirect(config.origin + (operator.roles.includes("department_operator") ? "/department-tasks" : "/approvals"));
     response.cookies.set(cookieName(config, "flow"), "", cookieOptions(config, 0));
     response.cookies.set(cookieName(config, "session"), encrypted, cookieOptions(config, ttl));
     response.headers.set("Cache-Control", "no-store");
