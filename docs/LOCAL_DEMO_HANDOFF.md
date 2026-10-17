@@ -3,7 +3,8 @@
 Branch: `feat/aegis-local-demo-continuation`.
 Baseline: `b71172cd93038148a2e9eafdc7bf91196f9eada1` (`feat/ciphercop-integrated-demo-rc`).
 Previous implementation commit: `917d13ec55bbc01556b8ef97e9f6f46043982ddf`.
-Latest continuation commit: to be recorded after verification.
+Latest continuation implementation: `aad50579f3fca54092668c076bda6caa67fbad7b`.
+The latest checks ran against the implementation working tree committed at that SHA.
 Checks below ran against the implementation working tree committed at that SHA.
 A subsequent documentation-only commit records this SHA; no CI was triggered.
 
@@ -182,5 +183,7 @@ reclaimable Docker build cache. Restarting the same failed new test volume then
 succeeded. Existing databases and volumes were not deleted, cleared or reset.
 The default full Compose application remained running throughout. This records
 the observed disk limit rather than claiming effortless startup on every laptop.
-The extra smoke application containers can be stopped/removed without removing
-the retained test database volume; the default stack is the active demo.
+After verification, the extra smoke project was stopped and its API/web
+containers removed; its database volume was retained. The dedicated test DB
+project was also stopped with its volume retained. The default Compose stack
+is the active demo on loopback ports 3000/8000.
