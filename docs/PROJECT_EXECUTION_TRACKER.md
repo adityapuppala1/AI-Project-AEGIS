@@ -357,3 +357,16 @@ or actual IdP acceptance claimed. `79086bd` corrects warm benchmark client
 setup timing; 100 requests/four workers, zero errors, unchanged targets passed
 on Windows. The prior v1 failures are retained, not described as app speedups.
 See current handoff for exact commands, timings, limits and still-open tasks.
+
+### Verified local model selection preview
+
+`597a603` / `258a157`: existing tinyllama CPU inference now works through the
+read-only incident API, BFF and browser. Windows **280 native API tests**
+(six DB skips), model/type checks, **31 Node tests**, production builds, six
+real PostGIS tests, actual model API/BFF/browser, fallback/cancel/unsafe-response
+checks, public browser/axe and HTTP passed. App proposal rows remained 0→0.
+Default GPU probe timed out; CPU probe passed. No download, hosted key, new
+package, IdP/trust change or live action. Optional local API override is active;
+base Compose stays disabled. Detailed measurements and limitations are in the
+current handoff. This is model-backed selection, not a complete generative
+copilot, durable runner or scientifically validated predictor.

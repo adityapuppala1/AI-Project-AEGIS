@@ -2,9 +2,10 @@
 
 Updated: 17 October 2026 (IST). Repository: `adityapuppala1/AI-Project-AEGIS`.
 Branch: `feat/aegis-local-demo-continuation`; integration baseline `b71172c`.
-Latest workbench source: `0c7c7887e5995fb9b98763f48b081fc0757bfdee`;
-latency harness `79086bd27e576da5544fbca34a68324acbb5b057`.
-API unchanged from verified context-diagnostics source `eb4624e`;
+Latest API/web application source: `258a1572b1dfad2ba727e0eadef24cb2049260a2`
+(local review focus implementation `597a603`, route boundaries `258a157`).
+Prior workbench source `0c7c788`; latency harness `79086bd`;
+prior context-diagnostics source `eb4624e`;
 prior review-brief source `6b2211c`;
 context-panel source `061e35a`; prior staged-task source `413dd97`, proxy
 follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
@@ -16,11 +17,12 @@ Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 | Status | Scope |
 |---|---|
 | Verified automated | Original synthetic observation/evidence/assessment/draft/approval-policy/task/audit chain; private CAP draft; recovery and anonymous/live-action boundaries |
-| Closed this pass | Page-memory rationale recovery by incident/action, failed refresh/save retention, success clearing, identity/agency/access-loss clearing; explicit session-retry state |
+| Verified workbench | Page-memory rationale recovery by incident/action, failed refresh/save retention, success clearing, identity/agency/access-loss clearing; explicit session-retry state |
+| Closed this pass | Opt-in real local-model selection preview, server-mapped original citations, base-disabled and busy/unavailable/invalid fallbacks, client cancel and no proposal writes |
 | Verified with revised measurement | Local warm HTTP latency v2 at four workers; client setup excluded and thresholds unchanged; previous v1 failures retained below |
 | Deferred by owner | Local IdP/trust activation and real two-person MFA/browser approval acceptance; do not reactivate or bypass |
 | Pending human acceptance | Manual screen-reader/operator rehearsal and owner release review |
-| Pending engineering | Source agreement metadata/rules, deeper dependency diagnostics, model-backed copilot, durable bounded agent runner, department-owned task permissions/SLAs and durable draft recovery |
+| Pending engineering | Source agreement metadata/rules, deeper dependency diagnostics, free-form grounded drafting/Q&A, durable bounded agent runner, department-owned task permissions/SLAs and durable draft recovery |
 | Needs external validation | Authorized historical datasets/domain evaluation before real forecast claims or operational integrations; synthetic software tests do not establish these |
 
 ## Current implementation
@@ -47,7 +49,7 @@ a subsequent documentation-only commit records the results below.
 
 | Gate | Executed evidence |
 |---|---|
-| Latest API/model | Windows: `python -m pytest -q` **264 passed, 6 skipped**; `python -m app.model_lab --check` PASS. Prior Linux CAP suite: 239 passed, 4 skipped. One upstream Starlette/httpx deprecation warning |
+| Latest API/model | Windows: `python -m pytest -q` **280 passed, 6 skipped**; `python -m app.model_lab --check` PASS. Prior Linux CAP suite: 239 passed, 4 skipped. One upstream Starlette/httpx deprecation warning |
 | Real database | Latest laptop run: **6 integration tests passed**, separate `aegis_verification_57878ac` DB, including concurrent checker/audit and task retry regressions |
 | Latest frontend in Linux | `npm install --ignore-scripts --no-audit --no-fund`, `npm run typecheck`, `npm run build`: PASS on Tailwind 4.3.3; full `npm audit --json`: **zero vulnerabilities**, no suppression |
 | Latest Windows dependency/type check | `npm.cmd ci --no-audit --no-fund` and `npm.cmd run typecheck`: PASS; `npm.cmd audit --json`: **zero vulnerabilities including development dependencies**, no suppression |
@@ -521,3 +523,71 @@ Final documented acceptance combines the functional stages with the separate
 v2 benchmark; no original failure is erased or relabeled as passing. Final
 docs use a guarded local bundle transfer and clean HEAD/status confirmation.
 No push, CI, IdP activation, trust changes, model service or live operations.
+
+## Real local-model review focus — 17 October 2026
+
+Source `597a603` / `258a157`. The existing incident panel now offers an on-
+demand, read-only [local model selection preview](LOCAL_REVIEW_FOCUS.md).
+The model returns only two bounded selectors; application code maps them
+to existing cited finding/step text and retains limitations. No new facts,
+free-form generated advice, proposal writes, approvals, forecasts or task
+acknowledgements are produced. This is partial copilot work, not a durable
+autonomous agent or completed grounding/forecasting programme.
+
+The laptop already had Ollama 0.40.5 and tinyllama:1.1b (manifest hash recorded
+in the scope document). No package/model download occurred. A new local
+serving process was started with loopback-only binding and cloud disabled
+(remote process 128584). Docker Desktop reachability to the loopback runtime
+was confirmed. First default-GPU probe timed out after 30 seconds and is not
+marked passed. CPU-only/four-thread probe completed in **1835 ms**, 29 output
+tokens, valid JSON selectors. It is a small engineering probe, not selection
+quality or flood accuracy evidence. No raw runtime environment log was shared.
+
+Actual Windows acceptance on application `258a157` (process 72632 exit 0):
+- `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify-code-local.ps1 -Suite all`:
+  **280 passed, 6 skipped**, model reproduction and native TypeScript PASS.
+- `cd apps/web; node --test scripts/tests/exercise-draft-buffer.test.cjs scripts/tests/proposal-proxy.test.cjs scripts/tests/context-route.test.cjs scripts/tests/review-focus-route.test.cjs`:
+  **31 passed**. Model route rejects cross-origin requests, caller prompts/
+  configuration, wrong-case/operational/cloud classifications and raw network
+  errors. API tests cover selector validity, injected action/reference fields,
+  boolean/float indexes, missing evidence, busy locking and fallback recovery.
+- `docker compose -f compose.yaml -f compose.local-copilot.yaml config --quiet`:
+  PASS; `docker compose up --build -d api web`: production API/web builds PASS.
+  The base API's preview was explicitly verified as template fallback/disabled.
+- `docker compose -f compose.yaml -f compose.local-copilot.yaml up --no-deps -d api`:
+  optional local selection enabled after readiness passed. **This is the
+  current laptop state**; plain base API startup disables it again. IdP stays
+  inactive; model inference uses no hosted account or API key.
+- `services/api/.venv/Scripts/python.exe .git/verify-local-model-live.py`:
+  real local model API preview **3381.26 ms**, BFF preview **3232.15 ms**. Both
+  returned model-assisted selectors mapped to the checked original references.
+  Three health requests while the preview request was pending completed in
+  **6.83 / 6.71 / 25.23 ms**. These limited observations are not a p95 capacity
+  benchmark or proof of health latency throughout every inference phase.
+  Active app proposal counts **0 before / 0 after**: no proposal writes.
+- `node .git/browser-qa/local-copilot.cjs`: real model/browser selection and
+  mobile layout PASS. Test-only busy fallback, unsafe classification and client
+  cancellation cleared stale preview state; zero page errors. Cancellation
+  stops the browser wait, not necessarily an existing model computation.
+- `node .git/browser-qa/smoke.cjs`: public functional/browser/axe PASS, zero
+  page errors and sampled violations. Exact count confirmed at final sync.
+  `services/api/.venv/Scripts/python.exe scripts/verify-local-http.py`: routes,
+  audit checksum and existing private/live-action refusal checks PASS.
+- The designated verification-DB Compose command in the staged task section:
+  **6 PostGIS tests passed**, 2.86 s; independent signed TEST-key decisions,
+  captured deterministic briefs, CAP stability and concurrent retries intact.
+  Existing app and verification DBs/volumes retained.
+
+Logs: `.git/copilot-{native,node,build,enable,live,panel,browser,http}.log`,
+`.git/copilot-progress.txt` (PASS), `.git/local-model-cpu-probe.json`. Helpers
+and runtime log remain under .git. One upstream Starlette/httpx warning.
+No Linux runtime verification claimed for this slice. Markdown local targets
+and `git diff --check` passed; final handoff uses a guarded bundle sync with
+HEAD/clean-tree checks. No push, Actions, paid infrastructure, IdP activation,
+Windows trust change, public warning or dispatch. No real human acceptance
+or scientific model-selection/forecasting accuracy is inferred from these tests.
+
+Remaining: semantic usefulness evaluation, free-form grounded Q&A/drafting,
+captured/revalidated model-assisted proposal context, a durable bounded runner,
+source comparison metadata/rules, deeper diagnostics, department-owned exercise
+permissions/SLAs, forecasting research and the deferred human acceptance gates.

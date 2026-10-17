@@ -10,7 +10,8 @@ source agreement detection and deeper per-dependency diagnostics remain pending.
 [Stage-specific context failures](CONTEXT_FAILURE_DIAGNOSTICS.md) now distinguish
 case/geographic reads and validation without exposing exception details.
 The [cited review brief](CITED_REVIEW_BRIEF.md) adds the deterministic fallback
-for evidence-grounded review; a model-backed copilot and agent runner remain planned.
+for evidence-grounded review. An opt-in [local model selection preview](LOCAL_REVIEW_FOCUS.md)
+adds bounded review focus; free-form grounded drafting/Q&A and a durable agent runner remain planned.
 
 [Unsaved workbench drafts](UNSAVED_EXERCISE_DRAFTS.md) now isolate page-memory
 notes by incident/action and clear them across identity changes. Durable browser

@@ -33,6 +33,8 @@ The incident [context panel](docs/INCIDENT_CONTEXT_PANEL.md) exposes freshness
 evaluation time, missing context and explicit unknowns without inventing a forecast.
 A [cited template review brief](docs/CITED_REVIEW_BRIEF.md) summarizes checked
 records and review options; new proposals preserve it for checker review.
+An optional [local model review focus](docs/LOCAL_REVIEW_FOCUS.md) selects existing
+review items on demand; base startup uses a labelled template fallback.
 Approved warning-preparation proposals also support a private
 [exercise CAP XML draft](docs/CAP_EXERCISE_DRAFTS.md) download; no messages are sent.
 

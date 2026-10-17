@@ -11,3 +11,5 @@
 - Current status is docs/LOCAL_DEMO_HANDOFF.md; older executed evidence is preserved in docs/LOCAL_DEMO_VERIFICATION_HISTORY.md. Historical feature-branch commands are not startup instructions for the continuation checkout.
 
 - For proposal proxy changes run `cd apps/web; node --test scripts/tests/proposal-proxy.test.cjs`. These isolated test sessions must never become production auth overrides.
+
+- Local review-focus changes require API `test_local_copilot.py` and Node `review-focus-route.test.cjs` checks. Base Compose stays model-disabled; the optional local override selects existing cited items only. Preserve template fallback and the separation from proposal writes/approval. See docs/LOCAL_REVIEW_FOCUS.md.

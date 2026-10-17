@@ -71,8 +71,9 @@ Record evidence/playbook/model/prompt versions and concise action reasons; do
 not request or store hidden reasoning. Preserve revisions and invalidate a draft
 when its supporting evidence/policy changes. Surface disagreement to the reviewer.
 
-No external LLM account, paid API, local model download or GPU requirement is
-selected yet. Benchmark laptop memory/latency before choosing a local model;
+No external LLM account, paid API, model download or GPU requirement is
+selected. An existing local CPU model now supports an opt-in selection preview;
+see [local review focus](LOCAL_REVIEW_FOCUS.md). Benchmark additional candidates before expanding model use;
 approve credentials/costs/data sharing before a hosted model. A provider outage
 must leave evidence browsing and ordinary human drafting available. Do not add
 Kafka, a vector database or agent framework unless a measured need justifies it.
@@ -172,3 +173,22 @@ four, zero errors, all five route targets passed. Failed samples remain in the
 handoff. This closes in-page unsaved-draft recovery and a bounded warm HTTP
 gate; it does not close hard-reload recovery, cold/in-use responsiveness,
 actual human acceptance, model-backed AI, agent orchestration or forecasting.
+
+## Implementation update — local model selection preview
+
+`597a603` / `258a157` add an opt-in [local review focus](LOCAL_REVIEW_FOCUS.md)
+button in the existing incident panel. The model selects existing template
+items only; server-side validation supplies original citations and limitations.
+Base Compose stays disabled; the optional override uses the existing loopback
+Ollama runtime. Native CPU inference has run on an already-installed tinyllama
+model, with no download or hosted provider. Full application acceptance is
+recorded in the handoff. This is an initial model-backed selection slice of
+order 2, not complete free-form drafting, Q&A or a durable agent runner.
+
+Application acceptance on `258a157` passed on the Windows laptop: 280 native
+API tests (six DB skips), 31 Node tests, six real PostGIS tests, production
+builds, real local inference through API/BFF/browser, fallback/unsafe/cancel
+checks and public browser/HTTP. No proposal writes. The optional local override
+is active on the laptop; base Compose remains disabled. This closes the local
+provider/selection/fallback integration slice, not semantic quality evaluation,
+free-form drafting, durable execution or actual human approval acceptance.

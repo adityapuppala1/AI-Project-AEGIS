@@ -140,3 +140,15 @@ and action under the verified session subject/agency. It clears on scope/access
 loss or successful save; no credentials, browser storage, server auto-save or
 new auth capability is introduced. The form cannot create while authorized
 cases are unavailable. See [draft behavior](UNSAVED_EXERCISE_DRAFTS.md).
+
+## Optional local model selection preview
+
+A read-only incident POST composes the existing synthetic context and asks
+an allowlisted local Ollama model for two constrained selectors. It maps them
+to existing finding/step text and citations in ordinary code. One in-flight
+request per process, bounded output/transport and explicit template fallback
+keep model availability out of ordinary readiness and authorization paths.
+Base Compose is disabled; `compose.local-copilot.yaml` opts in to the existing
+host runtime, with no new service/schema or hosted provider. The same-origin
+BFF rejects caller instructions/configuration; the UI supports cancel and
+clears stale preview state. See [scope and limits](LOCAL_REVIEW_FOCUS.md).
