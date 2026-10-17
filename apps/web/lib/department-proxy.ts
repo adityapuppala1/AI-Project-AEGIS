@@ -20,10 +20,12 @@ export async function proxyDepartmentTasks(request: Request, proposalId?: string
     let data;
     try { data = JSON.parse(raw); } catch { return failure(400, "Invalid JSON"); }
     if (!data || typeof data !== "object" || Array.isArray(data) ||
-        Object.keys(data).some(key => !["operation", "rationale"].includes(key)) ||
+        Object.keys(data).some(key => !["operation", "rationale", "task_id", "expected_assignment_version"].includes(key)) ||
         !["acknowledge_task", "close_task"].includes(data.operation) ||
+        !["control_room", "infrastructure", "communications"].includes(data.task_id) ||
+        !Number.isSafeInteger(data.expected_assignment_version) || data.expected_assignment_version < 0 ||
         typeof data.rationale !== "string" || data.rationale.trim().length < 10 || data.rationale.length > 2000) return failure(400, "Task operation and explanatory rationale required");
-    body = JSON.stringify({ operation: data.operation, rationale: data.rationale });
+    body = JSON.stringify({ operation: data.operation, rationale: data.rationale, task_id: data.task_id, expected_assignment_version: data.expected_assignment_version });
   }
   try {
     const response = await fetch((process.env.API_INTERNAL_URL || "http://localhost:8000") +

@@ -157,3 +157,15 @@ test('assistance step is required only for advancing', async () => {
     assert.equal(calls.length, 0);
   });
 });
+
+test('coordinator reassignment forwards expected version; checker and forged version refused', async () => {
+  const payload = { operation: 'reassign_task', task_id: 'infrastructure', target_department: 'communications', expected_assignment_version: 0, rationale: 'SIMULATION: change desk coverage' };
+  const req = value => new Request('http://localhost:3000/api/proposals/' + id + '/transition', { method: 'POST', body: JSON.stringify(value) });
+  await withFetch(new Response('{}'), async calls => {
+    assert.equal((await loadProxy({ accessToken: 'test', roles: ['incident_operator'] })(req(payload), id)).status, 200);
+    assert.deepEqual(JSON.parse(calls[0].options.body), payload);
+    assert.equal((await loadProxy({ roles: ['incident_checker'] })(req(payload), id)).status, 403);
+    assert.equal((await loadProxy({ roles: ['incident_operator'] })(req({ ...payload, expected_assignment_version: true }), id)).status, 400);
+    assert.equal(calls.length, 1);
+  });
+});

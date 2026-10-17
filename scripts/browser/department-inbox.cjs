@@ -26,7 +26,7 @@ const { chromium } = qaRequire('playwright');
           if (request.method() === 'POST') {
             const data = request.postDataJSON();
             writes.push(data);
-            assert.deepEqual(Object.keys(data).sort(), ['operation', 'rationale']);
+            assert.deepEqual(Object.keys(data).sort(), ['expected_assignment_version', 'operation', 'rationale', 'task_id']);
             state = data.operation === 'acknowledge_task' ? 'acknowledged' : 'closed';
             await route.fulfill({ json: { status: 'approved' } });
             return;

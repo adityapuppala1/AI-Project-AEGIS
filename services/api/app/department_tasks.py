@@ -2,7 +2,7 @@
 from typing import Literal
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, StrictInt
 from app.security import Operator, get_operator, require_role
 from app.governance import DecisionError
 from app.workflow_store import list_department_tasks, transition
@@ -20,6 +20,8 @@ def department_scope(operator: Operator = Depends(get_operator)) -> Operator:
 class TaskChange(BaseModel):
     model_config = ConfigDict(extra="forbid")
     operation: Literal["acknowledge_task", "close_task"]
+    task_id: Literal["control_room", "infrastructure", "communications"]
+    expected_assignment_version: StrictInt = Field(ge=0)
     rationale: str = Field(min_length=10, max_length=2000)
 
 
@@ -34,7 +36,8 @@ def change(proposal_id: UUID, payload: TaskChange, operator: Operator = Depends(
     try:
         status = transition(str(proposal_id), operator.agency_id, operator.subject,
                             payload.operation, payload.rationale,
-                            task_id=operator.department_id, department_id=operator.department_id)
+                            task_id=payload.task_id, department_id=operator.department_id,
+                            expected_assignment_version=payload.expected_assignment_version)
         return {"id": str(proposal_id), "status": status, "exercise_only": True}
     except LookupError as err:
         raise HTTPException(status_code=404, detail="Exercise task not found") from err

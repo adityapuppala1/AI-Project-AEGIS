@@ -114,10 +114,12 @@ def transition(
     task_id: str | None = None,
     assistance_step: str | None = None,
     department_id: str | None = None,
+    target_department: str | None = None,
+    expected_assignment_version: int | None = None,
 ) -> str:
     # Department authority is provided only by verified authentication, never JSON.
     if department_id is not None and (operation not in {"acknowledge_task", "close_task"}
-                                      or task_id != department_id):
+                                      or expected_assignment_version is None):
         raise DecisionError("Task outside verified department scope")
     # Lock the proposal row to serialize concurrent checker decisions.
     with psycopg.connect(os.environ["DATABASE_URL"]) as conn:
@@ -167,12 +169,23 @@ def transition(
                     "operational_actions_enabled": False,
                 })
                 return current.status.value
-            if operation in {"simulate", "prepare_tasks", "acknowledge_task", "close_task"}:
-                from app.proposal_simulation import simulation_receipt, prepare_task_receipt, advance_task
+            if operation in {"simulate", "prepare_tasks", "acknowledge_task", "close_task", "reassign_task"}:
+                from app.proposal_simulation import simulation_receipt, prepare_task_receipt, advance_task, task_assignment, reassign_task
                 if current.status is not Status.APPROVED:
                     raise DecisionError("Independent approval is required before task simulation")
                 payload = row["proposal"]
-                if operation in {"acknowledge_task", "close_task"}:
+                if department_id is not None:
+                    assigned, version = task_assignment(payload.get("simulation"), task_id or "")
+                    if assigned != department_id:
+                        raise LookupError("Exercise task not found")
+                    if version != expected_assignment_version:
+                        raise DecisionError("Task assignment changed; refresh before retrying")
+                if operation == "reassign_task":
+                    receipt, changed = reassign_task(payload.get("simulation"), task_id or "",
+                        target_department or "", expected_assignment_version, actor, reason or "")
+                    if not changed:
+                        return current.status.value
+                elif operation in {"acknowledge_task", "close_task"}:
                     receipt, changed = advance_task(payload.get("simulation"), task_id or "", operation, actor, reason or "")
                     if not changed:
                         return current.status.value
@@ -190,10 +203,13 @@ def transition(
                 if task_id is not None:
                     task = next(item for item in receipt["tasks"] if item.get("id") == task_id)
                     details.update({"task_id": task_id, "rationale": (reason or "").strip(),
-                                    "scripted": True, "department_id": task_id,
+                                    "scripted": True, "department_id": task.get("assigned_department", task_id),
+                                    "assignment_version": task.get("assignment_version", 0),
                                     "authority": "department" if department_id else "exercise_coordinator",
                                     "sla_policy": receipt.get("sla_policy"),
                                     "sla_status": task.get("sla_status"), "due_at": task.get("due_at")})
+                if operation == "reassign_task":
+                    details["assignment"] = task["last_assignment"]
                 _audit(cur, actor, audit_action, proposal_id, details)
                 return current.status.value
             if operation == "submit":
@@ -320,7 +336,7 @@ def list_department_tasks(agency_id: UUID, department_id: str):
                      AND p.proposal->'simulation'->>'version' IN
                        ('aegis.proposal.simulation.v2', 'aegis.proposal.simulation.v3')
                      AND p.proposal->'simulation' @> '{"synthetic":true,"outbound_messages_sent":false,"operational_actions_enabled":false,"acknowledgements_are_scripted":true}'::jsonb
-                     AND task->>'id'=%s
+                     AND COALESCE(task->>'assigned_department', task->>'id')=%s
                    ORDER BY p.created_at DESC, p.id LIMIT 100""",
                 (str(agency_id), department_id),
             )

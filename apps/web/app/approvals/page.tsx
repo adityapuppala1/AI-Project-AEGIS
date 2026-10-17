@@ -14,7 +14,7 @@ interface AssistanceRun { id: string; status: "running" | "review_ready" | "canc
 interface Proposal {
   id: string; incident_id: string; maker_subject: string;
   action_type: string; status: "draft" | "submitted" | "approved" | "rejected";
-  proposal: { assistance_run?: AssistanceRun; review_focus?: Focus; rationale?: string; exercise_only?: boolean; response_draft?: { review_brief?: ReviewBrief; context_state: string; recommendation_draft: string[]; playbook: { version: string; synthetic_evidence_ids: string[] } }; simulation?: { version?: string; sla_policy?: string; tasks: { id?: string; department: string; state: string; due_at?: string; sla_minutes?: number; sla_status?: string; events?: { kind: string; occurred_at: string; actor_subject?: string; rationale?: string; sla_status?: string }[] }[] } };
+  proposal: { assistance_run?: AssistanceRun; review_focus?: Focus; rationale?: string; exercise_only?: boolean; response_draft?: { review_brief?: ReviewBrief; context_state: string; recommendation_draft: string[]; playbook: { version: string; synthetic_evidence_ids: string[] } }; simulation?: { version?: string; sla_policy?: string; tasks: { id?: string; assigned_department?: string; assignment_version?: number; department: string; state: string; due_at?: string; sla_minutes?: number; sla_status?: string; events?: { kind: string; occurred_at: string; actor_subject?: string; rationale?: string; sla_status?: string }[] }[] } };
   created_at: string;
 }
 const actionTypes = [
@@ -35,6 +35,7 @@ function displayError(input: unknown): string {
 }
 
 export default function ApprovalWorkbench() {
+  const [assignmentTargets, setAssignmentTargets] = useState<Record<string, string>>({});
   const [auth, setAuth] = useState<AuthState | null>(null);
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [proposals, setProposals] = useState<Proposal[]>([]);
@@ -122,14 +123,15 @@ export default function ApprovalWorkbench() {
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Unable to create proposal"); }
     finally { setBusy(false); }
   }
-  async function change(proposal: Proposal, operation: "submit" | "approve" | "reject" | "simulate" | "prepare_tasks" | "acknowledge_task" | "close_task" | "start_assistance" | "advance_assistance" | "cancel_assistance", taskId?: string) {
+  async function change(proposal: Proposal, operation: "submit" | "approve" | "reject" | "simulate" | "prepare_tasks" | "acknowledge_task" | "close_task" | "reassign_task" | "start_assistance" | "advance_assistance" | "cancel_assistance", taskId?: string) {
     if (busy) return;
     setBusy(true); setError(""); setMessage("");
     const reasonKey = taskId ? `${proposal.id}:${taskId}` : operation === "cancel_assistance" ? `${proposal.id}:assistance` : proposal.id;
     try {
       await mutation(`/api/proposals/${proposal.id}/transition`, { operation, rationale: reviewReasons[reasonKey] || undefined, ...(taskId ? { task_id: taskId } : {}),
+        ...(operation === "reassign_task" ? { target_department: assignmentTargets[reasonKey], expected_assignment_version: proposal.proposal.simulation?.tasks.find(task => task.id === taskId)?.assignment_version ?? 0 } : {}),
         ...(operation === "advance_assistance" ? { assistance_step: proposal.proposal.assistance_run?.next_step } : {}) });
-      const label = { submit: "submitted", approve: "approved", reject: "rejected", simulate: "simulated", prepare_tasks: "prepared scripted tasks", acknowledge_task: "recorded scripted acknowledgement", close_task: "closed scripted task", start_assistance: "started bounded assistance", advance_assistance: "advanced bounded assistance", cancel_assistance: "cancelled bounded assistance" }[operation];
+      const label = { submit: "submitted", approve: "approved", reject: "rejected", simulate: "simulated", prepare_tasks: "prepared scripted tasks", acknowledge_task: "recorded scripted acknowledgement", close_task: "closed scripted task", reassign_task: "reassigned scripted task", start_assistance: "started bounded assistance", advance_assistance: "advanced bounded assistance", cancel_assistance: "cancelled bounded assistance" }[operation];
       setMessage(`Exercise: ${label}. No messages sent or operational action taken.`);
       setReviewReasons(current => ({ ...current, [reasonKey]: "" }));
       await reload();
@@ -263,7 +265,8 @@ export default function ApprovalWorkbench() {
                 <ul className="mt-3 space-y-4">{proposal.proposal.simulation.tasks.map(task => <li key={task.department} className="rounded-xl border border-stroke p-3">
                   <p className="font-semibold">{task.department}: {task.state}</p>
                   {task.due_at && <p className="mt-1 text-xs">Synthetic review target: {task.sla_minutes} minutes · due {new Date(task.due_at).toLocaleString()} · <strong>{task.sla_status?.replaceAll("_", " ")}</strong></p>}
-                  <ol className="mt-2 text-xs">{task.events?.map(event => <li key={event.kind}>{event.kind} · {new Date(event.occurred_at).toLocaleString()}{event.actor_subject ? ` · ${event.actor_subject}` : ""}{event.rationale ? ` · ${event.rationale}` : ""}</li>)}</ol>
+                  <p className="mt-1 text-xs">Assigned desk: {(task.assigned_department || task.id || task.department).replaceAll("_", " ")}</p>
+                  <ol className="mt-2 text-xs">{task.events?.map((event, index) => <li key={index}>{event.kind} · {new Date(event.occurred_at).toLocaleString()}{event.actor_subject ? ` · ${event.actor_subject}` : ""}{event.rationale ? ` · ${event.rationale}` : ""}</li>)}</ol>
                   {proposal.status === "approved" && canMake && task.id && task.state !== "closed" && ["aegis.proposal.simulation.v2", "aegis.proposal.simulation.v3"].includes(proposal.proposal.simulation?.version || "") && <div className="mt-3">
                     <label htmlFor={`task-${proposal.id}-${task.id}`} className="text-xs font-semibold">Scripted task rationale for {task.department} (required)</label>
                     <textarea id={`task-${proposal.id}-${task.id}`} className="field mt-1 !h-20 resize-y py-2" maxLength={2000}
@@ -272,6 +275,18 @@ export default function ApprovalWorkbench() {
                       onClick={() => void change(proposal, task.state === "prepared" ? "acknowledge_task" : "close_task", task.id)}>
                       {task.state === "prepared" ? "Record scripted acknowledgement" : "Close scripted task"}
                     </button>
+                    {task.state === "prepared" && <div className="mt-3">
+                      <label className="block text-xs font-semibold" htmlFor={`assign-${proposal.id}-${task.id}`}>Reassign rehearsal task</label>
+                      <select id={`assign-${proposal.id}-${task.id}`} className="field mt-1" disabled={busy}
+                        value={assignmentTargets[`${proposal.id}:${task.id}`] || ""}
+                        onChange={event => setAssignmentTargets(current => ({ ...current, [`${proposal.id}:${task.id}`]: event.target.value }))}>
+                        <option value="">Choose a different desk</option>
+                        {["control_room", "infrastructure", "communications"].filter(department => department !== (task.assigned_department || task.id)).map(department => <option key={department} value={department}>{department.replaceAll("_", " ")}</option>)}
+                      </select>
+                      <button type="button" className="control mt-2" disabled={busy || !assignmentTargets[`${proposal.id}:${task.id}`] || (reviewReasons[`${proposal.id}:${task.id}`] || "").trim().length < 10}
+                        onClick={() => void change(proposal, "reassign_task", task.id)}>Reassign with rationale</button>
+                      <p className="mt-1 text-xs">Unacknowledged tasks only. The original synthetic target remains unchanged.</p>
+                    </div>}
                   </div>}
                 </li>)}</ul></details>
                 {proposal.proposal.simulation.sla_policy && <p className="mt-2 text-xs">Synthetic rehearsal targets only; no operational SLA, escalation, notification or department participation.</p>}

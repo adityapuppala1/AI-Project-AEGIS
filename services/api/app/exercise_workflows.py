@@ -8,7 +8,7 @@ from typing import Literal
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Response
-from pydantic import BaseModel, ConfigDict, Field, StrictBool
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt
 
 from app.governance import Action, DecisionError
 from app.security import Operator, get_operator, require_role
@@ -33,6 +33,7 @@ class Operation(str, Enum):
     prepare_tasks = "prepare_tasks"
     acknowledge_task = "acknowledge_task"
     close_task = "close_task"
+    reassign_task = "reassign_task"
     start_assistance = "start_assistance"
     advance_assistance = "advance_assistance"
     cancel_assistance = "cancel_assistance"
@@ -43,6 +44,8 @@ class ChangeProposal(BaseModel):
     operation: Operation
     rationale: str | None = Field(default=None, max_length=2000)
     task_id: Literal["control_room", "infrastructure", "communications"] | None = None
+    target_department: Literal["control_room", "infrastructure", "communications"] | None = None
+    expected_assignment_version: StrictInt | None = Field(default=None, ge=0)
     assistance_step: Literal["gather_references", "check_quality", "validate_draft"] | None = None
 
 
@@ -99,20 +102,27 @@ def change(
     payload: ChangeProposal,
     operator: Operator = Depends(get_operator),
 ):
-    if payload.operation in (Operation.submit, Operation.simulate, Operation.prepare_tasks, Operation.acknowledge_task, Operation.close_task,
+    if payload.operation in (Operation.submit, Operation.simulate, Operation.prepare_tasks, Operation.acknowledge_task, Operation.close_task, Operation.reassign_task,
                              Operation.start_assistance, Operation.advance_assistance, Operation.cancel_assistance):
         require_role(operator, {"incident_operator"})
     else:
         require_role(operator, {"incident_checker"})
-    task_operation = payload.operation in (Operation.acknowledge_task, Operation.close_task)
+    task_operation = payload.operation in (Operation.acknowledge_task, Operation.close_task, Operation.reassign_task)
     if task_operation != (payload.task_id is not None):
         raise HTTPException(status_code=422, detail="Task identifier required only for task transitions")
+    reassign = payload.operation is Operation.reassign_task
+    if reassign != (payload.target_department is not None and payload.expected_assignment_version is not None):
+        raise HTTPException(status_code=422, detail="Reassignment requires department and expected assignment version")
+    if not reassign and (payload.target_department is not None or payload.expected_assignment_version is not None):
+        raise HTTPException(status_code=422, detail="Unexpected assignment fields")
     assistance_advance = payload.operation is Operation.advance_assistance
     if assistance_advance != (payload.assistance_step is not None):
         raise HTTPException(status_code=422, detail="Assistance step required only when advancing a run")
     from app.assessment_adapter import ContextUnavailable
     try:
         task_args = {"task_id": payload.task_id} if task_operation else {}
+        if reassign:
+            task_args.update(target_department=payload.target_department, expected_assignment_version=payload.expected_assignment_version)
         if assistance_advance:
             task_args["assistance_step"] = payload.assistance_step
         status = transition(

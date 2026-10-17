@@ -2,7 +2,7 @@
 import { NextResponse } from "next/server";
 import { configuration, readSession, sameOrigin, type Role } from "./auth-server";
 
-type Operation = "submit" | "approve" | "reject" | "simulate" | "prepare_tasks" | "acknowledge_task" | "close_task" | "start_assistance" | "advance_assistance" | "cancel_assistance";
+type Operation = "submit" | "approve" | "reject" | "simulate" | "prepare_tasks" | "acknowledge_task" | "close_task" | "reassign_task" | "start_assistance" | "advance_assistance" | "cancel_assistance";
 const ACTIONS = new Set(["internal_triage", "prepare_warning", "propose_dispatch"]);
 const UUID = /^[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12}$/i;
 
@@ -32,24 +32,29 @@ export async function proxyProposals(request: Request, proposalId?: string, expo
     const data = payload as Record<string, unknown>;
     if (proposalId) {
       const operation = data.operation;
-      if (typeof operation !== "string" || !["submit", "approve", "reject", "simulate", "prepare_tasks", "acknowledge_task", "close_task", "start_assistance", "advance_assistance", "cancel_assistance"].includes(operation)) return failure(400, "Unsupported workflow operation");
-      if (Object.keys(data).some((key) => !["operation", "rationale", "task_id", "assistance_step"].includes(key))) return failure(400, "Unexpected proposal attributes");
-      const role = ["submit", "simulate", "prepare_tasks", "acknowledge_task", "close_task", "start_assistance", "advance_assistance", "cancel_assistance"].includes(String(operation)) ? "incident_operator" : "incident_checker";
+      if (typeof operation !== "string" || !["submit", "approve", "reject", "simulate", "prepare_tasks", "acknowledge_task", "close_task", "reassign_task", "start_assistance", "advance_assistance", "cancel_assistance"].includes(operation)) return failure(400, "Unsupported workflow operation");
+      if (Object.keys(data).some((key) => !["operation", "rationale", "task_id", "assistance_step", "target_department", "expected_assignment_version"].includes(key))) return failure(400, "Unexpected proposal attributes");
+      const role = ["submit", "simulate", "prepare_tasks", "acknowledge_task", "close_task", "reassign_task", "start_assistance", "advance_assistance", "cancel_assistance"].includes(String(operation)) ? "incident_operator" : "incident_checker";
       if (!hasRole(session.roles, role)) return failure(403, "Insufficient role");
       if (data.rationale !== undefined && (typeof data.rationale !== "string" || data.rationale.length > 2000)) return failure(400, "Invalid review rationale");
       if (operation === "cancel_assistance" && (typeof data.rationale !== "string" || data.rationale.trim().length < 10)) return failure(400, "Cancellation rationale required");
-      const taskOperation = operation === "acknowledge_task" || operation === "close_task";
+      const taskOperation = operation === "acknowledge_task" || operation === "close_task" || operation === "reassign_task";
       if (taskOperation) {
         if (typeof data.task_id !== "string" || !["control_room", "infrastructure", "communications"].includes(data.task_id) ||
             typeof data.rationale !== "string" || data.rationale.trim().length < 10)
           return failure(400, "Task identifier and explanatory rationale required");
       } else if (data.task_id !== undefined) return failure(400, "Unexpected task identifier");
+      const reassignment = operation === "reassign_task";
+      if (reassignment) {
+        if (typeof data.target_department !== "string" || !["control_room", "infrastructure", "communications"].includes(data.target_department) ||
+          !Number.isSafeInteger(data.expected_assignment_version) || Number(data.expected_assignment_version) < 0) return failure(400, "Expected assignment version and target department required");
+      } else if (data.target_department !== undefined || data.expected_assignment_version !== undefined) return failure(400, "Unexpected assignment fields");
       const assistanceAdvance = operation === "advance_assistance";
       if (assistanceAdvance) {
         if (typeof data.assistance_step !== "string" || !["gather_references", "check_quality", "validate_draft"].includes(data.assistance_step)) return failure(400, "Valid assistance step required");
       } else if (data.assistance_step !== undefined) return failure(400, "Unexpected assistance step");
       body = JSON.stringify({ operation: operation as Operation, rationale: data.rationale,
-        ...(taskOperation ? { task_id: data.task_id } : {}), ...(assistanceAdvance ? { assistance_step: data.assistance_step } : {}) });
+        ...(taskOperation ? { task_id: data.task_id } : {}), ...(reassignment ? { target_department: data.target_department, expected_assignment_version: data.expected_assignment_version } : {}), ...(assistanceAdvance ? { assistance_step: data.assistance_step } : {}) });
     } else {
       if (!hasRole(session.roles, "incident_operator")) return failure(403, "Operator role required");
       if (Object.keys(data).some((key) => !["incident_id", "action_type", "rationale", "include_review_focus"].includes(key))) return failure(400, "Unexpected proposal attributes");

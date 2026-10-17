@@ -39,14 +39,14 @@ const post = payload => new Request('http://localhost:3000/api/department-tasks/
 });
 test('department task forwards only operation and rationale', async () => {
   await withFetch(new Response('{"status":"approved"}'), async calls => {
-    const response = await loadProxy()(post({ operation: 'acknowledge_task', rationale: 'Reviewed exercise evidence' }), id);
+    const response = await loadProxy()(post({ operation: 'acknowledge_task', rationale: 'Reviewed exercise evidence', task_id: 'infrastructure', expected_assignment_version: 0 }), id);
     assert.equal(response.status, 200);
     assert.equal(calls.length, 1);
     assert.equal(calls[0].options.headers.Authorization, 'Bearer unit-only-token');
-    assert.deepEqual(JSON.parse(calls[0].options.body), { operation: 'acknowledge_task', rationale: 'Reviewed exercise evidence' });
+    assert.deepEqual(JSON.parse(calls[0].options.body), { operation: 'acknowledge_task', rationale: 'Reviewed exercise evidence', task_id: 'infrastructure', expected_assignment_version: 0 });
   });
 });
-for (const extra of [{ task_id: 'communications' }, { department_id: 'communications' }, { operation: 'approve' }]) {
+for (const extra of [{ task_id: 'unknown' }, { department_id: 'communications' }, { operation: 'approve' }]) {
   test('reject authority override ' + JSON.stringify(extra), async () => {
     await withFetch(new Response('{}'), async calls => {
       assert.equal((await loadProxy()(post({ operation: 'close_task', rationale: 'Reviewed exercise evidence', ...extra }), id)).status, 400);

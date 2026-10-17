@@ -97,3 +97,44 @@ def advance_task(receipt: dict | None, task_id: str, operation: str,
         event["due_at"] = task["due_at"]
     task["events"].append(event)
     return result, True
+
+
+def task_assignment(receipt: dict | None, task_id: str) -> tuple[str, int]:
+    if not isinstance(receipt, dict):
+        raise DecisionError("Prepare staged exercise tasks first")
+    task = next((item for item in receipt.get("tasks", []) if item.get("id") == task_id), None)
+    if task is None:
+        raise DecisionError("Scripted task not found")
+    return task.get("assigned_department", task_id), task.get("assignment_version", 0)
+
+
+def reassign_task(receipt: dict | None, task_id: str, department: str,
+                  expected_version: int, actor: str, rationale: str) -> tuple[dict, bool]:
+    from copy import deepcopy
+    # Reuse receipt/operation/rationale validation without saving its temporary ack.
+    advance_task(receipt, task_id, "acknowledge_task", actor, rationale)
+    if department not in TASK_IDS or type(expected_version) is not int or expected_version < 0:
+        raise DecisionError("Invalid task assignment")
+    result = deepcopy(receipt)
+    task = next(item for item in result["tasks"] if item.get("id") == task_id)
+    current, version = task_assignment(result, task_id)
+    # Exact immediate retries are harmless, including after subsequent acknowledgement.
+    last = task.get("last_assignment", {})
+    if (version == expected_version + 1 and last.get("from_version") == expected_version
+            and last.get("to_department") == department and last.get("actor_subject") == actor
+            and last.get("rationale") == rationale.strip()):
+        return result, False
+    if version != expected_version:
+        raise DecisionError("Task assignment changed; refresh before retrying")
+    if task["state"] != "prepared":
+        raise DecisionError("Only unacknowledged tasks may be reassigned")
+    if department == current:
+        raise DecisionError("Choose a different department")
+    event = {"kind": "reassigned", "occurred_at": datetime.now(timezone.utc).isoformat(),
+             "scripted": True, "actor_subject": actor, "rationale": rationale.strip(),
+             "from_department": current, "to_department": department,
+             "from_version": version, "assignment_version": version + 1}
+    task.update(assigned_department=department, assignment_version=version + 1, last_assignment=event)
+    task["events"].append(event)
+    # Preserve the original synthetic target; reassignment never resets the clock.
+    return result, True
