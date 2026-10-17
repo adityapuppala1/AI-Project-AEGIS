@@ -27,6 +27,8 @@ def test_all_checks_present_and_clean():
     assert result["checks"]["real_integrations_connected"] is False
     assert result["checks"]["operational_actions_enabled"] is False
     assert result["fixture_counts"] == READY_COUNTS
+    assert result["diagnostic_version"] == "aegis.exercise.dependencies.v1"
+    assert all(item["status"] == "ready" for item in result["dependencies"])
 
 
 @pytest.mark.parametrize("field", sorted(READY_COUNTS))
@@ -51,6 +53,17 @@ def test_missing_migration_or_column_is_not_ready():
     assert report["checks"]["schema"] is False
     assert report["checks"]["fixtures"] is False
     assert set(report["incomplete_fixtures"]) == set(READY_COUNTS)
+    assert report["dependencies"][1]["status"] == "not_ready"
+    assert all(item["status"] == "blocked" for item in report["dependencies"][2:])
+
+
+def test_fixture_diagnostics_identify_only_affected_dependency():
+    counts = dict(READY_COUNTS)
+    counts["source_samples"] = 0
+    report = doctor.summarize(missing_relations=[], missing_columns=[], counts=counts, as_of=NOW)
+    statuses = {item["id"]: item["status"] for item in report["dependencies"]}
+    assert statuses["source_observations"] == "not_ready"
+    assert statuses["incident_context"] == statuses["spatial_context"] == statuses["agency_sync"] == "ready"
 
 
 def test_readiness_api_reports_success_without_secrets(monkeypatch):
@@ -82,7 +95,9 @@ def test_readiness_api_returns_503_if_not_configured(monkeypatch):
     monkeypatch.setattr(doctor, "inspect_stack", fail)
     response = client.get("/v1/exercise/system/readiness")
     assert response.status_code == 503
-    assert "database is unavailable" in response.json()["detail"]
+    detail = response.json()["detail"]
+    assert detail["diagnostic_version"] == "aegis.exercise.dependencies.v1"
+    assert detail["dependencies"][0]["status"] == "unavailable"
     assert "DATABASE_URL" not in response.text
 
 

@@ -11,9 +11,14 @@ async function getExerciseData(path: string): Promise<Record<string, unknown> | 
     const response = await fetch(base + path, {
       cache: "no-store", signal: AbortSignal.timeout(6000),
     });
-    if (!response.ok) return null;
     const body: unknown = await response.json();
     if (!body || typeof body !== "object" || Array.isArray(body)) return null;
+    if (!response.ok) {
+      if (path === "/v1/exercise/system/readiness" && response.status === 503 &&
+          "detail" in body && body.detail && typeof body.detail === "object" &&
+          !Array.isArray(body.detail)) return body.detail as Record<string, unknown>;
+      return null;
+    }
     return body as Record<string, unknown>;
   } catch { return null; }
 }
@@ -39,6 +44,17 @@ export default async function ExerciseWalkthroughPage() {
      assessment.context_state === "insufficient_simulated_context")
     ? assessment.context_state as "simulated_context_for_human_review" | "insufficient_simulated_context"
     : "unavailable" as const;
+  const dependencies = preflight?.diagnostic_version === "aegis.exercise.dependencies.v1" &&
+    Array.isArray(preflight.dependencies)
+    ? preflight.dependencies.filter((item): item is Record<string, unknown> =>
+        Boolean(item) && typeof item === "object" && !Array.isArray(item) &&
+        typeof item.id === "string" && typeof item.label === "string" &&
+        ["ready", "not_ready", "blocked", "unavailable"].includes(String(item.status)) &&
+        typeof item.reason_code === "string" && typeof item.next_step === "string").slice(0, 6)
+        .map(item => ({id: String(item.id), label: String(item.label),
+          status: item.status as "ready" | "not_ready" | "blocked" | "unavailable",
+          reasonCode: String(item.reason_code), nextStep: String(item.next_step)}))
+    : [];
   const snapshot = {
     database: preflight?.status === "ready" && preflight.mode === "synthetic_exercise"
       ? "ready" as const : "unavailable" as const,
@@ -53,6 +69,7 @@ export default async function ExerciseWalkthroughPage() {
       : null,
     modelLabAvailable: model?.source === "synthetic_generated_fixture" &&
       model.live_inference_enabled === false,
+    dependencies,
   };
   return <AppShell title="CipherCop Exercise Walkthrough"
     description="Follow one transparent, end-to-end urban-waterlogging scenario through evidence, uncertainty, human governance and fictional agency follow-up.">

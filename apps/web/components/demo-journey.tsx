@@ -13,6 +13,9 @@ interface Snapshot {
   taskCount: number | null;
   scriptedAcknowledgements: number | null;
   modelLabAvailable: boolean;
+  dependencies: { id: string; label: string;
+    status: "ready" | "not_ready" | "blocked" | "unavailable";
+    reasonCode: string; nextStep: string }[];
 }
 const EXAMPLE = "22222222-2222-4222-8222-222222222222";
 const steps = [
@@ -141,6 +144,20 @@ export function DemoJourney({ snapshot }: { snapshot: Snapshot }) {
         <p className="mt-3 text-base font-bold">{value}</p>
         <p className="mt-2 text-[11px] text-muted">{caption}</p>
       </article>)}
+    </section>
+    <section className="panel mt-5 p-5" aria-label="Local dependency diagnostics">
+      <h2 className="text-sm font-bold">Local dependency diagnostics</h2>
+      <p className="mt-1 text-xs leading-5 text-muted">Bounded exercise-stack checks only. These do not establish field sensor, agency, or public-safety readiness.</p>
+      {snapshot.dependencies.length ? <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {snapshot.dependencies.map(item => <li className="rounded-xl border border-stroke bg-elevated/40 p-3" key={item.id}>
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-xs font-semibold">{item.label}</span>
+            <span className={`rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wide ${item.status === "ready" ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300" : "bg-amber-500/10 text-amber-700 dark:text-amber-300"}`}>{item.status.replaceAll("_", " ")}</span>
+          </div>
+          <p className="mt-2 text-[11px] text-muted">Code: {item.reasonCode}</p>
+          {item.status !== "ready" && <p className="mt-2 text-xs leading-5 text-muted">{item.nextStep}</p>}
+        </li>)}
+      </ul> : <p className="mt-4 rounded-xl border border-amber-500/25 bg-amber-500/10 p-3 text-xs text-amber-800 dark:text-amber-200">Dependency diagnostics unavailable. Check the guarded local services before continuing.</p>}
     </section>
     <div className="mt-5 grid items-start gap-5 lg:grid-cols-[minmax(210px,.65fr)_minmax(0,1.4fr)]">
       <nav className="panel p-3" aria-label="Exercise demo steps">

@@ -161,7 +161,17 @@ def exercise_stack_readiness():
     except (psycopg.Error, KeyError) as exc:
         raise HTTPException(
             status_code=503,
-            detail="Synthetic exercise database is unavailable",
+            detail={
+                "diagnostic_version": "aegis.exercise.dependencies.v1",
+                "status": "not_ready", "mode": "synthetic_exercise",
+                "dependencies": [{
+                    "id": "exercise_database", "label": "Local exercise database",
+                    "status": "unavailable", "reason_code": "database_query_failed",
+                    "next_step": "Check the guarded local database service and retry; do not reset its volume.",
+                }],
+                "operational_actions_enabled": False,
+                "note": "Local synthetic dependency diagnostic only; no connection details are exposed.",
+            },
         ) from exc
     if report["status"] != "ready":
         raise HTTPException(status_code=503, detail=report)

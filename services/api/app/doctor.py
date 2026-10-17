@@ -70,6 +70,42 @@ COUNTS = {
                                AND e.id::text LIKE 'f7000000-%%'""",
 }
 
+DEPENDENCY_FIXTURES = (
+    ("incident_context", "Incident evidence context", ("incidents", "timeline_events", "evidence")),
+    ("source_observations", "Synthetic source observations", ("sources", "source_samples")),
+    ("spatial_context", "Fictional spatial context", ("geo_assets",)),
+    ("agency_sync", "Scripted department tasks", ("agency_tasks", "agency_task_events")),
+)
+
+
+def dependency_diagnostics(*, missing_relations: list[str], missing_columns: list[str],
+                           counts: dict[str, int] | None) -> list[dict]:
+    schema_ready = not missing_relations and not missing_columns
+    result = [{
+        "id": "exercise_database", "label": "Local exercise database",
+        "status": "ready", "reason_code": "database_query_succeeded",
+        "next_step": "No action required.",
+    }, {
+        "id": "exercise_schema", "label": "Exercise schema and migrations",
+        "status": "ready" if schema_ready else "not_ready",
+        "reason_code": "schema_complete" if schema_ready else "schema_incomplete",
+        "next_step": ("No action required." if schema_ready else
+                      "Run the reviewed additive migrate service; do not reset the database volume."),
+    }]
+    for dependency_id, label, fixture_names in DEPENDENCY_FIXTURES:
+        if not schema_ready or counts is None:
+            status, reason = "blocked", "schema_check_failed"
+            next_step = "Resolve the schema diagnostic before checking fixtures."
+        else:
+            gaps = [name for name in fixture_names if counts.get(name, -1) < MINIMUM_FIXTURES[name]]
+            status = "ready" if not gaps else "not_ready"
+            reason = "fixtures_present" if not gaps else "fixtures_incomplete"
+            next_step = ("No action required." if not gaps else
+                         "Run the reviewed idempotent synthetic seed service; do not use a volume reset.")
+        result.append({"id": dependency_id, "label": label, "status": status,
+                       "reason_code": reason, "next_step": next_step})
+    return result
+
 
 def summarize(*, missing_relations: list[str], missing_columns: list[str],
               counts: dict[str, int] | None, as_of: datetime) -> dict:
@@ -78,6 +114,7 @@ def summarize(*, missing_relations: list[str], missing_columns: list[str],
             if counts is None or counts.get(key, -1) < minimum]
     ready = not missing_relations and not missing_columns and not gaps
     return {
+        "diagnostic_version": "aegis.exercise.dependencies.v1",
         "status": "ready" if ready else "not_ready",
         "mode": "synthetic_exercise",
         "as_of": as_of.isoformat(),
@@ -92,6 +129,8 @@ def summarize(*, missing_relations: list[str], missing_columns: list[str],
         "missing_columns": missing_columns,
         "incomplete_fixtures": gaps,
         "fixture_counts": counts if counts is not None else {},
+        "dependencies": dependency_diagnostics(
+            missing_relations=missing_relations, missing_columns=missing_columns, counts=counts),
         "note": "Local synthetic database readiness only; real emergency operation remains prohibited.",
     }
 
