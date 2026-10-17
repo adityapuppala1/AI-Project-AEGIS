@@ -1284,15 +1284,20 @@ Started but **not yet verified**:
   `aegis_verification_57878ac` PostGIS tests, then
   `scripts/start-windows.ps1 -NoBuild -LocalCopilot`. Final result unknown.
 - Browser fixture script write `.git/browser-qa/department-inbox.cjs` returned
-  pending call `64d4bcd0-db24-4ad7-9097-2c1acb254cd3`; confirm completion before
-  using it. Tests cover inactive IdP, mobile acknowledgement/closure, explicit
+  call `64d4bcd0-db24-4ad7-9097-2c1acb254cd3`, subsequently **failed** with
+  "Timeout - no response from device"; inspect whether the file exists before
+  recreating it. Tests cover inactive IdP, mobile acknowledgement/closure, explicit
   writes without department override, rationale clearing, access-loss clearing
   and overflow/errors. Not executed yet.
-- Remote output retrieval functions cell `695` and history request
-  `a2504657-9052-497d-b0e5-cd4ffb986278` were still pending during the interruption.
+- Remote output retrieval functions cell `695` ended with **MCP request timed
+  out**. History request `a2504657-9052-497d-b0e5-cd4ffb986278` was still pending.
   Check existing process/lease/log rather than repeating side effects.
 
 Remaining acceptance: successful build/start output, all retained DB tests
 (including new department isolation/concurrent retry audit), targeted browser,
 21 smoke/axe checks, HTTP/refusal/checksum, final single-runtime and Git status.
 Do not equate unit fixtures with real department sign-in or human acceptance.
+
+Documentation checkpoint is mirror-only until the next clean laptop sync;
+laptop last confirmed HEAD remains `eb5b49e`. No new verification job was
+launched after the connection timeout.
