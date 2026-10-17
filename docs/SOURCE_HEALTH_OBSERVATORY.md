@@ -59,7 +59,7 @@ Source quality is separately labelled `synthetic_curated` or
   and ingestion timestamps, nonnegative value, quality and synthetic flag.
 - Index on source/history timestamps and agency/source name.
 
-`db/seed_sources.sql` adds four deterministic source fixtures:
+`db/seed_sources.sql` adds five deterministic source fixtures:
 1. Rain Gauge A1: initially within freshness window;
 2. Water Level B2: initially delayed;
 3. Field Report C3: initially stale;
@@ -107,7 +107,7 @@ docker compose exec db psql -U aegis -d aegis -c "SELECT COUNT(*) FROM exercise_
 docker compose exec db psql -U aegis -d aegis -c "SELECT COUNT(*) FROM exercise_source_samples;"
 ```
 
-Expected initial counts: **four** exercise sources and **24** samples.
+Expected initial counts: **five** exercise sources and **32** samples.
 
 Docker's one-shot `migrate` service applies migration 006 even when a
 volume already exists, then the one-shot `seed` service inserts missing

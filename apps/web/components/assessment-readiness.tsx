@@ -10,7 +10,7 @@ import { AlertTriangle, ArrowRight, BrainCircuit, CheckCircle2, ClipboardCheck, 
 type Freshness = "fresh" | "delayed" | "stale" | "no_data" | "clock_anomaly";
 type Readiness = {
   review_brief?: ReviewBrief;
-  checklist_version: "aegis.exercise.context.v1";
+  checklist_version: "aegis.exercise.context.v2";
   reference_time: string;
   reference_clock: "source_freshness_evaluation_time";
   unknowns: string[];
@@ -29,6 +29,14 @@ type Readiness = {
   source_freshness_counts: Record<Freshness, number>;
   synthetic_evidence_records: number;
   fictional_assets_nearby: number;
+  source_comparison: {
+    version: "aegis.exercise.source-comparison.v1";
+    status: "agreement" | "disagreement" | "not_comparable";
+    groups: { comparison_group: string; status: "agreement" | "disagreement" | "not_comparable";
+      metric_unit: string; window_seconds: number; tolerance: number;
+      observed_span_seconds: number | null; value_range: number | null; source_ids: string[] }[];
+    synthetic: true; validated_forecast: false; operational_actions_enabled: false; note: string;
+  };
   reasons: { code: string; description: string }[];
   recommendation_draft: string[];
   playbook: {
@@ -83,7 +91,7 @@ export function AssessmentReadiness({ incidentId }: { incidentId: string }) {
         throw new Error(response.status === 404 ? "Synthetic case or geography not found" : contextErrorMessage(failure?.code));
       }
       const data = await response.json() as Readiness;
-      if (data.checklist_version !== "aegis.exercise.context.v1" ||
+      if (data.checklist_version !== "aegis.exercise.context.v2" ||
           data.reference_clock !== "source_freshness_evaluation_time" ||
           typeof data.reference_time !== "string" || !Number.isFinite(Date.parse(data.reference_time)) ||
           !Array.isArray(data.unknowns) || !data.unknowns.every(item => typeof item === "string") ||
@@ -99,6 +107,12 @@ export function AssessmentReadiness({ incidentId }: { incidentId: string }) {
           data.real_world_asset_impact_known !== false ||
           data.real_world_risk_probability !== null ||
           data.needs_accountable_human_review !== true ||
+          data.source_comparison?.version !== "aegis.exercise.source-comparison.v1" ||
+          !["agreement", "disagreement", "not_comparable"].includes(data.source_comparison.status) ||
+          data.source_comparison.synthetic !== true ||
+          data.source_comparison.validated_forecast !== false ||
+          data.source_comparison.operational_actions_enabled !== false ||
+          !Array.isArray(data.source_comparison.groups) ||
           !Array.isArray(data.reasons) || !Array.isArray(data.recommendation_draft) ||
           data.playbook?.version !== "AEGIS-URBAN-FLOOD-EXERCISE-v0.1" ||
           data.playbook.operational_actions_enabled !== false ||
@@ -159,6 +173,14 @@ export function AssessmentReadiness({ incidentId }: { incidentId: string }) {
           {result.unknowns.map(item => <li key={item}>{item}</li>)}
         </ul>
         <p className="mt-3 text-sm"><strong>Next human review step:</strong> {result.next_review_step}</p>
+        <div className="mt-4 rounded-xl border border-stroke bg-surface p-3 text-xs leading-6">
+          <p className="font-semibold">Explicit source comparison: {result.source_comparison.status.replaceAll("_", " ")}</p>
+          {result.source_comparison.groups.map(group => <p className="mt-1 text-muted" key={group.comparison_group}>
+            {group.comparison_group}: {group.status.replaceAll("_", " ")} · tolerance {group.tolerance} {group.metric_unit}
+            {group.value_range === null ? "" : ` · observed range ${group.value_range} ${group.metric_unit}`} · {group.source_ids.length} cited sources
+          </p>)}
+          <p className="mt-2 text-muted">{result.source_comparison.note}</p>
+        </div>
         <Link href="/sources" className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-accent">Inspect source history <ArrowRight size={14}/></Link>
       </div>
       <div>

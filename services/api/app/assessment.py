@@ -8,9 +8,10 @@ import hashlib
 import json
 from datetime import datetime, timezone
 from app.source_health import classify_source
+from app.source_comparison import compare_sources
 from uuid import UUID
 
-CHECKLIST_VERSION = "aegis.exercise.context.v1"
+CHECKLIST_VERSION = "aegis.exercise.context.v2"
 PLAYBOOK_VERSION = "AEGIS-URBAN-FLOOD-EXERCISE-v0.1"
 
 
@@ -176,6 +177,13 @@ def evaluate_readiness(case: dict, nearby: dict) -> dict:
                         for item in sources)
     curated_evidence = sum(item.get("quality_status") == "synthetic_curated"
                            for item in evidence)
+    source_comparison = compare_sources(sources)
+    if source_comparison["status"] == "disagreement":
+        reasons.append({"code": "comparable_sources_disagree",
+                        "description": "Explicitly comparable synthetic observations exceed their configured tolerance; a human must review the cited sources."})
+    elif source_comparison["status"] == "not_comparable":
+        reasons.append({"code": "no_comparable_source_pair",
+                        "description": "No eligible pair of explicitly compatible, curated, current synthetic observations can be compared."})
     if counts["fresh"] and not curated_fresh:
         reasons.append({"code": "no_curated_current_demo_source",
                         "description": "Recent observations exist, but none is a curated exercise fixture."})
@@ -197,7 +205,7 @@ def evaluate_readiness(case: dict, nearby: dict) -> dict:
                     "source_ids": [],
                 },
                 {
-                    "text": f"Within {radius} m, {len(sources)} synthetic geographic source candidates were checked; {curated_fresh} are curated and within their configured observation window. Proximity is not corroboration.",
+                    "text": f"Within {radius} m, {len(sources)} synthetic geographic source candidates were checked; {curated_fresh} are curated and current. Explicit source comparison status: {source_comparison['status']}. Agreement is not corroboration.",
                     "evidence_ids": [],
                     "source_ids": sorted(set(source_refs)),
                 },
@@ -218,7 +226,8 @@ def evaluate_readiness(case: dict, nearby: dict) -> dict:
         "reference_time": reference.isoformat(),
         "reference_clock": "source_freshness_evaluation_time",
         "unknowns": [
-            "Cross-source measurement agreement has not been evaluated.",
+            *( ["No eligible explicitly compatible source pair was available for comparison."]
+               if source_comparison["status"] == "not_comparable" else [] ),
             "Real flood likelihood, depth and infrastructure impact are unknown.",
             "Nearby sources are geographic candidates, not independent corroboration.",
         ],
@@ -244,6 +253,7 @@ def evaluate_readiness(case: dict, nearby: dict) -> dict:
         "synthetic_evidence_records": len(evidence),
         "curated_current_sources": curated_fresh,
         "curated_evidence_records": curated_evidence,
+        "source_comparison": source_comparison,
         "playbook": {
             "version": PLAYBOOK_VERSION,
             "status": "illustrative_not_approved_operational_sop",

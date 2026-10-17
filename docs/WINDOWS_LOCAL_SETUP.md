@@ -202,7 +202,7 @@ docker compose up --build -d
 docker compose ps
 ```
 
-Open `http://localhost:3000/sources`. The simulation begins with four
+Open `http://localhost:3000/sources`. The simulation begins with five
 registered sources and 24 seeded readings. Existing stored fixtures age
 naturally and can become stale; Docker startup never pretends they are fresh.
 

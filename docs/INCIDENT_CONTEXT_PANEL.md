@@ -13,7 +13,7 @@ an assessed hazard; it adds no agent privileges, model calls or new services.
   adapter uses server time. It is not an observation timestamp or fixed replay
   clock. Tests may supply a fixed timestamp for deterministic evaluation.
 - `reference_clock=source_freshness_evaluation_time` and
-  `checklist_version=aegis.exercise.context.v1` identify the calculation basis.
+  `checklist_version=aegis.exercise.context.v2` identify the calculation basis.
 - The separate browser retrieval time says when this browser received the
   checklist. Retrieving it does not make old observations fresh.
 - Explicit unknowns state that measurement agreement has not been evaluated,

@@ -26,10 +26,11 @@ REQUIRED_RELATIONS = (
 REQUIRED_COLUMNS = {
     "incidents": ("is_exercise_fixture",),
     "action_proposals": ("created_at", "updated_at"),
-    "exercise_data_sources": ("location",),
+    "exercise_data_sources": ("location", "comparison_group", "comparison_window_seconds",
+                              "comparison_tolerance"),
 }
 MINIMUM_FIXTURES = {
-    "incidents": 5, "sources": 4, "source_samples": 24,
+    "incidents": 5, "sources": 5, "source_samples": 32,
     "timeline_events": 7, "evidence": 5, "geo_assets": 5,
     "agency_tasks": 7, "agency_task_events": 13,
 }

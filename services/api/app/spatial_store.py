@@ -18,6 +18,7 @@ from app.spatial_rules import DEFAULT_RADIUS_METERS, MAX_CANDIDATES, MAX_RADIUS_
 SOURCE_SQL = """
 SELECT s.id::text, s.name, s.source_kind, s.metric_label, s.metric_unit,
        s.expected_interval_seconds, s.warning_multiplier, s.stale_multiplier,
+       s.comparison_group, s.comparison_window_seconds, s.comparison_tolerance,
        ST_Distance(s.location::geography, ST_SetSRID(ST_MakePoint(%s,%s),4326)::geography) AS distance_m,
        x.observed_at, x.ingested_at, x.metric_value, x.quality_status
 FROM exercise_data_sources AS s
@@ -93,6 +94,10 @@ def spatial_candidates(incident_id: UUID, *, radius_m: int = DEFAULT_RADIUS_METE
             "quality_status": row["quality_status"] if row["quality_status"] else None,
             "metric_value": float(row["metric_value"]) if row["metric_value"] is not None else None,
             "metric_unit": row["metric_unit"],
+            "comparison_group": row["comparison_group"],
+            "comparison_window_seconds": row["comparison_window_seconds"],
+            "comparison_tolerance": (float(row["comparison_tolerance"])
+                                     if row["comparison_tolerance"] is not None else None),
             "reason": explanation(distance_m=distance, has_reading=row["observed_at"] is not None, stale=stale),
             "synthetic": True,
         })

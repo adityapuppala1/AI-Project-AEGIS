@@ -18,8 +18,10 @@ def test_agency_seed_is_bounded_scripted_and_idempotent():
 def test_compose_starts_new_migration_and_seed_on_both_fresh_and_existing_volumes():
     compose = (ROOT / "compose.yaml").read_text()
     assert "/docker-entrypoint-initdb.d/009-exercise-agency-sync.sql" in compose
+    assert "/docker-entrypoint-initdb.d/010-exercise-source-comparison.sql" in compose
     assert "/docker-entrypoint-initdb.d/014-agency-sync-seed.sql" in compose
     assert "-f /agency-sync.sql" in compose
+    assert "-f /source-comparison.sql" in compose
     assert "-f /seed-agency-sync.sql" in compose
     assert "down -v" not in compose
 

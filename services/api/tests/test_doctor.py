@@ -11,7 +11,7 @@ client = TestClient(app)
 NOW = datetime(2026, 10, 16, 12, 0, tzinfo=timezone.utc)
 
 READY_COUNTS = {
-    "incidents": 5, "sources": 4, "source_samples": 24,
+    "incidents": 5, "sources": 5, "source_samples": 32,
     "timeline_events": 7, "evidence": 5, "geo_assets": 5,
     "agency_tasks": 7, "agency_task_events": 13,
 }

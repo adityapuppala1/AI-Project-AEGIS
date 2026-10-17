@@ -284,7 +284,7 @@ def test_context_exposes_freshness_reference_version_and_unknowns():
     result = evaluate_readiness(case, geo)
     assert result["reference_time"] == geo["as_of"]
     assert result["reference_clock"] == "source_freshness_evaluation_time"
-    assert result["checklist_version"] == "aegis.exercise.context.v1"
+    assert result["checklist_version"] == "aegis.exercise.context.v2"
     assert any("agreement has not been evaluated" in item for item in result["unknowns"])
     assert "independent checker" in result["next_review_step"]
     # Fixed inputs preserve the supplied freshness reference; no second clock is invented.

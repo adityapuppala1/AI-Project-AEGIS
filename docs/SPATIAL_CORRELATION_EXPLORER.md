@@ -24,7 +24,7 @@ behind a help dialog.
 | PostGIS geography | `ST_DWithin` for bounded radius and `ST_Distance` for meters | Bound coordinates and radius; spatial GIST indexes |
 | Source positions | Nullable `exercise_data_sources.location` | Unpositioned sources never matched or given invented coordinates |
 | Fictional assets | `exercise_geo_assets` with kind and point | No real hospital, road or shelter registry |
-| Fixture generator | `db/seed_geospatial.sql` | Exactly five fictionally named asset points and three positioned source fixtures |
+| Fixture generator | `db/seed_geospatial.sql` | Exactly five fictionally named asset points and four positioned source fixtures |
 | Discovery | `GET /v1/exercise/incidents/{uuid}/correlation?radius_m=3000` | Demo agency + `is_exercise_fixture` guard and 100–5000 m radius |
 | Proximity candidate limit | Up to 20 sources and 20 assets | Small bounded queries; no unbounded data |
 | Source timeliness | Reuse `classify_source` | Stale/no-data/clock anomalies remain explicit |
@@ -61,7 +61,7 @@ The incident UUID is validated by FastAPI; out-of-scope cases return 404.
   indexes for nearby-point lookups.
 
 `db/seed_geospatial.sql` places three synthetic source IDs, leaves the
-fourth without a location and inserts five fictional asset points. It is
+fourth legacy source without a location, positions the additional A2 rain fixture, and inserts five fictional asset points. It is
 idempotent and re-runnable on existing local PostgreSQL volumes.
 
 On the Windows project directory:
@@ -90,7 +90,7 @@ docker compose exec db psql -U aegis -d aegis -c "SELECT COUNT(*) FROM exercise_
 curl.exe "http://localhost:8000/v1/exercise/incidents/22222222-2222-4222-8222-222222222222/correlation?radius_m=3000"
 ```
 
-Expected seeded fixture counts: **five fictional assets**, **three positioned
+Expected seeded fixture counts: **five fictional assets**, **four positioned
 synthetic sources**, one unpositioned source. Existing local data is retained.
 
 ## Next accurate-risk milestones
