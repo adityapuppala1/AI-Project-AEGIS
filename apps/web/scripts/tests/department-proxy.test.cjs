@@ -49,7 +49,7 @@ test('department task forwards only operation and rationale', async () => {
 for (const extra of [{ task_id: 'unknown' }, { department_id: 'communications' }, { operation: 'approve' }]) {
   test('reject authority override ' + JSON.stringify(extra), async () => {
     await withFetch(new Response('{}'), async calls => {
-      assert.equal((await loadProxy()(post({ operation: 'close_task', rationale: 'Reviewed exercise evidence', ...extra }), id)).status, 400);
+      assert.equal((await loadProxy()(post({ operation: 'close_task', task_id: 'infrastructure', expected_assignment_version: 0, rationale: 'Reviewed exercise evidence', ...extra }), id)).status, 400);
       assert.equal(calls.length, 0);
     });
   });

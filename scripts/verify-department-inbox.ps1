@@ -9,6 +9,8 @@ try {
     Assert-AegisSingleRuntime -RequireRunning
     node scripts/browser/department-inbox.cjs
     if ($LASTEXITCODE) { throw 'Department browser acceptance failed' }
+    node scripts/browser/task-reassignment.cjs
+    if ($LASTEXITCODE) { throw 'Reassignment browser acceptance failed' }
     node .git/browser-qa/smoke.cjs
     if ($LASTEXITCODE) { throw 'General browser smoke failed' }
     & .\services\api\.venv\Scripts\python.exe scripts/verify-local-http.py
