@@ -24,9 +24,11 @@ An optional local-only scenario refresh (`scripts/run-tabletop-windows.ps1 -Conf
 See [local demo handoff](docs/LOCAL_DEMO_HANDOFF.md) for current branch, commands,
 results and remaining gates. New demo-agency approval drafts retain the case
 assessment and playbook citations. After independent approval, an operator can
-create a proposal-linked scripted department receipt and inspect its private
+prepare proposal-linked scripted desk tasks, record acknowledgements/closure
+with rationale, and inspect their private
 audit JSON in `/approvals`. A trusted IdP remains required; no pretend login is
 provided. Public AgencySync/Audit360 remain separate fixture views.
+[Staged task scope](docs/STAGED_TASK_REHEARSAL.md) explains retries and legacy receipts.
 Approved warning-preparation proposals also support a private
 [exercise CAP XML draft](docs/CAP_EXERCISE_DRAFTS.md) download; no messages are sent.
 

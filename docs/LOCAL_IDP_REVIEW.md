@@ -90,7 +90,9 @@ separate browser profiles and TOTP enrollments for the actual approval rehearsal
 2. Maker cannot approve their own proposal; operator-only role is also denied review.
 3. A different human signs in as checker, inspects citations and uncertainty, and
    records a rationale when approving/rejecting. Checker cannot create proposals.
-4. Maker may simulate department tasks only after approval. Retry creates one receipt.
+4. Maker may prepare scripted department tasks only after approval. Record an
+   explanatory scripted acknowledgement, then closure, for each task. Retries
+   preserve one receipt/event and do not claim a real department response.
 5. Inspect private proposal audit: distinct subjects, one decision, captured
    evidence and scripted tasks. No real messages or public warnings are sent.
 6. Verify signed-out access, invalid/expired token, state/nonce mismatch,

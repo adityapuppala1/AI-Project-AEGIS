@@ -8,12 +8,15 @@
 2. Exercise CAP XML draft export is implemented behind existing independent
    approval and agency checks; see [CAP draft scope and validation](CAP_EXERCISE_DRAFTS.md).
    No live send or operational/profile certification is enabled.
-3. Deferred by the owner: [local IdP activation and certificate trust](LOCAL_IDP_REVIEW.md). If that decision changes,
+3. Staged private scripted tasks are implemented: prepare → acknowledge → close,
+   with signed operator rationale, atomic audit and idempotent retries. See
+   [task rehearsal scope](STAGED_TASK_REHEARSAL.md); no real department sessions/SLAs.
+4. Deferred by the owner: [local IdP activation and certificate trust](LOCAL_IDP_REVIEW.md). If that decision changes,
    verify realm import, PKCE login, MFA and independent maker/checker identities.
-4. With two different people, rehearse evidence-cited draft → independent
+5. With two different people, rehearse evidence-cited draft → independent
    decision → private scripted tasks/acknowledgements → audit; verify denial
    cases and record results without credentials/tokens.
-5. Perform manual screen-reader/operator acceptance and owner release review.
+6. Perform manual screen-reader/operator acceptance and owner release review.
 
 Windows startup, backed-up existing-volume migration, native API/frontend,
 separate PostGIS integration, replay idempotency, automated browser/map QA,

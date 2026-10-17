@@ -26,7 +26,7 @@ commands are recorded in [LOCAL_DEMO_HANDOFF.md](LOCAL_DEMO_HANDOFF.md).
 | Observation → evidence → assessment → draft | Implemented and covered by local API/PostGIS tests; replay is idempotent and drafts retain citations |
 | Independent human approval | Code and signed-test identity checks pass; local IdP review package prepared; owner chose keep inactive, so activation/trust and two-person MFA browser acceptance are deferred |
 | Approved exercise CAP draft | Private XML download and captured references implemented; native/schema/real-DB/proxy tests passed. No transmission or operational profile certification |
-| Simulated tasks/acknowledgements → audit | Approved-only private scripted receipts and audit implemented/tested; actual two-human end-to-end acceptance pending |
+| Simulated tasks/acknowledgements → audit | Approved-only staged scripted tasks with rationale, atomic audit and concurrent retry/legacy tests passed; actual two-human acceptance remains deferred |
 | Browser/accessibility | Automated desktop/mobile/keyboard, sampled light/dark axe and map-failure/recovery checks passed; manual screen-reader/operator review pending |
 | Recovery and latency | Separate backup restoration and bounded local software latency check passed; no production capacity claim |
 | Security/release | Full npm audit zero on Windows/Linux after Tailwind 4 upgrade; standalone non-root runtime/browser regression passed; owner review pending |

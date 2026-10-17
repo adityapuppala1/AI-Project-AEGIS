@@ -19,7 +19,7 @@ messages, warning issuance, deployment or CI are part of this runbook.
    not exposure and the index is not a calibrated forecast. Model Lab reports
    are reproducible synthetic holdout measurements only.
 4. Open `/approvals`. Show that unconfigured identity fails closed. Explain
-   the implemented captured-draft → independent-checker → scripted receipt
+   the implemented captured-draft → independent-checker → staged scripted task progress
    workflow, citing test evidence, **mention the approved-only local CAP XML draft download (also locked here),
    without presenting it as a completed
    two-human browser demonstration**. Do not fabricate a session or approval.

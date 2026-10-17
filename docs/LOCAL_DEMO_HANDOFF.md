@@ -2,8 +2,9 @@
 
 Updated: 17 October 2026 (IST). Repository: `adityapuppala1/AI-Project-AEGIS`.
 Branch: `feat/aegis-local-demo-continuation`; integration baseline `b71172c`.
-Latest tested API/contract source: `d3f1ed715fff7d01492b38220b1b903895b6ed2c`;
-production web application source: `4e6d4cf` (later proxy tests are test-only).
+Latest tested API source: `413dd9765c0a50781411457d66cc87fd2fd55daa`;
+web follow-ups: `4ce96a2` strict task fields and `cb9650b` department control labels
+(final label-only production rebuild is awaiting laptop confirmation).
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
@@ -31,8 +32,8 @@ a subsequent documentation-only commit records the results below.
 
 | Gate | Executed evidence |
 |---|---|
-| Latest API/model | Windows and Linux: `python -m pytest -q` **239 passed, 4 skipped**; `python -m app.model_lab --check` PASS. One upstream Starlette/httpx deprecation warning |
-| Real database | Latest laptop run: **4 integration tests passed**, separate `aegis_verification_57878ac` DB, including a concurrent checker/audit regression |
+| Latest API/model | Windows: `python -m pytest -q` **254 passed, 6 skipped**; `python -m app.model_lab --check` PASS. Prior Linux CAP suite: 239 passed, 4 skipped. One upstream Starlette/httpx deprecation warning |
+| Real database | Latest laptop run: **6 integration tests passed**, separate `aegis_verification_57878ac` DB, including concurrent checker/audit and task retry regressions |
 | Latest frontend in Linux | `npm install --ignore-scripts --no-audit --no-fund`, `npm run typecheck`, `npm run build`: PASS on Tailwind 4.3.3; full `npm audit --json`: **zero vulnerabilities**, no suppression |
 | Latest Windows dependency/type check | `npm.cmd ci --no-audit --no-fund` and `npm.cmd run typecheck`: PASS; `npm.cmd audit --json`: **zero vulnerabilities including development dependencies**, no suppression |
 | Prior laptop browser/HTTP | 21 functional desktop/mobile/keyboard checks, zero sampled axe violations; five map failure/retry/worker/WebGL checks; HTTP routes, locked approvals, blocked live warning and independently recomputed public audit checksum passed |
@@ -203,3 +204,48 @@ Laptop logs: `.git/cap-{native,build,browser,http}.log`, `.git/cap-progress.txt`
 `.git/cap-schema-result.txt`, `.git/cap-contract-{tests,build,http}.log` and
 `.git/cap-contract-result.txt`. Four DB tests used only the designated laptop
 `aegis_verification_57878ac` database. Existing app DB retained, no volume reset.
+
+
+## Staged scripted task workflow — 17 October 2026
+
+Implementation `413dd97`; strict proxy types `4ce96a2`; accessible task labels
+`cb9650b38ceeed789ce83b41690905b071e90b90`. Approved proposals now prepare v2
+receipts with three fictional tasks; an authorized signed-agency operator
+records scripted acknowledgement and then closure with rationale. Proposal row
+locks serialize JSON/audit writes. Retries are no-ops that retain the first
+actor/reason, including acknowledgement retried after closure. Existing v1
+completed receipts remain untouched; legacy simulate cannot skip v2 progress.
+No real department session, SLA, message, new role, migration or IdP activation.
+
+Actual Windows results on `413dd97`:
+- `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify-code-local.ps1 -Suite all`:
+  **254 passed, 6 integration skips**, model reproduction and typecheck PASS.
+- `cd apps/web; node --test scripts/tests/proposal-proxy.test.cjs`: **9 passed**.
+- `docker compose up --build -d api web`: production builds/start PASS.
+- `docker compose run --rm --no-deps -T -v <repo>/services/api/integration_tests:/integration_tests:ro api sh -c 'export AEGIS_TEST_DATABASE_URL=${DATABASE_URL%/aegis}/aegis_verification_57878ac; python -m pytest -q -p no:cacheprovider /integration_tests'`:
+  **6 passed**. Includes signed TEST-key staged workflow/denials, CAP bytes
+  unchanged as tasks advance, legacy JSON/audit preservation, and two real
+  concurrent database writers producing one acknowledgement/audit event.
+- `node .git/browser-qa/smoke.cjs`: **21 checks passed**, zero page errors and
+  sampled axe violations. `python scripts/verify-local-http.py`: PASS, public
+  checksum and locked private/live-warning boundaries preserved.
+
+Core logs: `.git/staged-{native,proxy,build,browser,http}.log` and
+`.git/staged-progress.txt`; helpers and logs stay under .git. Existing app DB
+and designated verification DB retained. One upstream deprecation warning.
+Strict proxy follow-up additionally rejects array/coerced operation/task IDs;
+9 proxy tests, native typecheck, production web build and HTTP smoke reran.
+Department-specific rationale labels and button accessible names are a separate
+frontend follow-up; do not infer actual signed-in screen-reader acceptance.
+See [task workflow and limits](STAGED_TASK_REHEARSAL.md).
+
+Final label-only follow-up (`cb9650b`): the laptop build reached successful
+compilation, type validity and page generation, but final build/HTTP completion
+could not be confirmed. Desktop Commander read call
+`39421fd6-a3d7-47f0-a5ed-e0bfbf6710c4` timed out without a device response.
+Do not mark this final follow-up verified yet. Check
+`.git/staged-labels-result.txt` and `.git/staged-labels-{tests,build,http}.log`
+before rerunning anything; job PID 44204 may have completed in the background.
+The preceding full implementation and strict-proxy checks above remain valid.
+This documentation update is committed in the Linux mirror; laptop sync requires
+confirmation of a clean tree and final job state. No remote push was performed.

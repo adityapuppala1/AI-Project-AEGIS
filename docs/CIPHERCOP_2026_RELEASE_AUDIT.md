@@ -31,7 +31,7 @@ because similarly named demo pages exist.
 | Licensed hazard footprints and infrastructure exposure | Current spatial results are synthetic point/proximity candidates; official layers, licensing and exposure validation absent |
 | Scientific forecasts, drift and controlled model rollout | Reproducible offline synthetic evaluation only; requires authorized real labels, independent validation and deployment governance |
 | Approved SOP retrieval, persisted policy editing/rollout | Illustrative URB references and immutable exercise-policy preview only; authority and policy lifecycle remain future work |
-| Department-owned task states, SLAs, 3D/multi-session simulation | Current approved proposal receipts are explicitly scripted; richer workflow remains unimplemented. Approved-only private CAP draft XML is now implemented and tested, with no live transport or agency-profile certification |
+| Department-owned task states, SLAs, 3D/multi-session simulation | Current approved proposal receipts now support staged operator-recorded acknowledgement/closure with audit and safe retries; actual department sessions, SLAs and richer coordination remain unimplemented. Approved-only private CAP draft XML is now implemented and tested, with no live transport or agency-profile certification |
 | Tamper-evident/attested audit and production resilience | Current public checksum is unsigned; private audit uses authoritative DB records. No legal attestation or production-capacity certification |
 
 The scan and new audit-race regression are recorded in the current handoff.
@@ -218,3 +218,11 @@ manual accessibility and owner release acceptance remain open.
 Exercise CAP follow-up: [CAP_EXERCISE_DRAFTS.md](CAP_EXERCISE_DRAFTS.md) records
 the approved-only private XML artifact, schema/proxy/real PostGIS checks and
 limits. IdP stays inactive; actual signed-in human browser acceptance is deferred.
+
+
+Staged task follow-up: the private approved-proposal workbench now records
+prepared → acknowledged → closed scripted tasks with rationale and actor,
+row-lock serialization and atomic audit. Existing v1 closed receipts remain
+unchanged. Six real PostGIS tests and native/proxy/browser checks passed;
+[STAGED_TASK_REHEARSAL.md](STAGED_TASK_REHEARSAL.md) records limits. This is not
+actual department participation, dispatch or SLA enforcement.

@@ -278,3 +278,15 @@ production rebuild, sampled browser/axe and HTTP/checksum passed. Packaged
 CAP 1.2 XSD checks passed on Windows .NET and Linux lxml. Actual IdP/human
 acceptance remains deferred; no transport, trust change or DB migration added.
 See current handoff for exact commands, source and limits.
+
+
+### Staged scripted department tasks
+
+`413dd97` adds approved-only prepared → acknowledged → closed desk tasks,
+operator rationale and actor audit under the existing agency/role checks and
+proposal row lock. Existing one-shot receipts remain unchanged. Windows native
+254 tests (six DB skips), model/type checks, nine proxy tests, production build,
+21 sampled browser checks and HTTP/checksum passed; six real PostGIS tests
+include concurrent retries and legacy preservation. Strict proxy and accessible
+label follow-ups are recorded in the current handoff. Actual department
+participation, SLAs and signed-in human acceptance remain unverified/deferred.

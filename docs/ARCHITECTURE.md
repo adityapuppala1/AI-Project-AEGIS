@@ -93,3 +93,13 @@ BFF proxies attachment bytes with no-store/nosniff headers; server-side tokens
 remain absent from browser JavaScript. CAP Draft/Private fields and fictional
 addresses are fixed, not user-selectable. This adds no transport, DB table,
 public feed, operational warning or IdP activation. See CAP_EXERCISE_DRAFTS.md.
+
+
+## Staged scripted task progress
+
+Approved proposals can prepare a v2 JSON receipt and record per-task scripted
+acknowledgement/closure. Existing proposal row locks serialize concurrent writes;
+receipt and audit events commit in one transaction. Signed agency/operator scope
+is unchanged. V1 completed receipts and legacy one-shot calls are preserved;
+preparing or simulating twice never replaces an existing receipt. This adds no
+schema/service/transport and does not model real department identity or SLAs.
