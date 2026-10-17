@@ -2,9 +2,13 @@
 
 Updated: 17 October 2026 (IST). Repository: `adityapuppala1/AI-Project-AEGIS`.
 Branch: `feat/aegis-local-demo-continuation`; integration baseline `b71172c`.
-Latest Linux mirror API source: `3b85285b4badd7003a22058f27991356e1f70c02`.
-Laptop sync/verification of this change is **blocked by connector timeout**.
-Last previously verified laptop API/web source: `258a1572b1dfad2ba727e0eadef24cb2049260a2`
+Latest continuation scripts: `e10ebeeb03a786953449998049c5072361b7d6d2`
+(single-operation guard `c60f123`, redirected startup follow-up `e10ebee`).
+API context-revalidation source: `3b85285b4badd7003a22058f27991356e1f70c02`.
+Laptop import and runtime follow-up passed on `e10ebee`; native API/Node
+verification on `c60f123` passed (API/web source unchanged in `e10ebee`).
+Exact environment-specific results are recorded at the end. Prior model-preview source:
+`258a1572b1dfad2ba727e0eadef24cb2049260a2`
 (local review focus implementation `597a603`, route boundaries `258a157`).
 Prior workbench source `0c7c788`; latency harness `79086bd`;
 prior context-diagnostics source `eb4624e`;
@@ -21,7 +25,7 @@ Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 | Verified automated | Original synthetic observation/evidence/assessment/draft/approval-policy/task/audit chain; private CAP draft; recovery and anonymous/live-action boundaries |
 | Verified workbench | Page-memory rationale recovery by incident/action, failed refresh/save retention, success clearing, identity/agency/access-loss clearing; explicit session-retry state |
 | Previously verified on laptop | Opt-in local-model selection preview with original citations and safe fallbacks |
-| New Linux verification | Saved deterministic context revalidation before submission/approval; laptop import and acceptance blocked by connector timeout |
+| Closed this pass | Laptop saved-context revalidation acceptance; single-operation lock, duplicate inventory/refusal checks, guarded startup, production builds and final DB/HTTP/browser regression |
 | Verified with revised measurement | Local warm HTTP latency v2 at four workers; client setup excluded and thresholds unchanged; previous v1 failures retained below |
 | Deferred by owner | Local IdP/trust activation and real two-person MFA/browser approval acceptance; do not reactivate or bypass |
 | Pending human acceptance | Manual screen-reader/operator rehearsal and owner release review |
@@ -52,8 +56,8 @@ a subsequent documentation-only commit records the results below.
 
 | Gate | Executed evidence |
 |---|---|
-| Latest API/model | Windows: `python -m pytest -q` **280 passed, 6 skipped**; `python -m app.model_lab --check` PASS. Prior Linux CAP suite: 239 passed, 4 skipped. One upstream Starlette/httpx deprecation warning |
-| Real database | Latest laptop run: **6 integration tests passed**, separate `aegis_verification_57878ac` DB, including concurrent checker/audit and task retry regressions |
+| Latest API/model | Windows: `python -m pytest -q` **299 passed, 7 skipped**; `python -m app.model_lab --check` PASS. Prior Linux CAP suite: 239 passed, 4 skipped. One upstream Starlette/httpx deprecation warning |
+| Real database | Latest laptop run: **7 integration tests passed**, separate `aegis_verification_57878ac` DB, including concurrent checker/audit and task retry regressions |
 | Latest frontend in Linux | `npm install --ignore-scripts --no-audit --no-fund`, `npm run typecheck`, `npm run build`: PASS on Tailwind 4.3.3; full `npm audit --json`: **zero vulnerabilities**, no suppression |
 | Latest Windows dependency/type check | `npm.cmd ci --no-audit --no-fund` and `npm.cmd run typecheck`: PASS; `npm.cmd audit --json`: **zero vulnerabilities including development dependencies**, no suppression |
 | Prior laptop browser/HTTP | 21 functional desktop/mobile/keyboard checks, zero sampled axe violations; five map failure/retry/worker/WebGL checks; HTTP routes, locked approvals, blocked live warning and independently recomputed public audit checksum passed |
@@ -89,7 +93,9 @@ preserved in [verification history](LOCAL_DEMO_VERIFICATION_HISTORY.md).
 
 Inspect `git status`, branch/SHA and existing build processes first. Preserve
 local work and import only verified local bundles. Current default startup:
-`docker compose up --build -d`; API docs `http://localhost:8000/docs`, guided demo
+`powershell -ExecutionPolicy Bypass -File scripts/start-windows.ps1`; use
+`-NoBuild` for existing images and `-LocalCopilot` to retain the optional model
+profile. See [single-instance restrictions](SINGLE_INSTANCE_LOCAL_RUNTIME.md). API docs `http://localhost:8000/docs`, guided demo
 `http://localhost:3000/demo`. Existing DB volumes must remain intact.
 
 From `services/api`: `.venv/Scripts/python.exe -m pytest -q` and
@@ -667,3 +673,96 @@ model selection; laptop serving/profile state has not been changed or verified
 this pass. A local bundle is prepared at
 `/workspace/scratch/aegis-context-revalidation.bundle` from `cfb8029` for a
 future guarded laptop transfer. This is not a push or proof of Windows sync.
+
+
+## Single-instance restrictions and laptop reconnection — 17 October 2026
+
+Branch `feat/aegis-local-demo-continuation`; guard source `c60f123`, startup
+follow-up `e10ebeeb03a786953449998049c5072361b7d6d2`.
+[Single-instance runbook](SINGLE_INSTANCE_LOCAL_RUNTIME.md). The previous
+connector blockage is historical: a new clean-tree/branch/SHA guarded bundle
+import succeeded. The initial Windows inventory and Linux inventory both had
+one API, one web and one database, no confirmed AEGIS native server duplicates.
+Other laptop projects were left running; no broad process/container kill was
+performed. Completed migrate/seed containers were not mistaken for duplicates.
+
+`compose.yaml` pins the existing `ai-project-aegis` name. Supplied Windows
+startup/stop/verification/replay helpers now share an exclusive OS file-handle
+lease. Competing managed jobs fail immediately; preflight rejects recognized
+duplicate AEGIS services, other checkout/project ownership, active one-off jobs,
+repo-owned native servers and conflicting port owners. Follow-up adds recognition
+of leftover AEGIS Compose operations with explicit project arguments. Stop now
+retains containers/volumes. Direct CLI commands can bypass these helpers; this
+is a same-Windows-account workflow guard, not an OS-wide supervisor.
+
+Actual laptop commands/evidence:
+
+- All repository PowerShell scripts parsed successfully on Windows.
+- `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/tests/test-local-runtime.ps1`:
+  PASS on `c60f123`: real cross-process exclusion, exception release/reacquisition,
+  healthy/duplicate/missing/project/checkout/one-off inventory cases.
+- `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-local-runtime.ps1 -RequireRunning`:
+  PASS, exactly one API/web/DB and no detected conflicting managed job.
+- `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify-code-local.ps1 -Suite all`:
+  **299 passed, 7 skipped**, model report reproduction and TypeScript PASS. One
+  existing Starlette/httpx warning. Native API source is `3b85285`; guard `c60f123`.
+- `cd apps/web; node --test scripts/tests/exercise-draft-buffer.test.cjs scripts/tests/proposal-proxy.test.cjs scripts/tests/context-route.test.cjs scripts/tests/review-focus-route.test.cjs`:
+  **31 passed**. No frontend/API dependency change.
+- One guarded `docker compose build api web`: both production images built.
+- Initial driver `.git/verify-single-instance.ps1` (process 149780) exited 1
+  at startup: PS 5.1 all-stream redirection treated Docker's normal
+  `Container ai-project-aegis-web-1 Running` stderr as `NativeCommandError`.
+  This was a failure, not a passed runtime gate. Native/Node/build stages above
+  had completed; no PostGIS/browser/HTTP stage ran in that attempt.
+- Inspected potential remaining Compose clients; by the follow-up check none
+  remained, so no client/process termination was needed. `e10ebee` merges
+  fixed-argument startup/stop progress stderr inside CMD, preserving native exit
+  codes, and uses explicit canonical project arguments. Retry driver records
+  remaining acceptance below. API/frontend code is unchanged by this follow-up.
+
+Logs under `.git`: `single-instance-{lock,inventory,native,node,build,start}.log`;
+initial progress file records completed stages. Retry logs use `-retry` suffix
+for lock/inventory/start. No GitHub push/CI, destructive reset, IdP activation,
+trust-store change, model download or real emergency action.
+
+
+Final Windows follow-up on `e10ebeeb03a786953449998049c5072361b7d6d2`:
+
+- `.git/resume-single-instance.ps1`: progress **PASS**. Guarded clean-tree/branch/
+  SHA import, then one sequential verification batch. No duplicate batch started.
+- `scripts/tests/test-local-runtime.ps1`: PASS, prior inventory/real cross-process
+  lock cases plus recognition of an owned mutating Compose client, exclusion
+  of unrelated projects and read-only inspection.
+- `scripts/check-local-runtime.ps1 -RequireRunning`: PASS before retry.
+  `scripts/start-windows.ps1 -NoBuild -LocalCopilot`: PASS under redirected
+  logging; post-start inventory exactly one API/web/DB. Existing database
+  container ID before/after matched; no volume/reset operation. Optional local
+  model API profile retained, no model runtime started or inference claim.
+- Loopback health and `/demo` readiness: PASS before HTTP checks.
+- One leased command:
+  `docker compose --project-name ai-project-aegis run --rm --no-deps -T -v "%CD%/services/api/integration_tests:/integration_tests:ro" api sh -c "export AEGIS_TEST_DATABASE_URL=${DATABASE_URL%/aegis}/aegis_verification_57878ac; python -m pytest -q -p no:cacheprovider /integration_tests"`:
+  **7 PostGIS tests passed**, 2.23 s. Separate retained verification DB only;
+  signed TEST-key authorization/independence, context-change refusal/rollback,
+  CAP stability, audit consistency and task retry regressions. Not real human
+  sign-in acceptance. Ephemeral pytest container removed normally.
+- `services/api/.venv/Scripts/python.exe scripts/verify-local-http.py`: PASS,
+  public routes/checksum, private anonymous refusals and blocked live warning.
+- `node .git/browser-qa/smoke.cjs`: PASS, desktop/mobile/keyboard/anonymous gate,
+  zero page errors and sampled axe violations. No human accessibility claim.
+- Final leased inventory: PASS, one API/web/database and no detected conflicting
+  Compose client, native AEGIS server or one-off job. No confirmed duplicate
+  required stopping; unrelated Docker projects/processes were preserved.
+
+Runtime logs: `.git/single-instance-{lock,inventory,start}-retry.log`,
+`.git/single-instance-{postgis,http,browser}.log`, progress **PASS**. The initial
+process 149780 failure is retained above and not relabelled as success.
+Stop/replay helpers were syntax-checked; they were not executed just to test
+cleanup or write more fixture data. Guarded startup was tested against the
+existing stack. No paid resource, push/CI, IdP/trust or live operation changed.
+
+Documentation/Compose validation: Linux `docker compose config --quiet`,
+`git diff --check` and changed Markdown local targets PASS. Final documentation
+is transferred by a guarded local bundle and branch/SHA/clean-tree checks,
+with Windows script parsing and runtime inventory checked again. Future agents
+must follow the single-instance instructions in root AGENTS.md. Remaining
+agent/copilot/forecasting and human acceptance gates above stay open.

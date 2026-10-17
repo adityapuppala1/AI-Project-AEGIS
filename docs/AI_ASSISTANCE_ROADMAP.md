@@ -1,10 +1,11 @@
 # Operator assistance and prediction roadmap
 
-Current extension: [saved proposal-context revalidation](PROPOSAL_CONTEXT_REVALIDATION.md)
-is implemented and tested in the Linux mirror; laptop import/acceptance is
-blocked by a Desktop Commander timeout. Deterministic context only; model
-preview capture and the durable runner remain pending. Exact commands and
-source are in [the handoff](LOCAL_DEMO_HANDOFF.md).
+Current extensions: [saved proposal-context revalidation](PROPOSAL_CONTEXT_REVALIDATION.md)
+and [single-instance local operation guards](SINGLE_INSTANCE_LOCAL_RUNTIME.md)
+passed laptop acceptance: 299 native tests, 31 proxy tests, seven PostGIS tests,
+production builds, guarded startup and HTTP/browser checks. Deterministic context
+only; model preview capture and the durable runner remain pending. Exact source,
+commands and the retained startup failure/fix are in [the handoff](LOCAL_DEMO_HANDOFF.md).
 
 Planned 17 October 2026 on `feat/aegis-local-demo-continuation`, after inspecting
 source at `9c9b67c98db33e016bd8242db5fb0e1528c1045f`. This document records

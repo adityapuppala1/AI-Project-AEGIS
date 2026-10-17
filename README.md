@@ -12,12 +12,16 @@ CipherCop 2026 · AI-powered disaster prediction, preparedness and accountable r
 
 ```powershell
 # Run from the verified continuation checkout. Inspect git status before switching branches.
-docker compose up --build -d
-docker compose exec -T api python -m app.doctor
-powershell -ExecutionPolicy Bypass -File .\\scripts\\verify-windows.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\start-windows.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\check-local-runtime.ps1 -RequireRunning
+powershell -ExecutionPolicy Bypass -File .\scripts\verify-windows.ps1
 ```
 
 An optional local-only scenario refresh (`scripts/run-tabletop-windows.ps1 -ConfirmExercise`) appends three fictional readings without deleting source history. The `/demo` page guides the original scenario through the rule-only index, case evidence, playbook, human approval gate, scripted AgencySync acknowledgements and Audit360 export. No official provider is connected.
+
+Use the [single-instance local helpers](docs/SINGLE_INSTANCE_LOCAL_RUNTIME.md):
+one AEGIS stack and one managed startup/build/test/replay operation at a time.
+Do not launch native dev servers alongside Compose or stop unrelated projects.
 
 ## Current continuation and validation
 

@@ -152,3 +152,14 @@ Base Compose is disabled; `compose.local-copilot.yaml` opts in to the existing
 host runtime, with no new service/schema or hosted provider. The same-origin
 BFF rejects caller instructions/configuration; the UI supports cancel and
 clears stale preview state. See [scope and limits](LOCAL_REVIEW_FOCUS.md).
+
+
+## Single local runtime and serialized operations
+
+The existing Compose project name `ai-project-aegis` is now explicit, retaining
+its database volume. Windows startup/stop/check/replay helpers share one exclusive
+OS file lease and inspect recognizable duplicate services, checkout ownership
+and conflicting jobs before proceeding. This is local orchestration hygiene,
+not a new service architecture or universal OS supervisor. See
+[SINGLE_INSTANCE_LOCAL_RUNTIME.md](SINGLE_INSTANCE_LOCAL_RUNTIME.md) and the
+Windows acceptance in [LOCAL_DEMO_HANDOFF.md](LOCAL_DEMO_HANDOFF.md).
