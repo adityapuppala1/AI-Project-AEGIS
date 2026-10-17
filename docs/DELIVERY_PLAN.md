@@ -35,3 +35,10 @@ The dated windows above are planning milestones. Historical branch delivery
 and CI evidence do not establish current acceptance. Official data feeds,
 scientifically validated forecasting, agency accreditation and real dispatch
 are outside this synthetic demonstration's scope. No CI or merge is authorized.
+
+## Next development sequence
+
+The [operator assistance roadmap](AI_ASSISTANCE_ROADMAP.md) extends this plan
+with context/uncertainty reporting, grounded copilot, bounded durable agent runs,
+predictive research and measured responsiveness. Close the outstanding laptop
+confirmation first; preserve the deferred human identity/acceptance gates.

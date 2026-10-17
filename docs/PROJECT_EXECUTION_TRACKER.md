@@ -290,3 +290,14 @@ proposal row lock. Existing one-shot receipts remain unchanged. Windows native
 include concurrent retries and legacy preservation. Strict proxy and accessible
 label follow-ups are recorded in the current handoff. Actual department
 participation, SLAs and signed-in human acceptance remain unverified/deferred.
+
+### Expanded AI/operator assistance planning — 17 October 2026
+
+Source inspected at `9c9b67c`: deterministic assessments and synthetic model
+evaluation exist; a generative copilot and validated incident forecasts do not.
+[Ordered roadmap](AI_ASSISTANCE_ROADMAP.md) records pending laptop closure,
+context/uncertainty UX, grounded drafting, durable bounded agents, forecasting
+research, performance and department-owned exercise coordination. All new
+slices are planned, not tested. IdP stays inactive; human acceptance deferred.
+Documentation-only validation: `git diff --check` and local Markdown target
+existence checks; no application suite rerun and no laptop sync claimed.

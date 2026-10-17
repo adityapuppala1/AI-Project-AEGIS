@@ -1,5 +1,11 @@
 # AEGIS delivery ownership and implementation backlog
 
+## Expanded operator-assistance plan
+
+See [AI assistance and prediction roadmap](AI_ASSISTANCE_ROADMAP.md) for the
+ordered next slices, user benefits, evaluation gates and existing pending work.
+These are planned capabilities, not verified features.
+
 ## Current synthetic demo priorities — 17 October 2026
 
 1. Dependency/runtime hardening is complete for this local scope: Tailwind 4,

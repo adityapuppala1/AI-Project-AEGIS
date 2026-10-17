@@ -249,3 +249,11 @@ before rerunning anything; job PID 44204 may have completed in the background.
 The preceding full implementation and strict-proxy checks above remain valid.
 This documentation update is committed in the Linux mirror; laptop sync requires
 confirmation of a clean tree and final job state. No remote push was performed.
+
+## Next plan expansion — 17 October 2026
+
+See [operator assistance and prediction roadmap](AI_ASSISTANCE_ROADMAP.md).
+Planning is based on source `9c9b67c`; no AI model, agent worker or new forecast
+was enabled. The outstanding laptop confirmation/documentation sync and deferred
+human acceptance above remain open. Documentation saved in the Linux mirror;
+no laptop sync or new runtime tests claimed. Branch unchanged.
