@@ -7,6 +7,8 @@ ordered next slices, user benefits, evaluation gates and existing pending work.
 The roadmap distinguishes delivered slices from planned capabilities.
 The [incident context panel](INCIDENT_CONTEXT_PANEL.md) is the first extension;
 source agreement detection and per-dependency diagnostics remain pending.
+The [cited review brief](CITED_REVIEW_BRIEF.md) adds the deterministic fallback
+for evidence-grounded review; a model-backed copilot and agent runner remain planned.
 
 ## Current synthetic demo priorities — 17 October 2026
 

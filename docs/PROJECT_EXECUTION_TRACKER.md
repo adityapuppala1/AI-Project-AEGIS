@@ -314,3 +314,21 @@ and synced to the laptop. Targeted browser/recovery and latest six-test DB
 acceptance remain separately tracked in the current handoff. No IdP activation,
 trust change, model provider, live prediction or dispatch enabled. Broader
 context agreement/dependency diagnostics and subsequent AI phases remain pending.
+
+### Context acceptance recovered / cited brief foundation
+
+On `061e35a`, Windows context recovery/mobile checks, 21 browser smoke checks,
+HTTP and six real PostGIS tests passed after the connector recovered. Local
+source/documentation import preserved a clean branch and retained volumes.
+`396d531`/`f06ab89` add a deterministic cited review brief, captured in new
+proposal snapshots and displayed in case/approval views; Windows native
+**259 passed, 6 skipped**, model and typecheck passed. Runtime acceptance is
+recorded separately in the handoff. A model-backed copilot and durable agent
+remain planned; the owner keeps IdP inactive.
+
+Final brief acceptance on `6b2211c`: the first browser run caught an omitted
+incident component render on `f06ab89`; fixed and rerun successfully. Native
+typecheck/web rebuild, targeted brief citation/mobile/malformed checks, browser
+smoke/axe, HTTP/checksum/refusal and all six real PostGIS tests passed. Backend
+remains the 259-pass version; no proxy changes or external model service.
+Exact commands/logs and the retained failure are in the handoff.

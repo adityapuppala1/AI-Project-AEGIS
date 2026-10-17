@@ -113,3 +113,13 @@ freshness bucket. This reuses the deterministic assessment and existing API/BFF;
 no model provider, worker, migration or authorization change is introduced.
 See [context semantics](INCIDENT_CONTEXT_PANEL.md). A generic service failure
 is displayed as unavailable, not attributed to an unobserved dependency.
+
+## Deterministic cited review brief
+
+The existing assessment response now includes `review_brief` version v1 with
+template findings, checked evidence/source references, illustrative playbook
+review options and limitations. `create_proposal` captures it in the existing
+response snapshot, and a shared component renders case and captured proposal
+views. It does not invoke a provider, interpret raw source instructions or gain
+write authority. Historic snapshots without the field remain compatible.
+See [brief scope](CITED_REVIEW_BRIEF.md).

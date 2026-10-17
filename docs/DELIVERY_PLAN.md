@@ -42,3 +42,8 @@ The [operator assistance roadmap](AI_ASSISTANCE_ROADMAP.md) extends this plan
 with context/uncertainty reporting, grounded copilot, bounded durable agent runs,
 predictive research and measured responsiveness. Close the outstanding laptop
 confirmation first; preserve the deferred human identity/acceptance gates.
+
+The context panel and deterministic cited brief are incremental assistance
+slices, not evidence that a generative copilot, agent runner or validated
+forecast has shipped. See [brief scope](CITED_REVIEW_BRIEF.md) and the handoff
+for actual local test results and deferred human acceptance.

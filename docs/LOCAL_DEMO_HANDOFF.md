@@ -2,9 +2,9 @@
 
 Updated: 17 October 2026 (IST). Repository: `adityapuppala1/AI-Project-AEGIS`.
 Branch: `feat/aegis-local-demo-continuation`; integration baseline `b71172c`.
-Latest context-panel source: `061e35a103f2722d6ee07399ad37ed9cc34eb875`;
-prior staged-task source: `413dd97`; proxy follow-up `4ce96a2` and control
-labels `cb9650b` passed. Exact current acceptance is recorded below.
+Latest review-brief source: `6b2211ccfcdb0f2b6826dd516487e94d9aa1dc94`;
+context-panel source `061e35a`; prior staged-task source `413dd97`, proxy
+follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
@@ -32,7 +32,7 @@ a subsequent documentation-only commit records the results below.
 
 | Gate | Executed evidence |
 |---|---|
-| Latest API/model | Windows: `python -m pytest -q` **256 passed, 6 skipped**; `python -m app.model_lab --check` PASS. Prior Linux CAP suite: 239 passed, 4 skipped. One upstream Starlette/httpx deprecation warning |
+| Latest API/model | Windows: `python -m pytest -q` **259 passed, 6 skipped**; `python -m app.model_lab --check` PASS. Prior Linux CAP suite: 239 passed, 4 skipped. One upstream Starlette/httpx deprecation warning |
 | Real database | Latest laptop run: **6 integration tests passed**, separate `aegis_verification_57878ac` DB, including concurrent checker/audit and task retry regressions |
 | Latest frontend in Linux | `npm install --ignore-scripts --no-audit --no-fund`, `npm run typecheck`, `npm run build`: PASS on Tailwind 4.3.3; full `npm audit --json`: **zero vulnerabilities**, no suppression |
 | Latest Windows dependency/type check | `npm.cmd ci --no-audit --no-fund` and `npm.cmd run typecheck`: PASS; `npm.cmd audit --json`: **zero vulnerabilities including development dependencies**, no suppression |
@@ -312,3 +312,76 @@ blindly rerun it: inspect the script, any running process and
 Source was synced through `061e35a` before the connector failed; this final
 documentation commit is saved only in the Linux mirror pending safe sync.
 No unverified test is marked passed and no reset or external action occurred.
+
+## Resumed context acceptance — 17 October 2026
+
+The connector recovered. Startup inspection found clean branch/source
+`061e35a`, running API/web and healthy retained database; no old acceptance
+script or test process was present. The missing script was written and run
+once as process 102576. **All six real PostGIS tests passed**, the 21-check
+browser smoke had zero page errors/sampled axe violations, and the targeted
+context test passed mobile layout, all freshness labels, refresh-failure
+removal of the old conclusion, recovery and advancing evaluation clock.
+HTTP/checksum/refusal smoke also passed. Logs:
+`.git/context-clock-{browser,panel,http-final}.log`;
+`.git/context-clock-progress.txt` now records PASS. This supersedes the prior
+connector blocker for context acceptance. No IdP/trust or live operation changed.
+The previously unsynced documentation commit `7626e72` subsequently reached
+the laptop in the local review-brief bundle; no GitHub push was performed.
+
+## Cited deterministic review brief — 17 October 2026
+
+Implementation `396d531`; malformed-collection UI guard `f06ab89`;
+incident render wiring correction `6b2211c`.
+[Brief scope](CITED_REVIEW_BRIEF.md) describes the template, original checked
+UUID references, illustrative playbook options and retained limitations. New
+demo-agency proposals capture the brief in the existing response snapshot;
+the queue displays it without rewriting older proposals. No model calls, raw
+source-instruction interpretation, new roles, automatic submission or actions.
+
+Windows native `powershell -NoProfile -ExecutionPolicy Bypass -File
+scripts/verify-code-local.ps1 -Suite all`: **259 passed, 6 DB skips**, model
+reproduction and typecheck PASS. New tests cover exact citation sets, empty
+context/abstention and malicious source text not changing template authority.
+The real-DB chain additionally asserts the captured brief citations and flags.
+Latest runtime results are recorded below after their commands complete.
+
+The first targeted brief browser check on `f06ab89` failed because the
+incident panel imported the component but did not render it. The API brief
+and captured-proposal component were present. `6b2211c` adds the missing render
+call. The failure is retained in `.git/brief-panel.log`; final frontend
+acceptance must use the corrected source, not the earlier successful API tests.
+
+### Final executed brief acceptance
+
+On application source `6b2211ccfcdb0f2b6826dd516487e94d9aa1dc94`, Windows
+`npm.cmd run typecheck` and the corrected production web rebuild passed.
+The backend is unchanged from the **259-pass** native/API build above.
+`node .git/browser-qa/review-brief.cjs` passed original evidence UUID display,
+review options/limitations, narrow mobile layout and rejection of a malformed
+brief without page errors. `node .git/browser-qa/smoke.cjs` passed with zero
+page errors/sampled axe violations. HTTP routes, public audit checksum,
+anonymous private-route refusal and blocked live warning passed.
+The six-test real PostGIS command above passed **6 tests** (2.93 s), including
+persisted brief citations, independent signed TEST-key decisions, CAP stability,
+legacy receipts and concurrent retry regressions. Process 54072 exited 0.
+
+Logs: `.git/brief-native.log`, `.git/brief-build.log`,
+`.git/brief-render-{types,build,panel,browser,http}.log` and
+`.git/brief-progress.txt` (PASS). Verification waited for loopback startup
+before HTTP checks. Existing app/verification DBs and volumes retained.
+One upstream Starlette/httpx warning remains. No proxy source changed; the
+previous nine isolated proxy passes remain the relevant evidence.
+
+Documentation-only checks: `git diff --check` and changed Markdown local-link
+targets PASS. Final documentation is imported via a local Git bundle with
+clean-tree/branch guards, and laptop/mirror HEAD/status checked afterward.
+No GitHub push, CI, review automation, paid service, IdP activation, trust
+change, real agency acknowledgement or live dispatch occurred.
+
+Next pending engineering: source agreement/dependency diagnostics, model/provider
+evaluation and a genuinely model-backed copilot, bounded durable agent runs,
+validated forecasting research and measured responsiveness extensions. The
+current brief is a deterministic fallback, not those completed capabilities.
+Two-human IdP/MFA and manual accessibility/operator acceptance remain deferred
+as previously recorded.

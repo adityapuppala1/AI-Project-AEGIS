@@ -44,7 +44,7 @@ activate integrations or dispatch messages.
 
 | Order / owner role | Slice and operator benefit | Exit evidence / dependencies |
 |---|---|---|
-| 0 / integration | Prior label build/HTTP confirmed and saved planning documentation synced; finish current context acceptance and final handoff sync | Source through `061e35a` is on the laptop. Latest connector timeout blocks remaining browser/DB confirmation and final docs sync; inspect existing jobs/logs before rerunning. No resets |
+| 0 / integration | Context acceptance recovered and passed; deterministic brief runtime acceptance also passed on `6b2211c` | Current handoff records 259 native tests, six real DB tests, production/browser/HTTP checks and guarded final documentation sync. Human acceptance remains deferred |
 | 1 / API + UX | Incident context panel: freshness, conflicting/missing evidence, dependency state, last successful assessment, explicit unknowns and next permitted step | Deterministic fixtures for stale/missing/conflicting sources and API/DB failure; timestamps/versions visible; no invented confidence. Reuse readiness/assessment contracts |
 | 2 / API + UX | Grounded Response Copilot: summarize the selected case, answer evidence questions, draft playbook-based options and list missing information | Every factual statement links to an authorized evidence/playbook ID; invalid citations/unsupported output rejected; unknowns explicitly retained; cross-agency and prompt-injection tests; reviewer can edit/reject. Deterministic fallback works without a model |
 | 3 / API | Durable bounded agent run: gather → quality check → draft → validate → stop for review | Persist run ID, input snapshot/version, permitted tools, bounded steps/time/output budget, cancellation and audit. Resume/retry/crash/concurrent requests do not duplicate writes; revalidate changed evidence before submission. No automatic task acknowledgement or approval |
@@ -120,3 +120,19 @@ order 1. Exact acceptance results and laptop sync are in the handoff. The next
 feature slice is grounded drafting with a deterministic fallback, retaining
 ordinary authenticated submission and independent review. Generative model
 selection and durable agent execution are still planned, not enabled.
+
+## Implementation update — deterministic brief foundation
+
+`396d531` / `f06ab89` implement the [cited template brief](CITED_REVIEW_BRIEF.md)
+in the existing incident readiness response and captured proposal snapshot.
+It cites only checked evidence/source IDs, retains gaps and playbook review
+options, and uses no model or external service. This is the deterministic
+fallback foundation of order 2, not a completed generative copilot or agent
+runner. Context runtime acceptance on `061e35a` has passed; consult the handoff
+for the latest brief runtime tests and final documentation sync state.
+
+Final brief application source `6b2211c`: Windows native 259 tests (six DB
+skips), model/type checks, six real PostGIS tests, production build, targeted
+brief/mobile/malformed-response browser checks, sampled browser/axe and HTTP
+passed. The brief is a tested deterministic fallback; order 2's generative
+capability and subsequent agent/prediction stages remain planned.
