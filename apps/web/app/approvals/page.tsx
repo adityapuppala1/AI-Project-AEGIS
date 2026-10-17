@@ -102,7 +102,7 @@ export default function ApprovalWorkbench() {
   }
 
   return <AppShell title="Approval Workbench" description="Authenticated exercise proposals, controlled submissions and independent checker decisions.">
-    <div className="mb-5 flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-4 text-amber-700 dark:text-amber-300">
+    <div className="mb-5 flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-4 text-amber-800 dark:text-amber-300">
       <ShieldCheck className="mt-0.5 shrink-0" size={20}/>
       <div><p className="text-sm font-bold">Training environment only</p><p className="mt-1 text-xs leading-5">
         Approval records document simulated decisions. They never issue public warnings or dispatch responders.
