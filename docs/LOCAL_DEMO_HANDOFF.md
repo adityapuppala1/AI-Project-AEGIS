@@ -2,7 +2,9 @@
 
 Branch: `feat/aegis-local-demo-continuation`.
 Baseline: `b71172cd93038148a2e9eafdc7bf91196f9eada1` (`feat/ciphercop-integrated-demo-rc`).
-Implementation commit: recorded below after local verification.
+Implementation commit: `917d13ec55bbc01556b8ef97e9f6f46043982ddf`.
+Checks below ran against the implementation working tree committed at that SHA.
+A subsequent documentation-only commit records this SHA; no CI was triggered.
 
 ## Environment and preservation
 
