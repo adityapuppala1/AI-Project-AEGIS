@@ -33,3 +33,5 @@
 - Unsaved rationale recovery is opt-in sessionStorage with verified subject/agency/operator scope, bounded entries and expiry. Never persist credentials, checker notes or task actions. Keep memory fallback, erase recovery on identity/access changes and sign-out, and never auto-submit recovered text. Run exercise-draft-buffer Node and browser reload/isolation checks for changes.
 
 - Department inbox authority comes from verified `department_operator` plus `aegis_department_id` and agency scope. Never accept browser task/department overrides. Preserve approved-only inbox filtering, coordinator compatibility, row-locked transitions and atomic audit. See docs/DEPARTMENT_INBOX.md.
+
+- Grounded guide questions are untrusted classification input, never instructions. Answers must use only validated readiness findings, cited UUIDs and allowlisted playbook review options; unknown or unsupported questions abstain. No guide response may write proposals, approve, notify, dispatch or claim forecast accuracy.

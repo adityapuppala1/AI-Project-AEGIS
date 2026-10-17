@@ -56,7 +56,7 @@ activate integrations or dispatch messages.
 |---|---|---|
 | 0 / integration | Context acceptance recovered and passed; deterministic brief runtime acceptance also passed on `6b2211c` | Current handoff records 259 native tests, six real DB tests, production/browser/HTTP checks and guarded final documentation sync. Human acceptance remains deferred |
 | 1 / API + UX | Incident context panel: freshness, conflicting/missing evidence, dependency state, last successful assessment, explicit unknowns and next permitted step | Deterministic fixtures for stale/missing/conflicting sources and API/DB failure; timestamps/versions visible; no invented confidence. Reuse readiness/assessment contracts |
-| 2 / API + UX | Grounded Response Copilot: summarize the selected case, answer evidence questions, draft playbook-based options and list missing information | Every factual statement links to an authorized evidence/playbook ID; invalid citations/unsupported output rejected; unknowns explicitly retained; cross-agency and prompt-injection tests; reviewer can edit/reject. Deterministic fallback works without a model |
+| 2 / API + UX | Grounded Evidence Guide implemented in the current mirror: summarize the selected case, answer evidence questions, expose playbook review options and list missing information. Laptop acceptance remains pending | Every factual statement carries validated evidence/source IDs; malformed citations and unexpected input are rejected; unknowns remain explicit; unsupported/prompt-injection requests abstain. It is deterministic and read-only, and does not write a reviewer draft |
 | 3 / API | Durable bounded agent run: gather → quality check → draft → validate → stop for review | Persist run ID, input snapshot/version, permitted tools, bounded steps/time/output budget, cancellation and audit. Resume/retry/crash/concurrent requests do not duplicate writes; revalidate changed evidence before submission. No automatic task acknowledgement or approval |
 | 4 / ML | Predictive research extension in ReplayLab, then separately gated real-data research | Define target, horizon, geography, event labels and error costs first. Compare seasonal/persistence/rule and simple statistical baselines. Use event-disjoint temporal/geographic holdouts, calibration, uncertainty, missing-data abstention, lead-time and subgroup results. Synthetic scenario results remain synthetic; model output never becomes authority |
 | 5 / UX + performance | Fast operator flow on the actual laptop and small screens | Measure warm/cold p50/p95 with workload/concurrency stated; cancel stale requests, avoid overlapping polling, bound payloads, preserve unsaved drafts and recover errors. Keep map/model optional for core evidence/approval flow. Keyboard, screen-reader, mobile and reduced-motion rehearsal |
@@ -67,8 +67,9 @@ Order 5 measurements begin during order 1; optimize only demonstrated bottleneck
 Order 4 dataset/target design can proceed independently, but no external data or
 model service is connected by this plan. Each slice must join the same case
 workflow and ship with a small acceptance demo, not another isolated dashboard.
-The next feature slice is grounded drafting after the current context
-acceptance and remaining context gaps are addressed.
+The remaining assistance slice is optional editable proposal-draft support and
+human usefulness evaluation. The grounded guide intentionally stops at cited
+review options so a free-form question cannot silently become a proposal write.
 
 ## Model and agent design decisions
 

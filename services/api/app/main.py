@@ -222,6 +222,11 @@ class ReviewFocusRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
+class GroundedQuestionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    question: str = Field(min_length=3, max_length=300)
+
+
 @app.post("/v1/exercise/incidents/{incident_id}/review-focus")
 def exercise_review_focus(incident_id: UUID, payload: ReviewFocusRequest):
     """Read-only local selection preview on the public synthetic fixture scope."""
@@ -234,3 +239,17 @@ def exercise_review_focus(incident_id: UUID, payload: ReviewFocusRequest):
     if context is None:
         raise HTTPException(404, detail="Synthetic exercise context not found")
     return review_focus(context)
+
+
+@app.post("/v1/exercise/incidents/{incident_id}/grounded-guide")
+def exercise_grounded_guide(incident_id: UUID, payload: GroundedQuestionRequest):
+    """Answer bounded free-form questions from validated synthetic context only."""
+    from app.assessment_adapter import ContextUnavailable, exercise_readiness
+    from app.grounded_assistant import answer_question
+    try:
+        context = exercise_readiness(incident_id)
+    except ContextUnavailable as exc:
+        raise HTTPException(503, detail={"code": exc.code}) from exc
+    if context is None:
+        raise HTTPException(404, detail="Synthetic exercise context not found")
+    return answer_question(context, payload.question)

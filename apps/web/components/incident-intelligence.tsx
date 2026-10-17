@@ -7,6 +7,7 @@ import {
   Copy, Database, FileClock, History, MapPinned, ShieldAlert, ShieldCheck,
 } from "lucide-react";
 import { AppShell } from "./app-shell";
+import { GroundedEvidenceGuide } from "./grounded-evidence-guide";
 import { GeoMap } from "./geo-map";
 import { StatusBadge } from "./status-badge";
 import { SpatialAnalysis } from "./spatial-analysis";
@@ -247,5 +248,6 @@ export function IncidentIntelligence({ workspace }: { workspace: IncidentWorkspa
     </section>
     <SpatialAnalysis incidentId={incident.id}/>
     <AssessmentReadiness incidentId={incident.id}/>
-  </AppShell>;
+    <GroundedEvidenceGuide incidentId={workspace.incident.id}/>
+    </AppShell>;
 }
