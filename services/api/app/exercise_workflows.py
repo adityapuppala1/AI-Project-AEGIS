@@ -4,6 +4,7 @@ No endpoint here sends warnings or dispatches responders. Actor identity,
 assigned agency and roles MUST be taken from verified OIDC JWT claims.
 """
 from enum import Enum
+from typing import Literal
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Response
@@ -28,12 +29,16 @@ class Operation(str, Enum):
     approve = "approve"
     reject = "reject"
     simulate = "simulate"
+    prepare_tasks = "prepare_tasks"
+    acknowledge_task = "acknowledge_task"
+    close_task = "close_task"
 
 
 class ChangeProposal(BaseModel):
     model_config = ConfigDict(extra="forbid")
     operation: Operation
     rationale: str | None = Field(default=None, max_length=2000)
+    task_id: Literal["control_room", "infrastructure", "communications"] | None = None
 
 
 @router.get("/identity")
@@ -85,17 +90,22 @@ def change(
     payload: ChangeProposal,
     operator: Operator = Depends(get_operator),
 ):
-    if payload.operation in (Operation.submit, Operation.simulate):
+    if payload.operation in (Operation.submit, Operation.simulate, Operation.prepare_tasks, Operation.acknowledge_task, Operation.close_task):
         require_role(operator, {"incident_operator"})
     else:
         require_role(operator, {"incident_checker"})
+    task_operation = payload.operation in (Operation.acknowledge_task, Operation.close_task)
+    if task_operation != (payload.task_id is not None):
+        raise HTTPException(status_code=422, detail="Task identifier required only for task transitions")
     try:
+        task_args = {"task_id": payload.task_id} if task_operation else {}
         status = transition(
             str(proposal_id),
             operator.agency_id,
             operator.subject,
             payload.operation.value,
             payload.rationale,
+            **task_args,
         )
         return {"id": str(proposal_id), "status": status, "exercise_only": True}
     except LookupError as err:

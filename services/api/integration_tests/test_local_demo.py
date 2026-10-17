@@ -69,10 +69,10 @@ def test_postgis_demo_chain_and_negative_authorization(monkeypatch):
         assert response.status_code == 201, response.text
         pid = response.json()["id"]
         path = f"/v1/exercise/proposals/{pid}"
-        def change(actor, operation):
-            return client.post(path + "/transition", headers=actor, json={"operation": operation, "rationale": "SIMULATION: independent test review"})
+        def change(actor, operation, task_id=None):
+            return client.post(path + "/transition", headers=actor, json={"operation": operation, "rationale": "SIMULATION: independent test review", **({"task_id": task_id} if task_id else {})})
         assert client.get(path + "/cap-draft", headers=maker).status_code == 409
-        assert change(maker, "simulate").status_code == 409
+        assert change(maker, "prepare_tasks").status_code == 409
         assert change(maker, "submit").status_code == 200
         assert change(maker, "approve").status_code == 409
         assert change(other, "approve").status_code == 404
@@ -90,8 +90,19 @@ def test_postgis_demo_chain_and_negative_authorization(monkeypatch):
         assert root.findtext("c:scope", namespaces=ns) == "Private"
         assert "EXERCISE DRAFT" in xml.text
         assert change(checker, "approve").status_code == 409
-        assert change(maker, "simulate").status_code == 200
-        assert change(maker, "simulate").status_code == 200
+        assert change(other, "prepare_tasks").status_code == 404
+        assert change(maker, "prepare_tasks").status_code == 200
+        assert change(maker, "prepare_tasks").status_code == 200
+        assert change(maker, "close_task", "control_room").status_code == 409
+        checker_only = headers("checker-only", roles=["incident_checker"])
+        assert change(checker_only, "acknowledge_task", "control_room").status_code == 403
+        assert change(other, "acknowledge_task", "control_room").status_code == 404
+        assert change(maker, "acknowledge_task", "control_room").status_code == 200
+        assert change(maker, "acknowledge_task", "control_room").status_code == 200
+        assert change(maker, "close_task", "control_room").status_code == 200
+        assert change(maker, "close_task", "control_room").status_code == 200
+        assert change(maker, "acknowledge_task", "control_room").status_code == 200
+        assert change(maker, "simulate").status_code == 200  # Cannot bypass staged progress.
         assert client.get(path + "/audit", headers=other).status_code == 404
         assert client.get(path + "/audit").status_code == 401
         audit = client.get(path + "/audit", headers=checker).json()
@@ -109,9 +120,15 @@ def test_postgis_demo_chain_and_negative_authorization(monkeypatch):
         assert all("accepted payload SHA256" in item["summary"] for item in linked_rows)
         assert len(payload["simulation"]["tasks"]) == 3
         assert payload["simulation"]["outbound_messages_sent"] is False
-        assert [e["action"] for e in audit["events"]].count("simulated_department_tasks") == 1
+        actions = [e["action"] for e in audit["events"]]
+        assert actions.count("prepare_tasks") == actions.count("acknowledge_task") == actions.count("close_task") == 1
+        tasks = payload["simulation"]["tasks"]
+        assert tasks[0]["state"] == "closed"
+        assert [event["kind"] for event in tasks[0]["events"]] == ["prepared", "acknowledged", "closed"]
+        assert all(task["state"] == "prepared" for task in tasks[1:])
+        assert tasks[0]["events"][1]["actor_subject"] == "integration-maker-" + str(run)
         assert xml.content == client.get(path + "/cap-draft", headers=maker).content
-        assert len(audit["events"]) == 4  # XML reads add no decisions, dispatch or mutations.
+        assert len(audit["events"]) == 6  # XML reads and retry writes add no mutations.
         assert client.post("/v1/live/public-warning", headers=checker).status_code == 403
 
 
@@ -217,3 +234,45 @@ def test_private_audit_keeps_one_snapshot_during_checker_commit(monkeypatch):
     assert after["proposal"]["status"] == "approved"
     assert len(after["decisions"]) == 1
     assert [event["action"] for event in after["events"]] == ["created", "submit", "approve"]
+
+
+def test_legacy_completed_receipt_is_retained(monkeypatch):
+    from app import workflow_store
+    from app.governance import Action, DecisionError
+    monkeypatch.setenv("DATABASE_URL", os.environ["AEGIS_TEST_DATABASE_URL"])
+    actor = "legacy-maker-" + str(uuid4())
+    pid = workflow_store.create_proposal(CASE, DEMO_AGENCY, actor, Action.INTERNAL_TRIAGE,
+                                         "SIMULATION: preserve legacy completed receipts")
+    workflow_store.transition(pid, DEMO_AGENCY, actor, "submit")
+    workflow_store.transition(pid, DEMO_AGENCY, "separate-checker", "approve", "SIMULATION: independent review")
+    workflow_store.transition(pid, DEMO_AGENCY, actor, "simulate")
+    before = workflow_store.proposal_audit(pid, DEMO_AGENCY)
+    workflow_store.transition(pid, DEMO_AGENCY, actor, "prepare_tasks")
+    with pytest.raises(DecisionError):
+        workflow_store.transition(pid, DEMO_AGENCY, actor, "acknowledge_task", "SIMULATION: no legacy rewrite", task_id="control_room")
+    after = workflow_store.proposal_audit(pid, DEMO_AGENCY)
+    assert before == after
+    assert all(t["state"] == "closed" for t in after["proposal"]["proposal"]["simulation"]["tasks"])
+
+
+def test_concurrent_task_retries_commit_one_acknowledgement(monkeypatch):
+    from concurrent.futures import ThreadPoolExecutor
+    from app import workflow_store
+    from app.governance import Action
+    monkeypatch.setenv("DATABASE_URL", os.environ["AEGIS_TEST_DATABASE_URL"])
+    maker = "task-race-maker-" + str(uuid4())
+    pid = workflow_store.create_proposal(CASE, DEMO_AGENCY, maker, Action.INTERNAL_TRIAGE,
+                                         "SIMULATION: concurrent scripted task retries")
+    workflow_store.transition(pid, DEMO_AGENCY, maker, "submit")
+    workflow_store.transition(pid, DEMO_AGENCY, "independent-task-checker", "approve", "SIMULATION: approved for local rehearsal")
+    workflow_store.transition(pid, DEMO_AGENCY, maker, "prepare_tasks")
+    def acknowledge(actor):
+        return workflow_store.transition(pid, DEMO_AGENCY, actor, "acknowledge_task",
+                                          "SIMULATION: concurrent retry", task_id="control_room")
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        assert list(pool.map(acknowledge, [maker, "second-scoped-test-operator"])) == ["approved", "approved"]
+    audit = workflow_store.proposal_audit(pid, DEMO_AGENCY)
+    events = audit["proposal"]["proposal"]["simulation"]["tasks"][0]["events"]
+    assert len(events) == 2
+    assert events[-1]["actor_subject"] in {maker, "second-scoped-test-operator"}
+    assert [e["action"] for e in audit["events"]].count("acknowledge_task") == 1

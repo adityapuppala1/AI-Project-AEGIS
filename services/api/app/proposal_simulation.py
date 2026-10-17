@@ -37,3 +37,47 @@ def simulation_receipt(proposal_id: str, status: str, draft: dict | None) -> dic
             )
         ],
     }
+
+
+TASK_IDS = ("control_room", "infrastructure", "communications")
+
+
+def prepare_task_receipt(proposal_id: str, status: str, draft: dict | None) -> dict:
+    """Staged rehearsal; preserve the legacy one-shot simulation contract."""
+    receipt = simulation_receipt(proposal_id, status, draft)
+    receipt["version"] = "aegis.proposal.simulation.v2"
+    for task_id, task in zip(TASK_IDS, receipt["tasks"]):
+        task["id"] = task_id
+        task["state"] = "prepared"
+        task["events"] = task["events"][:1]
+    return receipt
+
+
+def advance_task(receipt: dict | None, task_id: str, operation: str,
+                 actor: str, rationale: str) -> tuple[dict, bool]:
+    from copy import deepcopy
+    if (not receipt or receipt.get("version") != "aegis.proposal.simulation.v2" or
+            receipt.get("synthetic") is not True or
+            receipt.get("outbound_messages_sent") is not False or
+            receipt.get("operational_actions_enabled") is not False or
+            receipt.get("acknowledgements_are_scripted") is not True):
+        raise DecisionError("Prepare staged exercise tasks on a new approved proposal")
+    if task_id not in TASK_IDS or operation not in {"acknowledge_task", "close_task"}:
+        raise DecisionError("Unknown scripted task operation")
+    reason = rationale.strip()
+    if not 10 <= len(reason) <= 2000:
+        raise DecisionError("Record a task rationale between 10 and 2000 characters")
+    result = deepcopy(receipt)
+    task = next((item for item in result["tasks"] if item.get("id") == task_id), None)
+    if task is None:
+        raise DecisionError("Scripted task not found in this receipt")
+    target = "acknowledged" if operation == "acknowledge_task" else "closed"
+    if any(event["kind"] == target for event in task["events"]):
+        return result, False  # Retries never add another event or rewrite an actor.
+    expected = "prepared" if target == "acknowledged" else "acknowledged"
+    if task["state"] != expected:
+        raise DecisionError("Acknowledge the scripted task before closing it")
+    task["state"] = target
+    task["events"].append({"kind": target, "occurred_at": datetime.now(timezone.utc).isoformat(),
+                           "scripted": True, "actor_subject": actor, "rationale": reason})
+    return result, True

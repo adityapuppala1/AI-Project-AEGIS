@@ -192,3 +192,35 @@ def test_cap_export_cannot_disclose_other_agency_proposals(monkeypatch):
     response = client.get(f"/v1/exercise/proposals/{PROPOSAL_ID}/cap-draft")
     assert response.status_code == 404
     assert "Other agency" not in response.text
+
+
+@pytest.mark.parametrize("operation", ["prepare_tasks", "acknowledge_task", "close_task"])
+def test_checker_only_cannot_record_scripted_tasks(monkeypatch, operation):
+    authenticate("incident_checker")
+    monkeypatch.setattr(exercise_workflows, "transition", lambda *_: pytest.fail("Unauthorized task write"))
+    body = {"operation": operation, "rationale": "SIMULATION: task test"}
+    if operation != "prepare_tasks": body["task_id"] = "control_room"
+    assert client.post(f"/v1/exercise/proposals/{PROPOSAL_ID}/transition", json=body).status_code == 403
+
+
+def test_task_transition_uses_signed_identity_and_agency(monkeypatch):
+    authenticate("incident_operator", "verified-task-operator")
+    captured = []
+    monkeypatch.setattr(exercise_workflows, "transition", lambda *a, **k: captured.append((a, k)) or "approved")
+    assert client.post(f"/v1/exercise/proposals/{PROPOSAL_ID}/transition", json={
+        "operation": "acknowledge_task", "task_id": "control_room", "rationale": "SIMULATION: desk reviewed",
+    }).status_code == 200
+    args, kwargs = captured[0]
+    assert args[:4] == (PROPOSAL_ID, AGENCY_ID, "verified-task-operator", "acknowledge_task")
+    assert kwargs == {"task_id": "control_room"}
+
+
+@pytest.mark.parametrize("body", [{"operation": "acknowledge_task"},
+    {"operation": "acknowledge_task", "task_id": "unregistered"},
+    {"operation": "prepare_tasks", "task_id": "control_room"},
+    {"operation": "submit", "task_id": "control_room"},
+    {"operation": "close_task", "task_id": "control_room", "actor_subject": "forged"}])
+def test_task_payload_shape_is_strict(monkeypatch, body):
+    authenticate("incident_operator")
+    monkeypatch.setattr(exercise_workflows, "transition", lambda *_: pytest.fail("Unexpected store call"))
+    assert client.post(f"/v1/exercise/proposals/{PROPOSAL_ID}/transition", json=body).status_code == 422

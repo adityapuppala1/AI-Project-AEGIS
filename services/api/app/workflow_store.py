@@ -80,6 +80,7 @@ def transition(
     actor: str,
     operation: str,
     reason: str | None = None,
+    task_id: str | None = None,
 ) -> str:
     # Lock the proposal row to serialize concurrent checker decisions.
     with psycopg.connect(os.environ["DATABASE_URL"]) as conn:
@@ -99,20 +100,29 @@ def transition(
                 row["id"], row["incident_id"], row["maker_subject"],
                 Action(row["action_type"]), Status(row["status"]),
             )
-            if operation == "simulate":
-                from app.proposal_simulation import simulation_receipt
+            if operation in {"simulate", "prepare_tasks", "acknowledge_task", "close_task"}:
+                from app.proposal_simulation import simulation_receipt, prepare_task_receipt, advance_task
                 if current.status is not Status.APPROVED:
                     raise DecisionError("Independent approval is required before task simulation")
                 payload = row["proposal"]
-                if payload.get("simulation") is not None:
-                    return current.status.value
-                receipt = simulation_receipt(proposal_id, current.status.value, payload.get("response_draft"))
+                if operation in {"acknowledge_task", "close_task"}:
+                    receipt, changed = advance_task(payload.get("simulation"), task_id or "", operation, actor, reason or "")
+                    if not changed:
+                        return current.status.value
+                else:
+                    if payload.get("simulation") is not None:
+                        return current.status.value
+                    factory = prepare_task_receipt if operation == "prepare_tasks" else simulation_receipt
+                    receipt = factory(proposal_id, current.status.value, payload.get("response_draft"))
                 cur.execute(
                     "UPDATE action_proposals SET proposal=jsonb_set(proposal, '{simulation}', %s::jsonb), updated_at=NOW() WHERE id=%s",
                     (json.dumps(receipt), proposal_id),
                 )
-                _audit(cur, actor, "simulated_department_tasks", proposal_id,
-                       {"agency_id": str(agency_id), "exercise_only": True, "outbound_messages_sent": False})
+                audit_action = "simulated_department_tasks" if operation == "simulate" else operation
+                details = {"agency_id": str(agency_id), "exercise_only": True, "outbound_messages_sent": False}
+                if task_id is not None:
+                    details.update({"task_id": task_id, "rationale": (reason or "").strip(), "scripted": True})
+                _audit(cur, actor, audit_action, proposal_id, details)
                 return current.status.value
             if operation == "submit":
                 updated = submit(current, actor)

@@ -10,7 +10,7 @@ interface Incident { id: string; hazard_type: string; status: string }
 interface Proposal {
   id: string; incident_id: string; maker_subject: string;
   action_type: string; status: "draft" | "submitted" | "approved" | "rejected";
-  proposal: { rationale?: string; exercise_only?: boolean; response_draft?: { context_state: string; recommendation_draft: string[]; playbook: { version: string; synthetic_evidence_ids: string[] } }; simulation?: { tasks: { department: string; state: string }[] } };
+  proposal: { rationale?: string; exercise_only?: boolean; response_draft?: { context_state: string; recommendation_draft: string[]; playbook: { version: string; synthetic_evidence_ids: string[] } }; simulation?: { version?: string; tasks: { id?: string; department: string; state: string; events?: { kind: string; occurred_at: string; actor_subject?: string; rationale?: string }[] }[] } };
   created_at: string;
 }
 const actionTypes = [
@@ -89,13 +89,15 @@ export default function ApprovalWorkbench() {
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Unable to create proposal"); }
     finally { setBusy(false); }
   }
-  async function change(proposal: Proposal, operation: "submit" | "approve" | "reject" | "simulate") {
+  async function change(proposal: Proposal, operation: "submit" | "approve" | "reject" | "simulate" | "prepare_tasks" | "acknowledge_task" | "close_task", taskId?: string) {
     if (busy) return;
     setBusy(true); setError(""); setMessage("");
+    const reasonKey = taskId ? `${proposal.id}:${taskId}` : proposal.id;
     try {
-      await mutation(`/api/proposals/${proposal.id}/transition`, { operation, rationale: reviewReasons[proposal.id] || undefined });
-      setMessage(`Exercise proposal ${operation === "submit" ? "submitted" : operation === "approve" ? "approved" : "rejected"} successfully. No operational action was taken.`);
-      setReviewReasons(current => ({ ...current, [proposal.id]: "" }));
+      await mutation(`/api/proposals/${proposal.id}/transition`, { operation, rationale: reviewReasons[reasonKey] || undefined, ...(taskId ? { task_id: taskId } : {}) });
+      const label = { submit: "submitted", approve: "approved", reject: "rejected", simulate: "simulated", prepare_tasks: "prepared scripted tasks", acknowledge_task: "recorded scripted acknowledgement", close_task: "closed scripted task" }[operation];
+      setMessage(`Exercise: ${label}. No messages sent or operational action taken.`);
+      setReviewReasons(current => ({ ...current, [reasonKey]: "" }));
       await reload();
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Unable to transition proposal"); }
     finally { setBusy(false); }
@@ -180,12 +182,25 @@ export default function ApprovalWorkbench() {
                 <ul className="mt-2 list-disc pl-5">{proposal.proposal.response_draft.recommendation_draft.map(step => <li key={step}>{step}</li>)}</ul>
               </div>}
               {proposal.status === "approved" && canMake && proposal.proposal.response_draft && !proposal.proposal.simulation &&
-                <button type="button" className="control mt-3" disabled={busy} onClick={() => void change(proposal, "simulate")}>
-                  Simulate department tasks and scripted acknowledgements
+                <button type="button" className="control mt-3" disabled={busy} onClick={() => void change(proposal, "prepare_tasks")}>
+                  Prepare scripted department tasks
                 </button>}
               {proposal.proposal.simulation && <div className="mt-3 text-sm text-muted">
-                <p>Synthetic receipt only · no messages sent · acknowledgements scripted.</p>
-                <ul className="list-disc pl-5">{proposal.proposal.simulation.tasks.map(task => <li key={task.department}>{task.department}: {task.state}</li>)}</ul>
+                <p>Operator-recorded simulation only · no messages sent · no real department acknowledgements.</p>
+                <details className="mt-2"><summary className="cursor-pointer font-semibold">Scripted task progress</summary>
+                <ul className="mt-3 space-y-4">{proposal.proposal.simulation.tasks.map(task => <li key={task.department} className="rounded-xl border border-stroke p-3">
+                  <p className="font-semibold">{task.department}: {task.state}</p>
+                  <ol className="mt-2 text-xs">{task.events?.map(event => <li key={event.kind}>{event.kind} · {new Date(event.occurred_at).toLocaleString()}{event.actor_subject ? ` · ${event.actor_subject}` : ""}{event.rationale ? ` · ${event.rationale}` : ""}</li>)}</ol>
+                  {proposal.status === "approved" && canMake && task.id && task.state !== "closed" && proposal.proposal.simulation?.version === "aegis.proposal.simulation.v2" && <div className="mt-3">
+                    <label htmlFor={`task-${proposal.id}-${task.id}`} className="text-xs font-semibold">Scripted task rationale (required)</label>
+                    <textarea id={`task-${proposal.id}-${task.id}`} className="field mt-1 !h-20 resize-y py-2" maxLength={2000}
+                      value={reviewReasons[`${proposal.id}:${task.id}`] || ""} onChange={event => setReviewReasons(value => ({ ...value, [`${proposal.id}:${task.id}`]: event.target.value }))}/>
+                    <button type="button" className="control mt-2" disabled={busy || (reviewReasons[`${proposal.id}:${task.id}`] || "").trim().length < 10}
+                      onClick={() => void change(proposal, task.state === "prepared" ? "acknowledge_task" : "close_task", task.id)}>
+                      {task.state === "prepared" ? "Record scripted acknowledgement" : "Close scripted task"}
+                    </button>
+                  </div>}
+                </li>)}</ul></details>
               </div>}
               <a className="mt-3 inline-block text-sm underline" href={`/api/proposals/${proposal.id}/audit`} target="_blank" rel="noreferrer">Open private proposal audit JSON</a>
               {proposal.status === "approved" && proposal.action_type === "prepare_warning" && proposal.proposal.response_draft && <div className="mt-3 text-sm">

@@ -2,7 +2,7 @@
 import { NextResponse } from "next/server";
 import { configuration, readSession, sameOrigin, type Role } from "./auth-server";
 
-type Operation = "submit" | "approve" | "reject" | "simulate";
+type Operation = "submit" | "approve" | "reject" | "simulate" | "prepare_tasks" | "acknowledge_task" | "close_task";
 const ACTIONS = new Set(["internal_triage", "prepare_warning", "propose_dispatch"]);
 const UUID = /^[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12}$/i;
 
@@ -31,12 +31,18 @@ export async function proxyProposals(request: Request, proposalId?: string, expo
     const data = payload as Record<string, unknown>;
     if (proposalId) {
       const operation = data.operation;
-      if (!["submit", "approve", "reject", "simulate"].includes(String(operation))) return failure(400, "Unsupported workflow operation");
-      if (Object.keys(data).some((key) => !["operation", "rationale"].includes(key))) return failure(400, "Unexpected proposal attributes");
-      const role = (operation === "submit" || operation === "simulate") ? "incident_operator" : "incident_checker";
+      if (!["submit", "approve", "reject", "simulate", "prepare_tasks", "acknowledge_task", "close_task"].includes(String(operation))) return failure(400, "Unsupported workflow operation");
+      if (Object.keys(data).some((key) => !["operation", "rationale", "task_id"].includes(key))) return failure(400, "Unexpected proposal attributes");
+      const role = ["submit", "simulate", "prepare_tasks", "acknowledge_task", "close_task"].includes(String(operation)) ? "incident_operator" : "incident_checker";
       if (!hasRole(session.roles, role)) return failure(403, "Insufficient role");
       if (data.rationale !== undefined && (typeof data.rationale !== "string" || data.rationale.length > 2000)) return failure(400, "Invalid review rationale");
-      body = JSON.stringify({ operation: operation as Operation, rationale: data.rationale });
+      const taskOperation = operation === "acknowledge_task" || operation === "close_task";
+      if (taskOperation) {
+        if (!["control_room", "infrastructure", "communications"].includes(String(data.task_id)) ||
+            typeof data.rationale !== "string" || data.rationale.trim().length < 10)
+          return failure(400, "Task identifier and explanatory rationale required");
+      } else if (data.task_id !== undefined) return failure(400, "Unexpected task identifier");
+      body = JSON.stringify({ operation: operation as Operation, rationale: data.rationale, ...(taskOperation ? { task_id: data.task_id } : {}) });
     } else {
       if (!hasRole(session.roles, "incident_operator")) return failure(403, "Operator role required");
       if (Object.keys(data).some((key) => !["incident_id", "action_type", "rationale"].includes(key))) return failure(400, "Unexpected proposal attributes");

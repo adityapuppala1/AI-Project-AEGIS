@@ -75,3 +75,33 @@ test('disabled configuration, signed-out access and absent roles never fetch', a
     assert.equal(calls.length, 0);
   });
 });
+
+const writeRequest = body => new Request('http://localhost:3000/api/proposals/' + id + '/transition', {
+  method: 'POST', headers: { 'Content-Type': 'application/json', Origin: 'http://localhost:3000' }, body: JSON.stringify(body),
+});
+for (const operation of ['prepare_tasks', 'acknowledge_task', 'close_task']) {
+  test('operator task write ' + operation + ' forwards only validated fields', async () => {
+    const body = { operation, rationale: 'SIMULATION: desk reviewed', ...(operation === 'prepare_tasks' ? {} : { task_id: 'control_room' }) };
+    await withFetch(new Response('{}', { headers: { 'Content-Type': 'application/json' } }), async calls => {
+      const response = await loadProxy({ accessToken: 'unit-only-token', roles: ['incident_operator'] })(writeRequest(body), id);
+      assert.equal(response.status, 200);
+      assert.deepEqual(JSON.parse(calls[0].options.body), body);
+    });
+  });
+}
+
+test('checker-only task writes and forged/missing task fields never fetch', async () => {
+  await withFetch(null, async calls => {
+    const checker = loadProxy({ accessToken: 'unit-only-token', roles: ['incident_checker'] });
+    assert.equal((await checker(writeRequest({ operation: 'prepare_tasks' }), id)).status, 403);
+    const operator = loadProxy({ accessToken: 'unit-only-token', roles: ['incident_operator'] });
+    for (const body of [
+      { operation: 'acknowledge_task', rationale: 'SIMULATION: missing task' },
+      { operation: 'close_task', task_id: 'unregistered', rationale: 'SIMULATION: invalid task' },
+      { operation: 'close_task', task_id: 'control_room', rationale: 'short' },
+      { operation: 'prepare_tasks', task_id: 'control_room' },
+      { operation: 'acknowledge_task', task_id: 'control_room', rationale: 'SIMULATION: forged actor', actor_subject: 'forged' },
+    ]) assert.equal((await operator(writeRequest(body), id)).status, 400);
+    assert.equal(calls.length, 0);
+  });
+});
