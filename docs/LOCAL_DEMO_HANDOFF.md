@@ -20,12 +20,17 @@ Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 
 ## Latest continuation status
 
-Current application checkpoint: `cbb4d432ca19d3a04bd92c294fad778840e5e8d9` on
-`feat/aegis-local-demo-continuation`, imported on laptop and mirror. Operator
-UI/3D acceptance at `92f057c` is now fully recovered, including explicit WebGL
-failure and keyboard fallback. Opt-in tab draft recovery passed Windows TypeScript, all ten buffer tests,
-production build/start, targeted mobile recovery, 21 browser smoke checks and
-HTTP/checksum/refusal checks. Exact commands and limitations follow below.
+Current application source: `32016da`; test checkpoint
+`eb5b49eeae07a4087c47ee32afbabb1c92c7fb14`, imported on the laptop on
+`feat/aegis-local-demo-continuation`. Signed department inbox and scoped task
+acknowledgement/closure are implemented. Windows native API/model/TypeScript
+and 23 proxy tests passed. Production build/PostGIS/startup job PID **150860**
+was launched, but its completion output has not been recovered after the
+Desktop Commander connection stalled. Do not start another build until this
+job and its shared lease are inspected. Browser acceptance is not yet run.
+
+Previous UI/3D and opt-in tab recovery acceptance at `cbb4d43` remains recorded
+below. IdP/trust activation stays deferred by the owner.
 
 ## Current closure and remaining work
 
@@ -34,7 +39,8 @@ HTTP/checksum/refusal checks. Exact commands and limitations follow below.
 | Verified automated | Original synthetic observation/evidence/assessment/draft/approval-policy/task/audit chain; private CAP draft; recovery and anonymous/live-action boundaries |
 | Verified on laptop | Saved review focus, bounded explicit-step assistance, source comparison, local dependency diagnostics, page-memory draft recovery and bounded warm HTTP latency |
 | Verified on laptop | Synthetic department SLA v3: prior 321 API tests/model/type checks, production build/start, 13 PostGIS tests, HTTP, targeted v2/v3 browser fixtures and 21 browser smoke checks |
-| Pending engineering | Department-scoped authorization/inbox and reassignment; free-form grounded drafting/Q&A and usefulness evaluation |
+| Partial implementation | Signed department authorization/inbox: native/proxy checks passed; production/PostGIS/browser acceptance pending connection recovery |
+| Pending engineering | Auditable task reassignment; free-form grounded drafting/Q&A and usefulness evaluation |
 | Verified bounded recovery | Opt-in same-tab reload/navigation recovery; cross-device/server backup and guaranteed browser-restart recovery are outside this slice |
 | Deferred by owner | Local IdP/trust activation and real two-person MFA/browser approval acceptance; do not reactivate or bypass |
 | Pending human acceptance | Manual screen-reader/operator rehearsal and owner release review |
@@ -44,12 +50,12 @@ HTTP/checksum/refusal checks. Exact commands and limitations follow below.
 
 1. Before each operation inspect laptop Git state and the single-runtime guard;
    use the shared lease for custom jobs and preserve local changes.
-2. Next engineering slice: department-scoped authorization/inbox and auditable
-   reassignment in the existing proposal workflow. Identity authority must come
-   from verified OIDC claims across both API and BFF; test tokens do not establish
-   actual department participation.
-3. Implement durable draft recovery, then grounded drafting/Q&A and usefulness
-   evaluation within the existing workflow and bounded assistance design.
+2. Recover `.git/department-build.log` and PID 150860 before any new job. Finish
+   department inbox production/PostGIS/browser acceptance. Then implement
+   auditable reassignment with expected-assignment retry/race protection.
+3. Continue grounded drafting/Q&A and usefulness evaluation within the existing
+   bounded assistance design. Opt-in tab draft recovery is already verified;
+   server/cross-device backup is outside that delivered slice.
 4. Keep owner-deferred identity and manual acceptance gates explicit. Automated
    fixtures cannot close these gates or establish real forecasting accuracy.
 
@@ -1245,3 +1251,48 @@ recovery. Remaining engineering is department authority/inbox/reassignment and
 free-form grounded assistance/usefulness evaluation. Human identity/accessibility
 and owner acceptance remain deferred; no CI/push, paid model, trust activation,
 real forecast claim or live action occurred.
+
+
+## Signed department inbox — 17 October continuation
+
+Source `32016da`; additional BFF-scope/PostGIS tests
+`eb5b49eeae07a4087c47ee32afbabb1c92c7fb14`. Both imported on laptop by guarded
+clean fast-forwards using local Git bundles; no push or hosted CI.
+
+Implemented `/department-tasks`, strict BFF, signed `department_operator` and
+`aegis_department_id` claims, approved-only same-agency task query, fixed task-ID
+ownership, audited department/coordinator authority and existing row-locked
+acknowledgement/closure. No reassignment or IdP activation. See
+[scope and limits](DEPARTMENT_INBOX.md).
+
+Executed on Windows:
+- `scripts/check-local-runtime.ps1 -RequireRunning`: PASS (PID 141860), one
+  canonical API/web/db and no conflicting managed job.
+- `.git/department-check.ps1`, PID **162928**, exit **0**, 23.16 seconds;
+  transcript `.git/department-check.log`.
+- `scripts/verify-code-local.ps1 -Suite all`: **337 passed, 13 skipped**, one
+  existing Starlette/httpx deprecation warning. Skips are opt-in DB tests.
+  `python -m app.model_lab --check` PASS; `npm run typecheck` PASS.
+- `node --test scripts/tests/department-proxy.test.cjs scripts/tests/proposal-proxy.test.cjs`:
+  **23 passed**, zero failures.
+
+Started but **not yet verified**:
+- `.git/department-build.ps1`, PID **150860**, transcript
+  `.git/department-build.log`. Imported `eb5b49e`, then started shared lease
+  `department-build-integration`. Sequence: six BFF-scope tests, production
+  `docker compose --project-name ai-project-aegis build api web`, retained
+  `aegis_verification_57878ac` PostGIS tests, then
+  `scripts/start-windows.ps1 -NoBuild -LocalCopilot`. Final result unknown.
+- Browser fixture script write `.git/browser-qa/department-inbox.cjs` returned
+  pending call `64d4bcd0-db24-4ad7-9097-2c1acb254cd3`; confirm completion before
+  using it. Tests cover inactive IdP, mobile acknowledgement/closure, explicit
+  writes without department override, rationale clearing, access-loss clearing
+  and overflow/errors. Not executed yet.
+- Remote output retrieval functions cell `695` and history request
+  `a2504657-9052-497d-b0e5-cd4ffb986278` were still pending during the interruption.
+  Check existing process/lease/log rather than repeating side effects.
+
+Remaining acceptance: successful build/start output, all retained DB tests
+(including new department isolation/concurrent retry audit), targeted browser,
+21 smoke/axe checks, HTTP/refusal/checksum, final single-runtime and Git status.
+Do not equate unit fixtures with real department sign-in or human acceptance.

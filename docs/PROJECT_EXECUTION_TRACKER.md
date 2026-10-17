@@ -465,3 +465,14 @@ reload/isolation tests, 21 browser smoke checks and HTTP/checksum/refusals.
 One API/web/database remains running. See handoff for exact commands/transcripts
 and tab-only retention limits; department permissions, grounded free-form AI
 and human acceptance remain pending.
+
+
+### Department inbox — implemented; runtime acceptance pending
+
+`32016da` / `eb5b49e` add signed department scope across API/BFF, a private
+approved-only inbox and audited task acknowledgement/closure. Laptop native
+337 tests, synthetic model check, TypeScript and 23 proxy tests passed.
+Build/PostGIS/startup PID 150860 was launched; its result is not yet recovered
+from Desktop Commander. Targeted browser acceptance has not run. See the
+handoff for transcripts and pending calls before restarting work. Reassignment,
+grounded free-form assistance and deferred human acceptance remain open.
