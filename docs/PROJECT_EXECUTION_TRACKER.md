@@ -404,3 +404,13 @@ context revalidation, cancellation and a hard human-review stop. Windows passed
 308 API, 37 Node and 13 PostGIS tests, production builds/startup, HTTP and the
 targeted mobile workflow. One API/web/DB remained. No autonomous background
 worker, submission, approval, task acknowledgement or live action was added.
+
+### Explicit source comparison closed — 17 October 2026
+
+`272d029` adds opt-in group/window/tolerance metadata and deterministic cited
+agreement diagnostics. Windows final gates: 318 API tests (13 DB skips), model
+check, TypeScript, 37 Node tests, production images/startup, 13 real PostGIS
+tests, doctor/migration audit, HTTP/checksum and 21 browser smoke checks. The
+retained main sample correctly produced `not_comparable`; isolated PostGIS
+proved `agreement`. See the current handoff for retained failures and commands.
+No real-world prediction or operational authority is claimed.

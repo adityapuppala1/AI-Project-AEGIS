@@ -5,8 +5,9 @@ and [single-instance local operation guards](SINGLE_INSTANCE_LOCAL_RUNTIME.md)
 passed laptop acceptance: 299 native tests, 31 proxy tests, seven PostGIS tests,
 production builds, guarded startup and HTTP/browser checks. Deterministic context
 only at that checkpoint. [Optional saved review focus](SAVED_REVIEW_FOCUS.md)
-is implemented in the next slice; a bounded explicit-step durable run is also
-accepted locally. Broader free-form assistance remains pending. Exact source,
+is implemented in the next slice; a bounded explicit-step durable run and
+explicit synthetic source comparison are also accepted locally. Broader
+free-form assistance and deeper dependency diagnostics remain pending. Exact source,
 commands and the retained startup failure/fix are in [the handoff](LOCAL_DEMO_HANDOFF.md).
 
 Planned 17 October 2026 on `feat/aegis-local-demo-continuation`, after inspecting
@@ -162,6 +163,16 @@ skips), 17 Node route/proxy tests, six real PostGIS tests, production builds,
 targeted stage-failure/recovery/mobile browser checks, browser smoke/axe and
 HTTP passed on Windows. This closes stage feedback, not agreement inference
 or complete dependency monitoring. IdP/human acceptance remains deferred.
+
+## Implementation update — explicit source comparison
+
+`272d029` closes the earlier agreement-inference gap with opt-in source group,
+unit, time-window and tolerance metadata. The deterministic checklist reports
+agreement, disagreement or not comparable and cites only eligible current,
+curated synthetic sources. It never infers comparability from proximity.
+Windows native, real PostGIS, production build, HTTP/checksum and browser gates
+passed as recorded in the handoff. This is a review diagnostic, not confidence,
+forecast accuracy, independent corroboration or operational authority.
 
 ## Implementation update — bounded unsaved workbench text
 

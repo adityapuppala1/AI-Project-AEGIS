@@ -41,7 +41,7 @@ saved-focus browser fixtures (PID 143308 exit 0). Exact evidence is below.
 | Closed connection blocker | Corrective laptop import and acceptance completed at `5c9bc0e` (application `6611465`); one API/web/DB, no detected conflicting AEGIS job |
 | Deferred by owner | Local IdP/trust activation and real two-person MFA/browser approval acceptance; do not reactivate or bypass |
 | Pending human acceptance | Manual screen-reader/operator rehearsal and owner release review |
-| Pending engineering | Source agreement metadata/rules, deeper dependency diagnostics, free-form grounded drafting/Q&A, durable bounded agent runner, department-owned task permissions/SLAs and durable draft recovery |
+| Pending engineering | Deeper dependency diagnostics, free-form grounded drafting/Q&A and usefulness evaluation, department-owned task permissions/SLAs and durable draft recovery |
 | Needs external validation | Authorized historical datasets/domain evaluation before real forecast claims or operational integrations; synthetic software tests do not establish these |
 
 ## Current implementation
@@ -908,8 +908,8 @@ browser; no deployed auth bypass or actual two-human acceptance is implied.
 Log `.git/saved-focus-panel.log`. Final inventory and clean expected source
 checks passed. Final docs are synced via a guarded local bundle.
 
-Current remaining work: free-form grounded assistance and usefulness evaluation, source comparison/dependency
-metadata, department permissions/SLAs, durable note recovery and human acceptance.
+Current remaining work: free-form grounded assistance and usefulness evaluation, deeper dependency
+diagnostics, department permissions/SLAs, durable note recovery and human acceptance.
 Saved-selection capture and its laptop automated acceptance are now closed.
 IdP activation and trust remain deferred by owner; no forecast validation claim.
 
@@ -968,3 +968,44 @@ progress `PASS`. No database reset, CI/push/merge, IdP/trust change, model
 download, paid service or real operation. This closes the bounded durable
 explicit-step runner slice. It does not add a background worker, free-form
 model loop, semantic evaluation, human identity acceptance or prediction.
+
+## Explicit source comparison accepted locally — 17 October 2026
+
+Application source `272d029ccb0325d0743ebe174761286870eae24b` on branch
+`feat/aegis-local-demo-continuation` adds explicit comparison group/window/
+tolerance metadata, a second fictional rain gauge, deterministic
+`agreement`/`disagreement`/`not_comparable` output with cited source UUIDs,
+context-v2 UI rendering and a stable Audit360 checksum across Python/JavaScript
+numeric round trips. Agreement remains a synthetic threshold result, not
+corroboration, accuracy, hazard prediction or authority to act.
+
+Laptop acceptance used the shared single-operation lease throughout:
+
+- Initial native run retained: **3 failed, 314 passed, 13 skipped**; it caught
+  a retired assertion and incomplete spatial mocks. Corrected final run:
+  `scripts/verify-code-local.ps1 -Suite all`, **318 passed, 13 skipped**,
+  reproducible synthetic model check and TypeScript PASS.
+- Additive migration 010 and idempotent seeds ran against retained volumes;
+  no reset. Production API/web build and guarded startup passed. Doctor and
+  migration audit both reported ready; main fixtures: 5 sources and 38 samples.
+- Four Node suites passed **37 tests**. Retained verification PostGIS suite:
+  **13 passed** and proves the explicit rainfall pair `agreement` path with
+  exact source citations. An initial retry command expanded its shell variable
+  incorrectly and failed all 13 before database connections; the corrected
+  command passed and the failure is not relabelled.
+- HTTP routes, private refusals, blocked live warning and Audit360 checksum
+  passed. The first HTTP run exposed the `5.0`/`5` checksum instability; the
+  canonical-number fix was added and the final run passed.
+- The retained main A1 reading had naturally aged, so runtime truthfully returned
+  `not_comparable`; the group remained visible and no reading was refreshed to
+  manufacture agreement. Full desktop/mobile/keyboard browser smoke passed 21
+  checks with zero page errors or sampled axe violations.
+- Final inventory: exactly one API, web and database container, no detected
+  conflicting managed job. Laptop and mirror application HEAD matched at
+  `272d029`; no push, CI, IdP/trust activation, volume reset, paid service,
+  live action or forecast claim occurred.
+
+This closes explicit source comparison. Pending work is deeper dependency
+diagnostics, free-form grounded assistance and usefulness evaluation,
+department-owned permissions/SLAs, durable draft-note recovery, and manual
+two-human/accessibility/operator acceptance. The owner-deferred IdP remains off.

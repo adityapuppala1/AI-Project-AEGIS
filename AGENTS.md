@@ -21,3 +21,5 @@
 - Opt-in saved review focus must be generated server-side from the captured draft, revalidated before insert, and committed with its creation audit. Never accept client-supplied model text or silently replace saved selections. Public previews remain read-only. See docs/SAVED_REVIEW_FOCUS.md.
 
 - Bounded assistance runs stay proposal-linked, maker-only and draft-only. Preserve the fixed step/tool budget, expected-step retry protection, context revalidation, cancellation audit and hard stop before submission. See docs/BOUNDED_ASSISTANCE_RUN.md.
+
+- Source comparison is opt-in through explicit group, unit, window and tolerance metadata. Never infer compatibility from proximity or labels; stale, uncurated, incomplete or conflicting inputs must fail closed or report `not_comparable`. Agreement is not corroboration, accuracy or prediction. See docs/SOURCE_COMPARISON_DIAGNOSTICS.md.
