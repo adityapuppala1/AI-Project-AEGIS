@@ -20,7 +20,8 @@ messages, warning issuance, deployment or CI are part of this runbook.
    are reproducible synthetic holdout measurements only.
 4. Open `/approvals`. Show that unconfigured identity fails closed. Explain
    the implemented captured-draft → independent-checker → scripted receipt
-   workflow, citing test evidence, **without presenting it as a completed
+   workflow, citing test evidence, **mention the approved-only local CAP XML draft download (also locked here),
+   without presenting it as a completed
    two-human browser demonstration**. Do not fabricate a session or approval.
 5. Open `/agency-sync` and `/audit`: these are separate seeded examples.
    Export the public JSON/checksum. Private decisions and proposal receipts

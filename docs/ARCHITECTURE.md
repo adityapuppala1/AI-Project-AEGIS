@@ -82,3 +82,14 @@ runtime excludes the full development installation (including Tailwind/braces).
 This changes packaging, not the API, data model or approval boundaries. The
 optional local IdP override remains review-only until owner activation/trust
 approval and does not replace default locked authentication behavior.
+
+
+## Private exercise CAP artifacts
+
+Existing signed-agency proposal audit supplies a consistent captured snapshot
+for a stdlib XML serializer. Only approved warning-preparation proposals with
+independent checker decisions and synthetic citations can export. The existing
+BFF proxies attachment bytes with no-store/nosniff headers; server-side tokens
+remain absent from browser JavaScript. CAP Draft/Private fields and fictional
+addresses are fixed, not user-selectable. This adds no transport, DB table,
+public feed, operational warning or IdP activation. See CAP_EXERCISE_DRAFTS.md.

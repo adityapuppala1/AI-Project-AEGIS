@@ -266,3 +266,15 @@ See current handoff for commands and limits. Owner decision: **keep IdP inactive
 activation/trust and real two-human acceptance are deferred. The release audit
 now explicitly lists unfinished broader original-roadmap capabilities; the
 manual local rehearsal checklist is prepared, not marked executed.
+
+
+### Exercise CAP draft slice
+
+`d3f1ed7` adds approved-only private CAP XML downloads through the existing
+signed-agency workflow/BFF, preserving captured citations and independent
+approval. Native Windows/Linux: 239 API tests (four DB skips), model check;
+four real PostGIS tests and five isolated Node proxy tests passed. Windows
+production rebuild, sampled browser/axe and HTTP/checksum passed. Packaged
+CAP 1.2 XSD checks passed on Windows .NET and Linux lxml. Actual IdP/human
+acceptance remains deferred; no transport, trust change or DB migration added.
+See current handoff for exact commands, source and limits.

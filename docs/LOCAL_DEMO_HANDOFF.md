@@ -2,6 +2,8 @@
 
 Updated: 17 October 2026 (IST). Repository: `adityapuppala1/AI-Project-AEGIS`.
 Branch: `feat/aegis-local-demo-continuation`; integration baseline `b71172c`.
+Latest tested API/contract source: `d3f1ed715fff7d01492b38220b1b903895b6ed2c`;
+production web application source: `4e6d4cf` (later proxy tests are test-only).
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
@@ -12,6 +14,8 @@ Accepted replay observations attach idempotently to synthetic case evidence and
 chronology, preserving provenance/quality/timestamps. Drafts capture assessment,
 playbook and citations. Signed agency/role checks and independent maker-checker
 approval gate a private scripted task/acknowledgement receipt and audit.
+Approved warning-preparation proposals also support private exercise CAP XML
+downloads; see [CAP artifact scope](CAP_EXERCISE_DRAFTS.md). No message transport.
 Public AgencySync/Audit360 screens remain separate seeded examples; use the
 proposal's authenticated audit link for its actual rehearsal history.
 
@@ -27,7 +31,7 @@ a subsequent documentation-only commit records the results below.
 
 | Gate | Executed evidence |
 |---|---|
-| Latest API/model | Windows and Linux: `python -m pytest -q` **220 passed, 4 skipped**; `python -m app.model_lab --check` PASS. One upstream Starlette/httpx deprecation warning |
+| Latest API/model | Windows and Linux: `python -m pytest -q` **239 passed, 4 skipped**; `python -m app.model_lab --check` PASS. One upstream Starlette/httpx deprecation warning |
 | Real database | Latest laptop run: **4 integration tests passed**, separate `aegis_verification_57878ac` DB, including a concurrent checker/audit regression |
 | Latest frontend in Linux | `npm install --ignore-scripts --no-audit --no-fund`, `npm run typecheck`, `npm run build`: PASS on Tailwind 4.3.3; full `npm audit --json`: **zero vulnerabilities**, no suppression |
 | Latest Windows dependency/type check | `npm.cmd ci --no-audit --no-fund` and `npm.cmd run typecheck`: PASS; `npm.cmd audit --json`: **zero vulnerabilities including development dependencies**, no suppression |
@@ -156,3 +160,46 @@ The owner explicitly chose **keep IdP inactive**. No provider, root trust,
 credentials, live connection, push, merge, CI or destructive reset was enabled.
 The broader original roadmap remains partial; its current missing capabilities
 are listed in the release audit, with a concrete manual rehearsal checklist.
+
+
+## Approved-only CAP exercise draft — 17 October 2026
+
+Implemented in `3b489bd`, anonymous smoke in `4e6d4cf`, five isolated proxy tests
+in `9337c84`; latest API contract source `d3f1ed715fff7d01492b38220b1b903895b6ed2c`.
+A signed-agency approved `prepare_warning` proposal with a recorded independent
+checker decision and captured synthetic citations can download private CAP XML.
+The artifact is `Draft`/`Private`, explicitly fictional/never-transmit, has
+unknown urgency/severity/certainty, and contains no validated flood geometry.
+No send capability, IdP activation, trust change, dependency or DB migration.
+See [scope and validation](CAP_EXERCISE_DRAFTS.md).
+
+Actual verification:
+- Windows `scripts/verify-code-local.ps1 -Suite all`: **239 passed, 4 skipped**,
+  model reproduction and frontend typecheck PASS. Initial full production web
+  and API rebuild via `docker compose up --build -d api web`: PASS.
+- Windows and Linux four real PostGIS tests: **4 passed**. Existing chain now
+  includes denied premature export, separate TEST-key checker approval,
+  same-agency XML reads, anonymous/cross-agency denials, stable bytes before/
+  after task simulation, and unchanged decision/audit event counts after reads.
+- Windows and Linux `cd apps/web; node --test scripts/tests/proposal-proxy.test.cjs`:
+  **5 passed**. Test-only auth/fetch substitution never enables deployed sessions.
+- XML fixture validated against the packaged CAP 1.2 XSD on Linux (lxml) and
+  Windows (.NET), both with network/entity resolution disabled. Reference
+  provenance/hash and limits are documented in CAP_EXERCISE_DRAFTS.md. The
+  initial schema check caught UTC `Z` formatting; CAP offset form corrected it.
+- Windows browser smoke: **21 passed**, zero page errors and sampled axe
+  violations. No actual signed-in CAP download browser session was fabricated;
+  real IdP/two-human acceptance remains deferred by owner decision.
+- After OpenAPI XML declaration follow-up: native targeted CAP/workflow suite
+  **30 passed**; API rebuilt and running `/openapi.json` advertises XML, not JSON,
+  for successful CAP export. HTTP/checksum smoke reran successfully, including
+  **503** for both anonymous API/BFF CAP paths and **403** for live warning.
+- Linux latest API suite: **239 passed, 4 skipped**, model reproduction PASS.
+  One upstream Starlette/httpx warning remains. A targeted Windows follow-up was
+  initially invoked from the wrong working directory, then reran correctly from
+  services/api and passed; no failed command is treated as acceptance evidence.
+
+Laptop logs: `.git/cap-{native,build,browser,http}.log`, `.git/cap-progress.txt`,
+`.git/cap-schema-result.txt`, `.git/cap-contract-{tests,build,http}.log` and
+`.git/cap-contract-result.txt`. Four DB tests used only the designated laptop
+`aegis_verification_57878ac` database. Existing app DB retained, no volume reset.

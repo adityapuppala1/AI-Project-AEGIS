@@ -17,7 +17,7 @@ screen-reader/accessibility review and owner release gates remain uncleared. No 
 ## Remaining from the broader original roadmap
 
 The synthetic demo is a bounded subset of the original plan. This scan found
-no CAP message serializer, database row-level security policies, production
+no operational CAP transport, database row-level security policies, production
 source adapters/broker, live model drift/rollback pipeline or independently
 operated department task sessions. They must not be called implemented merely
 because similarly named demo pages exist.
@@ -31,7 +31,7 @@ because similarly named demo pages exist.
 | Licensed hazard footprints and infrastructure exposure | Current spatial results are synthetic point/proximity candidates; official layers, licensing and exposure validation absent |
 | Scientific forecasts, drift and controlled model rollout | Reproducible offline synthetic evaluation only; requires authorized real labels, independent validation and deployment governance |
 | Approved SOP retrieval, persisted policy editing/rollout | Illustrative URB references and immutable exercise-policy preview only; authority and policy lifecycle remain future work |
-| Department-owned task states, SLAs, CAP-format drafts, 3D/multi-session simulation | Current approved proposal receipts are explicitly scripted; richer workflow and CAP draft support remain unimplemented roadmap items |
+| Department-owned task states, SLAs, 3D/multi-session simulation | Current approved proposal receipts are explicitly scripted; richer workflow remains unimplemented. Approved-only private CAP draft XML is now implemented and tested, with no live transport or agency-profile certification |
 | Tamper-evident/attested audit and production resilience | Current public checksum is unsigned; private audit uses authoritative DB records. No legal attestation or production-capacity certification |
 
 The scan and new audit-race regression are recorded in the current handoff.
@@ -213,3 +213,8 @@ map checks, five registry/reduced-motion checks, sampled light/dark axe, HTTP/
 audit checksum and bounded latency all passed. This supersedes earlier open npm
 advisory counts above. The local IdP remains inactive; actual two-human MFA,
 manual accessibility and owner release acceptance remain open.
+
+
+Exercise CAP follow-up: [CAP_EXERCISE_DRAFTS.md](CAP_EXERCISE_DRAFTS.md) records
+the approved-only private XML artifact, schema/proxy/real PostGIS checks and
+limits. IdP stays inactive; actual signed-in human browser acceptance is deferred.

@@ -5,12 +5,15 @@
 1. Dependency/runtime hardening is complete for this local scope: Tailwind 4,
    full npm audit zero on Windows/Linux, non-root standalone image, and laptop
    browser/HTTP regression passed. Retain the executed evidence in the handoff.
-2. Deferred by the owner: [local IdP activation and certificate trust](LOCAL_IDP_REVIEW.md). If that decision changes,
+2. Exercise CAP XML draft export is implemented behind existing independent
+   approval and agency checks; see [CAP draft scope and validation](CAP_EXERCISE_DRAFTS.md).
+   No live send or operational/profile certification is enabled.
+3. Deferred by the owner: [local IdP activation and certificate trust](LOCAL_IDP_REVIEW.md). If that decision changes,
    verify realm import, PKCE login, MFA and independent maker/checker identities.
-3. With two different people, rehearse evidence-cited draft → independent
+4. With two different people, rehearse evidence-cited draft → independent
    decision → private scripted tasks/acknowledgements → audit; verify denial
    cases and record results without credentials/tokens.
-4. Perform manual screen-reader/operator acceptance and owner release review.
+5. Perform manual screen-reader/operator acceptance and owner release review.
 
 Windows startup, backed-up existing-volume migration, native API/frontend,
 separate PostGIS integration, replay idempotency, automated browser/map QA,

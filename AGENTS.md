@@ -9,3 +9,5 @@
 - Keep docs/LOCAL_DEMO_HANDOFF.md current with commands, results, branch, SHA, and completed/partial/pending/blocked work. Mark verified only after execution; distinguish Linux runner results from the Windows laptop.
 
 - Current status is docs/LOCAL_DEMO_HANDOFF.md; older executed evidence is preserved in docs/LOCAL_DEMO_VERIFICATION_HISTORY.md. Historical feature-branch commands are not startup instructions for the continuation checkout.
+
+- For proposal proxy changes run `cd apps/web; node --test scripts/tests/proposal-proxy.test.cjs`. These isolated test sessions must never become production auth overrides.
