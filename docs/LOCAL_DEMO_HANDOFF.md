@@ -18,6 +18,15 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Latest continuation status
+
+Saved-focus source `6611465` follows `afd443f`. Laptop import of `afd443f`
+succeeded, but the subsequent verification driver write/start timed out. Its
+execution is unconfirmed. Do not start another laptop batch until inspecting
+`.git/saved-focus-progress.txt`, existing processes and the shared operation lock.
+The corrected `6611465` is currently Linux-only; laptop sync/acceptance is pending.
+See the final section for executed Linux checks and the retained regression.
+
 ## Current closure and remaining work
 
 | Status | Scope |
@@ -25,8 +34,10 @@ Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 | Verified automated | Original synthetic observation/evidence/assessment/draft/approval-policy/task/audit chain; private CAP draft; recovery and anonymous/live-action boundaries |
 | Verified workbench | Page-memory rationale recovery by incident/action, failed refresh/save retention, success clearing, identity/agency/access-loss clearing; explicit session-retry state |
 | Previously verified on laptop | Opt-in local-model selection preview with original citations and safe fallbacks |
-| Closed this pass | Laptop saved-context revalidation acceptance; single-operation lock, duplicate inventory/refusal checks, guarded startup, production builds and final DB/HTTP/browser regression |
+| Previously closed | Laptop saved-context revalidation acceptance; single-operation lock, duplicate inventory/refusal checks, guarded startup, production builds and final DB/HTTP/browser regression |
 | Verified with revised measurement | Local warm HTTP latency v2 at four workers; client setup excluded and thresholds unchanged; previous v1 failures retained below |
+| Verified this pass on Linux | Optional saved review focus: 300 API tests, 32 Node tests, 10 PostGIS tests, production API/web images and HTTP checks; actual model inference and browser interaction not rerun |
+| Blocked on laptop | Corrective source sync and saved-focus acceptance after Desktop Commander timeouts; last confirmed checkout is `afd443f`, not corrected `6611465` |
 | Deferred by owner | Local IdP/trust activation and real two-person MFA/browser approval acceptance; do not reactivate or bypass |
 | Pending human acceptance | Manual screen-reader/operator rehearsal and owner release review |
 | Pending engineering | Source agreement metadata/rules, deeper dependency diagnostics, free-form grounded drafting/Q&A, durable bounded agent runner, department-owned task permissions/SLAs and durable draft recovery |
@@ -776,3 +787,68 @@ Opt-in server-generated review focus is being attached atomically to new drafts
 and their creation audits; see [scope](SAVED_REVIEW_FOCUS.md). Default creation
 and public read-only preview remain unchanged. Verification pending; do not
 mark this slice accepted until laptop tests/build/database checks run.
+
+### Saved-focus verification and connection interruption
+
+Application source: `6611465f67a5d1d8e2b467f6ea1b4bef8d44570c`.
+Actual laptop guarded import process 46360 exited 0 at `afd443f`, with clean
+expected branch and exactly one API/web/database. The subsequent driver write
+(call `502a1526-323a-44cd-a7c5-1fd802a2bcef`) failed with no-device-response
+timeout; its start request also timed out. A read of its progress file (call
+`38fdff8b-5a63-4e1a-97c6-1ab8b27bcb3e`) likewise timed out. No Windows test,
+build, runtime replacement or final source sync is confirmed for this slice.
+Inspect pending/finished processes and `.git/saved-focus-progress.txt` before
+starting another batch. Do not rebuild the laptop's `afd443f` source: import
+corrected source first. Previous runtime acceptance is historical.
+
+After the laptop-first attempt failed, actual Linux checks:
+
+- From `services/api`, `/workspace/scratch/aegis-venv/bin/python -m pytest -q`:
+  initial source `afd443f` had **4 failures**, caused by a creation-only option
+  accidentally referenced in the transition handler. Fixed in `6611465`;
+  rerun **300 passed, 10 skipped**, one existing Starlette/httpx warning.
+  A retry from repository root failed collection (`app` not importable);
+  the passing rerun used the documented API working directory.
+- From `apps/web`, `npm run typecheck` and
+  `node --test scripts/tests/exercise-draft-buffer.test.cjs scripts/tests/proposal-proxy.test.cjs scripts/tests/context-route.test.cjs scripts/tests/review-focus-route.test.cjs`:
+  PASS, **32 Node tests**. Strict boolean opt-in and forged-content refusal
+  are covered; signed sessions remain test-loader-only fixtures.
+- `AEGIS_BUILD_CA_FILE=/etc/ssl/certs/ca-certificates.crt docker compose -f compose.yaml -f compose.proxy-ca.yaml build api web`:
+  API image passed. Web compilation/typecheck/static generation passed, but
+  final image packaging failed **no space left on device**. Not a passed build.
+  `docker builder prune --force --keep-storage 512MB` removed unused build
+  cache only (1.312 GB reported, free filesystem space rose to 3.8 GB).
+  No database volume, container or source reset. Web build retry is separate.
+
+The prepared corrective bundle `/workspace/scratch/aegis-saved-focus-fix.bundle`
+was verified locally; it requires laptop `afd443f`. Transfer/import is pending,
+not a push. Latest docs will be included in a final local bundle. No IdP/trust,
+model runtime, real warning/dispatch, paid service, GitHub Actions or main merge.
+
+Final Linux acceptance on application `6611465`:
+
+- `AEGIS_BUILD_CA_FILE=/etc/ssl/certs/ca-certificates.crt docker compose -f compose.yaml -f compose.proxy-ca.yaml build web` retry:
+  PASS including production image packaging; no TLS bypass. Existing benign
+  Tailwind module-type warning remains. Log `.git/saved-focus-linux-build-retry.log`.
+- `docker compose run --rm --no-deps -T -v "$PWD/services/api/integration_tests:/integration_tests:ro" api sh -c 'export AEGIS_TEST_DATABASE_URL=${DATABASE_URL%/aegis}/aegis_verify_audit_20261017; python -m pytest -q -p no:cacheprovider /integration_tests'`:
+  **10 passed, 3.71 s**, one existing warning. Includes captured selector and
+  disabled fallback preservation, attribution, independent-review/self-review
+  policy, changed-input refusal with no draft/audit insert, and prior real DB
+  regression cases. New cases are append-only labelled synthetic fixtures.
+  The selector is stubbed in the persistence test; no new real-inference claim.
+- `docker compose up --no-deps -d api web`: PASS, replaces existing mirror
+  services only. `/workspace/scratch/aegis-venv/bin/python scripts/verify-local-http.py`:
+  PASS, public routes/checksum and private/live-action refusals. Logs
+  `.git/saved-focus-linux-postgis.log`, `.git/saved-focus-linux-http.log`.
+- `docker compose ps --services --status running`: api/db/web, one each.
+  No new service or second stack. `git diff --check`: PASS.
+
+Completed: implementation and Linux automated acceptance of captured selections.
+Partial: broader grounded copilot (selection only, no free-form advice).
+Pending: targeted signed-in browser fixture interaction for the new checkbox
+and captured panel, durable runs/retries/cancel, semantic usefulness evaluation,
+source comparison, department permissions, durable note recovery, human review.
+Blocked: laptop corrective sync/build/tests due connector response failures.
+Deferred by owner: IdP/CA trust activation and real two-person sign-in. Forecasting
+requires authorized real data and domain evaluation. Do not describe this slice
+or its test counts as completion of the whole assistance roadmap.

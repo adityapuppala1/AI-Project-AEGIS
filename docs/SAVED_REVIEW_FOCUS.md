@@ -28,3 +28,9 @@ No claims of model usefulness or forecast accuracy follow from persistence tests
 
 Validation status and exact commands are in LOCAL_DEMO_HANDOFF.md. Human IdP
 activation/two-person browser acceptance remain deferred by owner decision.
+
+Context revalidation is optimistic across the existing readers, not a global
+transactional ingestion barrier. Its bounded evidence/source/asset scope and
+freshness-class behavior are documented in PROPOSAL_CONTEXT_REVALIDATION.md.
+The model call holds a database connection but does not hold a proposal row
+lock; sustained concurrent creation/load acceptance remains pending.

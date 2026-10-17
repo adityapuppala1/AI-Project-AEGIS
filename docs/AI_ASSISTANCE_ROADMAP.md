@@ -4,7 +4,9 @@ Current extensions: [saved proposal-context revalidation](PROPOSAL_CONTEXT_REVAL
 and [single-instance local operation guards](SINGLE_INSTANCE_LOCAL_RUNTIME.md)
 passed laptop acceptance: 299 native tests, 31 proxy tests, seven PostGIS tests,
 production builds, guarded startup and HTTP/browser checks. Deterministic context
-only; model preview capture and the durable runner remain pending. Exact source,
+only at that checkpoint. [Optional saved review focus](SAVED_REVIEW_FOCUS.md)
+is implemented in the next slice; environment-specific acceptance is in the handoff.
+The durable runner remains pending. Exact source,
 commands and the retained startup failure/fix are in [the handoff](LOCAL_DEMO_HANDOFF.md).
 
 Planned 17 October 2026 on `feat/aegis-local-demo-continuation`, after inspecting
@@ -199,3 +201,14 @@ checks and public browser/HTTP. No proposal writes. The optional local override
 is active on the laptop; base Compose remains disabled. This closes the local
 provider/selection/fallback integration slice, not semantic quality evaluation,
 free-form drafting, durable execution or actual human approval acceptance.
+
+## Implementation update — captured selection
+
+`6611465` adds opt-in server-generated review focus to new proposal snapshots
+and creation audits. Checked citations, model/fallback classification and input
+fingerprint persist through independent review; changed inputs during selection
+refuse creation. Linux: 300 API tests, 32 Node tests, 10 real PostGIS tests,
+production images and HTTP passed. Laptop corrective sync/acceptance is blocked
+by remote timeouts; targeted browser interaction remains pending. This closes
+Linux persistence checks for the bounded selection slice, not the durable runner,
+free-form copilot, real human sign-in or prediction programme.

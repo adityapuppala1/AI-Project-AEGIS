@@ -39,6 +39,8 @@ A [cited template review brief](docs/CITED_REVIEW_BRIEF.md) summarizes checked
 records and review options; new proposals preserve it for checker review.
 An optional [local model review focus](docs/LOCAL_REVIEW_FOCUS.md) selects existing
 review items on demand; base startup uses a labelled template fallback.
+Operators can opt in to [save a selection with a draft](docs/SAVED_REVIEW_FOCUS.md)
+for later independent review; see the handoff for verification status.
 Approved warning-preparation proposals also support a private
 [exercise CAP XML draft](docs/CAP_EXERCISE_DRAFTS.md) download; no messages are sent.
 

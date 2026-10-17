@@ -377,3 +377,13 @@ package, IdP/trust change or live action. Optional local API override is active;
 base Compose stays disabled. Detailed measurements and limitations are in the
 current handoff. This is model-backed selection, not a complete generative
 copilot, durable runner or scientifically validated predictor.
+
+### Saved review focus continuation
+
+`6611465` adds an optional server-generated selection captured with the draft
+and creation audit; source `afd443f` was imported to Windows before the remote
+connector stopped responding. A creation-only option accidentally referenced
+by the transition handler was caught by Linux regression tests and corrected
+in `6611465`. Laptop corrective sync and acceptance are pending; consult the
+current handoff before running another managed batch. This slice retains
+independent approval and does not close durable-agent or human IdP gates.

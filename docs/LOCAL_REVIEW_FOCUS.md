@@ -88,3 +88,10 @@ real Ollama/API/BFF/browser, database and HTTP results. Browser injections used
 for busy/unsafe/cancel cases are test-only and do not enable deployed auth.
 Model selection is not free-form grounded question answering, an autonomous
 agent, real two-person acceptance, a validated forecast or a real action.
+
+## Optional proposal capture
+
+Public previews above remain read-only. The authenticated workbench now has a
+separate opt-in creation flow that saves a new server-generated selection with
+the draft, its fingerprint and creation audit. See [saved focus scope](SAVED_REVIEW_FOCUS.md)
+and the handoff for current verification. It does not reuse client preview data.
