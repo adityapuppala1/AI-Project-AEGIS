@@ -2,6 +2,7 @@
 import argparse
 import hashlib
 import json
+import math
 from urllib.error import HTTPError
 from urllib.request import ProxyHandler, Request, build_opener
 
@@ -16,6 +17,16 @@ for base in (args.api, args.web):
         parser.error("This smoke script accepts loopback services only")
 opener = build_opener(ProxyHandler({}))
 case = "22222222-2222-4222-8222-222222222222"
+
+
+def canonical_value(value):
+    if isinstance(value, dict):
+        return {key: canonical_value(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [canonical_value(item) for item in value]
+    if isinstance(value, float) and math.isfinite(value) and value.is_integer():
+        return int(value)
+    return value
 
 
 def check(base, path, expected=(200,), method="GET"):
@@ -54,8 +65,8 @@ bundle = json.loads(check(args.web, f"/api/incidents/{case}/audit"))
 expected = bundle.pop("manifest_sha256")
 bundle.pop("exported_at")
 bundle.pop("integrity_note")
-actual = hashlib.sha256(json.dumps(bundle, ensure_ascii=True, sort_keys=True,
-                                   separators=(",", ":")).encode()).hexdigest()
+actual = hashlib.sha256(json.dumps(canonical_value(bundle), ensure_ascii=True,
+                                   sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 if actual != expected:
     raise SystemExit("FAIL public audit checksum")
 print("PASS public audit checksum; human/browser/IdP gates remain separate")

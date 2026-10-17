@@ -77,8 +77,20 @@ def test_manifest_is_sha256_of_unmodified_bundle_fields(sources):
     assert result is not None
     payload = {key: value for key, value in result.items()
                if key not in ("manifest_sha256", "integrity_note", "exported_at")}
-    text = json.dumps(payload, sort_keys=True, ensure_ascii=True, separators=(",", ":"))
+    text = json.dumps(audit360.canonical_audit_value(payload), sort_keys=True,
+                      ensure_ascii=True, separators=(",", ":"))
     assert result["manifest_sha256"] == hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def test_manifest_survives_javascript_style_integral_float_round_trip(sources):
+    sources[1]["source_comparison"] = {"tolerance": 5.0, "value_range": 1.0}
+    result = audit360.export_exercise_case(CASE)
+    payload = {key: value for key, value in result.items()
+               if key not in ("manifest_sha256", "integrity_note", "exported_at")}
+    javascript_style = json.loads(json.dumps(audit360.canonical_audit_value(payload)))
+    text = json.dumps(audit360.canonical_audit_value(javascript_style), sort_keys=True,
+                      ensure_ascii=True, separators=(",", ":"))
+    assert result["manifest_sha256"] == hashlib.sha256(text.encode()).hexdigest()
 
 
 def test_missing_case_returns_none(monkeypatch):

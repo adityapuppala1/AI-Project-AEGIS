@@ -6,6 +6,7 @@ agency records. Bundle is a bounded read-only demonstration artifact.
 from datetime import datetime, timezone
 import hashlib
 import json
+import math
 from uuid import UUID
 
 from app.agency_sync_store import (
@@ -16,6 +17,17 @@ from app.intelligence_store import incident_workspace
 from app.model_lab import VERSION as OFFLINE_MODEL_VERSION
 from app.policy_profile import PROFILE_VERSION as POLICY_PROFILE_VERSION
 from app.ingestion_contract import CONTRACT as INGESTION_CONTRACT_VERSION
+
+
+def canonical_audit_value(value):
+    """Normalize JSON numbers so Python/JavaScript round trips hash alike."""
+    if isinstance(value, dict):
+        return {key: canonical_audit_value(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [canonical_audit_value(item) for item in value]
+    if isinstance(value, float) and math.isfinite(value) and value.is_integer():
+        return int(value)
+    return value
 
 
 def export_exercise_case(incident_id: UUID) -> dict | None:
@@ -63,7 +75,8 @@ def export_exercise_case(incident_id: UUID) -> dict | None:
         "contains_real_agency_records": False,
         "outbound_messages_sent": False,
     }
-    canonical = json.dumps(payload, ensure_ascii=True, sort_keys=True, separators=(",", ":"))
+    canonical = json.dumps(canonical_audit_value(payload), ensure_ascii=True,
+                           sort_keys=True, separators=(",", ":"))
     return {
         **payload,
         "manifest_sha256": hashlib.sha256(canonical.encode("utf-8")).hexdigest(),
