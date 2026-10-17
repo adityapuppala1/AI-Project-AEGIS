@@ -1304,6 +1304,41 @@ Documentation checkpoint is mirror-only until the next clean laptop sync;
 laptop last confirmed HEAD remains `eb5b49e`. No new verification job was
 launched after the connection timeout.
 
+## Department reassignment — laptop acceptance complete
+
+Laptop checkpoint `d341c6ee23e3adbd0508277cea75f1f6eecfb466` passed the guarded
+`scripts/verify-task-reassignment.ps1` run, PID **1860**, exit **0**, runtime
+**162.64 seconds**. Results: **344 API tests passed, 15 database tests skipped**
+in the native phase; reproducible synthetic model and TypeScript passed;
+production API/web images built; **15 retained PostGIS tests passed**; guarded
+startup passed; targeted inbox checks passed at 390px and 1440px; coordinator
+reassignment mobile UI passed; 21 general browser checks passed with zero page
+errors and zero sampled accessibility violations; HTTP routes, disabled-private
+access, blocked live warning and public audit checksum passed. Final inventory
+was exactly one API/web/database and the laptop tree was clean. Transcript:
+`.git/reassignment-verification.log` plus `.git/department-acceptance.log`.
+
+This closes fixed department ownership and audited coordinator reassignment in
+the automated local demo. It does not establish real department identities or
+human acceptance while the IdP remains owner-deferred.
+
+## Grounded evidence guide — verification in progress
+
+Laptop imported `3eda6a3` (feature `bbdecea`) and started guarded PID **85008**.
+Confirmed so far: **349 API tests passed, 15 opt-in DB tests skipped**, model
+reproducibility, TypeScript and **7 strict BFF route tests passed**. Production
+API image completed and the web production build was running when the connector
+stopped returning fresh output. Do not launch another build: recover PID 85008
+or `.git/grounded-guide-verification.log` first.
+
+The guide accepts a bounded free-form question on Incident Intelligence and
+returns only validated readiness findings, existing evidence/source UUIDs,
+allowlisted playbook review options, explicit unknowns and limitations. Unknown
+or instruction-like requests abstain. It has no proposal/task write path and no
+approval, notification, dispatch or forecast authority. Remaining gate: recover
+production web build/start, real 390/1440 browser queries, 21 smoke checks,
+HTTP/refusal/checksum, final runtime inventory and clean Git state.
+
 
 ## Recovered inbox acceptance and reassignment checkpoint
 

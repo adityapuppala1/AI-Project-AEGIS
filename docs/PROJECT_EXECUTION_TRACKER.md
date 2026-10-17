@@ -486,3 +486,12 @@ PID 73960 general smoke/HTTP output is still pending. Reassignment source
 `cf404ad` with tests `d97bb06` is implemented in the mirror, not verified on
 laptop. See `scripts/verify-task-reassignment.ps1` and the handoff for safe
 recovery. Free-form grounded AI/usefulness evaluation and human gates remain.
+
+### Department reassignment accepted; grounded guide in progress
+
+Reassignment checkpoint `d341c6e` passed Windows native, production build,
+15 retained PostGIS tests, targeted browser, 21 smoke/axe, HTTP/refusal/checksum
+and final single-runtime checks. Grounded guide checkpoint `3eda6a3` passed 349
+native API tests, model/TypeScript and seven BFF tests; its production/browser
+gate PID 85008 is still pending output recovery. Human usefulness, IdP/MFA,
+screen-reader and owner release acceptance remain external/deferred gates.
