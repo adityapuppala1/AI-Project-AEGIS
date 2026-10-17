@@ -1329,10 +1329,15 @@ reject stale ownership/version. Unit, real-DB concurrent retry/isolation and
 mobile UI fixtures are prepared, **not executed**. No Linux results substitute
 for laptop acceptance.
 
-Pending bundle write `.git/reassignment.bundle.b64` contains through `cf404ad`
-only (call `49ab73ec-c062-44c6-94db-a55c48d5abde`). Do not assume it imported.
+Bundle write `.git/reassignment.bundle.b64` for `cf404ad` failed with
+"Timeout - no response from device" (call
+`49ab73ec-c062-44c6-94db-a55c48d5abde`). Do not assume it exists or imported.
 Inspect result/file/HEAD before syncing the newer test/docs/check helper commits.
 Use committed `scripts/verify-task-reassignment.ps1` after recovery; it runs
 native checks, Node scope/proxies, production build, retained integration DB,
 guarded startup and browser/HTTP acceptance. Never overlap PID 73960 or any
 other managed job. No IdP/trust activation, CI, push, live action or reset.
+
+Final mirror follow-up also clears reassignment selections after a save or
+identity change. This UI follow-up remains part of the unverified reassignment
+slice. Laptop source is still last confirmed at `2ed809d`.

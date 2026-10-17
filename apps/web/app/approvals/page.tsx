@@ -76,7 +76,7 @@ export default function ApprovalWorkbench() {
         session.authenticated && session.roles?.includes("incident_operator") ? session.agencyId! : "");
       setRecoverInTab(draftBuffer.current.recoveryEnabled());
       if (changed || identityChanged || !session.authenticated) {
-        chooseDraft("", "internal_triage"); setReviewReasons({}); setMessage("");
+        chooseDraft("", "internal_triage"); setReviewReasons({}); setAssignmentTargets({}); setMessage("");
         setProposals([]); setIncidents([]);
       }
       setAuth(session);
@@ -134,6 +134,7 @@ export default function ApprovalWorkbench() {
       const label = { submit: "submitted", approve: "approved", reject: "rejected", simulate: "simulated", prepare_tasks: "prepared scripted tasks", acknowledge_task: "recorded scripted acknowledgement", close_task: "closed scripted task", reassign_task: "reassigned scripted task", start_assistance: "started bounded assistance", advance_assistance: "advanced bounded assistance", cancel_assistance: "cancelled bounded assistance" }[operation];
       setMessage(`Exercise: ${label}. No messages sent or operational action taken.`);
       setReviewReasons(current => ({ ...current, [reasonKey]: "" }));
+      setAssignmentTargets(current => ({ ...current, [reasonKey]: "" }));
       await reload();
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Unable to transition proposal"); }
     finally { setBusy(false); }
