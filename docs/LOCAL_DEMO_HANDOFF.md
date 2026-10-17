@@ -2,7 +2,9 @@
 
 Updated: 17 October 2026 (IST). Repository: `adityapuppala1/AI-Project-AEGIS`.
 Branch: `feat/aegis-local-demo-continuation`; integration baseline `b71172c`.
-Latest API/web application source: `258a1572b1dfad2ba727e0eadef24cb2049260a2`
+Latest Linux mirror API source: `3b85285b4badd7003a22058f27991356e1f70c02`.
+Laptop sync/verification of this change is **blocked by connector timeout**.
+Last previously verified laptop API/web source: `258a1572b1dfad2ba727e0eadef24cb2049260a2`
 (local review focus implementation `597a603`, route boundaries `258a157`).
 Prior workbench source `0c7c788`; latency harness `79086bd`;
 prior context-diagnostics source `eb4624e`;
@@ -18,7 +20,8 @@ Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 |---|---|
 | Verified automated | Original synthetic observation/evidence/assessment/draft/approval-policy/task/audit chain; private CAP draft; recovery and anonymous/live-action boundaries |
 | Verified workbench | Page-memory rationale recovery by incident/action, failed refresh/save retention, success clearing, identity/agency/access-loss clearing; explicit session-retry state |
-| Closed this pass | Opt-in real local-model selection preview, server-mapped original citations, base-disabled and busy/unavailable/invalid fallbacks, client cancel and no proposal writes |
+| Previously verified on laptop | Opt-in local-model selection preview with original citations and safe fallbacks |
+| New Linux verification | Saved deterministic context revalidation before submission/approval; laptop import and acceptance blocked by connector timeout |
 | Verified with revised measurement | Local warm HTTP latency v2 at four workers; client setup excluded and thresholds unchanged; previous v1 failures retained below |
 | Deferred by owner | Local IdP/trust activation and real two-person MFA/browser approval acceptance; do not reactivate or bypass |
 | Pending human acceptance | Manual screen-reader/operator rehearsal and owner release review |
@@ -591,3 +594,76 @@ Remaining: semantic usefulness evaluation, free-form grounded Q&A/drafting,
 captured/revalidated model-assisted proposal context, a durable bounded runner,
 source comparison metadata/rules, deeper diagnostics, department-owned exercise
 permissions/SLAs, forecasting research and the deferred human acceptance gates.
+
+
+## Saved context revalidation — 17 October 2026
+
+Source `3b85285b4badd7003a22058f27991356e1f70c02` on
+`feat/aegis-local-demo-continuation`. See
+[change detector scope and compatibility](PROPOSAL_CONTEXT_REVALIDATION.md).
+New demo drafts capture checked-input fingerprints. Submit/approve refuse changed
+evidence, readings, quality, thresholds, freshness class or checklist/playbook
+versions. Successful transitions retain the fingerprint in audit; blocked
+transitions leave status, decision and successful-event history unchanged.
+Rejection remains possible during context outages. Existing approved receipts
+are retained; older pending snapshots require a newly reviewed draft.
+
+**Laptop gate blocked:** Desktop Commander `start_process` for read-only
+status/branch/SHA/remote inspection timed out. Device listing reported Online
+with last-seen age four minutes, which does not prove commands execute. No
+laptop writes, import, build or tests were performed this pass. The earlier
+laptop evidence above remains historical; this change is not claimed verified
+on Windows. After the laptop-first attempt could not execute, development
+checks continued in the Linux mirror only. Do not overwrite laptop work or
+assume its tree still matches the last confirmed `cfb8029`. Reinspect before a
+guarded bundle fast-forward and run its native/database/HTTP gates.
+
+Actual Linux commands/results on the new source:
+
+- From `services/api`: `/workspace/scratch/aegis-venv/bin/python -m pytest -q`:
+  **299 passed, 7 skipped**, one pre-existing Starlette/httpx warning. The first
+  collection failed because two new files shared a module basename; the
+  integration file was renamed and the full suite rerun successfully.
+- `/workspace/scratch/aegis-venv/bin/python -m app.model_lab --check`: PASS.
+- `docker compose build api`: failed proxy certificate verification.
+  `AEGIS_BUILD_CA_FILE=/etc/ssl/certs/ca-certificates.crt docker compose -f compose.yaml -f compose.proxy-ca.yaml build api`:
+  PASS using the existing build-only CA option, TLS verification enabled.
+- `docker compose run --rm --no-deps -T -v "$PWD/services/api/integration_tests:/integration_tests:ro" api sh -c 'export AEGIS_TEST_DATABASE_URL=${DATABASE_URL%/aegis}/aegis_verify_audit_20261017; python -m pytest -q -p no:cacheprovider /integration_tests'`:
+  **7 real PostGIS tests passed**, 2.70 s. Changed inputs, atomic refusal,
+  outage rollback, rejection and fresh-draft approval are exercised alongside
+  the existing signed TEST-key/agency/independent-review/CAP/concurrency checks.
+- `docker compose up --no-deps -d api`: updated mirror API only; retained DB.
+  Initial HTTP probe raced startup and reset. After health returned 200, API
+  routes passed; the old mirror web image returned 404 for the CAP BFF route.
+  Rebuilding web from the current checkout is required; final result below.
+
+Logs under `.git`: `revalidation-build.log`, `revalidation-build-ca.log`,
+`revalidation-postgis.log`, `revalidation-http.log`, `revalidation-web-build.log`.
+No laptop IdP/trust activation, push, Actions, paid deployment, reset or live
+operation. The model preview remains separate from proposal persistence.
+
+Still partial/pending: captured model-assisted context, durable bounded agent
+runs, usefulness evaluation/free-form grounded assistance, source-comparison
+semantics, department-owned permissions/SLAs and durable unsaved-note recovery.
+Real forecasts require authorized historical data and domain evaluation. Human
+OIDC/MFA, manual accessibility/operator acceptance and owner release remain
+deferred/pending; none are closed by these engineering tests.
+
+Final Linux runtime checks on `3b85285`:
+
+- `AEGIS_BUILD_CA_FILE=/etc/ssl/certs/ca-certificates.crt docker compose -f compose.yaml -f compose.proxy-ca.yaml build web`:
+  PASS, production compilation, type validation and static generation. Existing
+  benign Tailwind TS module-type warning retained. No frontend source changed.
+- `docker compose up --no-deps -d web`: PASS, current source replaces the stale
+  mirror web image without touching the DB. After `/demo` readiness returned
+  200, `/workspace/scratch/aegis-venv/bin/python scripts/verify-local-http.py`:
+  PASS, including CAP BFF route, public checksum, private anonymous refusals and
+  blocked live warning. Final log `.git/revalidation-http-final.log`. Initial
+  startup-race/stale-image failures above are retained as failures.
+- `git diff --check` and changed Markdown local-target validation: PASS.
+
+The Linux mirror now runs the current API/web source with base-disabled local
+model selection; laptop serving/profile state has not been changed or verified
+this pass. A local bundle is prepared at
+`/workspace/scratch/aegis-context-revalidation.bundle` from `cfb8029` for a
+future guarded laptop transfer. This is not a push or proof of Windows sync.

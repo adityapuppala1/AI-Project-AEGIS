@@ -13,3 +13,5 @@
 - For proposal proxy changes run `cd apps/web; node --test scripts/tests/proposal-proxy.test.cjs`. These isolated test sessions must never become production auth overrides.
 
 - Local review-focus changes require API `test_local_copilot.py` and Node `review-focus-route.test.cjs` checks. Base Compose stays model-disabled; the optional local override selects existing cited items only. Preserve template fallback and the separation from proposal writes/approval. See docs/LOCAL_REVIEW_FOCUS.md.
+
+- Proposal-context changes must retain immutable snapshots, rejection during outages, agency isolation and independent approval. Run `test_context_revalidation.py`, assessment/workflow tests and the opt-in PostGIS `test_postgis_context_revalidation.py`; see docs/PROPOSAL_CONTEXT_REVALIDATION.md. Never equate Linux verification with laptop acceptance.

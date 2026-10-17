@@ -1,5 +1,11 @@
 # AEGIS — Project Execution and Delivery Tracker
 
+Current extension: [saved proposal-context revalidation](PROPOSAL_CONTEXT_REVALIDATION.md)
+is implemented and tested in the Linux mirror; laptop import/acceptance is
+blocked by a Desktop Commander timeout. Deterministic context only; model
+preview capture and the durable runner remain pending. Exact commands and
+source are in [the handoff](LOCAL_DEMO_HANDOFF.md).
+
 Updated: 2026-10-17 · Time zone: Asia/Kolkata (IST) · Repository: `adityapuppala1/AI-Project-AEGIS`.
 
 ## Current work, before historical records

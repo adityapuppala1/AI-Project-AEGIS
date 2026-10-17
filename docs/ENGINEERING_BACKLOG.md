@@ -1,5 +1,11 @@
 # AEGIS delivery ownership and implementation backlog
 
+Current extension: [saved proposal-context revalidation](PROPOSAL_CONTEXT_REVALIDATION.md)
+is implemented and tested in the Linux mirror; laptop import/acceptance is
+blocked by a Desktop Commander timeout. Deterministic context only; model
+preview capture and the durable runner remain pending. Exact commands and
+source are in [the handoff](LOCAL_DEMO_HANDOFF.md).
+
 ## Expanded operator-assistance plan
 
 See [AI assistance and prediction roadmap](AI_ASSISTANCE_ROADMAP.md) for the
