@@ -180,6 +180,7 @@ export function AssessmentReadiness({ incidentId }: { incidentId: string }) {
           </div>)}
         </dl>
         <p className="mt-3 text-xs leading-5 text-muted">These are simulation record counts, not hazard probabilities or verified exposure counts.</p>
+        {result.review_brief && <ExerciseReviewBrief brief={result.review_brief}/>}
       </div>
       <div>
         <h4 className="text-sm font-bold">Why these checks matter</h4>
