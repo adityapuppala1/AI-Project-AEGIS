@@ -156,7 +156,12 @@ def test_postgis_demo_chain_and_negative_authorization(monkeypatch):
         actions = [e["action"] for e in audit["events"]]
         assert actions.count("prepare_tasks") == actions.count("acknowledge_task") == actions.count("close_task") == 1
         tasks = payload["simulation"]["tasks"]
+        assert payload["simulation"]["version"] == "aegis.proposal.simulation.v3"
+        assert payload["simulation"]["sla_policy"] == "aegis.exercise.department-sla.v1"
         assert tasks[0]["state"] == "closed"
+        assert tasks[0]["sla_minutes"] == 15
+        assert tasks[0]["sla_status"] in {"within_synthetic_target", "synthetic_target_elapsed"}
+        assert tasks[0]["events"][1]["sla_status"] == tasks[0]["sla_status"]
         assert [event["kind"] for event in tasks[0]["events"]] == ["prepared", "acknowledged", "closed"]
         assert all(task["state"] == "prepared" for task in tasks[1:])
         assert tasks[0]["events"][1]["actor_subject"] == "integration-maker-" + str(run)
