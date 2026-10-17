@@ -62,6 +62,16 @@ def test_postgis_demo_chain_and_negative_authorization(monkeypatch):
         assert client.get("/v1/exercise/proposals").status_code == 401
         ready = client.get(f"/v1/exercise/incidents/{CASE}/readiness").json()
         assert ready["context_state"] == "simulated_context_for_human_review"
+        comparison = ready["source_comparison"]
+        assert comparison["status"] == "agreement"
+        rain = next(group for group in comparison["groups"]
+                    if group["comparison_group"] == "synthetic_rainfall_pair")
+        assert rain["status"] == "agreement"
+        assert rain["source_ids"] == [
+            "c3000000-0000-4000-8000-000000000001",
+            "c3000000-0000-4000-8000-000000000005",
+        ]
+        assert comparison["validated_forecast"] is False
         response = client.post("/v1/exercise/proposals", headers=maker, json={
             "incident_id": CASE, "action_type": "prepare_warning",
             "rationale": "SIMULATION: integration test evidence review; no real operations",
