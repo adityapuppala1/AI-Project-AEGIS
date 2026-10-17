@@ -96,6 +96,8 @@ test('checker-only task writes and forged/missing task fields never fetch', asyn
     assert.equal((await checker(writeRequest({ operation: 'prepare_tasks' }), id)).status, 403);
     const operator = loadProxy({ accessToken: 'unit-only-token', roles: ['incident_operator'] });
     for (const body of [
+      { operation: ['prepare_tasks'] },
+      { operation: 'acknowledge_task', task_id: ['control_room'], rationale: 'SIMULATION: wrong type' },
       { operation: 'acknowledge_task', rationale: 'SIMULATION: missing task' },
       { operation: 'close_task', task_id: 'unregistered', rationale: 'SIMULATION: invalid task' },
       { operation: 'close_task', task_id: 'control_room', rationale: 'short' },

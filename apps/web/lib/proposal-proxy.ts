@@ -31,14 +31,14 @@ export async function proxyProposals(request: Request, proposalId?: string, expo
     const data = payload as Record<string, unknown>;
     if (proposalId) {
       const operation = data.operation;
-      if (!["submit", "approve", "reject", "simulate", "prepare_tasks", "acknowledge_task", "close_task"].includes(String(operation))) return failure(400, "Unsupported workflow operation");
+      if (typeof operation !== "string" || !["submit", "approve", "reject", "simulate", "prepare_tasks", "acknowledge_task", "close_task"].includes(operation)) return failure(400, "Unsupported workflow operation");
       if (Object.keys(data).some((key) => !["operation", "rationale", "task_id"].includes(key))) return failure(400, "Unexpected proposal attributes");
       const role = ["submit", "simulate", "prepare_tasks", "acknowledge_task", "close_task"].includes(String(operation)) ? "incident_operator" : "incident_checker";
       if (!hasRole(session.roles, role)) return failure(403, "Insufficient role");
       if (data.rationale !== undefined && (typeof data.rationale !== "string" || data.rationale.length > 2000)) return failure(400, "Invalid review rationale");
       const taskOperation = operation === "acknowledge_task" || operation === "close_task";
       if (taskOperation) {
-        if (!["control_room", "infrastructure", "communications"].includes(String(data.task_id)) ||
+        if (typeof data.task_id !== "string" || !["control_room", "infrastructure", "communications"].includes(data.task_id) ||
             typeof data.rationale !== "string" || data.rationale.trim().length < 10)
           return failure(400, "Task identifier and explanatory rationale required");
       } else if (data.task_id !== undefined) return failure(400, "Unexpected task identifier");
