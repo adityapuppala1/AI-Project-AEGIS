@@ -12,6 +12,10 @@ case/geographic reads and validation without exposing exception details.
 The [cited review brief](CITED_REVIEW_BRIEF.md) adds the deterministic fallback
 for evidence-grounded review; a model-backed copilot and agent runner remain planned.
 
+[Unsaved workbench drafts](UNSAVED_EXERCISE_DRAFTS.md) now isolate page-memory
+notes by incident/action and clear them across identity changes. Durable browser
+recovery and actual signed-in human acceptance remain separate work.
+
 ## Current synthetic demo priorities — 17 October 2026
 
 1. Dependency/runtime hardening is complete for this local scope: Tailwind 4,

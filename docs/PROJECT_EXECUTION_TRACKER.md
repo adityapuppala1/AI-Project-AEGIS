@@ -347,3 +347,13 @@ Runtime acceptance on `eb4624e` also passed: production API/web rebuild,
 three-stage browser failure/recovery plus unknown-code sanitization/mobile,
 browser smoke/axe, HTTP/checksum/refusals and six real PostGIS tests (1.89 s).
 Process 85556 exited 0; no DB resets or live actions. See current handoff logs.
+
+### Closed: in-page draft recovery; warm latency method corrected
+
+`c22780a` / `0c7c788`: scoped incident/action draft memory and session failure
+recovery passed native typecheck, 23 Node tests, fixture-only browser flows,
+production web build, public browser/axe and HTTP checks. No backend changes
+or actual IdP acceptance claimed. `79086bd` corrects warm benchmark client
+setup timing; 100 requests/four workers, zero errors, unchanged targets passed
+on Windows. The prior v1 failures are retained, not described as app speedups.
+See current handoff for exact commands, timings, limits and still-open tasks.

@@ -2,12 +2,26 @@
 
 Updated: 17 October 2026 (IST). Repository: `adityapuppala1/AI-Project-AEGIS`.
 Branch: `feat/aegis-local-demo-continuation`; integration baseline `b71172c`.
-Latest context-diagnostics source: `eb4624ed93ddc72a0cc9a2b6cf37c51ff79c0b7f`;
+Latest workbench source: `0c7c7887e5995fb9b98763f48b081fc0757bfdee`;
+latency harness `79086bd27e576da5544fbca34a68324acbb5b057`.
+API unchanged from verified context-diagnostics source `eb4624e`;
 prior review-brief source `6b2211c`;
 context-panel source `061e35a`; prior staged-task source `413dd97`, proxy
 follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
+
+## Current closure and remaining work
+
+| Status | Scope |
+|---|---|
+| Verified automated | Original synthetic observation/evidence/assessment/draft/approval-policy/task/audit chain; private CAP draft; recovery and anonymous/live-action boundaries |
+| Closed this pass | Page-memory rationale recovery by incident/action, failed refresh/save retention, success clearing, identity/agency/access-loss clearing; explicit session-retry state |
+| Verified with revised measurement | Local warm HTTP latency v2 at four workers; client setup excluded and thresholds unchanged; previous v1 failures retained below |
+| Deferred by owner | Local IdP/trust activation and real two-person MFA/browser approval acceptance; do not reactivate or bypass |
+| Pending human acceptance | Manual screen-reader/operator rehearsal and owner release review |
+| Pending engineering | Source agreement metadata/rules, deeper dependency diagnostics, model-backed copilot, durable bounded agent runner, department-owned task permissions/SLAs and durable draft recovery |
+| Needs external validation | Authorized historical datasets/domain evaluation before real forecast claims or operational integrations; synthetic software tests do not establish these |
 
 ## Current implementation
 
@@ -434,3 +448,76 @@ No push, CI, external model/provider, trust change, IdP activation or live
 operation. Remaining: comparable-source metadata/agreement rules, deeper
 dependency diagnosis, model-backed copilot and durable runner, validated
 prediction research, responsiveness extensions and deferred human acceptance.
+
+## Unsaved workbench text and measured responsiveness — 17 October 2026
+
+Sources `c22780a` / `0c7c788` add [bounded page-memory notes](UNSAVED_EXERCISE_DRAFTS.md).
+The chosen incident/action is retained across failed workbench refreshes;
+creation remains disabled until its authorized case list is loaded. Notes are
+not browser-storage or server auto-saves. Session failures hide private text
+and expose retry; identity/agency/access loss clears it. Successful saves clear
+only that incident/action. Hard reload/page exit still destroys unsaved memory.
+
+Actual Windows verification on final UI source `0c7c788`:
+- `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify-code-local.ps1 -Suite web`:
+  native TypeScript PASS. `docker compose up --build --no-deps -d web`: PASS.
+- `cd apps/web; node --test scripts/tests/exercise-draft-buffer.test.cjs scripts/tests/proposal-proxy.test.cjs scripts/tests/context-route.test.cjs`:
+  **23 passed** (six buffer + seventeen existing route/proxy regressions).
+- `node .git/browser-qa/draft-scope.cjs`: PASS case/action isolation, failed
+  refresh recovery, failed-save retention, successful-save clearing, session
+  outage hiding/recovery, role-loss clearing, identity/agency clearing and
+  anonymous lock. Browser-only fixtures; **zero real proposal writes** and no
+  actual IdP/two-human acceptance claim.
+- `node .git/browser-qa/smoke.cjs`: PASS, zero page errors/sampled axe violations.
+  `services/api/.venv/Scripts/python.exe scripts/verify-local-http.py`: PASS
+  routes/checksum/private refusal/live-warning block.
+- API/model/PostGIS source was unchanged: prior **264 native API tests and six
+  real DB tests** remain relevant evidence; they were not rerun for a frontend
+  buffer or host-only benchmark change. No dependency or migration changed.
+
+### Latency failures, diagnosis and corrected method
+
+Both original verification drivers exited 1 **only at the final v1 latency
+check**, after their functional checks passed. Keep
+`.git/draft-memory-benchmark.{json,log}` and
+`.git/draft-scope-benchmark.{json,log}`. The first reported health p95 17,931.71
+ms; the second health 304.81 ms and registry 992.38 ms exceeded their unchanged
+250/750 ms targets. These are failed samples, not acceptance evidence.
+
+Narrow probes then measured container-loopback health p95 **21.5 ms** (20
+requests/four workers) and ten host curl requests **3.782–25.020 ms**. A five-
+request Windows Python probe separately measured client construction
+**21.63–27.73 ms**, before HTTP request time. The old benchmark rebuilt
+`build_opener` inside each timed request, mixing client initialization with
+service timing. This confounds interpretation; it does not prove the cause
+of every initial outlier or establish an application speedup.
+
+`79086bd` initializes one nonshared opener per worker outside request timing.
+Report version is `aegis.local.http-latency.v2`; warm-up/client setup excluded,
+new HTTP connections still included. Route thresholds were not changed.
+`services/api/.venv/Scripts/python.exe -m py_compile scripts/benchmark-local.py`
+and `services/api/.venv/Scripts/python.exe scripts/benchmark-local.py --output .git/draft-latency-v2.json`
+passed on Windows (process 146032 exit 0). **100 requests, concurrency four,
+zero errors, all local targets passed**:
+
+| Route | Median ms | p95 ms | Target p95 ms |
+|---|---:|---:|---:|
+| Health | 5.99 | 52.22 | 250 |
+| Incident registry | 45.70 | 98.26 | 750 |
+| Assessment | 99.78 | 227.65 | 1000 |
+| Case audit | 141.22 | 242.45 | 1500 |
+| Guided demo | 195.44 | 262.21 | 2000 |
+
+This closes the bounded warm HTTP measurement gate under the revised method,
+not cold-start, sustained load, real operator latency or production capacity.
+Do not directly compare v1/v2 as a software performance improvement. Further
+manual/in-use acceptance and prediction/AI/agent work remain pending above.
+
+Logs: `.git/draft-scope-{types,node,build,panel,browser,http}.log`,
+`.git/draft-latency-v2.{json,log}`, `.git/draft-latency-internal.log`,
+`.git/draft-latency-host-curl.log`; probe source stays under .git. The initial
+driver progress files do not report all-PASS because their v1 latency failed.
+Final documented acceptance combines the functional stages with the separate
+v2 benchmark; no original failure is erased or relabeled as passing. Final
+docs use a guarded local bundle transfer and clean HEAD/status confirmation.
+No push, CI, IdP activation, trust changes, model service or live operations.

@@ -132,3 +132,11 @@ with fixed stage codes. Existing readiness and proposal-create handlers return
 guidance. No raw exception details or infrastructure metadata are returned.
 Missing cases remain 404; normal assessment/captured snapshots are unchanged.
 See [failure diagnostics](CONTEXT_FAILURE_DIAGNOSTICS.md).
+
+## Ephemeral workbench draft buffer
+
+A bounded page-memory buffer separates unsaved exercise rationale by incident
+and action under the verified session subject/agency. It clears on scope/access
+loss or successful save; no credentials, browser storage, server auto-save or
+new auth capability is introduced. The form cannot create while authorized
+cases are unavailable. See [draft behavior](UNSAVED_EXERCISE_DRAFTS.md).

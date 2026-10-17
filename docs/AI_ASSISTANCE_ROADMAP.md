@@ -152,3 +152,23 @@ skips), 17 Node route/proxy tests, six real PostGIS tests, production builds,
 targeted stage-failure/recovery/mobile browser checks, browser smoke/axe and
 HTTP passed on Windows. This closes stage feedback, not agreement inference
 or complete dependency monitoring. IdP/human acceptance remains deferred.
+
+## Implementation update — bounded unsaved workbench text
+
+`c22780a` / `0c7c788` add [page-memory draft isolation](UNSAVED_EXERCISE_DRAFTS.md)
+by incident/action, retention during workbench Refresh and failed saves,
+successful-save clearing and identity/agency/role-loss clearing. Loading or
+missing authorized cases disable creation. Session verification failures hide
+private text and offer retry. This partially closes order 5's unsaved-work
+requirement; hard reload/navigation destroys memory by design. Local warm
+latency is remeasured separately; cold-start, manual accessibility and actual
+signed-in acceptance are not inferred from isolated browser fixtures.
+
+Final UI `0c7c788`: native typecheck, 23 Node tests, production web build,
+fixture-only session/draft recovery cases, real anonymous browser/axe and HTTP
+passed on Windows. Warm latency v1 failed; `79086bd` fixes its client-setup
+confound and reports v2 with unchanged targets: 100 requests at concurrency
+four, zero errors, all five route targets passed. Failed samples remain in the
+handoff. This closes in-page unsaved-draft recovery and a bounded warm HTTP
+gate; it does not close hard-reload recovery, cold/in-use responsiveness,
+actual human acceptance, model-backed AI, agent orchestration or forecasting.
