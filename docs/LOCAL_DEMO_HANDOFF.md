@@ -20,12 +20,13 @@ Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 
 ## Latest continuation status
 
-Laptop and mirror application/test checkpoint:
-`c245a66407ff032bedda45bacc1525ffca5b99b8` on
-`feat/aegis-local-demo-continuation`. Reconnection recovered with the newly
-registered Adys_ROG device. SLA production build/start, PostGIS, HTTP and browser
-acceptance passed on Windows; exact commands and the retained fixture-test
-failure are recorded at the end. The retained database was not reset.
+Current application checkpoint: `92f057c49a7cdf69f6ba7621708ad498a1e1663c`
+on `feat/aegis-local-demo-continuation`, imported on laptop and mirror. The
+operator-experience extension adds a mission header, case-linked local review
+focus and optional schematic 3D. Production build/start and targeted desktop/
+mobile checks passed. Final full browser/HTTP output and explicit WebGL fallback
+acceptance are pending retrieval/execution; see the latest section below.
+Prior synthetic SLA acceptance is complete and retained below.
 
 ## Current closure and remaining work
 
@@ -1153,3 +1154,43 @@ Its laptop bundle write is queued as Remote MCP call
 `49cc2a4e-c1d4-4677-ac6a-25dc9aaa8d7b`; do not retry while pending. The last
 verified laptop HEAD remains `c245a66`. This affects documentation sync only;
 all application acceptance results above completed before this interruption.
+
+## Operator experience extension — 17 October 2026
+
+Research and decisions: [OPERATOR_EXPERIENCE_DESIGN.md](OPERATOR_EXPERIENCE_DESIGN.md).
+Source `896c7bf` added the mission header, explicit selected-case reuse of the
+existing bounded AI focus and optional MapLibre 3D schematic locators. Follow-up
+`92f057c49a7cdf69f6ba7621708ad498a1e1663c` improves heading hierarchy and
+side-by-side map/queue at laptop widths. No renderer/model dependency added.
+Existing human approval and inactive IdP remain unchanged.
+
+Executed on Windows under the shared operation lease:
+
+- `.git/operator-build.ps1`, PID 153024 exit 0: guarded clean fast-forward,
+  `npm.cmd run typecheck`, `node --test scripts/tests/review-focus-route.test.cjs`
+  (**8 passed**), `docker compose --project-name ai-project-aegis build web`.
+- `scripts/start-windows.ps1 -NoBuild -LocalCopilot`, PID 62980 exit 0;
+  one API/web/database with retained data.
+- `.git/operator-accept.ps1`, PID 158208 exit 0 on `896c7bf`: explicit AI/fallback,
+  case reset, 3D/2D controls and no overflow at 1440/390 widths with reduced
+  motion preference; 21 browser smoke checks with zero page errors/axe violations;
+  HTTP, private refusal, blocked live action and audit checksum all passed.
+  Desktop screenshot inspected. Browser model response was a test-only fallback
+  fixture; this is not a fresh model usefulness evaluation.
+- `.git/operator-polish.ps1`, PID 102328 at `92f057c`: final production build and
+  guarded startup passed; repeated targeted desktop/mobile tests passed. Full
+  browser/HTTP completion output remains pending retrieval after a connector
+  interruption. The test wrapper must finish before another guarded operation.
+- `.git/browser-qa/operator-fallback.cjs` and its guarded wrapper are prepared
+  for explicit no-WebGL/keyboard acceptance. The wrapper start request has not
+  returned a PID/result, so execution is unconfirmed; do not blindly retry.
+
+Remote read requests can time out while the laptop job continues; never repeat
+an import/start/build on that basis. Retrieve PID state/output and use the
+shared lease. Mobile screenshot call
+`293b2c7f-281f-43ae-91ef-886045f940c5` failed with no response from device.
+This status update currently exists in the mirror only; laptop docs remain at
+the last successful source import (`92f057c`).
+No GitHub push/CI, paid provider, IdP/trust activation or live operation.
+Department authorization, durable draft recovery, grounded free-form Q&A and
+usefulness evaluation remain pending; this UI slice does not close that backlog.

@@ -444,3 +444,14 @@ failed and was corrected; exact commands and both outcomes are in the handoff.
 One API/web/database remains running; IdP inactive. Department authorization,
 durable draft recovery, broader grounded assistance/evaluation and human
 acceptance remain open. No CI or push.
+
+### Operator experience and optional spatial view
+
+`896c7bf` / `92f057c` integrate selected-case bounded AI focus, a mission header
+and optional schematic MapLibre depth. Laptop native TypeScript, 8 proxy tests,
+production build/start, initial full browser/HTTP checks and final targeted
+desktop/mobile checks passed. Final full-suite output retrieval and explicit
+WebGL-failure acceptance remain unconfirmed during a connector interruption.
+See [design research](OPERATOR_EXPERIENCE_DESIGN.md) and the current handoff.
+This is a UI integration of existing bounded AI; department authorization,
+durable drafts, free-form grounded assistance and human acceptance remain open.
