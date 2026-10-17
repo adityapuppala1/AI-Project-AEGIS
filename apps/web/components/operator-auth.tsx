@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { clearExerciseDraftRecovery } from "../lib/exercise-draft-buffer";
 import { LogIn, LogOut, ShieldCheck } from "lucide-react";
 
 interface Session {
@@ -21,6 +22,7 @@ export function OperatorAuth() {
   }, []);
   async function signOut() {
     setBusy(true);
+    clearExerciseDraftRecovery();
     try {
       const response = await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" });
       if (!response.ok) throw new Error("Could not sign out");

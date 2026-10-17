@@ -30,3 +30,27 @@ test('successful-save clearing leaves other drafts intact',()=>{
  const b=setup();b.write(id(1),'internal_triage','one');b.write(id(2),'internal_triage','two');b.write(id(1),'internal_triage','');
  assert.equal(b.read(id(1),'internal_triage'),'');assert.equal(b.read(id(2),'internal_triage'),'two');
 });
+const store=()=>{let value=null;return {getItem:()=>value,setItem:(_,v)=>{value=v;},removeItem:()=>{value=null;}};};
+test('recovery is opt-in and restores only after the same verified scope',()=>{
+ const s=store(),b=new ExerciseDraftBuffer(()=>s);b.setScope('operator','agency');b.write(id(1),'internal_triage','private');assert.equal(s.getItem(),null);
+ assert.equal(b.setRecovery(true),true);const next=new ExerciseDraftBuffer(()=>s);
+ assert.equal(next.read(id(1),'internal_triage'),'');next.setScope('operator','agency');assert.equal(next.read(id(1),'internal_triage'),'private');
+ next.write(id(1),'internal_triage','');const saved=new ExerciseDraftBuffer(()=>s);saved.setScope('operator','agency');assert.equal(saved.read(id(1),'internal_triage'),'');
+});
+test('different identity, agency and anonymous sessions discard persisted recovery',()=>{
+ for(const scope of [['other','agency'],['operator','other'],['','']]){
+  const s=store(),b=new ExerciseDraftBuffer(()=>s);b.setScope('operator','agency');b.setRecovery(true);b.write(id(1),'internal_triage','private');
+  const next=new ExerciseDraftBuffer(()=>s);next.setScope(...scope);assert.equal(next.read(id(1),'internal_triage'),'');assert.equal(s.getItem(),null);
+ }
+});
+test('recovery expires without extending its lifetime on typing and can be disabled',()=>{
+ const s=store();let now=1000;const b=new ExerciseDraftBuffer(()=>s,()=>now);b.setScope('operator','agency');b.setRecovery(true);
+ now+=7*3600000;b.write(id(1),'internal_triage','private');now+=3600001;
+ const next=new ExerciseDraftBuffer(()=>s,()=>now);next.setScope('operator','agency');assert.equal(next.read(id(1),'internal_triage'),'');assert.equal(s.getItem(),null);
+ b.setRecovery(true);b.setRecovery(false);assert.equal(s.getItem(),null);assert.equal(b.read(id(1),'internal_triage'),'private');
+});
+test('corrupt payloads and storage failures preserve safe page-memory behavior',()=>{
+ const s=store();s.setItem('', '{broken');const b=new ExerciseDraftBuffer(()=>s);b.setScope('operator','agency');assert.equal(s.getItem(),null);
+ const unavailable=new ExerciseDraftBuffer(()=>{throw Error('blocked');});unavailable.setScope('operator','agency');assert.equal(unavailable.setRecovery(true),false);
+ unavailable.write(id(1),'internal_triage','still editable');assert.equal(unavailable.read(id(1),'internal_triage'),'still editable');
+});

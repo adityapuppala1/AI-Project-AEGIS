@@ -41,6 +41,7 @@ export default function ApprovalWorkbench() {
   const [selectedIncident, setSelectedIncident] = useState("");
   const [actionType, setActionType] = useState("internal_triage");
   const [rationale, setRationale] = useState("");
+  const [recoverInTab, setRecoverInTab] = useState(false);
   const [includeReviewFocus, setIncludeReviewFocus] = useState(false);
   const [reviewReasons, setReviewReasons] = useState<Record<string,string>>({});
   const [message, setMessage] = useState("");
@@ -72,6 +73,7 @@ export default function ApprovalWorkbench() {
       const changed = draftBuffer.current.setScope(
         session.authenticated && session.roles?.includes("incident_operator") ? session.subject! : "",
         session.authenticated && session.roles?.includes("incident_operator") ? session.agencyId! : "");
+      setRecoverInTab(draftBuffer.current.recoveryEnabled());
       if (changed || identityChanged || !session.authenticated) {
         chooseDraft("", "internal_triage"); setReviewReasons({}); setMessage("");
         setProposals([]); setIncidents([]);
@@ -192,10 +194,16 @@ export default function ApprovalWorkbench() {
                 value={rationale} onChange={event => {
                   setRationale(event.target.value);
                   draftBuffer.current.write(selectedIncident, actionType, event.target.value);
+                  setRecoverInTab(draftBuffer.current.recoveryEnabled());
                 }} disabled={!canCreate || busy}
                 placeholder="Explain evidence, affected area, uncertainty, and proposed action..."/>
             </div>
-            <p className="text-xs leading-5 text-muted">Unsaved text stays on this page for up to 10 incident/action drafts. Leaving this page or changing identity clears it. A successful save clears that draft.</p>
+            <label className="flex items-start gap-2 text-xs leading-5">
+              <input type="checkbox" checked={recoverInTab} disabled={!canCreate || busy}
+                onChange={event => setRecoverInTab(draftBuffer.current.setRecovery(event.target.checked))}/>
+              Recover unsaved rationale after reload in this tab
+            </label>
+            <p className="text-xs leading-5 text-muted">{recoverInTab ? "Tab recovery is enabled for up to 8 hours. Text is stored in this browser tab; use only on a trusted device." : "Recovery is off or browser storage is unavailable. Unsaved text stays in page memory only."} Up to 10 case/action drafts, 2,000 characters each. Identity/access changes and sign-out clear recovery. A successful save clears that draft. This does not submit or approve anything.</p>
             <label className="flex items-start gap-2 text-xs leading-5">
               <input type="checkbox" checked={includeReviewFocus} onChange={event => setIncludeReviewFocus(event.target.checked)} disabled={!canCreate || busy}/>
               Save review focus with this draft (synthetic demo agency only). Local AI selects existing cited items; unavailable AI uses a labelled template. This may take about 20 seconds.
