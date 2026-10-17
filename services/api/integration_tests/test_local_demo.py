@@ -9,6 +9,7 @@ from types import SimpleNamespace
 from uuid import NAMESPACE_URL, UUID, uuid4, uuid5
 
 import jwt
+import psycopg
 import pytest
 from cryptography.hazmat.primitives.asymmetric import rsa
 from fastapi.testclient import TestClient
@@ -30,6 +31,24 @@ def test_postgis_demo_chain_and_negative_authorization(monkeypatch):
     monkeypatch.setenv("DATABASE_URL", os.environ["AEGIS_TEST_DATABASE_URL"])
     assert inspect_stack()["status"] == "ready"  # Exercises real psycopg placeholders.
     assert inspect_security_schema()["status"] == "ready"
+    # Refresh only the isolated verification database's two synthetic comparison
+    # fixtures. Wall-clock aging must not make the agreement-path assertion flaky.
+    now = datetime.now(timezone.utc)
+    with psycopg.connect(os.environ["AEGIS_TEST_DATABASE_URL"]) as connection:
+        with connection.cursor() as cursor:
+            for source_id, value, age_minutes in (
+                ("c3000000-0000-4000-8000-000000000001", 32, 5),
+                ("c3000000-0000-4000-8000-000000000005", 33, 6),
+            ):
+                cursor.execute(
+                    """UPDATE exercise_source_samples SET observed_at=%s, ingested_at=%s,
+                              metric_value=%s, quality_status='synthetic_curated'
+                       WHERE id=(SELECT id FROM exercise_source_samples
+                                 WHERE source_id=%s AND synthetic IS TRUE
+                                 ORDER BY observed_at DESC, id DESC LIMIT 1)""",
+                    (now - timedelta(minutes=age_minutes),
+                     now - timedelta(minutes=age_minutes - 1), value, source_id),
+                )
     records = load_bundled_fixture()
     linked = replay_records(records, incident_id=UUID(CASE))
     assert linked["linked_evidence"] in {0, 3}
