@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta, timezone
+
 import pytest
 from app.governance import DecisionError
 from app.proposal_simulation import PLAYBOOK, simulation_receipt
@@ -34,7 +36,9 @@ def test_simulated_receipt_never_claims_real_acknowledgements():
 def test_staged_tasks_require_acknowledgement_and_preserve_history():
     from app.proposal_simulation import prepare_task_receipt, advance_task
     receipt = prepare_task_receipt("id", "approved", draft())
-    assert receipt["version"].endswith("v2")
+    assert receipt["version"].endswith("v3")
+    assert receipt["sla_policy"] == "aegis.exercise.department-sla.v1"
+    assert [task["sla_minutes"] for task in receipt["tasks"]] == [15, 30, 45]
     assert all(t["state"] == "prepared" and len(t["events"]) == 1 for t in receipt["tasks"])
     with pytest.raises(DecisionError):
         advance_task(receipt, "control_room", "close_task", "operator", "SIMULATION: close too soon")
@@ -50,6 +54,33 @@ def test_staged_tasks_require_acknowledgement_and_preserve_history():
         unchanged, changed = advance_task(closed, "control_room", operation, "different", "SIMULATION: retry after close")
         assert not changed and unchanged == closed
     assert all(t["state"] == "prepared" for t in closed["tasks"][1:])
+
+
+def test_synthetic_sla_classification_is_deterministic_and_auditable():
+    from app.proposal_simulation import prepare_task_receipt, advance_task
+    started = datetime(2026, 10, 17, 10, 0, tzinfo=timezone.utc)
+    receipt = prepare_task_receipt("id", "approved", draft(), now=started)
+    on_time, _ = advance_task(receipt, "control_room", "acknowledge_task", "operator",
+                              "SIMULATION: on-time desk review", now=started + timedelta(minutes=15))
+    assert on_time["tasks"][0]["sla_status"] == "within_synthetic_target"
+    assert on_time["tasks"][0]["events"][-1]["due_at"] == receipt["tasks"][0]["due_at"]
+    late, _ = advance_task(receipt, "infrastructure", "acknowledge_task", "operator",
+                           "SIMULATION: delayed desk review", now=started + timedelta(minutes=31))
+    assert late["tasks"][1]["sla_status"] == "synthetic_target_elapsed"
+
+
+def test_v2_staged_receipt_remains_advanceable_without_invented_sla():
+    from app.proposal_simulation import prepare_task_receipt, advance_task
+    receipt = prepare_task_receipt("id", "approved", draft())
+    receipt["version"] = "aegis.proposal.simulation.v2"
+    receipt.pop("sla_policy")
+    for task in receipt["tasks"]:
+        for key in ("sla_minutes", "due_at", "sla_status"):
+            task.pop(key)
+    advanced, changed = advance_task(receipt, "control_room", "acknowledge_task",
+                                     "operator", "SIMULATION: compatible old receipt")
+    assert changed is True
+    assert "sla_status" not in advanced["tasks"][0]
 
 
 @pytest.mark.parametrize("task_id,operation,reason", [("unknown", "acknowledge_task", "Long enough reason"),

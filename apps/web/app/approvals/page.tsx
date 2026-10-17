@@ -14,7 +14,7 @@ interface AssistanceRun { id: string; status: "running" | "review_ready" | "canc
 interface Proposal {
   id: string; incident_id: string; maker_subject: string;
   action_type: string; status: "draft" | "submitted" | "approved" | "rejected";
-  proposal: { assistance_run?: AssistanceRun; review_focus?: Focus; rationale?: string; exercise_only?: boolean; response_draft?: { review_brief?: ReviewBrief; context_state: string; recommendation_draft: string[]; playbook: { version: string; synthetic_evidence_ids: string[] } }; simulation?: { version?: string; tasks: { id?: string; department: string; state: string; events?: { kind: string; occurred_at: string; actor_subject?: string; rationale?: string }[] }[] } };
+  proposal: { assistance_run?: AssistanceRun; review_focus?: Focus; rationale?: string; exercise_only?: boolean; response_draft?: { review_brief?: ReviewBrief; context_state: string; recommendation_draft: string[]; playbook: { version: string; synthetic_evidence_ids: string[] } }; simulation?: { version?: string; sla_policy?: string; tasks: { id?: string; department: string; state: string; due_at?: string; sla_minutes?: number; sla_status?: string; events?: { kind: string; occurred_at: string; actor_subject?: string; rationale?: string; sla_status?: string }[] }[] } };
   created_at: string;
 }
 const actionTypes = [
@@ -254,8 +254,9 @@ export default function ApprovalWorkbench() {
                 <details className="mt-2"><summary className="cursor-pointer font-semibold">Scripted task progress</summary>
                 <ul className="mt-3 space-y-4">{proposal.proposal.simulation.tasks.map(task => <li key={task.department} className="rounded-xl border border-stroke p-3">
                   <p className="font-semibold">{task.department}: {task.state}</p>
+                  {task.due_at && <p className="mt-1 text-xs">Synthetic review target: {task.sla_minutes} minutes · due {new Date(task.due_at).toLocaleString()} · <strong>{task.sla_status?.replaceAll("_", " ")}</strong></p>}
                   <ol className="mt-2 text-xs">{task.events?.map(event => <li key={event.kind}>{event.kind} · {new Date(event.occurred_at).toLocaleString()}{event.actor_subject ? ` · ${event.actor_subject}` : ""}{event.rationale ? ` · ${event.rationale}` : ""}</li>)}</ol>
-                  {proposal.status === "approved" && canMake && task.id && task.state !== "closed" && proposal.proposal.simulation?.version === "aegis.proposal.simulation.v2" && <div className="mt-3">
+                  {proposal.status === "approved" && canMake && task.id && task.state !== "closed" && ["aegis.proposal.simulation.v2", "aegis.proposal.simulation.v3"].includes(proposal.proposal.simulation?.version || "") && <div className="mt-3">
                     <label htmlFor={`task-${proposal.id}-${task.id}`} className="text-xs font-semibold">Scripted task rationale for {task.department} (required)</label>
                     <textarea id={`task-${proposal.id}-${task.id}`} className="field mt-1 !h-20 resize-y py-2" maxLength={2000}
                       value={reviewReasons[`${proposal.id}:${task.id}`] || ""} onChange={event => setReviewReasons(value => ({ ...value, [`${proposal.id}:${task.id}`]: event.target.value }))}/>
@@ -265,6 +266,7 @@ export default function ApprovalWorkbench() {
                     </button>
                   </div>}
                 </li>)}</ul></details>
+                {proposal.proposal.simulation.sla_policy && <p className="mt-2 text-xs">Synthetic rehearsal targets only; no operational SLA, escalation, notification or department participation.</p>}
               </div>}
               <a className="mt-3 inline-block text-sm underline" href={`/api/proposals/${proposal.id}/audit`} target="_blank" rel="noreferrer">Open private proposal audit JSON</a>
               {proposal.status === "approved" && proposal.action_type === "prepare_warning" && proposal.proposal.response_draft && <div className="mt-3 text-sm">

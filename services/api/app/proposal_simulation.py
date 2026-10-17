@@ -1,5 +1,5 @@
 """Private proposal-linked tabletop receipts. No transport or real recipients."""
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from app.governance import DecisionError
 
@@ -40,23 +40,32 @@ def simulation_receipt(proposal_id: str, status: str, draft: dict | None) -> dic
 
 
 TASK_IDS = ("control_room", "infrastructure", "communications")
+TASK_SLA_MINUTES = {"control_room": 15, "infrastructure": 30, "communications": 45}
 
 
-def prepare_task_receipt(proposal_id: str, status: str, draft: dict | None) -> dict:
+def prepare_task_receipt(proposal_id: str, status: str, draft: dict | None,
+                         *, now: datetime | None = None) -> dict:
     """Staged rehearsal; preserve the legacy one-shot simulation contract."""
     receipt = simulation_receipt(proposal_id, status, draft)
-    receipt["version"] = "aegis.proposal.simulation.v2"
+    prepared_at = now or datetime.now(timezone.utc)
+    receipt["version"] = "aegis.proposal.simulation.v3"
+    receipt["sla_policy"] = "aegis.exercise.department-sla.v1"
     for task_id, task in zip(TASK_IDS, receipt["tasks"]):
         task["id"] = task_id
         task["state"] = "prepared"
-        task["events"] = task["events"][:1]
+        task["sla_minutes"] = TASK_SLA_MINUTES[task_id]
+        task["due_at"] = (prepared_at + timedelta(minutes=TASK_SLA_MINUTES[task_id])).isoformat()
+        task["sla_status"] = "awaiting_scripted_acknowledgement"
+        task["events"] = [{"kind": "prepared", "occurred_at": prepared_at.isoformat(),
+                           "scripted": True}]
     return receipt
 
 
 def advance_task(receipt: dict | None, task_id: str, operation: str,
-                 actor: str, rationale: str) -> tuple[dict, bool]:
+                 actor: str, rationale: str, *, now: datetime | None = None) -> tuple[dict, bool]:
     from copy import deepcopy
-    if (not receipt or receipt.get("version") != "aegis.proposal.simulation.v2" or
+    if (not receipt or receipt.get("version") not in
+            {"aegis.proposal.simulation.v2", "aegis.proposal.simulation.v3"} or
             receipt.get("synthetic") is not True or
             receipt.get("outbound_messages_sent") is not False or
             receipt.get("operational_actions_enabled") is not False or
@@ -77,7 +86,14 @@ def advance_task(receipt: dict | None, task_id: str, operation: str,
     expected = "prepared" if target == "acknowledged" else "acknowledged"
     if task["state"] != expected:
         raise DecisionError("Acknowledge the scripted task before closing it")
+    event_time = now or datetime.now(timezone.utc)
     task["state"] = target
-    task["events"].append({"kind": target, "occurred_at": datetime.now(timezone.utc).isoformat(),
-                           "scripted": True, "actor_subject": actor, "rationale": reason})
+    event = {"kind": target, "occurred_at": event_time.isoformat(),
+             "scripted": True, "actor_subject": actor, "rationale": reason}
+    if target == "acknowledged" and receipt["version"] == "aegis.proposal.simulation.v3":
+        due_at = datetime.fromisoformat(task["due_at"].replace("Z", "+00:00"))
+        task["sla_status"] = "within_synthetic_target" if event_time <= due_at else "synthetic_target_elapsed"
+        event["sla_status"] = task["sla_status"]
+        event["due_at"] = task["due_at"]
+    task["events"].append(event)
     return result, True

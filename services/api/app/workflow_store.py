@@ -183,7 +183,10 @@ def transition(
                 audit_action = "simulated_department_tasks" if operation == "simulate" else operation
                 details = {"agency_id": str(agency_id), "exercise_only": True, "outbound_messages_sent": False}
                 if task_id is not None:
-                    details.update({"task_id": task_id, "rationale": (reason or "").strip(), "scripted": True})
+                    task = next(item for item in receipt["tasks"] if item.get("id") == task_id)
+                    details.update({"task_id": task_id, "rationale": (reason or "").strip(),
+                                    "scripted": True, "sla_policy": receipt.get("sla_policy"),
+                                    "sla_status": task.get("sla_status"), "due_at": task.get("due_at")})
                 _audit(cur, actor, audit_action, proposal_id, details)
                 return current.status.value
             if operation == "submit":
