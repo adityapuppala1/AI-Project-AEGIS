@@ -6,7 +6,9 @@ See [AI assistance and prediction roadmap](AI_ASSISTANCE_ROADMAP.md) for the
 ordered next slices, user benefits, evaluation gates and existing pending work.
 The roadmap distinguishes delivered slices from planned capabilities.
 The [incident context panel](INCIDENT_CONTEXT_PANEL.md) is the first extension;
-source agreement detection and per-dependency diagnostics remain pending.
+source agreement detection and deeper per-dependency diagnostics remain pending.
+[Stage-specific context failures](CONTEXT_FAILURE_DIAGNOSTICS.md) now distinguish
+case/geographic reads and validation without exposing exception details.
 The [cited review brief](CITED_REVIEW_BRIEF.md) adds the deterministic fallback
 for evidence-grounded review; a model-backed copilot and agent runner remain planned.
 

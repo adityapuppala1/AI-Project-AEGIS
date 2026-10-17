@@ -123,3 +123,12 @@ response snapshot, and a shared component renders case and captured proposal
 views. It does not invoke a provider, interpret raw source instructions or gain
 write authority. Historic snapshots without the field remain compatible.
 See [brief scope](CITED_REVIEW_BRIEF.md).
+
+## Context failure stages
+
+The assessment adapter wraps expected read/configuration and validation failures
+with fixed stage codes. Existing readiness and proposal-create handlers return
+503; the readiness BFF allowlists these codes and the client renders static
+guidance. No raw exception details or infrastructure metadata are returned.
+Missing cases remain 404; normal assessment/captured snapshots are unchanged.
+See [failure diagnostics](CONTEXT_FAILURE_DIAGNOSTICS.md).

@@ -26,8 +26,9 @@ an assessed hazard; it adds no agent privileges, model calls or new services.
 A failed refresh clears the prior conclusion, presents an unavailable message
 and retains Recheck. Request cancellation prevents a previous radius/case fetch
 from replacing the selected context. A successful refresh clears old clipboard
-status. The panel cannot diagnose which individual dependency failed from a
-generic service error, so it does not invent a database/provider diagnosis.
+status. Stage-specific [failure guidance](CONTEXT_FAILURE_DIAGNOSTICS.md) now identifies
+case loading, geographic loading or validation failures. Generic service errors
+remain generic; no database/provider root-cause diagnosis is invented.
 
 ## Boundaries and next work
 

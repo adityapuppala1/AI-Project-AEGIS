@@ -2,7 +2,8 @@
 
 Updated: 17 October 2026 (IST). Repository: `adityapuppala1/AI-Project-AEGIS`.
 Branch: `feat/aegis-local-demo-continuation`; integration baseline `b71172c`.
-Latest review-brief source: `6b2211ccfcdb0f2b6826dd516487e94d9aa1dc94`;
+Latest context-diagnostics source: `eb4624ed93ddc72a0cc9a2b6cf37c51ff79c0b7f`;
+prior review-brief source `6b2211c`;
 context-panel source `061e35a`; prior staged-task source `413dd97`, proxy
 follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
@@ -32,7 +33,7 @@ a subsequent documentation-only commit records the results below.
 
 | Gate | Executed evidence |
 |---|---|
-| Latest API/model | Windows: `python -m pytest -q` **259 passed, 6 skipped**; `python -m app.model_lab --check` PASS. Prior Linux CAP suite: 239 passed, 4 skipped. One upstream Starlette/httpx deprecation warning |
+| Latest API/model | Windows: `python -m pytest -q` **264 passed, 6 skipped**; `python -m app.model_lab --check` PASS. Prior Linux CAP suite: 239 passed, 4 skipped. One upstream Starlette/httpx deprecation warning |
 | Real database | Latest laptop run: **6 integration tests passed**, separate `aegis_verification_57878ac` DB, including concurrent checker/audit and task retry regressions |
 | Latest frontend in Linux | `npm install --ignore-scripts --no-audit --no-fund`, `npm run typecheck`, `npm run build`: PASS on Tailwind 4.3.3; full `npm audit --json`: **zero vulnerabilities**, no suppression |
 | Latest Windows dependency/type check | `npm.cmd ci --no-audit --no-fund` and `npm.cmd run typecheck`: PASS; `npm.cmd audit --json`: **zero vulnerabilities including development dependencies**, no suppression |
@@ -385,3 +386,51 @@ validated forecasting research and measured responsiveness extensions. The
 current brief is a deterministic fallback, not those completed capabilities.
 Two-human IdP/MFA and manual accessibility/operator acceptance remain deferred
 as previously recorded.
+
+## Stage-specific assessment failures — 17 October 2026
+
+Source `29138a3`; API/BFF/proposal refusal regressions `eb4624e`. The existing
+context adapter identifies failures while reading case evidence, reading
+geographic candidates or validating combined context. Existing endpoints
+return safe 503 codes; BFF/client allowlist fixed guidance and suppress unknown
+raw details. Normal context/snapshot fields, maker-checker and agency checks
+are unchanged. See [diagnostic scope](CONTEXT_FAILURE_DIAGNOSTICS.md).
+
+Source comparison remains not evaluated: the registry lacks comparable
+measurement windows and sensor-group semantics, so no disagreement/forecast
+was inferred from nearby raw values. No model, new service, migration, trust
+change or IdP activation was introduced.
+
+Executed on Windows `eb4624e`:
+- `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify-code-local.ps1 -Suite all`:
+  **264 passed, 6 skipped**, model reproduction and TypeScript PASS.
+- `cd apps/web; node --test scripts/tests/proposal-proxy.test.cjs scripts/tests/context-route.test.cjs`:
+  **17 passed** (nine existing proposal tests plus eight context-route tests).
+  Isolated fetch replacement never modifies deployed auth/fetch behavior.
+
+Runtime build/browser/DB acceptance is recorded below after completion.
+
+Final runtime acceptance on `eb4624e` passed:
+- `docker compose up --build -d api web`: production API/web build/start PASS;
+  loopback API/web readiness confirmed before browser/HTTP checks.
+- `node .git/browser-qa/context-errors.cjs`: PASS three distinct stage messages,
+  unknown-code sanitization, removal of old conclusions, healthy recovery,
+  mobile overflow and zero page errors.
+- `node .git/browser-qa/smoke.cjs`: browser smoke PASS, zero page errors and
+  sampled axe violations; exact check count confirmed on final sync.
+- `services/api/.venv/Scripts/python.exe scripts/verify-local-http.py`: all
+  routes/checksum, anonymous private-route refusal and live-warning block PASS.
+- The separate-DB six-test Compose command in the staged workflow section:
+  **6 passed** in 1.89 s; no app DB/volume reset. Signed TEST-key approvals,
+  captured briefs, CAP stability and concurrent retry/audit checks remain valid.
+
+Process 85556 completed exit 0. Logs:
+`.git/context-errors-{native,node,build,panel,browser,http}.log`;
+`.git/context-errors-progress.txt` reports PASS. One pre-existing upstream
+Starlette/httpx deprecation warning remains. No Linux runtime tests were
+claimed for this slice. Documentation `git diff --check` and changed Markdown
+local target validation passed; final docs use a guarded local bundle sync.
+No push, CI, external model/provider, trust change, IdP activation or live
+operation. Remaining: comparable-source metadata/agreement rules, deeper
+dependency diagnosis, model-backed copilot and durable runner, validated
+prediction research, responsiveness extensions and deferred human acceptance.

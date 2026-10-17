@@ -332,3 +332,18 @@ typecheck/web rebuild, targeted brief citation/mobile/malformed checks, browser
 smoke/axe, HTTP/checksum/refusal and all six real PostGIS tests passed. Backend
 remains the 259-pass version; no proxy changes or external model service.
 Exact commands/logs and the retained failure are in the handoff.
+
+### Safe context failure stages — 17 October 2026
+
+`29138a3` / `eb4624e` add fixed case/geography/validation error codes,
+allowlisted BFF forwarding and static operator guidance. Context failure
+during proposal creation returns unavailable, with no success response.
+Windows native 264 tests (six DB skips), model/type checks and 17 isolated
+Node route/proxy tests passed. Runtime acceptance is in the handoff.
+Source agreement still requires comparable measurement-window/group metadata;
+raw nearby readings are not treated as contradictory or corroborating.
+
+Runtime acceptance on `eb4624e` also passed: production API/web rebuild,
+three-stage browser failure/recovery plus unknown-code sanitization/mobile,
+browser smoke/axe, HTTP/checksum/refusals and six real PostGIS tests (1.89 s).
+Process 85556 exited 0; no DB resets or live actions. See current handoff logs.

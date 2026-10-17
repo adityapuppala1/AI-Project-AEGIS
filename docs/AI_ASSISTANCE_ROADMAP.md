@@ -136,3 +136,19 @@ skips), model/type checks, six real PostGIS tests, production build, targeted
 brief/mobile/malformed-response browser checks, sampled browser/axe and HTTP
 passed. The brief is a tested deterministic fallback; order 2's generative
 capability and subsequent agent/prediction stages remain planned.
+
+## Implementation update — context failure stages
+
+`29138a3` / `eb4624e` add [safe stage failure feedback](CONTEXT_FAILURE_DIAGNOSTICS.md)
+for case reads, geographic reads and context validation, propagated through the
+existing readiness route with static operator guidance. This is partial
+dependency visibility, not per-host monitoring or root-cause diagnosis. Actual
+source agreement remains not evaluated: comparable measurement windows/sensor
+groups are absent, and comparing nearby raw values would be misleading.
+Exact executed acceptance remains in the handoff. No model or agent is enabled.
+
+Context diagnostic acceptance on `eb4624e`: 264 native API tests (six DB
+skips), 17 Node route/proxy tests, six real PostGIS tests, production builds,
+targeted stage-failure/recovery/mobile browser checks, browser smoke/axe and
+HTTP passed on Windows. This closes stage feedback, not agreement inference
+or complete dependency monitoring. IdP/human acceptance remains deferred.
