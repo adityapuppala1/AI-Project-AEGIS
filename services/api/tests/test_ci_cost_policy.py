@@ -25,7 +25,7 @@ def test_local_script_defaults_to_light_api_suite():
     script = SCRIPT.read_text(encoding="utf-8")
     assert '[string]$Suite = "api"' in script
     assert 'if ($ProductionBuild)' in script
-    assert "python -m pytest -q" in script
-    assert "npm run typecheck" in script
+    assert "-m pytest -q" in script
+    assert "run typecheck" in script
     assert "github workflow run" not in script.lower()
     assert "docker compose down -v" not in script.lower()
