@@ -1,0 +1,8 @@
+# Optional local selection preview; base Compose stays disabled.
+# Uses the existing host Ollama runtime, not a cloud service or new model pull.
+services:
+  api:
+    environment:
+      AEGIS_LOCAL_COPILOT_ENABLED: "1"
+      AEGIS_LOCAL_COPILOT_TARGET: docker_host
+      AEGIS_LOCAL_COPILOT_MODEL: tinyllama:1.1b

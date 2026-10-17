@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from uuid import UUID
 from typing import Literal
 from fastapi import FastAPI, HTTPException, Query
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 app = FastAPI(title="AEGIS Exercise API", version="0.1.0")
 
@@ -204,3 +204,21 @@ def current_exercise_policy_profile():
     """Read-only policy documentation; no browser-operable authorization toggle."""
     from app.policy_profile import exercise_policy_profile
     return exercise_policy_profile()
+
+
+class ReviewFocusRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+
+@app.post("/v1/exercise/incidents/{incident_id}/review-focus")
+def exercise_review_focus(incident_id: UUID, payload: ReviewFocusRequest):
+    """Read-only local selection preview on the public synthetic fixture scope."""
+    from app.assessment_adapter import ContextUnavailable, exercise_readiness
+    from app.local_copilot import review_focus
+    try:
+        context = exercise_readiness(incident_id)
+    except ContextUnavailable as exc:
+        raise HTTPException(503, detail={"code": exc.code}) from exc
+    if context is None:
+        raise HTTPException(404, detail="Synthetic exercise context not found")
+    return review_focus(context)

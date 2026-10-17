@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { LocalReviewFocus } from "./local-review-focus";
 import { contextErrorMessage } from "../lib/context-errors";
 import { ExerciseReviewBrief, type ReviewBrief } from "./exercise-review-brief";
 import { AlertTriangle, ArrowRight, BrainCircuit, CheckCircle2, ClipboardCheck, RefreshCw, ShieldAlert } from "lucide-react";
@@ -185,6 +186,7 @@ export function AssessmentReadiness({ incidentId }: { incidentId: string }) {
         </dl>
         <p className="mt-3 text-xs leading-5 text-muted">These are simulation record counts, not hazard probabilities or verified exposure counts.</p>
         {result.review_brief && <ExerciseReviewBrief brief={result.review_brief}/>}
+        <LocalReviewFocus incidentId={incidentId}/>
       </div>
       <div>
         <h4 className="text-sm font-bold">Why these checks matter</h4>
