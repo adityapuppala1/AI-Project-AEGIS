@@ -9,11 +9,23 @@ export interface ReviewBrief {
   playbook_version: "AEGIS-URBAN-FLOOD-EXERCISE-v0.1";
 }
 
+const isReference = (value: unknown) => typeof value === "string" &&
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+
 export function ExerciseReviewBrief({ brief }: { brief: ReviewBrief }) {
   if (brief?.version !== "aegis.exercise.review-brief.v1" ||
       brief.generated_by !== "deterministic_template_no_model" ||
       brief.synthetic !== true || brief.operational_actions_enabled !== false ||
-      brief.playbook_version !== "AEGIS-URBAN-FLOOD-EXERCISE-v0.1") {
+      brief.playbook_version !== "AEGIS-URBAN-FLOOD-EXERCISE-v0.1" ||
+      !Array.isArray(brief.findings) || brief.findings.length !== 2 ||
+      !brief.findings.every(item => item && typeof item.text === "string" &&
+        Array.isArray(item.evidence_ids) && item.evidence_ids.length <= 50 && item.evidence_ids.every(isReference) &&
+        Array.isArray(item.source_ids) && item.source_ids.length <= 20 && item.source_ids.every(isReference)) ||
+      !Array.isArray(brief.review_options) || brief.review_options.length !== 3 ||
+      !brief.review_options.every(item => item && typeof item.text === "string" &&
+        ["URB-01", "URB-03", "URB-04"].includes(item.playbook_step)) ||
+      !Array.isArray(brief.limitations) || brief.limitations.length > 20 ||
+      !brief.limitations.every(item => typeof item === "string")) {
     return <p role="alert">Review brief classification not verified.</p>;
   }
   return <details className="mt-4 rounded-xl border border-stroke p-4">
