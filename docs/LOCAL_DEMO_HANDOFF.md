@@ -1147,3 +1147,9 @@ never send escalation or claim operational SLAs. Prior native evidence remains
 321 passed/13 skipped plus reproducible model and TypeScript; it was not rerun
 for test/documentation-only imports. No push, CI, paid service, trust change,
 IdP activation or live operations occurred. Manual human acceptance remains open.
+
+Documentation sync note: acceptance record commit `3d503fa` is in the mirror.
+Its laptop bundle write is queued as Remote MCP call
+`49cc2a4e-c1d4-4677-ac6a-25dc9aaa8d7b`; do not retry while pending. The last
+verified laptop HEAD remains `c245a66`. This affects documentation sync only;
+all application acceptance results above completed before this interruption.

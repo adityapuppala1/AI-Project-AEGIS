@@ -8,6 +8,7 @@ import { GeoMap } from "./geo-map";
 import { StatusBadge } from "./status-badge";
 import { useExerciseData } from "../lib/use-exercise-data";
 import { SourceHealthSummary } from "./source-health-summary";
+import { LocalReviewFocus } from "./local-review-focus";
 import { IngestionStatusSummary } from "./ingestion-status-summary";
 
 function Metric({ label, value, caption, icon: Icon, tone = "accent" }: {
@@ -35,6 +36,19 @@ export function CommandCenter() {
     {error && <div role="alert" className="mb-5 flex items-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-700 dark:text-rose-300">
       <AlertTriangle size={17}/>{error}. Previously loaded values, if any, may be stale.
     </div>}
+    <section className="operator-hero mb-5 overflow-hidden rounded-2xl border border-stroke p-5 sm:p-7" aria-label="Operator mission workspace">
+      <div className="relative z-10 grid gap-6 lg:grid-cols-[1.3fr_1fr]">
+        <div><p className="eyebrow">AEGIS / Human-led intelligence</p>
+          <h2 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">See the evidence.<br/>Shape the next decision.</h2>
+          <p className="mt-3 max-w-xl text-sm leading-6 text-muted">Select a case, inspect its sources and ask local AI to focus your review. Every response stays connected to evidence and an accountable reviewer.</p>
+          <div className="mt-4 flex flex-wrap gap-2"><Link href="/approvals" className="control control-primary">Open approval workbench <ArrowRight size={15}/></Link><Link href="/demo" className="control">Follow the exercise</Link></div>
+        </div>
+        <ol className="grid gap-2" aria-label="Human-led assistance sequence">
+          {[["01", "Observe & verify", "Inspect sources, freshness and uncertainty."], ["02", "Focus & draft", "AI selects cited review items; makers control drafts."], ["03", "Review & rehearse", "Independent approval precedes scripted tasks."]].map(([n,title,detail]) =>
+            <li key={n} className="flex items-start gap-3 rounded-xl border border-stroke bg-surface/80 p-3"><span className="mt-1 text-xs font-bold text-accent">{n}</span><div><p className="text-sm font-semibold">{title}</p><p className="mt-1 text-xs leading-5 text-muted">{detail}</p></div></li>)}
+        </ol>
+      </div>
+    </section>
     <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
       <div className="flex items-center gap-2"><span className={`status-dot ${error ? "bg-rose-400" : lastSynced ? "bg-emerald-400" : "bg-amber-400"}`}/><span className="text-xs font-medium text-muted">{error ? "Data feed unavailable" : lastSynced ? "Exercise API connected" : "Connecting to exercise API"}</span></div>
       <button type="button" className="control" onClick={() => void refresh()} disabled={refreshing}><RefreshCw size={16} className={refreshing ? "animate-spin" : ""}/> {refreshing ? "Refreshing" : "Refresh data"}</button>
@@ -45,8 +59,6 @@ export function CommandCenter() {
       <Metric label="In-progress exercises" value={loading ? "—" : incidents.filter(i => i.status === "active").length} caption="Not real deployments" icon={Activity} tone="rose"/>
       <Metric label="Public alerts issued" value="0" caption="Operational alerting disabled" icon={AlertTriangle}/>
     </section>
-    <SourceHealthSummary/>
-    <IngestionStatusSummary/>
     <section className="panel mt-5 flex flex-wrap items-center justify-between gap-3 p-4 sm:p-5" aria-label="Fictional agency task workflow">
       <div><h2 className="text-sm font-bold">AgencySync · Exercise Acknowledgements</h2>
         <p className="mt-1 text-xs text-muted">Explore scripted task acknowledgements with no outbound departmental messaging.</p></div>
@@ -69,15 +81,19 @@ export function CommandCenter() {
               <div className="mt-2 flex items-center gap-2 text-xs text-muted"><MapPinned size={13}/>{item.lat.toFixed(3)}, {item.lon.toFixed(3)}</div>
             </button>)}
         </div>
+        {!selected && <p className="border-t border-stroke p-4 text-xs leading-6 text-muted">Select a case to reveal its local AI review focus and evidence workspace. No model runs until you request it.</p>}
         {selected && <div className="border-t border-stroke p-4"><div className="rounded-xl border border-accent/30 bg-accent/5 p-4">
           <div className="flex items-center justify-between gap-2"><p className="eyebrow">Selected incident</p><StatusBadge status={selected.status}/></div>
           <h3 className="mt-3 text-sm font-bold">{selected.hazard_type}</h3>
           <p className="mt-2 text-xs text-muted">ID {selected.id.slice(0,8)} · {selected.lat.toFixed(4)}, {selected.lon.toFixed(4)}</p>
           <p className="mt-2 text-xs text-muted">Synthetic record. Operational actions are disabled.</p>
+          <LocalReviewFocus key={selected.id} incidentId={selected.id}/>
           <Link href={"/incidents/" + selected.id} className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline">Open intelligence workspace <ArrowRight size={14}/></Link>
         </div></div>}
       </section>
     </div>
+    <SourceHealthSummary/>
+    <IngestionStatusSummary/>
     <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1.5fr)_minmax(320px,1fr)]">
       <section className="panel min-w-0" aria-label="Synthetic rainfall trend">
         <div className="panel-heading"><div><h2 className="flex items-center gap-2 text-base font-bold"><CloudRain size={18} className="text-accent"/> Hazard Telemetry</h2><p className="mt-1 text-xs text-muted">Synthetic time-series fixture · not a weather forecast</p></div><span className="text-xs font-semibold text-muted">Simulated 60 minutes</span></div>
