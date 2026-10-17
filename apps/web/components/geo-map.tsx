@@ -28,7 +28,7 @@ export function GeoMap({ incidents, selectedId, onSelect }: {
     (async () => {
       try {
         if (!containerRef.current) return;
-        const maplibregl = (await import("maplibre-gl")).default;
+        const maplibregl = await import("maplibre-gl");
         if (disposed || !containerRef.current) return;
         map = new maplibregl.Map({
           container: containerRef.current,
@@ -49,7 +49,7 @@ export function GeoMap({ incidents, selectedId, onSelect }: {
         });
         map.on("sourcedata", event => {
           if (!disposed && retryingTiles.current && event.sourceId === "osm" &&
-              event.sourceDataType === "content" && map?.isSourceLoaded("osm")) {
+              (event.sourceDataType === "content" || event.sourceDataType === "idle") && map?.isSourceLoaded("osm")) {
             retryingTiles.current = false;
             setTilesUnavailable(false);
           }
@@ -76,7 +76,7 @@ export function GeoMap({ incidents, selectedId, onSelect }: {
     markersRef.current.forEach(marker => marker.remove());
     markersRef.current = [];
     let active = true;
-    import("maplibre-gl").then(({ default: maplibregl }) => {
+    import("maplibre-gl").then(maplibregl => {
       const currentMap = mapRef.current;
       if (!active || !currentMap) return;
       for (const incident of incidents) {
