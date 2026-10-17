@@ -1,6 +1,6 @@
 "use client";
 import {useEffect,useRef,useState} from "react";
-type Focus={status:"template_fallback"|"model_assisted_selection";reason:string;model:string|null;reference_time:string;finding:{text:string;evidence_ids:string[];source_ids:string[]};review_option:{playbook_step:string;text:string};limitations:string[]};
+export type Focus={status:"template_fallback"|"model_assisted_selection";reason:string;model:string|null;reference_time:string;finding:{text:string;evidence_ids:string[];source_ids:string[]};review_option:{playbook_step:string;text:string};limitations:string[]};
 const reasons:Record<string,string>={disabled:"Local model is disabled",unsupported_configuration:"Local model configuration is unsupported",missing_evidence:"Case evidence is missing",busy:"Local model is busy",invalid_output:"Model output did not pass validation",unavailable:"Local model is unavailable"};
 export function LocalReviewFocus({incidentId}:{incidentId:string}) {
  const [focus,setFocus]=useState<Focus|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState("");
@@ -27,12 +27,16 @@ export function LocalReviewFocus({incidentId}:{incidentId:string}) {
   {busy&&<button type="button" className="control text-xs" onClick={()=>{pending.current?.abort();pending.current=null;setBusy(false);setError("Preview cancelled; no proposal was saved");}}>Cancel preview</button>}</div>
   {busy&&<p role="status" className="mt-2 text-xs">Checking local review focus…</p>}
   {error&&<p role="alert" className="mt-2 text-xs">{error}</p>}
-  {focus&&<div className="mt-3 space-y-2 text-xs leading-6">
+  {focus&&<ReviewFocusDetails focus={focus}/>}
+ </section>;
+}
+
+export function ReviewFocusDetails({focus}:{focus:Focus}) {
+ return <div className="mt-3 space-y-2 text-xs leading-6">
    <p role="status" className="font-bold">{focus.status==="model_assisted_selection"?`Local model selected review items (${focus.model})`:`Template fallback — ${reasons[focus.reason]||"local model not used"}`}</p>
    <p>{focus.finding.text}</p><p className="break-all text-muted">Evidence IDs: {focus.finding.evidence_ids.join(" · ")||"None"}</p><p className="break-all text-muted">Source candidate IDs: {focus.finding.source_ids.join(" · ")||"None"}</p>
    <p><strong>{focus.review_option.playbook_step}:</strong> {focus.review_option.text}</p>
    <p className="text-muted">Freshness evaluated at {focus.reference_time}; model selection does not validate these observations.</p>
    <ul className="list-disc pl-5 text-muted">{focus.limitations.map((text,index)=><li key={index}>{text}</li>)}</ul>
-  </div>}
- </section>;
+  </div>;
 }

@@ -22,6 +22,7 @@ export async function proxyProposals(request: Request, proposalId?: string, expo
   const isWrite = request.method === "POST";
   if (isWrite && !sameOrigin(request, config)) return failure(403, "Invalid request origin");
   let body: string | undefined;
+  let timeoutMs = 8000;
   if (isWrite) {
     const raw = await request.text();
     if (raw.length > 8000) return failure(413, "Proposal payload too large");
@@ -45,12 +46,15 @@ export async function proxyProposals(request: Request, proposalId?: string, expo
       body = JSON.stringify({ operation: operation as Operation, rationale: data.rationale, ...(taskOperation ? { task_id: data.task_id } : {}) });
     } else {
       if (!hasRole(session.roles, "incident_operator")) return failure(403, "Operator role required");
-      if (Object.keys(data).some((key) => !["incident_id", "action_type", "rationale"].includes(key))) return failure(400, "Unexpected proposal attributes");
+      if (Object.keys(data).some((key) => !["incident_id", "action_type", "rationale", "include_review_focus"].includes(key))) return failure(400, "Unexpected proposal attributes");
       if (typeof data.incident_id !== "string" || !UUID.test(data.incident_id) ||
           typeof data.action_type !== "string" || !ACTIONS.has(data.action_type) ||
           typeof data.rationale !== "string" || data.rationale.trim().length < 10 || data.rationale.length > 2000)
         return failure(400, "Invalid proposal fields");
-      body = JSON.stringify({ incident_id: data.incident_id, action_type: data.action_type, rationale: data.rationale });
+      if (data.include_review_focus !== undefined && typeof data.include_review_focus !== "boolean") return failure(400, "Invalid review focus choice");
+      if (data.include_review_focus === true) timeoutMs = 30000;
+      body = JSON.stringify({ incident_id: data.incident_id, action_type: data.action_type, rationale: data.rationale,
+        ...(data.include_review_focus !== undefined ? { include_review_focus: data.include_review_focus } : {}) });
     }
   } else if (!hasRole(session.roles, "incident_operator", "incident_checker", "incident_auditor")) {
     return failure(403, "No workflow access");
@@ -61,7 +65,7 @@ export async function proxyProposals(request: Request, proposalId?: string, expo
     const response = await fetch(endpoint, {
       method: request.method,
       headers: { Authorization: "Bearer " + session.accessToken, ...(isWrite ? { "Content-Type": "application/json" } : {}) },
-      body, cache: "no-store", signal: AbortSignal.timeout(8000),
+      body, cache: "no-store", signal: AbortSignal.timeout(timeoutMs),
     });
     if (exportKind === "cap-draft" && response.ok) {
       if (!response.headers.get("content-type")?.startsWith("application/xml"))
@@ -75,6 +79,6 @@ export async function proxyProposals(request: Request, proposalId?: string, expo
     const output = await response.json().catch(() => ({ error: "Exercise service returned an invalid response" }));
     return NextResponse.json(output, { status: response.status, headers: { "Cache-Control": "no-store" } });
   } catch {
-    return failure(503, "Exercise workflow service unavailable");
+    return failure(503, "Exercise workflow service unavailable. Refresh the queue before retrying a save; it may have completed.");
   }
 }

@@ -107,3 +107,18 @@ test('checker-only task writes and forged/missing task fields never fetch', asyn
     assert.equal(calls.length, 0);
   });
 });
+
+test('saved focus accepts only boolean opt-in, never caller model content', async () => {
+  const operator = loadProxy({ accessToken: 'unit-only-token', roles: ['incident_operator'] });
+  const body = { incident_id: id, action_type: 'internal_triage', rationale: 'SIMULATION: save cited selection', include_review_focus: true };
+  await withFetch(new Response('{}'), async calls => {
+    assert.equal((await operator(writeRequest(body))).status, 200);
+    assert.deepEqual(JSON.parse(calls[0].options.body), body);
+  });
+  await withFetch(null, async calls => {
+    for (const value of ['true', 1, {}, null]) assert.equal((await operator(writeRequest({ ...body, include_review_focus: value }))).status, 400);
+    assert.equal((await operator(writeRequest({ ...body, review_focus: { model: 'forged' } }))).status, 400);
+    assert.equal((await loadProxy()(writeRequest(body))).status, 403);
+    assert.equal(calls.length, 0);
+  });
+});

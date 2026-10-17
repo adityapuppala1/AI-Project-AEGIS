@@ -249,3 +249,16 @@ def test_transition_context_failure_is_sanitized_and_not_success(monkeypatch, op
     })
     assert response.status_code == 503
     assert response.json() == {"detail": {"code": "geographic_context_unavailable"}}
+
+
+def test_review_focus_opt_in_uses_verified_creation(monkeypatch):
+    authenticate("incident_operator")
+    captured = []
+    monkeypatch.setattr(exercise_workflows, "create_proposal", lambda *a, **k: captured.append((a, k)) or PROPOSAL_ID)
+    assert client.post("/v1/exercise/proposals", json={**valid_proposal(), "include_review_focus": True}).status_code == 201
+    assert captured[0][0][1:3] == (AGENCY_ID, "verified-user-1")
+    assert captured[0][1] == {"include_review_focus": True}
+    for value in ("true", 1, {}, None):
+        assert client.post("/v1/exercise/proposals", json={**valid_proposal(), "include_review_focus": value}).status_code == 422
+    assert client.post("/v1/exercise/proposals", json={**valid_proposal(), "review_focus": {"model": "forged"}}).status_code == 422
+    assert len(captured) == 1

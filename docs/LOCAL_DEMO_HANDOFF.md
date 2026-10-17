@@ -766,3 +766,13 @@ is transferred by a guarded local bundle and branch/SHA/clean-tree checks,
 with Windows script parsing and runtime inventory checked again. Future agents
 must follow the single-instance instructions in root AGENTS.md. Remaining
 agent/copilot/forecasting and human acceptance gates above stay open.
+
+## Saved review focus continuation — in progress
+
+Starting source `9423c22f81ab5267ba459be1e5a43cd747558af6`, branch
+`feat/aegis-local-demo-continuation`. Laptop inventory process 133392 exited 0:
+one API/web/DB, no detected conflicting managed job, clean expected branch/SHA.
+Opt-in server-generated review focus is being attached atomically to new drafts
+and their creation audits; see [scope](SAVED_REVIEW_FOCUS.md). Default creation
+and public read-only preview remain unchanged. Verification pending; do not
+mark this slice accepted until laptop tests/build/database checks run.

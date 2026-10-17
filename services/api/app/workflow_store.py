@@ -49,6 +49,7 @@ def create_proposal(
     maker: str,
     action: Action,
     rationale: str,
+    *, include_review_focus: bool = False,
 ) -> str:
     proposal_id = str(uuid4())
     with psycopg.connect(os.environ["DATABASE_URL"]) as conn:
@@ -65,11 +66,23 @@ def create_proposal(
             # retain the existing scoped proposal workflow without a demo snapshot.
             from app.intelligence_store import DEMO_AGENCY
             response_draft = None
+            captured_focus = None
+            if include_review_focus and agency_id != DEMO_AGENCY:
+                raise DecisionError("Saved review focus is available only for the named synthetic demo agency")
             if agency_id == DEMO_AGENCY:
                 from app.assessment_adapter import exercise_readiness
                 response_draft = exercise_readiness(UUID(incident_id))
                 if response_draft is None:
                     raise DecisionError("Synthetic response context is unavailable")
+            if include_review_focus:
+                from app.local_copilot import review_focus
+                captured_focus = review_focus(response_draft)
+                captured_focus["context_fingerprint"] = response_draft["context_fingerprint"]
+                captured_focus["note"] = "Saved selection of existing synthetic review items. The operator created this draft; independent human review is still required."
+                # Inference may take time. Refuse changed inputs before committing
+                # either the draft or its audit event; never rewrite its snapshot.
+                _revalidate_context({"incident_id": incident_id,
+                                     "proposal": {"response_draft": response_draft}}, agency_id)
             cur.execute(
                 """INSERT INTO action_proposals
                    (id, incident_id, maker_subject, action_type, proposal, status)
@@ -79,12 +92,15 @@ def create_proposal(
                     incident_id,
                     maker,
                     action.value,
-                    json.dumps({"rationale": rationale, "exercise_only": True, "response_draft": response_draft}),
+                    json.dumps({"rationale": rationale, "exercise_only": True, "response_draft": response_draft, **({"review_focus": captured_focus} if captured_focus is not None else {})}),
                 ),
             )
             _audit(
                 cur, maker, "created", proposal_id,
-                {"action_type": action.value, "agency_id": str(agency_id), "exercise_only": True},
+                {"action_type": action.value, "agency_id": str(agency_id), "exercise_only": True,
+                 **({"review_focus": {key: captured_focus[key] for key in
+                     ("version", "status", "reason", "model", "selection", "context_fingerprint")}}
+                    if captured_focus is not None else {})},
             )
     return proposal_id
 

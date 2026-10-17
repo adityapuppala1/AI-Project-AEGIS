@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { AlertTriangle, Check, ClipboardCheck, LockKeyhole, Plus, RefreshCw, ShieldCheck, X } from "lucide-react";
+import { ReviewFocusDetails, type Focus } from "../../components/local-review-focus";
 import { ExerciseDraftBuffer } from "../../lib/exercise-draft-buffer";
 import { AppShell } from "../../components/app-shell";
 import { ExerciseReviewBrief, type ReviewBrief } from "../../components/exercise-review-brief";
@@ -12,7 +13,7 @@ interface Incident { id: string; hazard_type: string; status: string }
 interface Proposal {
   id: string; incident_id: string; maker_subject: string;
   action_type: string; status: "draft" | "submitted" | "approved" | "rejected";
-  proposal: { rationale?: string; exercise_only?: boolean; response_draft?: { review_brief?: ReviewBrief; context_state: string; recommendation_draft: string[]; playbook: { version: string; synthetic_evidence_ids: string[] } }; simulation?: { version?: string; tasks: { id?: string; department: string; state: string; events?: { kind: string; occurred_at: string; actor_subject?: string; rationale?: string }[] }[] } };
+  proposal: { review_focus?: Focus; rationale?: string; exercise_only?: boolean; response_draft?: { review_brief?: ReviewBrief; context_state: string; recommendation_draft: string[]; playbook: { version: string; synthetic_evidence_ids: string[] } }; simulation?: { version?: string; tasks: { id?: string; department: string; state: string; events?: { kind: string; occurred_at: string; actor_subject?: string; rationale?: string }[] }[] } };
   created_at: string;
 }
 const actionTypes = [
@@ -39,6 +40,7 @@ export default function ApprovalWorkbench() {
   const [selectedIncident, setSelectedIncident] = useState("");
   const [actionType, setActionType] = useState("internal_triage");
   const [rationale, setRationale] = useState("");
+  const [includeReviewFocus, setIncludeReviewFocus] = useState(false);
   const [reviewReasons, setReviewReasons] = useState<Record<string,string>>({});
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -48,6 +50,7 @@ export default function ApprovalWorkbench() {
   const accessScope = useRef("");
   const draftTarget = useRef({ incident: "", action: "internal_triage" });
   const chooseDraft = useCallback((incident: string, action: string) => {
+    setIncludeReviewFocus(false);
     draftTarget.current = { incident, action };
     setSelectedIncident(incident); setActionType(action);
     setRationale(draftBuffer.current.read(incident, action));
@@ -108,7 +111,7 @@ export default function ApprovalWorkbench() {
     if (!canCreate || busy) return;
     setBusy(true); setError(""); setMessage("");
     try {
-      await mutation("/api/proposals", { incident_id: selectedIncident, action_type: actionType, rationale });
+      await mutation("/api/proposals", { incident_id: selectedIncident, action_type: actionType, rationale, ...(includeReviewFocus ? { include_review_focus: true } : {}) });
       setMessage("Exercise proposal saved as draft. It must be separately submitted and reviewed.");
       draftBuffer.current.write(selectedIncident, actionType, "");
       setRationale("");
@@ -191,6 +194,10 @@ export default function ApprovalWorkbench() {
                 placeholder="Explain evidence, affected area, uncertainty, and proposed action..."/>
             </div>
             <p className="text-xs leading-5 text-muted">Unsaved text stays on this page for up to 10 incident/action drafts. Leaving this page or changing identity clears it. A successful save clears that draft.</p>
+            <label className="flex items-start gap-2 text-xs leading-5">
+              <input type="checkbox" checked={includeReviewFocus} onChange={event => setIncludeReviewFocus(event.target.checked)} disabled={!canCreate || busy}/>
+              Save review focus with this draft (synthetic demo agency only). Local AI selects existing cited items; unavailable AI uses a labelled template. This may take about 20 seconds.
+            </label>
             <button type="submit" className="control control-primary w-full" disabled={!canCreate || busy || rationale.trim().length < 10}>
               <Plus size={16}/> Save exercise draft
             </button>
@@ -215,6 +222,11 @@ export default function ApprovalWorkbench() {
                 <p>{proposal.proposal.response_draft.playbook.synthetic_evidence_ids.length} synthetic evidence references preserved for review.</p>
                 <ul className="mt-2 list-disc pl-5">{proposal.proposal.response_draft.recommendation_draft.map(step => <li key={step}>{step}</li>)}</ul>
               </div>}
+              {proposal.proposal.review_focus && <section className="mt-3 rounded-xl border border-stroke p-3" aria-label="Saved review focus">
+                <h3 className="text-sm font-bold">Saved review focus</h3>
+                <p className="mt-1 text-xs text-muted">Captured when this draft was created. Selection is not evidence validation or approval.</p>
+                <ReviewFocusDetails focus={proposal.proposal.review_focus}/>
+              </section>}
               {proposal.status === "approved" && canMake && proposal.proposal.response_draft && !proposal.proposal.simulation &&
                 <button type="button" className="control mt-3" disabled={busy} onClick={() => void change(proposal, "prepare_tasks")}>
                   Prepare scripted department tasks

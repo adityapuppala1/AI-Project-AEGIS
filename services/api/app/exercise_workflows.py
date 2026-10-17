@@ -8,7 +8,7 @@ from typing import Literal
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Response
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, StrictBool
 
 from app.governance import Action, DecisionError
 from app.security import Operator, get_operator, require_role
@@ -22,6 +22,7 @@ class CreateProposal(BaseModel):
     incident_id: UUID
     action_type: Action
     rationale: str = Field(min_length=10, max_length=2000)
+    include_review_focus: StrictBool = False
 
 
 class Operation(str, Enum):
@@ -76,6 +77,7 @@ def create(payload: CreateProposal, operator: Operator = Depends(get_operator)):
             operator.subject,
             payload.action_type,
             payload.rationale,
+            **({"include_review_focus": True} if payload.include_review_focus else {}),
         )
         return {"id": proposal_id, "status": "draft", "exercise_only": True}
     except ContextUnavailable as err:
@@ -109,6 +111,7 @@ def change(
             operator.subject,
             payload.operation.value,
             payload.rationale,
+            **({"include_review_focus": True} if payload.include_review_focus else {}),
             **task_args,
         )
         return {"id": str(proposal_id), "status": status, "exercise_only": True}
