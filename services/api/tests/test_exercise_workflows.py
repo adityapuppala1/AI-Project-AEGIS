@@ -224,3 +224,14 @@ def test_task_payload_shape_is_strict(monkeypatch, body):
     authenticate("incident_operator")
     monkeypatch.setattr(exercise_workflows, "transition", lambda *_: pytest.fail("Unexpected store call"))
     assert client.post(f"/v1/exercise/proposals/{PROPOSAL_ID}/transition", json=body).status_code == 422
+
+
+def test_create_context_failure_is_unavailable_not_success(monkeypatch):
+    from app.assessment_adapter import ContextUnavailable
+    authenticate("incident_operator")
+    def failed(*_a, **_kw):
+        raise ContextUnavailable("case_context_unavailable")
+    monkeypatch.setattr(exercise_workflows, "create_proposal", failed)
+    response = client.post("/v1/exercise/proposals", json=valid_proposal())
+    assert response.status_code == 503
+    assert response.json() == {"detail": {"code": "case_context_unavailable"}}
