@@ -5,7 +5,7 @@
 1. Dependency/runtime hardening is complete for this local scope: Tailwind 4,
    full npm audit zero on Windows/Linux, non-root standalone image, and laptop
    browser/HTTP regression passed. Retain the executed evidence in the handoff.
-2. After owner approval of [local IdP activation and certificate trust](LOCAL_IDP_REVIEW.md),
+2. Deferred by the owner: [local IdP activation and certificate trust](LOCAL_IDP_REVIEW.md). If that decision changes,
    verify realm import, PKCE login, MFA and independent maker/checker identities.
 3. With two different people, rehearse evidence-cited draft → independent
    decision → private scripted tasks/acknowledgements → audit; verify denial

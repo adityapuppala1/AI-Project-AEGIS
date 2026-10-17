@@ -27,8 +27,8 @@ a subsequent documentation-only commit records the results below.
 
 | Gate | Executed evidence |
 |---|---|
-| Latest API/model | Windows and Linux: `python -m pytest -q` **220 passed, 3 skipped**; `python -m app.model_lab --check` PASS. One upstream Starlette/httpx deprecation warning |
-| Real database | Prior laptop run: **3 integration tests passed**, separate `aegis_verification_57878ac` DB; no API behavior changed by frontend hardening |
+| Latest API/model | Windows and Linux: `python -m pytest -q` **220 passed, 4 skipped**; `python -m app.model_lab --check` PASS. One upstream Starlette/httpx deprecation warning |
+| Real database | Latest laptop run: **4 integration tests passed**, separate `aegis_verification_57878ac` DB, including a concurrent checker/audit regression |
 | Latest frontend in Linux | `npm install --ignore-scripts --no-audit --no-fund`, `npm run typecheck`, `npm run build`: PASS on Tailwind 4.3.3; full `npm audit --json`: **zero vulnerabilities**, no suppression |
 | Latest Windows dependency/type check | `npm.cmd ci --no-audit --no-fund` and `npm.cmd run typecheck`: PASS; `npm.cmd audit --json`: **zero vulnerabilities including development dependencies**, no suppression |
 | Prior laptop browser/HTTP | 21 functional desktop/mobile/keyboard checks, zero sampled axe violations; five map failure/retry/worker/WebGL checks; HTTP routes, locked approvals, blocked live warning and independently recomputed public audit checksum passed |
@@ -49,7 +49,7 @@ preserved in [verification history](LOCAL_DEMO_VERIFICATION_HISTORY.md).
 - **Partial:** local identity-provider configuration is reviewable. See
   [LOCAL_IDP_REVIEW.md](LOCAL_IDP_REVIEW.md). Runtime realm import, HTTPS, PKCE,
   MFA, role claims and actual independent human rehearsal remain unverified.
-- **Blocked on owner authorization:** activating local IdP containers and adding
+- **Deferred by owner decision (keep inactive):** activating local IdP containers and adding
   their CA to Windows CurrentUser Root trust. No credentials or trust changes
   have been made. Do not paste secrets or tokens into chat.
 - **Pending human acceptance:** two different people in separate browser profiles
@@ -112,3 +112,47 @@ upgrade does not alter API/database behavior. The three opt-in DB tests were
 skipped in that suite, with prior separate successful laptop PostGIS execution
 preserved in history. No claim of real two-person approval, full accessibility
 certification, container OS vulnerability certification or production capacity.
+
+## Codebase scan follow-up
+
+See [remaining original roadmap](CIPHERCOP_2026_RELEASE_AUDIT.md#remaining-from-the-broader-original-roadmap)
+and the [manual rehearsal checklist](DEMO_REHEARSAL.md). The owner explicitly
+chose to keep the IdP inactive; do not repeatedly request activation or modify
+certificate trust. Native local verification now automatically uses the repo
+Python venv when present (or an explicit -PythonExecutable), and npm.cmd on Windows.
+
+
+## Audit consistency and original-plan scan — 17 October 2026
+
+Latest tested application/verification source:
+`a613a044f2aca3425a6f875c8810a7ad41aabbfa` (audit implementation `0b90289`).
+Private proposal audit previously performed three READ COMMITTED reads; a
+checker could commit between them, mixing an old submitted proposal with a new
+approved decision/event. A deterministic two-connection PostGIS test reproduced
+this failure before the fix. Export reads now use one **REPEATABLE READ, READ
+ONLY** transaction; the same export stays submitted with no decision while the
+concurrent checker commits, and a later export observes the complete approval.
+
+Actual verification:
+- Linux mirror: separate DB `aegis_verify_audit_20261017` created and populated
+  from a non-destructive dump/restore of its existing synthetic DB. All **4 real
+  PostGIS tests passed** with the changed source mounted read-only; original DB
+  preserved. The initial regression failed as expected before the fix.
+- Windows: `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify-code-local.ps1 -Suite all`
+  passed **220 API tests, 4 integration skips**, model reproduction and frontend
+  typecheck. It correctly selected `services/api/.venv/Scripts/python.exe`;
+  production web rebuild intentionally skipped because no web source changed.
+- Windows: `docker compose up --build -d api` passed; existing DB preserved.
+- Windows: `docker compose run --rm --no-deps -T -v <repo>/services/api/integration_tests:/integration_tests:ro api sh -c 'export AEGIS_TEST_DATABASE_URL=${DATABASE_URL%/aegis}/aegis_verification_57878ac; python -m pytest -q -p no:cacheprovider /integration_tests'`
+  passed all **4 real PostGIS integration tests** in the designated test DB.
+- Windows: `services/api/.venv/Scripts/python.exe scripts/verify-local-http.py`
+  passed module/page checks and independent public checksum; private auth still
+  locked and live warning blocked. Logs: `.git/audit-snapshot-{native,build,http}.log`.
+- One stale source-string assertion initially failed when the local helper began
+  selecting executables; it was generalized to check the required commands and
+  the full native suite reran successfully. CI policy and workflow unchanged.
+
+The owner explicitly chose **keep IdP inactive**. No provider, root trust,
+credentials, live connection, push, merge, CI or destructive reset was enabled.
+The broader original roadmap remains partial; its current missing capabilities
+are listed in the release audit, with a concrete manual rehearsal checklist.

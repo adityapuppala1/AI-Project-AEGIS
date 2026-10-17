@@ -232,3 +232,9 @@ audit reports zero findings; seven development-toolchain findings remain open,
 and the single-stage image still retains build dependencies. These remaining
 gates prevent a blanket security/release-complete claim. Current evidence is
 in [LOCAL_DEMO_HANDOFF.md](LOCAL_DEMO_HANDOFF.md).
+
+
+The audit consistency follow-up (`a613a04`) passed four real PostGIS integration
+tests on both Linux and the actual Windows laptop, native Windows API/model/type
+checks, API rebuild and HTTP smoke. Actual IdP/two-person acceptance is deferred
+by the owner's keep-inactive decision; see current handoff and rehearsal checklist.

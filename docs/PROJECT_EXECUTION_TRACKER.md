@@ -253,3 +253,16 @@ findings remain open. The owner requested a local-only IdP review package:
 Windows/Linux static tests and syntax checks passing. Provider startup,
 certificate trust and independent human MFA acceptance are still pending.
 See [handoff](LOCAL_DEMO_HANDOFF.md) for the latest source and browser evidence.
+
+
+### Audit consistency scan and owner deferral
+
+Follow-up source `a613a04` fixes a reproduced mixed-snapshot private audit race
+using a read-only repeatable-read transaction. Linux and Windows each passed
+all four actual PostGIS integration tests; native Windows helper passed 220
+API tests (four DB skips), model reproduction and typecheck, followed by API
+rebuild and HTTP/checksum smoke. The helper now selects the repo Python venv.
+See current handoff for commands and limits. Owner decision: **keep IdP inactive**;
+activation/trust and real two-human acceptance are deferred. The release audit
+now explicitly lists unfinished broader original-roadmap capabilities; the
+manual local rehearsal checklist is prepared, not marked executed.

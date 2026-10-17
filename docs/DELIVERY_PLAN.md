@@ -24,7 +24,7 @@ commands are recorded in [LOCAL_DEMO_HANDOFF.md](LOCAL_DEMO_HANDOFF.md).
 |---|---|
 | Local startup and integration | Verified on the actual Windows laptop: native API/frontend, existing-volume Compose, separate PostGIS integration DB and HTTP/checksum smoke |
 | Observation → evidence → assessment → draft | Implemented and covered by local API/PostGIS tests; replay is idempotent and drafts retain citations |
-| Independent human approval | Code and signed-test identity checks pass; local IdP review package prepared, activation/trust and two-person MFA browser acceptance pending |
+| Independent human approval | Code and signed-test identity checks pass; local IdP review package prepared; owner chose keep inactive, so activation/trust and two-person MFA browser acceptance are deferred |
 | Simulated tasks/acknowledgements → audit | Approved-only private scripted receipts and audit implemented/tested; actual two-human end-to-end acceptance pending |
 | Browser/accessibility | Automated desktop/mobile/keyboard, sampled light/dark axe and map-failure/recovery checks passed; manual screen-reader/operator review pending |
 | Recovery and latency | Separate backup restoration and bounded local software latency check passed; no production capacity claim |

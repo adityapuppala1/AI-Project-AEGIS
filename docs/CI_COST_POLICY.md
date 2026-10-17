@@ -43,6 +43,10 @@ To verify the frontend production build intentionally:
 powershell -ExecutionPolicy Bypass -File .\scripts\verify-code-local.ps1 -Suite web -ProductionBuild
 ```
 
+The script selects `services/api/.venv/Scripts/python.exe` when available, or
+accepts `-PythonExecutable` with an installed command/absolute executable path.
+It prefers `npm.cmd` on Windows without changing global execution policy.
+
 The script does **not** install dependencies, reset databases, execute
 Docker containers, deploy clouds, send alerts or trigger any GitHub workflow.
 It optionally validates the local Compose manifest if Docker CLI exists.

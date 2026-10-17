@@ -1,5 +1,8 @@
 # Local identity provider — review package, not activated
 
+Owner decision, 17 October 2026: **keep inactive; finish other local tasks**.
+Do not activate this package or change certificate trust under that decision.
+
 Requested scope: prepare a local-only provider for owner review. No provider
 has been started, no users provisioned, no certificate trusted and no app OIDC
 configuration enabled by this package. Existing anonymous approvals stay locked.

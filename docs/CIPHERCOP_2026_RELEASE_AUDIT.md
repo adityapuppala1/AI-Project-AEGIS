@@ -14,6 +14,29 @@ startup, backed-up volume upgrade, native builds, API/PostGIS tests and HTTP
 smoke have now passed on Adys_ROG. Real independent human OIDC approval, manual
 screen-reader/accessibility review and owner release gates remain uncleared. No CI or merge was requested.
 
+## Remaining from the broader original roadmap
+
+The synthetic demo is a bounded subset of the original plan. This scan found
+no CAP message serializer, database row-level security policies, production
+source adapters/broker, live model drift/rollback pipeline or independently
+operated department task sessions. They must not be called implemented merely
+because similarly named demo pages exist.
+
+| Remaining capability | Current boundary / dependency |
+|---|---|
+| Real OIDC/MFA and two-person acceptance | Owner chose **keep local IdP inactive** on 17 October; intentionally deferred, not a request for credentials |
+| Manual accessibility/operator acceptance and judge rehearsal | [Concrete rehearsal checklist](DEMO_REHEARSAL.md) prepared; actual human execution and release decision pending |
+| Agency jurisdiction ABAC, DB RLS, identity revocation | Existing signed agency/role checks are implemented; richer authority/lifecycle model and security acceptance remain future work |
+| Signed real feeds, durable queues/DLQ and corroboration | Local synthetic contract/ledger/quarantine/replay only; requires approved source access and operational design |
+| Licensed hazard footprints and infrastructure exposure | Current spatial results are synthetic point/proximity candidates; official layers, licensing and exposure validation absent |
+| Scientific forecasts, drift and controlled model rollout | Reproducible offline synthetic evaluation only; requires authorized real labels, independent validation and deployment governance |
+| Approved SOP retrieval, persisted policy editing/rollout | Illustrative URB references and immutable exercise-policy preview only; authority and policy lifecycle remain future work |
+| Department-owned task states, SLAs, CAP-format drafts, 3D/multi-session simulation | Current approved proposal receipts are explicitly scripted; richer workflow and CAP draft support remain unimplemented roadmap items |
+| Tamper-evident/attested audit and production resilience | Current public checksum is unsigned; private audit uses authoritative DB records. No legal attestation or production-capacity certification |
+
+The scan and new audit-race regression are recorded in the current handoff.
+No missing production capability has been silently activated to close a row.
+
 ## No misleading delivery claims
 
 The product specification is in [PRODUCT_VISION.md](PRODUCT_VISION.md).
