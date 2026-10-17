@@ -425,3 +425,11 @@ web builds, guarded startup, six-ready runtime contract, HTTP/checksum and 21
 browser smoke checks. The retained PostGIS run first caught an aged comparison
 fixture (**1 failed, 12 passed**); `0e69256` explicitly refreshes only the
 isolated verification database fixtures, and the retry passed **13 tests**.
+
+### Synthetic SLA targets — acceptance pending
+
+`574503d` adds v3 synthetic task targets and v2 compatibility. Laptop native
+checks passed 321 tests (13 DB skips), model check and TypeScript. The mirror
+PostGIS assertion follow-up is `44d4693`; Desktop Commander became unresponsive
+during transfer, so production/PostGIS/HTTP/browser gates remain pending and
+department-owned OIDC scope is not implemented.

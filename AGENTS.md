@@ -25,3 +25,5 @@
 - Source comparison is opt-in through explicit group, unit, window and tolerance metadata. Never infer compatibility from proximity or labels; stale, uncurated, incomplete or conflicting inputs must fail closed or report `not_comparable`. Agreement is not corroboration, accuracy or prediction. See docs/SOURCE_COMPARISON_DIAGNOSTICS.md.
 
 - Local dependency diagnostics use fixed IDs/statuses/reason codes and must not expose connection details or raw exceptions. Schema gaps block downstream fixture conclusions; fixture gaps affect only their owning dependency. Remediation may use reviewed additive migrations and idempotent seeds, never a volume reset. See docs/LOCAL_DEPENDENCY_DIAGNOSTICS.md.
+
+- Proposal simulation v3 SLA fields are synthetic rehearsal targets only. Preserve v2 compatibility, record classification in the acknowledgement/audit, and never send escalation or claim a contractual SLA. Department authority must eventually come from verified OIDC scope, never a browser-supplied department. See docs/SYNTHETIC_DEPARTMENT_SLA.md.

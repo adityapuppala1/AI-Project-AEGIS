@@ -1049,3 +1049,27 @@ and cannot be inferred from it. Remaining engineering: free-form grounded
 assistance/usefulness evaluation, department permissions/SLAs and durable draft
 recovery; manual two-person identity, accessibility and operator acceptance
 remain release gates.
+
+## Synthetic SLA targets — implementation pending final acceptance
+
+Application commit `574503dc1489c3d6b53beae7f4957598bf198162` is on
+both mirror and laptop. It adds v3 staged receipts with 15/30/45-minute
+synthetic review targets, due times and acknowledgement-time classifications;
+v2 receipts remain compatible. Audit events carry the target policy, due time
+and classification. The approvals UI labels these as rehearsal targets with no
+operational SLA, escalation, notification or department participation.
+
+Laptop `scripts/verify-code-local.ps1 -Suite all` passed **321 tests, 13
+skipped**, model reproducibility and TypeScript. Mirror test-only follow-up
+`44d4693` adds real PostGIS receipt/audit assertions, but its bundle transfer
+timed out when Desktop Commander stopped answering. The dashboard still showed
+Adys_ROG online with a stale last-seen time; both the write and a subsequent
+read-only file-info call queued. Therefore production build/start, PostGIS,
+HTTP and browser acceptance for this slice are **pending**, and this section is
+not marked accepted. No duplicate operation was launched.
+
+Department-owned authorization remains pending: acknowledgement still requires
+the existing verified incident-operator role. A future slice must add an
+IdP-issued department role/scope across API and BFF; it must not trust a browser
+department field. No IdP/trust, database, CI, push or live-operation change was
+made here.
