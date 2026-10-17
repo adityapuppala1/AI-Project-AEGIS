@@ -60,7 +60,13 @@ Open `http://localhost:8000/docs` for OpenAPI. Run `pytest -q` from `services/ap
 
 **Repository boundary:** Only use GitHub account `adityapuppala1` and repository `adityapuppala1/AI-Project-AEGIS` for this project. Do not pull or merge from unrelated repositories. Feature branches and reviewed PRs precede changes to main.
 
-## Command Center UI (development branch)
+## Historical feature-branch instructions
+
+The following branch-specific examples document earlier milestones. For the
+current local demo, keep the continuation checkout and use the startup commands
+at the top of this README; do not switch branches or run older setup scripts.
+
+### Command Center UI (development branch)
 The responsive Next.js/Tailwind Command Center, exercise incident registry, policy preview and playbooks are available on `feat/command-center-ui-v1`. This branch builds on `feat/windows-local-dev`, which builds on `feat/aegis-foundation`; none should be merged without CI and review.
 
 **Windows quick start**

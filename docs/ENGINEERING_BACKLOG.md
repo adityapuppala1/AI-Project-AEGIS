@@ -1,5 +1,24 @@
 # AEGIS delivery ownership and implementation backlog
 
+## Current synthetic demo priorities — 17 October 2026
+
+1. Finish dependency/runtime hardening and execute native/container/browser
+   regression checks; do not hide remaining advisories behind a production-only audit.
+2. After owner approval of [local IdP activation and certificate trust](LOCAL_IDP_REVIEW.md),
+   verify realm import, PKCE login, MFA and independent maker/checker identities.
+3. With two different people, rehearse evidence-cited draft → independent
+   decision → private scripted tasks/acknowledgements → audit; verify denial
+   cases and record results without credentials/tokens.
+4. Perform manual screen-reader/operator acceptance and owner release review.
+
+Windows startup, backed-up existing-volume migration, native API/frontend,
+separate PostGIS integration, replay idempotency, automated browser/map QA,
+backup recovery and bounded local latency have executed evidence in
+[the current handoff](LOCAL_DEMO_HANDOFF.md). Earlier pending statements below
+are historical. Production feeds, infrastructure and forecasting validation
+are future work, not requirements to silently enable for this local demo.
+
+
 **Current target:** CipherCop 2026 disaster-response exercise, Hyderabad urban flooding.
 
 ## Non-negotiable constraints

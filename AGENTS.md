@@ -7,3 +7,5 @@
 - Preserve OIDC verification, signed agency/role scope, and independent maker-checker enforcement. Test doubles do not establish real two-human approval.
 - Run local checks first: services/api: `python -m pytest -q` and `python -m app.model_lab --check`; apps/web: `npm ci --no-audit --no-fund`, `npm run typecheck`, `npm run build`. Database and HTTP tests are separate gates.
 - Keep docs/LOCAL_DEMO_HANDOFF.md current with commands, results, branch, SHA, and completed/partial/pending/blocked work. Mark verified only after execution; distinguish Linux runner results from the Windows laptop.
+
+- Current status is docs/LOCAL_DEMO_HANDOFF.md; older executed evidence is preserved in docs/LOCAL_DEMO_VERIFICATION_HISTORY.md. Historical feature-branch commands are not startup instructions for the continuation checkout.

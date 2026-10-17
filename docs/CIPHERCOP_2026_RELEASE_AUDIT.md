@@ -30,7 +30,7 @@ versioned documentation, but that does **not** mean all production module
 requirements are complete. Code-implemented is not the same as acceptance-
 tested, released or institutionally authorized.
 
-## Original module delivery reconciliation
+## Historical module snapshot — before local continuation
 
 | Original module | Implemented for the synthetic demo | Pending / cannot claim |
 |---|---|---|

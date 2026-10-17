@@ -14,17 +14,23 @@
 
 All demo measurements labeled synthetic if synthetic; API contract tests pass; no operational warning or dispatch endpoints enabled; logs retain actors, rationale, source provenance and model version.
 
-## Actual implementation reconciliation — October 2026
+## Current local acceptance status — 17 October 2026
 
-The complete original ten-module delivery is now mapped in
-[CIPHERCOP_2026_RELEASE_AUDIT.md](CIPHERCOP_2026_RELEASE_AUDIT.md).
-The integrated **synthetic exercise code** is in
-`feat/ciphercop-integrated-demo-rc`; status remains draft and unmerged.
+Continue `feat/aegis-local-demo-continuation`; do not switch to historical
+feature branches to run the current demo. Exact source SHAs and executed
+commands are recorded in [LOCAL_DEMO_HANDOFF.md](LOCAL_DEMO_HANDOFF.md).
 
-Earlier dated milestones describe *planned exit checks*, not acceptance that
-can be inferred from Git commits. Foundations, synthetic GIS, versioned
-offline model evaluation and a tabletop task/history workflow have code in
-feature branches. The integrated Docker/browser E2E, real OIDC checker test,
-accessibility, security and judge rehearsal gates are **still pending**.
-Only after those gates pass can the synthetic hackathon demo be called done.
-Real emergency source and warning capabilities are not part of this release.
+| Demo gate | Current evidence / remaining work |
+|---|---|
+| Local startup and integration | Verified on the actual Windows laptop: native API/frontend, existing-volume Compose, separate PostGIS integration DB and HTTP/checksum smoke |
+| Observation → evidence → assessment → draft | Implemented and covered by local API/PostGIS tests; replay is idempotent and drafts retain citations |
+| Independent human approval | Code and signed-test identity checks pass; local IdP review package prepared, activation/trust and two-person MFA browser acceptance pending |
+| Simulated tasks/acknowledgements → audit | Approved-only private scripted receipts and audit implemented/tested; actual two-human end-to-end acceptance pending |
+| Browser/accessibility | Automated desktop/mobile/keyboard, sampled light/dark axe and map-failure/recovery checks passed; manual screen-reader/operator review pending |
+| Recovery and latency | Separate backup restoration and bounded local software latency check passed; no production capacity claim |
+| Security/release | Production npm audit zero at last verification; development-toolchain advisories and owner review remain open. See current handoff for hardening follow-up |
+
+The dated windows above are planning milestones. Historical branch delivery
+and CI evidence do not establish current acceptance. Official data feeds,
+scientifically validated forecasting, agency accreditation and real dispatch
+are outside this synthetic demonstration's scope. No CI or merge is authorized.

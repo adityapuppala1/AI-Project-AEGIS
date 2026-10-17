@@ -3,6 +3,14 @@
 **Branch:** `feat/integration-readiness-gates`  
 **Scope:** Local Windows 16 GB exercise-stack consolidation, **not production certification**.
 
+## Current continuation
+
+The branch and branch-switching examples below describe the original milestone.
+For current local work, retain `feat/aegis-local-demo-continuation` and follow
+[LOCAL_DEMO_HANDOFF.md](LOCAL_DEMO_HANDOFF.md), which separates current executed
+checks from historical evidence. Do not switch back to an older branch to run
+this release candidate. The human IdP and owner acceptance gates remain open.
+
 ## Integration changes
 
 Rather than adding another stand-alone screen, this milestone establishes one
