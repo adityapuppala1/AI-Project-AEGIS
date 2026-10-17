@@ -6,8 +6,8 @@ passed laptop acceptance: 299 native tests, 31 proxy tests, seven PostGIS tests,
 production builds, guarded startup and HTTP/browser checks. Deterministic context
 only at that checkpoint. [Optional saved review focus](SAVED_REVIEW_FOCUS.md)
 is implemented in the next slice; a bounded explicit-step durable run and
-explicit synthetic source comparison are also accepted locally. Broader
-free-form assistance and deeper dependency diagnostics remain pending. Exact source,
+explicit synthetic source comparison and bounded local dependency diagnostics
+are also accepted locally. Broader free-form assistance remains pending. Exact source,
 commands and the retained startup failure/fix are in [the handoff](LOCAL_DEMO_HANDOFF.md).
 
 Planned 17 October 2026 on `feat/aegis-local-demo-continuation`, after inspecting
@@ -173,6 +173,15 @@ curated synthetic sources. It never infers comparability from proximity.
 Windows native, real PostGIS, production build, HTTP/checksum and browser gates
 passed as recorded in the handoff. This is a review diagnostic, not confidence,
 forecast accuracy, independent corroboration or operational authority.
+
+## Implementation update — bounded local dependency map
+
+`0210aab` adds fixed diagnostics for the local exercise database, schema,
+incident evidence, source observations, fictional spatial context and scripted
+AgencySync. The demo renders the same versioned contract. This closes the local
+fixture dependency slice; it does not claim connectivity or health for external
+providers, real identities, sensors or agencies. Executed Windows acceptance and
+the time-stable verification-database follow-up `0e69256` are in the handoff.
 
 ## Implementation update — bounded unsaved workbench text
 

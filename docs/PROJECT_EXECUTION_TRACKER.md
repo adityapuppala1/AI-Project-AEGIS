@@ -414,3 +414,14 @@ tests, doctor/migration audit, HTTP/checksum and 21 browser smoke checks. The
 retained main sample correctly produced `not_comparable`; isolated PostGIS
 proved `agreement`. See the current handoff for retained failures and commands.
 No real-world prediction or operational authority is claimed.
+
+### Local dependency diagnostics closed — 17 October 2026
+
+Application source `0210aab` adds versioned, bounded diagnostics for database,
+schema, incident context, observations, spatial fixtures and scripted AgencySync,
+with fixed safe remediation and no connection details. `/demo` renders all six.
+Windows passed 319 API tests (13 DB skips), model/type checks, production API/
+web builds, guarded startup, six-ready runtime contract, HTTP/checksum and 21
+browser smoke checks. The retained PostGIS run first caught an aged comparison
+fixture (**1 failed, 12 passed**); `0e69256` explicitly refreshes only the
+isolated verification database fixtures, and the retry passed **13 tests**.

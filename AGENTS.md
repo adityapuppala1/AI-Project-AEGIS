@@ -23,3 +23,5 @@
 - Bounded assistance runs stay proposal-linked, maker-only and draft-only. Preserve the fixed step/tool budget, expected-step retry protection, context revalidation, cancellation audit and hard stop before submission. See docs/BOUNDED_ASSISTANCE_RUN.md.
 
 - Source comparison is opt-in through explicit group, unit, window and tolerance metadata. Never infer compatibility from proximity or labels; stale, uncurated, incomplete or conflicting inputs must fail closed or report `not_comparable`. Agreement is not corroboration, accuracy or prediction. See docs/SOURCE_COMPARISON_DIAGNOSTICS.md.
+
+- Local dependency diagnostics use fixed IDs/statuses/reason codes and must not expose connection details or raw exceptions. Schema gaps block downstream fixture conclusions; fixture gaps affect only their owning dependency. Remediation may use reviewed additive migrations and idempotent seeds, never a volume reset. See docs/LOCAL_DEPENDENCY_DIAGNOSTICS.md.

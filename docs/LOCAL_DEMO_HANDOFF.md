@@ -41,7 +41,7 @@ saved-focus browser fixtures (PID 143308 exit 0). Exact evidence is below.
 | Closed connection blocker | Corrective laptop import and acceptance completed at `5c9bc0e` (application `6611465`); one API/web/DB, no detected conflicting AEGIS job |
 | Deferred by owner | Local IdP/trust activation and real two-person MFA/browser approval acceptance; do not reactivate or bypass |
 | Pending human acceptance | Manual screen-reader/operator rehearsal and owner release review |
-| Pending engineering | Deeper dependency diagnostics, free-form grounded drafting/Q&A and usefulness evaluation, department-owned task permissions/SLAs and durable draft recovery |
+| Pending engineering | Free-form grounded drafting/Q&A and usefulness evaluation, department-owned task permissions/SLAs and durable draft recovery |
 | Needs external validation | Authorized historical datasets/domain evaluation before real forecast claims or operational integrations; synthetic software tests do not establish these |
 
 ## Current implementation
@@ -908,8 +908,8 @@ browser; no deployed auth bypass or actual two-human acceptance is implied.
 Log `.git/saved-focus-panel.log`. Final inventory and clean expected source
 checks passed. Final docs are synced via a guarded local bundle.
 
-Current remaining work: free-form grounded assistance and usefulness evaluation, deeper dependency
-diagnostics, department permissions/SLAs, durable note recovery and human acceptance.
+Current remaining work: free-form grounded assistance and usefulness evaluation,
+department permissions/SLAs, durable note recovery and human acceptance.
 Saved-selection capture and its laptop automated acceptance are now closed.
 IdP activation and trust remain deferred by owner; no forecast validation claim.
 
@@ -1009,3 +1009,43 @@ This closes explicit source comparison. Pending work is deeper dependency
 diagnostics, free-form grounded assistance and usefulness evaluation,
 department-owned permissions/SLAs, durable draft-note recovery, and manual
 two-human/accessibility/operator acceptance. The owner-deferred IdP remains off.
+
+## Local dependency diagnostics accepted — 17 October 2026
+
+Application source `0210aabfe9cceb7edc4583028f70bbdc62391703` adds
+`aegis.exercise.dependencies.v1` to the existing read-only system readiness
+endpoint and renders it on `/demo`. Six fixed components cover database query
+access, schema/migrations, incident evidence, source observations, fictional
+spatial context and scripted AgencySync. Schema failure blocks downstream
+fixture conclusions; a fixture gap affects only its owning component. The
+database-unavailable 503 contains a fixed code and safe guarded retry guidance,
+without a host, connection string, secret or raw exception.
+
+Laptop acceptance:
+
+- `scripts/verify-code-local.ps1 -Suite all`: **319 passed, 13 skipped**,
+  reproducible synthetic model check and TypeScript PASS.
+- Guarded production API/web build and `start-windows.ps1 -NoBuild
+  -LocalCopilot`: PASS against the retained database, with no reset.
+- Runtime endpoint reported all six local dependencies ready. Server-rendered
+  `/demo` contained the diagnostic heading and component labels.
+- `scripts/verify-local-http.py`: PASS including Audit360 checksum, private
+  refusals and blocked live warning. Full browser smoke: 21 desktop/mobile/
+  keyboard checks, zero page errors and zero sampled axe violations.
+- The initial retained verification-DB run returned **1 failed, 12 passed**:
+  the earlier comparison test assumed seeded readings stayed fresh forever.
+  Test-only source `0e69256d9645dc4624477d29ee5c53c8a91ac12a`
+  now refreshes only the two explicitly synthetic readings in the isolated
+  verification database before its agreement assertion. Retry: **13 passed**.
+  The application had correctly returned `not_comparable`; no main/demo reading
+  was changed and the failure remains recorded.
+- Every command held the shared operation lease. Final inventory retained one
+  API/web/database and no conflicting managed job. No GitHub action, push,
+  merge, IdP/trust activation, paid resource, live action or forecast claim.
+
+This closes the planned bounded local dependency map. External provider health,
+real OIDC accounts, field sensors and agencies remain intentionally unconnected
+and cannot be inferred from it. Remaining engineering: free-form grounded
+assistance/usefulness evaluation, department permissions/SLAs and durable draft
+recovery; manual two-person identity, accessibility and operator acceptance
+remain release gates.
