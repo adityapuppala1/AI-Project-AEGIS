@@ -141,8 +141,11 @@ def read_exercise_readiness(
     radius_m: int = Query(default=3000, ge=100, le=5000),
 ):
     """Read-only evidence checklist; no hazard forecasting or live operations."""
-    from app.assessment_adapter import exercise_readiness
-    result = exercise_readiness(incident_id, radius_m=radius_m)
+    from app.assessment_adapter import ContextUnavailable, exercise_readiness
+    try:
+        result = exercise_readiness(incident_id, radius_m=radius_m)
+    except ContextUnavailable as exc:
+        raise HTTPException(status_code=503, detail={"code": exc.code}) from exc
     if result is None:
         raise HTTPException(status_code=404, detail="Synthetic exercise case or geography not found")
     return result

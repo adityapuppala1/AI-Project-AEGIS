@@ -68,6 +68,7 @@ def proposals(operator: Operator = Depends(get_operator)):
 @router.post("", status_code=201)
 def create(payload: CreateProposal, operator: Operator = Depends(get_operator)):
     require_role(operator, {"incident_operator"})
+    from app.assessment_adapter import ContextUnavailable
     try:
         proposal_id = create_proposal(
             str(payload.incident_id),
@@ -77,6 +78,8 @@ def create(payload: CreateProposal, operator: Operator = Depends(get_operator)):
             payload.rationale,
         )
         return {"id": proposal_id, "status": "draft", "exercise_only": True}
+    except ContextUnavailable as err:
+        raise HTTPException(status_code=503, detail={"code": err.code}) from err
     except DecisionError as err:
         raise HTTPException(status_code=409, detail=str(err)) from err
     except LookupError as err:

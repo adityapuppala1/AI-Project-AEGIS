@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { contextErrorCode } from "../../../../../lib/context-errors";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -19,6 +20,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     );
     if (response.status === 404) {
       return NextResponse.json({ error: "Synthetic case not found" }, { status: 404 });
+    }
+    if (response.status === 503) {
+      const failure = await response.json().catch(() => null);
+      return NextResponse.json({ code: contextErrorCode(failure?.detail?.code) },
+        { status: 503, headers: { "Cache-Control": "no-store" } });
     }
     if (!response.ok) throw new Error("Exercise assessment service unavailable");
     const data: unknown = await response.json();
@@ -41,6 +47,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
     return NextResponse.json(data, { headers: { "Cache-Control": "no-store" } });
   } catch {
-    return NextResponse.json({ error: "Synthetic assessment currently unavailable" }, { status: 503 });
+    return NextResponse.json({ code: "assessment_unavailable" }, { status: 503 });
   }
 }

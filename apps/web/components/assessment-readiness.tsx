@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { contextErrorMessage } from "../lib/context-errors";
 import { ExerciseReviewBrief, type ReviewBrief } from "./exercise-review-brief";
 import { AlertTriangle, ArrowRight, BrainCircuit, CheckCircle2, ClipboardCheck, RefreshCw, ShieldAlert } from "lucide-react";
 
@@ -76,7 +77,10 @@ export function AssessmentReadiness({ incidentId }: { incidentId: string }) {
     fetch(`/api/incidents/${encodeURIComponent(incidentId)}/readiness?radius_m=${radius}`, {
       cache: "no-store", signal: controller.signal,
     }).then(async response => {
-      if (!response.ok) throw new Error("Exercise assessment could not be loaded");
+      if (!response.ok) {
+        const failure = await response.json().catch(() => null);
+        throw new Error(response.status === 404 ? "Synthetic case or geography not found" : contextErrorMessage(failure?.code));
+      }
       const data = await response.json() as Readiness;
       if (data.checklist_version !== "aegis.exercise.context.v1" ||
           data.reference_clock !== "source_freshness_evaluation_time" ||
