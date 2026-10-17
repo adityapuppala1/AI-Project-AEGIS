@@ -476,3 +476,13 @@ Build/PostGIS/startup PID 150860 was launched; its result is not yet recovered
 from Desktop Commander. Targeted browser acceptance has not run. See the
 handoff for transcripts and pending calls before restarting work. Reassignment,
 grounded free-form assistance and deferred human acceptance remain open.
+
+
+### Inbox runtime recovered; reassignment awaiting laptop verification
+
+Recovered production build/start and 14 PostGIS passes at `eb5b49e` (PID
+150860 exit 0). Targeted mobile/desktop inbox checks passed at `2ed809d`;
+PID 73960 general smoke/HTTP output is still pending. Reassignment source
+`cf404ad` with tests `d97bb06` is implemented in the mirror, not verified on
+laptop. See `scripts/verify-task-reassignment.ps1` and the handoff for safe
+recovery. Free-form grounded AI/usefulness evaluation and human gates remain.

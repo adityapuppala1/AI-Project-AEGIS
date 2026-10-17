@@ -20,17 +20,18 @@ Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 
 ## Latest continuation status
 
-Current application source: `32016da`; test checkpoint
-`eb5b49eeae07a4087c47ee32afbabb1c92c7fb14`, imported on the laptop on
-`feat/aegis-local-demo-continuation`. Signed department inbox and scoped task
-acknowledgement/closure are implemented. Windows native API/model/TypeScript
-and 23 proxy tests passed. Production build/PostGIS/startup job PID **150860**
-was launched, but its completion output has not been recovered after the
-Desktop Commander connection stalled. Do not start another build until this
-job and its shared lease are inspected. Browser acceptance is not yet run.
+Laptop last confirmed checkpoint: `2ed809d`; department source `32016da`,
+PostGIS/scope tests `eb5b49e`. Recovered PID 150860 exit 0: production API/web
+build, 14 retained PostGIS tests and guarded startup passed. Targeted inbox
+browser checks passed at both 390px and 1440px. General smoke/HTTP output from
+PID 73960 is still pending retrieval.
 
-Previous UI/3D and opt-in tab recovery acceptance at `cbb4d43` remains recorded
-below. IdP/trust activation stays deferred by the owner.
+Mirror reassignment source: `cf404ad`, tests `d97bb06`; **not yet verified or
+confirmed imported on the laptop**. This adds coordinator-only reassignment,
+assignment versions, stale-owner rejection, fixed original due time and atomic
+audit. Do not count this slice complete until laptop acceptance runs.
+
+IdP/trust activation stays deferred by the owner.
 
 ## Current closure and remaining work
 
@@ -39,8 +40,9 @@ below. IdP/trust activation stays deferred by the owner.
 | Verified automated | Original synthetic observation/evidence/assessment/draft/approval-policy/task/audit chain; private CAP draft; recovery and anonymous/live-action boundaries |
 | Verified on laptop | Saved review focus, bounded explicit-step assistance, source comparison, local dependency diagnostics, page-memory draft recovery and bounded warm HTTP latency |
 | Verified on laptop | Synthetic department SLA v3: prior 321 API tests/model/type checks, production build/start, 13 PostGIS tests, HTTP, targeted v2/v3 browser fixtures and 21 browser smoke checks |
-| Partial implementation | Signed department authorization/inbox: native/proxy checks passed; production/PostGIS/browser acceptance pending connection recovery |
-| Pending engineering | Auditable task reassignment; free-form grounded drafting/Q&A and usefulness evaluation |
+| Partial acceptance | Signed department inbox: native/proxy/build/PostGIS and targeted browser passed; full smoke/HTTP output pending |
+| Implemented, unverified | Auditable task reassignment with assignment-version checks; laptop import/tests pending |
+| Pending engineering | Free-form grounded drafting/Q&A and usefulness evaluation |
 | Verified bounded recovery | Opt-in same-tab reload/navigation recovery; cross-device/server backup and guaranteed browser-restart recovery are outside this slice |
 | Deferred by owner | Local IdP/trust activation and real two-person MFA/browser approval acceptance; do not reactivate or bypass |
 | Pending human acceptance | Manual screen-reader/operator rehearsal and owner release review |
@@ -50,9 +52,9 @@ below. IdP/trust activation stays deferred by the owner.
 
 1. Before each operation inspect laptop Git state and the single-runtime guard;
    use the shared lease for custom jobs and preserve local changes.
-2. Recover `.git/department-build.log` and PID 150860 before any new job. Finish
-   department inbox production/PostGIS/browser acceptance. Then implement
-   auditable reassignment with expected-assignment retry/race protection.
+2. Recover PID 73960 / `.git/department-acceptance.log` before any new job.
+   Then inspect clean laptop HEAD and bundle state, import mirror reassignment
+   and run `scripts/verify-task-reassignment.ps1`. Preserve source/DB state.
 3. Continue grounded drafting/Q&A and usefulness evaluation within the existing
    bounded assistance design. Opt-in tab draft recovery is already verified;
    server/cross-device backup is outside that delivered slice.
@@ -1301,3 +1303,36 @@ Do not equate unit fixtures with real department sign-in or human acceptance.
 Documentation checkpoint is mirror-only until the next clean laptop sync;
 laptop last confirmed HEAD remains `eb5b49e`. No new verification job was
 launched after the connection timeout.
+
+
+## Recovered inbox acceptance and reassignment checkpoint
+
+Recovered PID **150860** completed with exit **0** in **95.11 seconds**:
+production API/web build PASS, retained PostGIS **14 passed** (5.89 seconds;
+existing Starlette warning), guarded startup PASS with one API/web/db. No
+new build was needed to recover this evidence.
+
+Imported browser test checkpoint `2ed809d`; `.git/import-department-acceptance.ps1`
+started PID **73960**, running `scripts/verify-department-inbox.ps1`. Confirmed
+PASS at **390px and 1440px** for inactive-IdP refusal, explicit fixture task
+acknowledgement/closure, rationale clearing, access-loss clearing, no overflow
+or page errors. General smoke/HTTP and final guard output still unconfirmed;
+process-output request (functions cell 14) timed out. Log-read call
+`073bd5e5-e038-4394-8a2d-d6ab5377fa87` is pending.
+
+Mirror source `cf404ad`, browser/test follow-up `d97bb06`: coordinator-only
+unacknowledged task reassignment, audited rationale/old/new desk, expected
+assignment version, original due time preserved. Inbox now filters assigned
+ownership; two tasks assigned to one desk have distinct UI keys and notes.
+Department actions bind their signed desk under the proposal row lock and
+reject stale ownership/version. Unit, real-DB concurrent retry/isolation and
+mobile UI fixtures are prepared, **not executed**. No Linux results substitute
+for laptop acceptance.
+
+Pending bundle write `.git/reassignment.bundle.b64` contains through `cf404ad`
+only (call `49ab73ec-c062-44c6-94db-a55c48d5abde`). Do not assume it imported.
+Inspect result/file/HEAD before syncing the newer test/docs/check helper commits.
+Use committed `scripts/verify-task-reassignment.ps1` after recovery; it runs
+native checks, Node scope/proxies, production build, retained integration DB,
+guarded startup and browser/HTTP acceptance. Never overlap PID 73960 or any
+other managed job. No IdP/trust activation, CI, push, live action or reset.
