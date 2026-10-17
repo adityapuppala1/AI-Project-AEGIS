@@ -6,6 +6,7 @@ import math
 from pathlib import Path
 import statistics
 import time
+import threading
 from urllib.parse import urlparse
 from urllib.request import ProxyHandler, build_opener
 
@@ -38,17 +39,24 @@ def main():
     started = time.perf_counter()
     for name, service, route, target in ROUTES:
         url = getattr(args, service).rstrip("/") + route
+        clients = threading.local()
+        def initialize_client():
+            # HTTPS handler setup can enumerate Windows trust roots even for
+            # this HTTP-only benchmark. Do it once per worker, outside timing.
+            # Each worker owns its opener; no mutable client is shared.
+            clients.opener = build_opener(ProxyHandler({}))
         def request(_):
             begin = time.perf_counter()
             try:
-                with build_opener(ProxyHandler({})).open(url, timeout=10) as response:
+                with clients.opener.open(url, timeout=10) as response:
                     response.read()
                     ok = response.status == 200
             except Exception:
                 ok = False
             return round((time.perf_counter() - begin) * 1000, 2), ok
+        initialize_client()
         request(None)  # Warm-up is excluded from the recorded samples.
-        with ThreadPoolExecutor(max_workers=args.concurrency) as pool:
+        with ThreadPoolExecutor(max_workers=args.concurrency, initializer=initialize_client) as pool:
             samples = list(pool.map(request, range(args.requests)))
         timings = sorted(value for value, _ in samples)
         p95 = timings[math.ceil(len(timings) * .95) - 1]
@@ -57,7 +65,11 @@ def main():
                         "median_ms": round(statistics.median(timings), 2),
                         "p95_ms": p95, "target_p95_ms": target,
                         "within_local_target": p95 <= target})
-    report = {"kind": "local_synthetic_demo_software_latency", "concurrency": args.concurrency,
+    report = {"kind": "local_synthetic_demo_software_latency",
+              "measurement_version": "aegis.local.http-latency.v2",
+              "client_setup": "excluded_once_per_worker_before_request_timing",
+              "http_connection_reuse": False,
+              "concurrency": args.concurrency,
               "duration_seconds": round(time.perf_counter() - started, 2),
               "production_capacity_established": False, "routes": results}
     output = json.dumps(report, indent=2)
