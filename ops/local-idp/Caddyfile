@@ -1,0 +1,7 @@
+{
+    auto_https disable_redirects
+}
+https://aegis-idp.localhost:8443 {
+    tls internal
+    reverse_proxy local-idp:8080
+}

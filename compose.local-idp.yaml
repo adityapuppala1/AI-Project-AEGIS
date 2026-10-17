@@ -1,0 +1,52 @@
+# REVIEW-ONLY opt-in. See docs/LOCAL_IDP_REVIEW.md before activation.
+services:
+  local-idp:
+    image: quay.io/keycloak/keycloak@sha256:79c623a22abacf3fe6c00a5fb30f5b7843d717b234033b80995891c06116d244
+    profiles: [local-idp]
+    command: [start-dev, --import-realm]
+    env_file:
+      - ${AEGIS_LOCAL_IDP_PRIVATE_DIR:?Set a private directory outside the XAMPP web root}/provider.env
+    environment:
+      KC_HTTP_ENABLED: 'true'
+      KC_HOSTNAME: https://aegis-idp.localhost:8443
+      KC_HOSTNAME_STRICT: 'true'
+      KC_PROXY_HEADERS: xforwarded
+      KC_HEALTH_ENABLED: 'true'
+    volumes:
+      - local_idp_data:/opt/keycloak/data
+      - ${AEGIS_LOCAL_IDP_PRIVATE_DIR:?Set a private directory outside the XAMPP web root}/realm.json:/opt/keycloak/data/import/aegis-exercise.json:ro
+    mem_limit: 768m
+  local-idp-tls:
+    image: caddy:2.11.7@sha256:685ae3d7c34d9b5f8caeddc5d14051db7bbd88ff1f5a2fa0c16bd8ca328fb7af
+    profiles: [local-idp]
+    depends_on: [local-idp]
+    ports:
+      - '127.0.0.1:8443:8443'
+    networks:
+      default:
+        aliases: [aegis-idp.localhost]
+    volumes:
+      - ./ops/local-idp/Caddyfile:/etc/caddy/Caddyfile:ro
+      - local_idp_tls:/data
+    mem_limit: 128m
+  api:
+    environment:
+      OIDC_ISSUER: https://aegis-idp.localhost:8443/realms/aegis-exercise
+      OIDC_AUDIENCE: aegis-resource-server
+      OIDC_JWKS_URL: https://aegis-idp.localhost:8443/realms/aegis-exercise/protocol/openid-connect/certs
+      SSL_CERT_FILE: /run/local-idp/api-ca-bundle.pem
+    volumes:
+      - ${AEGIS_LOCAL_IDP_PRIVATE_DIR:?Set a private directory outside the XAMPP web root}/api-ca-bundle.pem:/run/local-idp/api-ca-bundle.pem:ro
+  web:
+    environment:
+      OIDC_ISSUER: https://aegis-idp.localhost:8443/realms/aegis-exercise
+      OIDC_AUDIENCE: aegis-resource-server
+      OIDC_JWKS_URL: https://aegis-idp.localhost:8443/realms/aegis-exercise/protocol/openid-connect/certs
+      OIDC_CLIENT_ID: aegis-local-web
+      OIDC_CLIENT_SECRET: ''
+      NODE_EXTRA_CA_CERTS: /run/local-idp/root.crt
+    volumes:
+      - ${AEGIS_LOCAL_IDP_PRIVATE_DIR:?Set a private directory outside the XAMPP web root}/root.crt:/run/local-idp/root.crt:ro
+volumes:
+  local_idp_data:
+  local_idp_tls:
