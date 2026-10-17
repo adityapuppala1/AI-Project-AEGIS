@@ -5,6 +5,8 @@ import type { Map as MapLibreMap, Marker } from "maplibre-gl";
 import type { Incident } from "../lib/types";
 import { MapPinned } from "lucide-react";
 
+const BASE_TILES = ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"];
+
 export function GeoMap({ incidents, selectedId, onSelect }: {
   incidents: Incident[];
   selectedId: string | null;
@@ -14,8 +16,10 @@ export function GeoMap({ incidents, selectedId, onSelect }: {
   const mapRef = useRef<MapLibreMap | null>(null);
   const markersRef = useRef<Marker[]>([]);
   const onSelectRef = useRef(onSelect);
+  const retryingTiles = useRef(false);
   const [mapError, setMapError] = useState(false);
   const [mapReady, setMapReady] = useState(false);
+  const [tilesUnavailable, setTilesUnavailable] = useState(false);
   onSelectRef.current = onSelect;
 
   useEffect(() => {
@@ -33,11 +37,24 @@ export function GeoMap({ incidents, selectedId, onSelect }: {
           attributionControl: { compact: true },
           style: {
             version: 8,
-            sources: { osm: { type: "raster", tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"], tileSize: 256, attribution: "© OpenStreetMap contributors" } },
+            sources: { osm: { type: "raster", tiles: BASE_TILES, tileSize: 256, attribution: "© OpenStreetMap contributors" } },
             layers: [{ id: "osm", type: "raster", source: "osm" }],
           },
         });
-        map.on("error", () => { /* Individual tile failures do not disable the exercise interface. */ });
+        map.on("error", event => {
+          if (!disposed && "sourceId" in event && event.sourceId === "osm") {
+            retryingTiles.current = false;
+            setTilesUnavailable(true);
+          }
+        });
+        map.on("sourcedata", event => {
+          if (!disposed && retryingTiles.current && event.sourceId === "osm" &&
+              event.sourceDataType === "content" && map?.isSourceLoaded("osm")) {
+            retryingTiles.current = false;
+            setTilesUnavailable(false);
+          }
+        });
+        map.on("webglcontextlost", () => { if (!disposed) setMapError(true); });
         map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
         mapRef.current = map;
         setMapReady(true);
@@ -80,12 +97,25 @@ export function GeoMap({ incidents, selectedId, onSelect }: {
     return () => { active = false; markersRef.current.forEach(marker => marker.remove()); markersRef.current = []; };
   }, [incidents, selectedId, mapReady]);
 
+  function retryTiles() {
+    const source = mapRef.current?.getSource("osm");
+    if (source && "setTiles" in source && typeof source.setTiles === "function") {
+      retryingTiles.current = true;
+      source.setTiles(BASE_TILES);
+    }
+  }
+
   return (
     <div className="relative h-[320px] w-full sm:h-[390px]">
       <div ref={containerRef} className="aegis-map" role="region" aria-label="Hyderabad map with synthetic incident markers" />
+      {tilesUnavailable && !mapError && <div className="absolute left-3 right-3 top-3 rounded-xl border border-amber-500/30 bg-surface p-3 text-sm text-ink shadow-lg">
+        <p role="status" className="font-semibold">Base map tiles unavailable</p>
+        <p className="mt-1 text-xs text-muted">Geographic context may be incomplete. Synthetic markers and the incident list remain available.</p>
+        <button type="button" onClick={retryTiles} className="control mt-2 text-xs">Retry map tiles</button>
+      </div>}
       {mapError && <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-elevated p-6 text-center">
         <MapPinned size={30} className="text-accent" />
-        <strong>Map rendering unavailable</strong>
+        <strong role="status">Map rendering unavailable</strong>
         <p className="max-w-sm text-sm text-muted">Check WebGL and internet access. Incidents remain accessible in the list.</p>
       </div>}
       <div className="pointer-events-none absolute bottom-8 left-3 rounded-lg border border-white/10 bg-[#10263a]/90 px-3 py-2 text-[11px] font-medium text-white shadow-lg">
