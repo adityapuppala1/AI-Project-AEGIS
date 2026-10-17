@@ -46,7 +46,8 @@ for path in ["/", "/demo", "/incidents", f"/incidents/{case}", "/sources",
              "/playbooks", "/admin", "/help"]:
     check(args.web, path)
 for base, prefix in [(args.api, "/v1/exercise"), (args.web, "/api")]:
-    for suffix in ["/proposals", "/proposals/77777777-7777-4777-8777-777777777777/audit"]:
+    for suffix in ["/proposals", "/proposals/77777777-7777-4777-8777-777777777777/audit",
+                   "/proposals/77777777-7777-4777-8777-777777777777/cap-draft"]:
         check(base, prefix + suffix, (401, 503))
 check(args.api, "/v1/live/public-warning", (403,), "POST")
 bundle = json.loads(check(args.web, f"/api/incidents/{case}/audit"))
