@@ -45,6 +45,8 @@ def fixture():
             "distance_m": distance, "observed_at": observed,
             "ingested_at": observed + timedelta(seconds=60),
             "metric_value": 30, "quality_status": "synthetic_curated",
+            "comparison_group": None, "comparison_window_seconds": None,
+            "comparison_tolerance": None,
         }
     return {
         "sql": [],
