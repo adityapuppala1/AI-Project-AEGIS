@@ -192,10 +192,10 @@ export default function ApprovalWorkbench() {
                   <p className="font-semibold">{task.department}: {task.state}</p>
                   <ol className="mt-2 text-xs">{task.events?.map(event => <li key={event.kind}>{event.kind} · {new Date(event.occurred_at).toLocaleString()}{event.actor_subject ? ` · ${event.actor_subject}` : ""}{event.rationale ? ` · ${event.rationale}` : ""}</li>)}</ol>
                   {proposal.status === "approved" && canMake && task.id && task.state !== "closed" && proposal.proposal.simulation?.version === "aegis.proposal.simulation.v2" && <div className="mt-3">
-                    <label htmlFor={`task-${proposal.id}-${task.id}`} className="text-xs font-semibold">Scripted task rationale (required)</label>
+                    <label htmlFor={`task-${proposal.id}-${task.id}`} className="text-xs font-semibold">Scripted task rationale for {task.department} (required)</label>
                     <textarea id={`task-${proposal.id}-${task.id}`} className="field mt-1 !h-20 resize-y py-2" maxLength={2000}
                       value={reviewReasons[`${proposal.id}:${task.id}`] || ""} onChange={event => setReviewReasons(value => ({ ...value, [`${proposal.id}:${task.id}`]: event.target.value }))}/>
-                    <button type="button" className="control mt-2" disabled={busy || (reviewReasons[`${proposal.id}:${task.id}`] || "").trim().length < 10}
+                    <button type="button" className="control mt-2" aria-label={`${task.state === "prepared" ? "Record scripted acknowledgement" : "Close scripted task"} for ${task.department}`} disabled={busy || (reviewReasons[`${proposal.id}:${task.id}`] || "").trim().length < 10}
                       onClick={() => void change(proposal, task.state === "prepared" ? "acknowledge_task" : "close_task", task.id)}>
                       {task.state === "prepared" ? "Record scripted acknowledgement" : "Close scripted task"}
                     </button>
