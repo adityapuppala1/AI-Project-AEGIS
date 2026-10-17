@@ -12,7 +12,7 @@ function failure(status: number, error: string) {
 function hasRole(roles: Role[], ...expected: Role[]): boolean {
   return roles.some((role) => expected.includes(role));
 }
-export async function proxyProposals(request: Request, proposalId?: string, audit = false): Promise<NextResponse> {
+export async function proxyProposals(request: Request, proposalId?: string, exportKind?: "audit" | "cap-draft"): Promise<NextResponse> {
   let config: ReturnType<typeof configuration>;
   try { config = configuration(); } catch { return failure(503, "Identity provider configuration invalid"); }
   if (!config) return failure(503, "Identity provider not configured");
@@ -51,12 +51,21 @@ export async function proxyProposals(request: Request, proposalId?: string, audi
   }
   try {
     const base = process.env.API_INTERNAL_URL || "http://localhost:8000";
-    const endpoint = base + "/v1/exercise/proposals" + (proposalId ? "/" + proposalId + (audit ? "/audit" : "/transition") : "");
+    const endpoint = base + "/v1/exercise/proposals" + (proposalId ? "/" + proposalId + (exportKind ? "/" + exportKind : "/transition") : "");
     const response = await fetch(endpoint, {
       method: request.method,
       headers: { Authorization: "Bearer " + session.accessToken, ...(isWrite ? { "Content-Type": "application/json" } : {}) },
       body, cache: "no-store", signal: AbortSignal.timeout(8000),
     });
+    if (exportKind === "cap-draft" && response.ok) {
+      if (!response.headers.get("content-type")?.startsWith("application/xml"))
+        return failure(502, "Exercise service returned an invalid XML artifact");
+      return new NextResponse(await response.text(), { headers: {
+        "Content-Type": "application/xml; charset=utf-8",
+        "Content-Disposition": `attachment; filename="aegis-exercise-${proposalId}-draft.xml"`,
+        "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff",
+      } });
+    }
     const output = await response.json().catch(() => ({ error: "Exercise service returned an invalid response" }));
     return NextResponse.json(output, { status: response.status, headers: { "Cache-Control": "no-store" } });
   } catch {

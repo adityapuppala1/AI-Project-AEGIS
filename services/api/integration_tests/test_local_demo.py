@@ -63,7 +63,7 @@ def test_postgis_demo_chain_and_negative_authorization(monkeypatch):
         ready = client.get(f"/v1/exercise/incidents/{CASE}/readiness").json()
         assert ready["context_state"] == "simulated_context_for_human_review"
         response = client.post("/v1/exercise/proposals", headers=maker, json={
-            "incident_id": CASE, "action_type": "internal_triage",
+            "incident_id": CASE, "action_type": "prepare_warning",
             "rationale": "SIMULATION: integration test evidence review; no real operations",
         })
         assert response.status_code == 201, response.text
@@ -71,11 +71,24 @@ def test_postgis_demo_chain_and_negative_authorization(monkeypatch):
         path = f"/v1/exercise/proposals/{pid}"
         def change(actor, operation):
             return client.post(path + "/transition", headers=actor, json={"operation": operation, "rationale": "SIMULATION: independent test review"})
+        assert client.get(path + "/cap-draft", headers=maker).status_code == 409
         assert change(maker, "simulate").status_code == 409
         assert change(maker, "submit").status_code == 200
         assert change(maker, "approve").status_code == 409
         assert change(other, "approve").status_code == 404
+        assert client.get(path + "/cap-draft", headers=checker).status_code == 409
         assert change(checker, "approve").status_code == 200
+        xml = client.get(path + "/cap-draft", headers=maker)
+        assert xml.status_code == 200
+        assert xml.content == client.get(path + "/cap-draft", headers=checker).content
+        assert client.get(path + "/cap-draft", headers=other).status_code == 404
+        assert client.get(path + "/cap-draft").status_code == 401
+        import xml.etree.ElementTree as ET
+        ns = {"c": "urn:oasis:names:tc:emergency:cap:1.2"}
+        root = ET.fromstring(xml.content)
+        assert root.findtext("c:status", namespaces=ns) == "Draft"
+        assert root.findtext("c:scope", namespaces=ns) == "Private"
+        assert "EXERCISE DRAFT" in xml.text
         assert change(checker, "approve").status_code == 409
         assert change(maker, "simulate").status_code == 200
         assert change(maker, "simulate").status_code == 200
@@ -97,6 +110,8 @@ def test_postgis_demo_chain_and_negative_authorization(monkeypatch):
         assert len(payload["simulation"]["tasks"]) == 3
         assert payload["simulation"]["outbound_messages_sent"] is False
         assert [e["action"] for e in audit["events"]].count("simulated_department_tasks") == 1
+        assert xml.content == client.get(path + "/cap-draft", headers=maker).content
+        assert len(audit["events"]) == 4  # XML reads add no decisions, dispatch or mutations.
         assert client.post("/v1/live/public-warning", headers=checker).status_code == 403
 
 

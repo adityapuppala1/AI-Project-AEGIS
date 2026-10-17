@@ -189,7 +189,7 @@ def proposal_audit(proposal_id: str, agency_id: UUID) -> dict:
             # READ COMMITTED could mix an old proposal with a newer decision.
             cur.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY")
             cur.execute(
-                """SELECT p.id::text, p.incident_id::text, p.maker_subject, p.status,
+                """SELECT p.id::text, p.incident_id::text, p.maker_subject, p.action_type, p.status,
                           p.proposal, p.created_at, p.updated_at
                    FROM action_proposals p JOIN incidents i ON i.id=p.incident_id
                    WHERE p.id=%s AND i.agency_id=%s AND i.is_exercise_fixture IS TRUE""",

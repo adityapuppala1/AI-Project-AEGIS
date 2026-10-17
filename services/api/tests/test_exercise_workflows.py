@@ -158,3 +158,35 @@ def test_private_audit_uses_signed_agency(monkeypatch):
                         lambda pid, agency: captured.append((pid, agency)) or {"exercise_only": True})
     assert client.get(f"/v1/exercise/proposals/{PROPOSAL_ID}/audit").status_code == 200
     assert captured == [(PROPOSAL_ID, AGENCY_ID)]
+
+
+def test_cap_export_requires_configuration(monkeypatch):
+    for key in ("OIDC_ISSUER", "OIDC_AUDIENCE", "OIDC_JWKS_URL"):
+        monkeypatch.delenv(key, raising=False)
+    assert client.get(f"/v1/exercise/proposals/{PROPOSAL_ID}/cap-draft").status_code == 503
+
+
+def test_cap_export_is_private_scoped_and_download_only(monkeypatch):
+    from test_cap_draft import approved_audit
+    authenticate("incident_auditor")
+    captured = []
+    monkeypatch.setattr(exercise_workflows, "proposal_audit",
+                        lambda pid, agency: captured.append((pid, agency)) or approved_audit())
+    response = client.get(f"/v1/exercise/proposals/{PROPOSAL_ID}/cap-draft")
+    assert response.status_code == 200
+    assert captured == [(PROPOSAL_ID, AGENCY_ID)]
+    assert response.headers["content-type"].startswith("application/xml")
+    assert response.headers["cache-control"] == "no-store"
+    assert response.headers["content-disposition"].endswith('-draft.xml"')
+    assert client.post(f"/v1/exercise/proposals/{PROPOSAL_ID}/cap-draft").status_code == 405
+
+
+def test_cap_export_cannot_disclose_other_agency_proposals(monkeypatch):
+    authenticate("incident_operator")
+    def missing(pid, agency):
+        assert agency == AGENCY_ID
+        raise LookupError("Other agency private detail")
+    monkeypatch.setattr(exercise_workflows, "proposal_audit", missing)
+    response = client.get(f"/v1/exercise/proposals/{PROPOSAL_ID}/cap-draft")
+    assert response.status_code == 404
+    assert "Other agency" not in response.text

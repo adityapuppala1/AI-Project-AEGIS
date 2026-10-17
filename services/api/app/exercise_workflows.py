@@ -6,7 +6,7 @@ assigned agency and roles MUST be taken from verified OIDC JWT claims.
 from enum import Enum
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.governance import Action, DecisionError
@@ -111,3 +111,20 @@ def private_proposal_audit(proposal_id: UUID, operator: Operator = Depends(get_o
         return proposal_audit(str(proposal_id), operator.agency_id)
     except LookupError as err:
         raise HTTPException(status_code=404, detail="Exercise proposal not found") from err
+
+
+@router.get("/{proposal_id}/cap-draft")
+def private_cap_draft(proposal_id: UUID, operator: Operator = Depends(get_operator)):
+    require_role(operator, {"incident_operator", "incident_checker", "incident_auditor"})
+    from app.cap_draft import cap_draft_xml
+    try:
+        xml = cap_draft_xml(proposal_audit(str(proposal_id), operator.agency_id))
+        return Response(xml, media_type="application/xml", headers={
+            "Cache-Control": "no-store",
+            "Content-Disposition": f'attachment; filename="aegis-exercise-{proposal_id}-draft.xml"',
+            "X-Content-Type-Options": "nosniff",
+        })
+    except LookupError as err:
+        raise HTTPException(status_code=404, detail="Exercise proposal not found") from err
+    except DecisionError as err:
+        raise HTTPException(status_code=409, detail=str(err)) from err

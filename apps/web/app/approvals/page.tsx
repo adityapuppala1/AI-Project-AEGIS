@@ -188,6 +188,10 @@ export default function ApprovalWorkbench() {
                 <ul className="list-disc pl-5">{proposal.proposal.simulation.tasks.map(task => <li key={task.department}>{task.department}: {task.state}</li>)}</ul>
               </div>}
               <a className="mt-3 inline-block text-sm underline" href={`/api/proposals/${proposal.id}/audit`} target="_blank" rel="noreferrer">Open private proposal audit JSON</a>
+              {proposal.status === "approved" && proposal.action_type === "prepare_warning" && proposal.proposal.response_draft && <div className="mt-3 text-sm">
+                <a className="control" href={`/api/proposals/${proposal.id}/cap-draft`}>Download exercise CAP XML draft</a>
+                <p className="mt-2 text-xs text-muted">Private exercise artifact only. Unknown hazard severity; no verified footprint. Never transmit or use for operations.</p>
+              </div>}
               {proposal.status === "draft" && canMake && proposal.maker_subject === auth.subject &&
                 <button type="button" className="control mt-3" disabled={busy} onClick={() => void change(proposal, "submit")}>
                   Submit for independent review
