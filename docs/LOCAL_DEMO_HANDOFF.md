@@ -1339,6 +1339,15 @@ approval, notification, dispatch or forecast authority. Remaining gate: recover
 production web build/start, real 390/1440 browser queries, 21 smoke checks,
 HTTP/refusal/checksum, final runtime inventory and clean Git state.
 
+Follow-up `47abf216c4e1c2168b46c79a773f09876440786b` aligns the visible
+"Evidence IDs" / "Source IDs" labels with the targeted browser assertions.
+Mirror TypeScript passed. This commit is not yet on the laptop; prepared bundle
+`.git/grounded-guide-label.bundle` is based on laptop checkpoint `3eda6a3`.
+Before importing it, recover PID 85008 or its transcript and confirm that no
+guarded job remains active. Desktop Commander continued to report the device
+online but its last-seen stayed stale at 12 minutes and read calls stopped
+returning. No duplicate job was started.
+
 
 ## Recovered inbox acceptance and reassignment checkpoint
 
