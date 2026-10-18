@@ -228,11 +228,11 @@ export function SourceObservatory() {
             {chart.length >= 2 && <div className="mt-4 h-[205px] w-full" role="img" aria-label={`Synthetic ${selected.metric_label} trend. Tabular values are provided below.`}>
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chart} margin={{ top: 8, right: 16, bottom: 4, left: -16 }}>
-                  <CartesianGrid stroke="rgb(120 150 165 / .18)" strokeDasharray="3 4" vertical={false}/>
-                  <XAxis dataKey="time" tick={{ fill: "#94a8b7", fontSize: 10 }} axisLine={false} tickLine={false}/>
-                  <YAxis tick={{ fill: "#94a8b7", fontSize: 10 }} axisLine={false} tickLine={false}/>
-                  <Tooltip contentStyle={{ background: "#11283b", border: "1px solid #355268", borderRadius: 12, color: "#f2f8ff" }}/>
-                  <Line type="monotone" dataKey="value" name={selected.metric_label} stroke="#36cfae" strokeWidth={2.5} dot={{r:3}} isAnimationActive={false}/>
+                  <CartesianGrid stroke="rgb(var(--chart-grid) / .22)" strokeDasharray="3 4" vertical={false}/>
+                  <XAxis dataKey="time" tick={{ fill: "rgb(var(--muted))", fontSize: 10 }} axisLine={false} tickLine={false}/>
+                  <YAxis tick={{ fill: "rgb(var(--muted))", fontSize: 10 }} axisLine={false} tickLine={false}/>
+                  <Tooltip contentStyle={{ background: "rgb(var(--chart-tooltip))", border: "1px solid rgb(var(--stroke))", borderRadius: 12, color: "#fff8ec" }}/>
+                  <Line type="monotone" dataKey="value" name={selected.metric_label} stroke="rgb(var(--accent))" strokeWidth={2.5} dot={{r:3}} isAnimationActive={false}/>
                 </LineChart>
               </ResponsiveContainer>
             </div>}

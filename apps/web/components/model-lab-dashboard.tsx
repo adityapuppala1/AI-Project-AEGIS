@@ -57,13 +57,13 @@ export function ModelLabDashboard({ report }: { report: ModelReport }) {
         <div className="h-[280px] w-full px-2 pb-4 pt-5 sm:px-5">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={bins} margin={{ top: 6, right: 12, bottom: 8, left: -15 }}>
-              <CartesianGrid vertical={false} stroke="rgb(120 150 165 / .19)" strokeDasharray="3 4"/>
-              <XAxis dataKey="label" tick={{ fill: "#94a8b7", fontSize: 11 }} axisLine={false} tickLine={false}/>
-              <YAxis domain={[0,100]} tick={{ fill: "#94a8b7", fontSize: 11 }} axisLine={false} tickLine={false}/>
-              <Tooltip contentStyle={{ background: "#11283b", border: "1px solid #355268", borderRadius: 12, color: "#f2f8ff" }}/>
+              <CartesianGrid vertical={false} stroke="rgb(var(--chart-grid) / .22)" strokeDasharray="3 4"/>
+              <XAxis dataKey="label" tick={{ fill: "rgb(var(--muted))", fontSize: 11 }} axisLine={false} tickLine={false}/>
+              <YAxis domain={[0,100]} tick={{ fill: "rgb(var(--muted))", fontSize: 11 }} axisLine={false} tickLine={false}/>
+              <Tooltip contentStyle={{ background: "rgb(var(--chart-tooltip))", border: "1px solid rgb(var(--stroke))", borderRadius: 12, color: "#fff8ec" }}/>
               <Legend wrapperStyle={{ fontSize: 11 }}/>
-              <Line type="linear" dataKey="mean_score" name="Mean synthetic model score (%)" stroke="#36cfae" strokeWidth={2.5} dot={{r:4}} isAnimationActive={false}/>
-              <Line type="linear" dataKey="positive_fraction" name="Generated positive label fraction (%)" stroke="#f0af55" strokeWidth={2.5} dot={{r:4}} isAnimationActive={false}/>
+              <Line type="linear" dataKey="mean_score" name="Mean synthetic model score (%)" stroke="rgb(var(--accent))" strokeWidth={2.5} dot={{r:4}} isAnimationActive={false}/>
+              <Line type="linear" dataKey="positive_fraction" name="Generated positive label fraction (%)" stroke="rgb(var(--signal))" strokeWidth={2.5} dot={{r:4}} isAnimationActive={false}/>
             </LineChart>
           </ResponsiveContainer>
         </div>

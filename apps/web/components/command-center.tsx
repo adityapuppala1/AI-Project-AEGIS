@@ -101,12 +101,12 @@ export function CommandCenter() {
         <div className="h-[250px] w-full px-2 pb-4 pt-5 sm:px-5">
           {telemetry?.points?.length ? <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={telemetry.points} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
-              <defs><linearGradient id="rainArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#38cdb5" stopOpacity={0.38}/><stop offset="95%" stopColor="#38cdb5" stopOpacity={0}/></linearGradient></defs>
-              <CartesianGrid stroke="rgb(120 150 165 / .16)" strokeDasharray="3 4" vertical={false}/>
-              <XAxis dataKey="label" tick={{ fill: "#94a8b7", fontSize: 11 }} axisLine={false} tickLine={false}/>
-              <YAxis tick={{ fill: "#94a8b7", fontSize: 11 }} axisLine={false} tickLine={false}/>
-              <Tooltip contentStyle={{ background: "#11283b", border: "1px solid #355268", borderRadius: 12, color: "#f2f8ff" }} labelStyle={{ color: "#c5d9e6" }}/>
-              <Area type="monotone" dataKey="rainfall_mm" name="Rainfall (mm)" stroke="#38cdb5" strokeWidth={3} fill="url(#rainArea)" dot={false}/>
+              <defs><linearGradient id="rainArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="rgb(var(--accent))" stopOpacity={0.42}/><stop offset="95%" stopColor="rgb(var(--accent))" stopOpacity={0}/></linearGradient></defs>
+              <CartesianGrid stroke="rgb(var(--chart-grid) / .22)" strokeDasharray="3 4" vertical={false}/>
+              <XAxis dataKey="label" tick={{ fill: "rgb(var(--muted))", fontSize: 11 }} axisLine={false} tickLine={false}/>
+              <YAxis tick={{ fill: "rgb(var(--muted))", fontSize: 11 }} axisLine={false} tickLine={false}/>
+              <Tooltip contentStyle={{ background: "rgb(var(--chart-tooltip))", border: "1px solid rgb(var(--stroke))", borderRadius: 12, color: "#fff8ec" }} labelStyle={{ color: "#e9daca" }}/>
+              <Area type="monotone" dataKey="rainfall_mm" name="Rainfall (mm)" stroke="rgb(var(--accent))" strokeWidth={3} fill="url(#rainArea)" dot={false}/>
             </AreaChart>
           </ResponsiveContainer> : <div className="flex h-full items-center justify-center text-sm text-muted">{loading ? "Loading chart..." : "No telemetry available"}</div>}
         </div>

@@ -59,3 +59,20 @@ cancellation, fallback and anonymous approval refusal. No model metrics change.
 
 This design work complements those tasks; it does not close them or claim the
 application is fully autonomous or self-aware.
+
+## Monsoon atlas visual system — 18 October 2026
+
+The application now uses a purpose-built emergency coordination palette instead
+of the earlier generic slate/teal dashboard treatment. Light mode uses warm
+mineral canvas and paper surfaces with indigo for decisions. Dark mode uses
+ink/plum surfaces with saffron for active controls. Coral remains a warning
+signal, while established amber/emerald/red status semantics remain unchanged.
+
+Depth comes from restrained layered gradients, a distinct command rail,
+directional active-navigation treatment and low-spread panel shadows. Charts,
+map symbols, popovers, selection, focus and primary controls consume the same
+semantic tokens. There is no new animation or 3D dependency, and the existing
+reduced-motion contract remains in force. A static theme contract checks token
+completeness plus WCAG AA contrast for body copy, muted copy and primary
+controls in both themes. Browser acceptance must still confirm both themes at
+mobile and desktop widths before this visual slice is marked laptop-verified.

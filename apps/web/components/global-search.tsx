@@ -126,7 +126,7 @@ export function GlobalSearch() {
       <Search size={17} aria-hidden="true"/><span className="hidden text-xs sm:inline">Search anything</span><kbd className="hidden rounded border border-stroke px-1.5 py-0.5 text-[10px] lg:inline">Ctrl K</kbd>
     </button>
     {open && <div className="fixed inset-0 z-[100] flex items-start justify-center px-3 pt-[8vh] sm:pt-[14vh]">
-      <button type="button" className="absolute inset-0 bg-[#07101c]/75 backdrop-blur-sm" aria-label="Close global search" onClick={close}/>
+      <button type="button" className="absolute inset-0 bg-[#17131f]/78 backdrop-blur-sm" aria-label="Close global search" onClick={close}/>
       <section role="dialog" ref={dialog} onKeyDown={trapFocus} aria-modal="true" aria-label="AEGIS global search" className="relative z-10 w-full max-w-[650px] overflow-hidden rounded-2xl border border-stroke bg-surface shadow-2xl">
         <div className="flex items-center gap-3 border-b border-stroke px-4 py-3">
           <Command size={19} className="shrink-0 text-accent"/>

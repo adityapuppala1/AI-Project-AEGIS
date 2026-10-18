@@ -49,10 +49,10 @@ export function AppShell({ children, title, description }: { children: ReactNode
     <div className="min-h-screen lg:flex">
       <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:rounded-lg focus:bg-surface focus:p-3">Skip to content</a>
       {menuOpen && <button className="fixed inset-0 z-30 bg-black/60 lg:hidden" aria-label="Close navigation" onClick={() => setMenuOpen(false)} />}
-      <aside className={`fixed inset-y-0 left-0 z-40 flex w-[264px] flex-col overflow-y-auto border-r border-stroke bg-surface transition-transform duration-200 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${menuOpen ? "translate-x-0" : "-translate-x-full"}`}>
+      <aside className={`command-rail fixed inset-y-0 left-0 z-40 flex w-[264px] flex-col overflow-y-auto border-r border-stroke transition-transform duration-200 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${menuOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex h-20 items-center justify-between border-b border-stroke px-6">
           <Link href="/" className="flex items-center gap-3" aria-label="AEGIS home">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/15 text-accent"><Command size={22}/></span>
+            <span className="brand-mark flex h-10 w-10 items-center justify-center rounded-xl"><Command size={22}/></span>
             <span><strong className="block text-xl font-black tracking-[.16em]">AEGIS</strong><span className="text-[10px] font-bold uppercase tracking-[.21em] text-muted">Intelligence System</span></span>
           </Link>
           <button className="control h-9 w-9 !px-0 lg:hidden" aria-label="Close menu" onClick={() => setMenuOpen(false)}><X size={18}/></button>
@@ -62,7 +62,7 @@ export function AppShell({ children, title, description }: { children: ReactNode
             {navigation.map(({ href, label, icon: Icon }) => {
               const active = pathname === href;
               return <Link key={href} href={href} aria-current={active ? "page" : undefined}
-                className={`flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-semibold transition-colors ${active ? "bg-accent/10 text-accent" : "text-muted hover:bg-elevated hover:text-ink"}`}>
+                className={`flex min-h-11 items-center gap-3 rounded-r-xl px-3 text-sm font-semibold transition-colors ${active ? "nav-active text-accent" : "text-muted hover:bg-elevated hover:text-ink"}`}>
                 <Icon size={18} aria-hidden="true" /><span className="flex-1">{label}</span>{active && <ChevronRight size={16} aria-hidden="true"/>}
               </Link>;
             })}
@@ -77,7 +77,7 @@ export function AppShell({ children, title, description }: { children: ReactNode
         </div>
       </aside>
       <div className="min-w-0 flex-1">
-        <div className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-stroke bg-surface/95 px-4 backdrop-blur-lg sm:px-8">
+        <div className="command-topbar sticky top-0 z-20 flex h-16 items-center justify-between border-b border-stroke bg-surface/90 px-4 backdrop-blur-xl sm:px-8">
           <div className="flex items-center gap-3">
             <button className="control h-10 w-10 !px-0 lg:hidden" aria-label="Open navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen(true)}><Menu size={19}/></button>
             <span className="hidden text-xs font-semibold uppercase tracking-[.16em] text-muted sm:inline">Public safety / Hyderabad</span>
