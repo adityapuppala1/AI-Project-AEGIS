@@ -514,6 +514,8 @@ live dispatch or operational integration was performed.
 
 ### Monsoon atlas visual system accepted — 18 October 2026
 
+Superseded after owner review by the operations graphite redesign below.
+
 Application checkpoint `2cb6d4f` introduces a distinct semantic light/dark
 palette and layered command-center treatment without changing operational
 workflow or adding a rendering dependency. Laptop PID 138528 exited 0 in
@@ -522,3 +524,15 @@ build/start, light/dark checks at 390px and 1440px, all 21 smoke/axe checks,
 HTTP refusal/live-warning boundaries, audit checksum and final single-runtime
 inventory. Human usefulness, IdP/MFA, screen-reader and owner release gates
 remain external/deferred.
+
+### Operations graphite redesign accepted — 18 October 2026
+
+Application checkpoint `db84241` replaces the rejected warm palette with the
+cool, compact command-center system derived from the owner-supplied design
+references. The first laptop gate correctly caught five light-theme distance
+badge contrast failures at 4.48:1; `db84241` strengthened the action color.
+The corrected PID 170168 exited 0 in 121.34 seconds after theme/contrast tests,
+TypeScript, production build/start, light/dark checks at 390px and 1440px, all
+21 smoke/axe checks with no violations, HTTP boundaries, audit checksum and
+single-runtime inventory. No application dependency or workflow authority was
+added.

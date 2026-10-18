@@ -21,7 +21,7 @@ Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 ## Latest continuation status
 
 Laptop and mirror application checkpoint:
-`2cb6d4f6c854e740d8361adc919d3c70f60bb3aa`. The original complete guarded acceptance
+`db84241f8f73ac3b5cb7053020681f7a7e0a1200`. The original complete guarded acceptance
 run finished with exit 0 in 117.80 seconds. The local synthetic demonstration
 now covers observation -> validation -> incident/evidence -> assessment ->
 grounded evidence guidance and playbook-based response draft -> independent
@@ -46,7 +46,7 @@ IdP/trust activation stays deferred by the owner.
 | Verified on laptop | Synthetic department SLA v3: prior 321 API tests/model/type checks, production build/start, 13 PostGIS tests, HTTP, targeted v2/v3 browser fixtures and 21 browser smoke checks |
 | Verified on laptop | Signed department inbox and auditable coordinator reassignment: native/proxy/build, 15 retained PostGIS tests, targeted mobile/desktop browser, 21 smoke/axe checks, HTTP/refusal/checksum and single-runtime inventory |
 | Verified on laptop | Bounded free-form grounded evidence guide: deterministic cited answers/abstention, strict BFF, production builds, real 390/1440 browser checks and complete regression gate |
-| Verified on laptop | Monsoon atlas visual system: warm mineral/indigo light theme, ink/plum/saffron dark theme, semantic chart/map tokens, restrained depth, AA token contrast and real 390/1440 browser acceptance |
+| Verified on laptop | Operations graphite visual system: cool white/graphite foundations, electric-blue controls, cyan data signals, compact decision deck, semantic chart/map tokens, AA contrast and real 390/1440 browser acceptance |
 | Engineering closure | No remaining implementation item is required for the authorized local synthetic hackathon chain; further real-world capability depends on the human/external gates below |
 | Verified bounded recovery | Opt-in same-tab reload/navigation recovery; cross-device/server backup and guaranteed browser-restart recovery are outside this slice |
 | Deferred by owner | Local IdP/trust activation and real two-person MFA/browser approval acceptance; do not reactivate or bypass |
@@ -1390,6 +1390,8 @@ slice. Laptop source is still last confirmed at `2ed809d`.
 
 ## Monsoon atlas visual system — laptop acceptance complete
 
+Superseded by the operations graphite redesign below after owner review.
+
 Application checkpoint `2cb6d4f6c854e740d8361adc919d3c70f60bb3aa`
 replaces the generic slate/teal appearance with a purpose-built warm
 mineral/indigo light theme and ink/plum/saffron dark theme. Shared semantic
@@ -1404,4 +1406,21 @@ and their toggle passed at 390px and 1440px with no overflow or page errors;
 all 21 general browser checks passed with zero sampled accessibility violations;
 HTTP routes, anonymous refusal, blocked live warning and public audit checksum
 passed. Final inventory was exactly one web/API/database. Transcript:
+`.git/visual-theme-verification.log`.
+
+## Operations graphite redesign — laptop acceptance complete
+
+Application source `eb52eb91b9ae801957e1472a06ad80d7de73073d` replaces the
+rejected warm treatment with cool white/graphite foundations, electric-blue
+actions, cyan data signals, a narrower command rail, tighter page header,
+compact metrics and a three-stage decision deck. Contrast correction
+`db84241f8f73ac3b5cb7053020681f7a7e0a1200` darkens the light-theme action
+color after the first browser gate found five distance-badge failures at 4.48:1.
+
+The corrected guarded PID **170168** exited 0 in **121.34 seconds**. Three
+theme/contrast tests, TypeScript and production web build/start passed. Both
+themes passed at 390px and 1440px; all 21 general browser checks passed with no
+page errors or sampled accessibility violations. HTTP routes, anonymous
+refusal, blocked live warning and public audit checksum passed. Final inventory
+was exactly one web/API/database. Transcript:
 `.git/visual-theme-verification.log`.
