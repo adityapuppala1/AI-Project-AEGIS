@@ -14,7 +14,7 @@
 
 All demo measurements labeled synthetic if synthetic; API contract tests pass; no operational warning or dispatch endpoints enabled; logs retain actors, rationale, source provenance and model version.
 
-## Current local acceptance status — 17 October 2026
+## Current local acceptance status — 18 October 2026
 
 Continue `feat/aegis-local-demo-continuation`; do not switch to historical
 feature branches to run the current demo. Exact source SHAs and executed
@@ -29,21 +29,26 @@ commands are recorded in [LOCAL_DEMO_HANDOFF.md](LOCAL_DEMO_HANDOFF.md).
 | Simulated tasks/acknowledgements → audit | Approved-only staged scripted tasks with rationale, atomic audit and concurrent retry/legacy tests passed; actual two-human acceptance remains deferred |
 | Browser/accessibility | Automated desktop/mobile/keyboard, sampled light/dark axe and map-failure/recovery checks passed; manual screen-reader/operator review pending |
 | Recovery and latency | Separate backup restoration and bounded local software latency check passed; no production capacity claim |
-| Security/release | Full npm audit zero on Windows/Linux after Tailwind 4 upgrade; standalone non-root runtime/browser regression passed; owner review pending |
+| Security/release | Full npm audit zero on Windows/Linux after Tailwind 4 upgrade; standalone non-root runtime/browser regression passed; owner release review pending |
+| Operator workspace | Operations-graphite visual system and grouped information architecture passed production build, 390/1440 structural checks, 21 browser/axe checks and single-runtime verification at application checkpoint `b31b6d1` |
 
 The dated windows above are planning milestones. Historical branch delivery
 and CI evidence do not establish current acceptance. Official data feeds,
 scientifically validated forecasting, agency accreditation and real dispatch
 are outside this synthetic demonstration's scope. No CI or merge is authorized.
 
-## Next development sequence
+## Remaining gates after local engineering closure
 
-The [operator assistance roadmap](AI_ASSISTANCE_ROADMAP.md) extends this plan
-with context/uncertainty reporting, grounded copilot, bounded durable agent runs,
-predictive research and measured responsiveness. Close the outstanding laptop
-confirmation first; preserve the deferred human identity/acceptance gates.
+The authorized local synthetic engineering chain is complete. The context and
+uncertainty panels, cited review brief, bounded explicit-step runner, grounded
+evidence guide, signed department inbox/reassignment, responsive operator
+workspace and single-runtime guard all have executed laptop evidence in the
+handoff. These bounded capabilities do not establish self-awareness, autonomous
+operations or validated real-world prediction.
 
-The context panel and deterministic cited brief are incremental assistance
-slices, not evidence that a generative copilot, agent runner or validated
-forecast has shipped. See [brief scope](CITED_REVIEW_BRIEF.md) and the handoff
-for actual local test results and deferred human acceptance.
+Remaining release gates require people or external authorization: owner-deferred
+IdP/trust activation and two-person MFA rehearsal, manual screen-reader and
+operator usefulness evaluation, owner release review, and authorized historical
+data plus independent domain validation before any forecasting claim. Real
+feeds, paid infrastructure, public warning delivery and responder dispatch are
+separate future programs and remain disabled.

@@ -426,7 +426,7 @@ browser smoke checks. The retained PostGIS run first caught an aged comparison
 fixture (**1 failed, 12 passed**); `0e69256` explicitly refreshes only the
 isolated verification database fixtures, and the retry passed **13 tests**.
 
-### Synthetic SLA targets — acceptance pending
+### Synthetic SLA targets — historical pending snapshot; later accepted
 
 `574503d` adds v3 synthetic task targets and v2 compatibility. Laptop native
 checks passed 321 tests (13 DB skips), model check and TypeScript. The mirror
@@ -467,7 +467,7 @@ and tab-only retention limits; department permissions, grounded free-form AI
 and human acceptance remain pending.
 
 
-### Department inbox — implemented; runtime acceptance pending
+### Department inbox — historical pending snapshot; later accepted
 
 `32016da` / `eb5b49e` add signed department scope across API/BFF, a private
 approved-only inbox and audited task acknowledgement/closure. Laptop native
@@ -487,7 +487,7 @@ PID 73960 general smoke/HTTP output is still pending. Reassignment source
 laptop. See `scripts/verify-task-reassignment.ps1` and the handoff for safe
 recovery. Free-form grounded AI/usefulness evaluation and human gates remain.
 
-### Department reassignment accepted; grounded guide in progress
+### Department reassignment accepted; historical grounded-guide snapshot
 
 Reassignment checkpoint `d341c6e` passed Windows native, production build,
 15 retained PostGIS tests, targeted browser, 21 smoke/axe, HTTP/refusal/checksum

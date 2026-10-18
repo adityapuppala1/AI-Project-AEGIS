@@ -52,7 +52,7 @@ for a complete end-to-end demo.
 | Human readiness | `GET /v1/exercise/incidents/{id}/readiness` | probability null, approval still required |
 | Security | `POST /v1/live/public-warning` | 403 blocked |
 | Anonymous approvals | `GET /v1/exercise/proposals` | 401/503, never an unauthenticated list |
-| Browser UX | all eight key pages render | HTTP 200; manual mobile/keyboard still required |
+| Browser UX | key pages and workflows render | Automated desktop/mobile/keyboard and sampled axe checks pass; manual screen-reader/operator acceptance remains |
 | Replay | local CLI run twice (optional) | ledger stable; quarantine stable |
 
 The synthetic fixture counts are **lower bounds**; the DataFusion replay

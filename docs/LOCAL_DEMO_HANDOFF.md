@@ -799,7 +799,7 @@ with Windows script parsing and runtime inventory checked again. Future agents
 must follow the single-instance instructions in root AGENTS.md. Remaining
 agent/copilot/forecasting and human acceptance gates above stay open.
 
-## Saved review focus continuation — in progress
+## Saved review focus continuation — historical in-progress snapshot; later closed
 
 Starting source `9423c22f81ab5267ba459be1e5a43cd747558af6`, branch
 `feat/aegis-local-demo-continuation`. Laptop inventory process 133392 exited 0:
@@ -933,7 +933,7 @@ department permissions/SLAs, durable note recovery and human acceptance.
 Saved-selection capture and its laptop automated acceptance are now closed.
 IdP activation and trust remain deferred by owner; no forecast validation claim.
 
-## Bounded assistance run — implementation in progress
+## Bounded assistance run — historical implementation snapshot; later closed
 
 Starting branch/source `feat/aegis-local-demo-continuation` / `06527e5` was
 clean in both checkouts. Laptop inventory PID 113888 exited 0 with exactly one
@@ -1226,7 +1226,7 @@ grounded assistance/evaluation remain pending.
 Windows `.git/draft-recovery-check.ps1`, PID 117300, has imported the expected
 clean branch, passed `npm.cmd run typecheck` and
 `node --test scripts/tests/exercise-draft-buffer.test.cjs` (**10 passed**).
-Production web build/start remains in progress. Transcript:
+At that historical checkpoint, production web build/start remained in progress. Transcript:
 `.git/draft-recovery-check.log`. The guarded browser wrapper and fixtures are
 prepared; do not count their checks until actual results arrive.
 
