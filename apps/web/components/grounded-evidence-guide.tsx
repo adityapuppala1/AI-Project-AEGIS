@@ -51,8 +51,8 @@ export function GroundedEvidenceGuide({ incidentId }: { incidentId: string }) {
     {message && <p role="status" className="mt-3 text-xs text-muted">{message}</p>}
     {result && <div className="mt-4 space-y-4 text-sm">
       {result.claims.map((claim, index) => <article key={index} className="rounded-lg border border-stroke p-3"><p>{claim.text}</p>
-        <p className="mt-2 break-all text-xs text-muted">Evidence: {claim.evidence_ids.join(" · ") || "none"}</p>
-        <p className="break-all text-xs text-muted">Sources: {claim.source_ids.join(" · ") || "none"}</p></article>)}
+        <p className="mt-2 break-all text-xs text-muted">Evidence IDs: {claim.evidence_ids.join(" · ") || "none"}</p>
+        <p className="break-all text-xs text-muted">Source IDs: {claim.source_ids.join(" · ") || "none"}</p></article>)}
       {result.review_options.length > 0 && <div><h3 className="font-semibold">Human review options</h3><ul className="mt-2 list-disc pl-5">{result.review_options.map(item => <li key={item.playbook_step}><strong>{item.playbook_step}</strong> · {item.text}</li>)}</ul></div>}
       <div><h3 className="font-semibold">Unknowns retained</h3><ul className="mt-2 list-disc pl-5 text-muted">{result.unknowns.map(item => <li key={item}>{item}</li>)}</ul></div>
       <p className="rounded-lg bg-amber-400/10 p-3 text-xs text-amber-800 dark:text-amber-300">{result.note} Next: {result.next_review_step}</p>
