@@ -19,8 +19,9 @@ deterministic explicit-group source comparison and bounded local per-dependency 
 case/geographic reads and validation without exposing exception details.
 The [cited review brief](CITED_REVIEW_BRIEF.md) adds the deterministic fallback
 for evidence-grounded review. An opt-in [local model selection preview](LOCAL_REVIEW_FOCUS.md)
-adds bounded review focus. The bounded explicit-step durable runner is accepted
-locally; free-form grounded drafting/Q&A and usefulness evaluation remain pending.
+adds bounded review focus. The bounded explicit-step durable runner and bounded
+free-form grounded evidence guide are accepted locally. Human usefulness
+evaluation remains pending.
 
 [Unsaved workbench drafts](UNSAVED_EXERCISE_DRAFTS.md) now support opt-in,
 identity-scoped same-tab reload recovery with eight-hour expiry and bounded
@@ -38,8 +39,9 @@ signed-in human acceptance remain separate work.
 3. Staged private scripted tasks are implemented: prepare → acknowledge → close,
    with signed operator rationale, atomic audit and idempotent retries. See
    [task rehearsal scope](STAGED_TASK_REHEARSAL.md). Synthetic SLA targets are
-   accepted on the laptop through production/database/browser gates;
-   department-scoped sessions and reassignment remain pending.
+   accepted on the laptop through production/database/browser gates. Signed
+   department-scoped sessions and coordinator reassignment also passed the full
+   automated laptop gate; real IdP-backed human sessions remain deferred.
 4. Deferred by the owner: [local IdP activation and certificate trust](LOCAL_IDP_REVIEW.md). If that decision changes,
    verify realm import, PKCE login, MFA and independent maker/checker identities.
 5. With two different people, rehearse evidence-cited draft → independent

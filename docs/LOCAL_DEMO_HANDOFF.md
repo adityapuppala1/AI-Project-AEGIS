@@ -1,6 +1,6 @@
 # Current local synthetic demo handoff
 
-Updated: 17 October 2026 (IST). Repository: `adityapuppala1/AI-Project-AEGIS`.
+Updated: 18 October 2026 (IST). Repository: `adityapuppala1/AI-Project-AEGIS`.
 Branch: `feat/aegis-local-demo-continuation`; integration baseline `b71172c`.
 Latest continuation scripts: `e10ebeeb03a786953449998049c5072361b7d6d2`
 (single-operation guard `c60f123`, redirected startup follow-up `e10ebee`).
@@ -20,16 +20,20 @@ Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 
 ## Latest continuation status
 
-Laptop last confirmed checkpoint: `2ed809d`; department source `32016da`,
-PostGIS/scope tests `eb5b49e`. Recovered PID 150860 exit 0: production API/web
-build, 14 retained PostGIS tests and guarded startup passed. Targeted inbox
-browser checks passed at both 390px and 1440px. General smoke/HTTP output from
-PID 73960 is still pending retrieval.
+Laptop and mirror application checkpoint:
+`37caad2df6c1a62b4566173cf82a42d309ad6da7`. The complete guarded acceptance
+run finished with exit 0 in 117.80 seconds. The local synthetic demonstration
+now covers observation -> validation -> incident/evidence -> assessment ->
+grounded evidence guidance and playbook-based response draft -> independent
+approval policy -> department tasks/reassignment/acknowledgements -> audit.
+Exactly one API, web and database service remained running and the laptop Git
+tree was clean.
 
-Mirror reassignment source: `cf404ad`, tests `d97bb06`; **not yet verified or
-confirmed imported on the laptop**. This adds coordinator-only reassignment,
-assignment versions, stale-owner rejection, fixed original due time and atomic
-audit. Do not count this slice complete until laptop acceptance runs.
+The signed department inbox and coordinator reassignment passed their complete
+laptop gate at `d341c6ee23e3adbd0508277cea75f1f6eecfb466` (PID 1860, exit 0,
+162.64 seconds). The grounded evidence guide then passed native, production,
+database, real browser, HTTP/refusal/checksum and single-runtime checks at the
+current application checkpoint. Exact results are recorded near the end.
 
 IdP/trust activation stays deferred by the owner.
 
@@ -40,9 +44,9 @@ IdP/trust activation stays deferred by the owner.
 | Verified automated | Original synthetic observation/evidence/assessment/draft/approval-policy/task/audit chain; private CAP draft; recovery and anonymous/live-action boundaries |
 | Verified on laptop | Saved review focus, bounded explicit-step assistance, source comparison, local dependency diagnostics, page-memory draft recovery and bounded warm HTTP latency |
 | Verified on laptop | Synthetic department SLA v3: prior 321 API tests/model/type checks, production build/start, 13 PostGIS tests, HTTP, targeted v2/v3 browser fixtures and 21 browser smoke checks |
-| Partial acceptance | Signed department inbox: native/proxy/build/PostGIS and targeted browser passed; full smoke/HTTP output pending |
-| Implemented, unverified | Auditable task reassignment with assignment-version checks; laptop import/tests pending |
-| Pending engineering | Free-form grounded drafting/Q&A and usefulness evaluation |
+| Verified on laptop | Signed department inbox and auditable coordinator reassignment: native/proxy/build, 15 retained PostGIS tests, targeted mobile/desktop browser, 21 smoke/axe checks, HTTP/refusal/checksum and single-runtime inventory |
+| Verified on laptop | Bounded free-form grounded evidence guide: deterministic cited answers/abstention, strict BFF, production builds, real 390/1440 browser checks and complete regression gate |
+| Engineering closure | No remaining implementation item is required for the authorized local synthetic hackathon chain; further real-world capability depends on the human/external gates below |
 | Verified bounded recovery | Opt-in same-tab reload/navigation recovery; cross-device/server backup and guaranteed browser-restart recovery are outside this slice |
 | Deferred by owner | Local IdP/trust activation and real two-person MFA/browser approval acceptance; do not reactivate or bypass |
 | Pending human acceptance | Manual screen-reader/operator rehearsal and owner release review |
@@ -52,14 +56,12 @@ IdP/trust activation stays deferred by the owner.
 
 1. Before each operation inspect laptop Git state and the single-runtime guard;
    use the shared lease for custom jobs and preserve local changes.
-2. Recover PID 73960 / `.git/department-acceptance.log` before any new job.
-   Then inspect clean laptop HEAD and bundle state, import mirror reassignment
-   and run `scripts/verify-task-reassignment.ps1`. Preserve source/DB state.
-3. Continue grounded drafting/Q&A and usefulness evaluation within the existing
-   bounded assistance design. Opt-in tab draft recovery is already verified;
-   server/cross-device backup is outside that delivered slice.
-4. Keep owner-deferred identity and manual acceptance gates explicit. Automated
+2. Keep owner-deferred identity and manual acceptance gates explicit. Automated
    fixtures cannot close these gates or establish real forecasting accuracy.
+3. If the owner later activates the local IdP, execute the documented two-person
+   PKCE/MFA rehearsal with separate identities. Do not activate trust silently.
+4. Treat real feeds, forecasting, cross-device drafts and operational messaging
+   as separately authorized future programs requiring data, domain and safety review.
 
 ## Current implementation
 
@@ -1322,31 +1324,30 @@ This closes fixed department ownership and audited coordinator reassignment in
 the automated local demo. It does not establish real department identities or
 human acceptance while the IdP remains owner-deferred.
 
-## Grounded evidence guide — verification in progress
+## Grounded evidence guide — laptop acceptance complete
 
-Laptop imported `3eda6a3` (feature `bbdecea`) and started guarded PID **85008**.
-Confirmed so far: **349 API tests passed, 15 opt-in DB tests skipped**, model
-reproducibility, TypeScript and **7 strict BFF route tests passed**. Production
-API image completed and the web production build was running when the connector
-stopped returning fresh output. Do not launch another build: recover PID 85008
-or `.git/grounded-guide-verification.log` first.
+The initial guarded run at `3eda6a3` (feature `bbdecea`), PID **85008**, exited
+0 in **138.80 seconds**: **349 API tests passed, 15 opt-in database tests
+skipped**, model reproducibility, TypeScript, seven strict BFF route tests,
+production API/web builds and startup, browser, smoke, HTTP/refusal/checksum and
+single-runtime checks passed.
 
 The guide accepts a bounded free-form question on Incident Intelligence and
 returns only validated readiness findings, existing evidence/source UUIDs,
 allowlisted playbook review options, explicit unknowns and limitations. Unknown
 or instruction-like requests abstain. It has no proposal/task write path and no
-approval, notification, dispatch or forecast authority. Remaining gate: recover
-production web build/start, real 390/1440 browser queries, 21 smoke checks,
-HTTP/refusal/checksum, final runtime inventory and clean Git state.
+approval, notification, dispatch or forecast authority.
 
-Follow-up `47abf216c4e1c2168b46c79a773f09876440786b` aligns the visible
-"Evidence IDs" / "Source IDs" labels with the targeted browser assertions.
-Mirror TypeScript passed. This commit is not yet on the laptop; prepared bundle
-`.git/grounded-guide-label.bundle` is based on laptop checkpoint `3eda6a3`.
-Before importing it, recover PID 85008 or its transcript and confirm that no
-guarded job remains active. Desktop Commander continued to report the device
-online but its last-seen stayed stale at 12 minutes and read calls stopped
-returning. No duplicate job was started.
+Follow-ups `47abf21`, `eca7bae` and `37caad2` align visible "Evidence IDs" /
+"Source IDs" labels and scope browser assertions to the guide region. Final
+laptop checkpoint `37caad2df6c1a62b4566173cf82a42d309ad6da7`, guarded PID
+**95040**, exited 0 in **117.80 seconds**. TypeScript and the production web
+build/start passed; real guide checks passed at 390px and 1440px; all 21 general
+browser checks passed with zero page errors and zero sampled accessibility
+violations; HTTP routes, refusal boundaries, blocked live warning and the
+independently recomputed public audit checksum passed. Final inventory was
+exactly one API/web/database and the tree was clean. Transcript:
+`.git/grounded-guide-final.log`.
 
 
 ## Recovered inbox acceptance and reassignment checkpoint

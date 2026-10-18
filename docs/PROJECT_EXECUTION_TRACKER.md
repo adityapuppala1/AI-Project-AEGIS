@@ -4,11 +4,11 @@ Current extensions: [saved proposal-context revalidation](PROPOSAL_CONTEXT_REVAL
 and [single-instance local operation guards](SINGLE_INSTANCE_LOCAL_RUNTIME.md)
 passed laptop acceptance: 299 native tests, 31 proxy tests, seven PostGIS tests,
 production builds, guarded startup and HTTP/browser checks. Deterministic context
-only at that checkpoint; saved review focus and the bounded explicit-step runner
-are now accepted locally. Broader free-form assistance remains pending. Exact source,
+only at that checkpoint; saved review focus, the bounded explicit-step runner
+and grounded evidence guide are now accepted locally. Exact source,
 commands and the retained startup failure/fix are in [the handoff](LOCAL_DEMO_HANDOFF.md).
 
-Updated: 2026-10-17 · Time zone: Asia/Kolkata (IST) · Repository: `adityapuppala1/AI-Project-AEGIS`.
+Updated: 2026-10-18 · Time zone: Asia/Kolkata (IST) · Repository: `adityapuppala1/AI-Project-AEGIS`.
 
 ## Current work, before historical records
 
@@ -495,3 +495,19 @@ and final single-runtime checks. Grounded guide checkpoint `3eda6a3` passed 349
 native API tests, model/TypeScript and seven BFF tests; its production/browser
 gate PID 85008 is still pending output recovery. Human usefulness, IdP/MFA,
 screen-reader and owner release acceptance remain external/deferred gates.
+
+### Local synthetic demo engineering chain accepted — 18 October 2026
+
+Application checkpoint `37caad2df6c1a62b4566173cf82a42d309ad6da7`
+closes the authorized local engineering chain. Department reassignment passed
+at `d341c6e` (PID 1860, exit 0, 162.64 seconds). The final grounded-guide gate
+(PID 95040, exit 0, 117.80 seconds) passed TypeScript, production web build and
+startup, real 390/1440 guide checks, 21 smoke/axe checks, HTTP refusal and
+live-warning boundaries, public audit checksum, exactly one API/web/database
+and a clean laptop tree. The earlier “in progress” section is historical.
+
+Remaining gates require people or external authorization: owner-deferred local
+IdP/trust activation and separate-person MFA rehearsal, manual screen-reader
+and operator usefulness review, owner release review, and authorized data plus
+domain validation before any real forecasting claim. No CI, push, deployment,
+live dispatch or operational integration was performed.
