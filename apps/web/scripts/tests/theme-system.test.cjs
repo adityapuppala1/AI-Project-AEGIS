@@ -30,7 +30,7 @@ function contrast(a, b) {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
-test("monsoon atlas themes define complete, distinct semantic tokens", () => {
+test("operations graphite themes define complete, distinct semantic tokens", () => {
   const light = block(":root");
   const dark = block(".dark");
   for (const name of ["canvas", "surface", "elevated", "stroke", "ink", "muted", "accent", "accent-contrast", "signal", "chart-grid", "chart-tooltip"]) {

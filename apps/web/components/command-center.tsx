@@ -15,9 +15,9 @@ function Metric({ label, value, caption, icon: Icon, tone = "accent" }: {
   label: string; value: string | number; caption: string; icon: typeof Activity; tone?: "accent" | "amber" | "rose";
 }) {
   const color = tone === "amber" ? "text-amber-500 bg-amber-500/10" : tone === "rose" ? "text-rose-400 bg-rose-500/10" : "text-accent bg-accent/10";
-  return <article className="panel flex items-start justify-between gap-3 p-5">
-    <div><p className="text-xs font-semibold text-muted">{label}</p><p className="mt-3 text-3xl font-bold tabular-nums tracking-tight">{value}</p><p className="mt-2 text-xs text-muted">{caption}</p></div>
-    <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${color}`}><Icon size={20}/></span>
+  return <article className="panel metric-card flex items-start justify-between gap-3 p-4">
+    <div><p className="text-[11px] font-bold uppercase tracking-[.12em] text-muted">{label}</p><p className="mt-2 text-2xl font-bold tabular-nums tracking-tight">{value}</p><p className="mt-1 text-[11px] text-muted">{caption}</p></div>
+    <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${color}`}><Icon size={18}/></span>
   </article>;
 }
 
@@ -36,24 +36,21 @@ export function CommandCenter() {
     {error && <div role="alert" className="mb-5 flex items-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-700 dark:text-rose-300">
       <AlertTriangle size={17}/>{error}. Previously loaded values, if any, may be stale.
     </div>}
-    <section className="operator-hero mb-5 overflow-hidden rounded-2xl border border-stroke p-5 sm:p-7" aria-label="Operator mission workspace">
-      <div className="relative z-10 grid gap-6 lg:grid-cols-[1.3fr_1fr]">
-        <div><p className="eyebrow">AEGIS / Human-led intelligence</p>
-          <h2 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">See the evidence.<br/>Shape the next decision.</h2>
-          <p className="mt-3 max-w-xl text-sm leading-6 text-muted">Select a case, inspect its sources and ask local AI to focus your review. Every response stays connected to evidence and an accountable reviewer.</p>
-          <div className="mt-4 flex flex-wrap gap-2"><Link href="/approvals" className="control control-primary">Open approval workbench <ArrowRight size={15}/></Link><Link href="/demo" className="control">Follow the exercise</Link></div>
-        </div>
-        <ol className="grid gap-2" aria-label="Human-led assistance sequence">
-          {[["01", "Observe & verify", "Inspect sources, freshness and uncertainty."], ["02", "Focus & draft", "AI selects cited review items; makers control drafts."], ["03", "Review & rehearse", "Independent approval precedes scripted tasks."]].map(([n,title,detail]) =>
-            <li key={n} className="flex items-start gap-3 rounded-xl border border-stroke bg-surface/80 p-3"><span className="mt-1 text-xs font-bold text-accent">{n}</span><div><p className="text-sm font-semibold">{title}</p><p className="mt-1 text-xs leading-5 text-muted">{detail}</p></div></li>)}
-        </ol>
+    <section className="command-deck operator-hero mb-5 overflow-hidden rounded-xl border border-stroke p-4 sm:p-5" aria-label="Operator mission workspace">
+      <div className="relative z-10 flex flex-wrap items-center justify-between gap-4">
+        <div><p className="eyebrow">Active decision path</p><h2 className="mt-2 text-lg font-bold tracking-tight">Evidence to accountable response</h2><p className="mt-1 text-xs text-muted">One bounded workflow · cited context · independent approval</p></div>
+        <div className="flex flex-wrap gap-2"><Link href="/approvals" className="control control-primary text-xs">Open workbench <ArrowRight size={14}/></Link><Link href="/demo" className="control text-xs">Guided exercise</Link></div>
       </div>
+      <ol className="relative z-10 mt-4 grid gap-px overflow-hidden rounded-lg border border-stroke bg-stroke sm:grid-cols-3" aria-label="Human-led assistance sequence">
+        {[["01", "Observe & verify", "Sources, freshness, uncertainty"], ["02", "Focus & draft", "Cited review, human-authored action"], ["03", "Approve & rehearse", "Checker gate, scripted tasks"]].map(([n,title,detail]) =>
+          <li key={n} className="flex items-center gap-3 bg-surface p-3"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-accent/10 text-[11px] font-bold text-accent">{n}</span><div><p className="text-xs font-bold">{title}</p><p className="mt-1 text-[10px] text-muted">{detail}</p></div></li>)}
+      </ol>
     </section>
     <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
       <div className="flex items-center gap-2"><span className={`status-dot ${error ? "bg-rose-400" : lastSynced ? "bg-emerald-400" : "bg-amber-400"}`}/><span className="text-xs font-medium text-muted">{error ? "Data feed unavailable" : lastSynced ? "Exercise API connected" : "Connecting to exercise API"}</span></div>
       <button type="button" className="control" onClick={() => void refresh()} disabled={refreshing}><RefreshCw size={16} className={refreshing ? "animate-spin" : ""}/> {refreshing ? "Refreshing" : "Refresh data"}</button>
     </div>
-    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="Exercise overview metrics">
+    <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Exercise overview metrics">
       <Metric label="Registered incidents" value={loading ? "—" : incidents.length} caption="Seeded exercise records" icon={Database}/>
       <Metric label="Awaiting human review" value={loading ? "—" : incidents.filter(i => i.status === "review").length} caption="Review queue" icon={ShieldCheck} tone="amber"/>
       <Metric label="In-progress exercises" value={loading ? "—" : incidents.filter(i => i.status === "active").length} caption="Not real deployments" icon={Activity} tone="rose"/>
@@ -105,7 +102,7 @@ export function CommandCenter() {
               <CartesianGrid stroke="rgb(var(--chart-grid) / .22)" strokeDasharray="3 4" vertical={false}/>
               <XAxis dataKey="label" tick={{ fill: "rgb(var(--muted))", fontSize: 11 }} axisLine={false} tickLine={false}/>
               <YAxis tick={{ fill: "rgb(var(--muted))", fontSize: 11 }} axisLine={false} tickLine={false}/>
-              <Tooltip contentStyle={{ background: "rgb(var(--chart-tooltip))", border: "1px solid rgb(var(--stroke))", borderRadius: 12, color: "#fff8ec" }} labelStyle={{ color: "#e9daca" }}/>
+              <Tooltip contentStyle={{ background: "rgb(var(--chart-tooltip))", border: "1px solid rgb(var(--stroke))", borderRadius: 10, color: "#f3f7fc" }} labelStyle={{ color: "#c8d4e8" }}/>
               <Area type="monotone" dataKey="rainfall_mm" name="Rainfall (mm)" stroke="rgb(var(--accent))" strokeWidth={3} fill="url(#rainArea)" dot={false}/>
             </AreaChart>
           </ResponsiveContainer> : <div className="flex h-full items-center justify-center text-sm text-muted">{loading ? "Loading chart..." : "No telemetry available"}</div>}

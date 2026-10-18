@@ -60,7 +60,7 @@ export function ModelLabDashboard({ report }: { report: ModelReport }) {
               <CartesianGrid vertical={false} stroke="rgb(var(--chart-grid) / .22)" strokeDasharray="3 4"/>
               <XAxis dataKey="label" tick={{ fill: "rgb(var(--muted))", fontSize: 11 }} axisLine={false} tickLine={false}/>
               <YAxis domain={[0,100]} tick={{ fill: "rgb(var(--muted))", fontSize: 11 }} axisLine={false} tickLine={false}/>
-              <Tooltip contentStyle={{ background: "rgb(var(--chart-tooltip))", border: "1px solid rgb(var(--stroke))", borderRadius: 12, color: "#fff8ec" }}/>
+              <Tooltip contentStyle={{ background: "rgb(var(--chart-tooltip))", border: "1px solid rgb(var(--stroke))", borderRadius: 10, color: "#f3f7fc" }}/>
               <Legend wrapperStyle={{ fontSize: 11 }}/>
               <Line type="linear" dataKey="mean_score" name="Mean synthetic model score (%)" stroke="rgb(var(--accent))" strokeWidth={2.5} dot={{r:4}} isAnimationActive={false}/>
               <Line type="linear" dataKey="positive_fraction" name="Generated positive label fraction (%)" stroke="rgb(var(--signal))" strokeWidth={2.5} dot={{r:4}} isAnimationActive={false}/>

@@ -43,7 +43,7 @@ export function GeoMap({ incidents, selectedId, onSelect }: {
             sources: { locators: { type: "geojson", data: { type: "FeatureCollection", features: [] } }, osm: { type: "raster", tiles: BASE_TILES, tileSize: 256, attribution: "© OpenStreetMap contributors" } },
             layers: [{ id: "osm", type: "raster", source: "osm" }, {
               id: "incident-locators", type: "fill-extrusion", source: "locators",
-              paint: { "fill-extrusion-color": ["case", ["get", "selected"], "#f0a33a", "#6967d8"],
+              paint: { "fill-extrusion-color": ["case", ["get", "selected"], "#2dd4bf", "#3978ea"],
                 "fill-extrusion-height": 650, "fill-extrusion-base": 0,
                 "fill-extrusion-opacity": 0.65 },
               layout: { visibility: "none" },
@@ -159,7 +159,7 @@ export function GeoMap({ incidents, selectedId, onSelect }: {
         <strong role="status">Map rendering unavailable</strong>
         <p className="max-w-sm text-sm text-muted">Check WebGL and internet access. Incidents remain accessible in the list.</p>
       </div>}
-      <div className="pointer-events-none absolute bottom-8 left-3 rounded-lg border border-white/10 bg-[#292337]/90 px-3 py-2 text-[11px] font-medium text-white shadow-lg">
+      <div className="pointer-events-none absolute bottom-8 left-3 rounded-lg border border-white/10 bg-[#0d1220]/92 px-3 py-2 text-[11px] font-medium text-white shadow-lg">
         Hyderabad · synthetic incident locations
       </div>
     </div>

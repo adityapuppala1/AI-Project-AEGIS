@@ -16,7 +16,7 @@ const config: Config = {
         accent: "rgb(var(--accent) / <alpha-value>)",
         signal: "rgb(var(--signal) / <alpha-value>)",
       },
-      boxShadow: { panel: "0 18px 50px rgba(45,34,55,.10), 0 2px 8px rgba(45,34,55,.05)" },
+      boxShadow: { panel: "0 10px 32px rgba(4,8,20,.07), 0 1px 3px rgba(4,8,20,.05)" },
     },
   },
   plugins: [],

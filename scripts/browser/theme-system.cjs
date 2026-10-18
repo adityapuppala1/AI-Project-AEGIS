@@ -27,13 +27,15 @@ const { chromium } = createRequire(path.resolve(__dirname, '../../.git/browser-q
             accent: root.getPropertyValue('--accent').trim(),
             signal: root.getPropertyValue('--signal').trim(),
             railImage: rail ? getComputedStyle(rail).backgroundImage : 'none',
-            panelImage: panel ? getComputedStyle(panel).backgroundImage : 'none',
+            panelRadius: panel ? getComputedStyle(panel).borderRadius : '0px',
+            panelBorder: panel ? getComputedStyle(panel).borderTopColor : 'transparent',
             overflow: document.documentElement.scrollWidth > window.innerWidth,
           };
         });
         assert.ok(state.canvas && state.surface && state.accent && state.signal);
         assert.notEqual(state.railImage, 'none');
-        assert.notEqual(state.panelImage, 'none');
+        assert.notEqual(state.panelRadius, '0px');
+        assert.notEqual(state.panelBorder, 'transparent');
         assert.equal(state.overflow, false);
       }
 
@@ -44,7 +46,7 @@ const { chromium } = createRequire(path.resolve(__dirname, '../../.git/browser-q
       assert.notEqual(await page.locator('html').getAttribute('class'), before);
       assert.deepEqual(errors, []);
       await page.close();
-      console.log(`PASS monsoon atlas themes at ${width}px: light/dark depth, toggle, no overflow/page errors`);
+      console.log(`PASS operations graphite themes at ${width}px: light/dark hierarchy, toggle, no overflow/page errors`);
     }
   } finally {
     await browser.close();

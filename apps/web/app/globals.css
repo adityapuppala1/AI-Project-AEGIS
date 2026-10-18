@@ -2,76 +2,80 @@
 @config "../tailwind.config.ts";
 
 :root {
-  --canvas: 247 244 236;
-  --surface: 255 253 248;
-  --elevated: 238 232 218;
-  --stroke: 210 199 177;
-  --ink: 35 34 49;
-  --muted: 98 91 88;
-  --accent: 58 68 184;
+  --canvas: 244 247 251;
+  --surface: 255 255 255;
+  --elevated: 237 242 248;
+  --stroke: 216 224 236;
+  --ink: 23 32 51;
+  --muted: 94 108 130;
+  --accent: 21 94 239;
   --accent-contrast: 255 255 255;
-  --signal: 217 132 22;
-  --chart-grid: 117 105 99;
-  --chart-tooltip: 49 43 61;
+  --signal: 8 153 176;
+  --chart-grid: 112 129 154;
+  --chart-tooltip: 13 18 32;
 }
 .dark {
-  --canvas: 17 16 25;
-  --surface: 27 25 38;
-  --elevated: 40 36 52;
-  --stroke: 75 66 83;
-  --ink: 247 241 229;
-  --muted: 183 171 166;
-  --accent: 255 184 76;
-  --accent-contrast: 38 27 20;
-  --signal: 255 139 92;
-  --chart-grid: 139 125 137;
-  --chart-tooltip: 40 35 53;
+  --canvas: 6 9 20;
+  --surface: 13 18 32;
+  --elevated: 19 26 43;
+  --stroke: 36 45 66;
+  --ink: 243 247 252;
+  --muted: 147 164 189;
+  --accent: 91 140 255;
+  --accent-contrast: 5 12 25;
+  --signal: 45 212 191;
+  --chart-grid: 88 106 133;
+  --chart-tooltip: 8 13 25;
 }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
   min-width: 320px;
-  background-image:
-    radial-gradient(circle at 82% 3%, rgb(var(--accent) / .10), transparent 28rem),
-    radial-gradient(circle at 8% 88%, rgb(var(--signal) / .07), transparent 34rem);
+  background-image: linear-gradient(rgb(var(--stroke) / .20) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--stroke) / .20) 1px, transparent 1px);
+  background-size: 32px 32px;
   background-attachment: fixed;
 }
 ::selection { background: rgb(var(--accent) / .26); }
 :focus-visible { outline: 2px solid rgb(var(--accent)); outline-offset: 3px; }
 @layer components {
-  .panel { @apply rounded-2xl border border-stroke bg-surface shadow-panel; background-image: linear-gradient(145deg, rgb(var(--surface)), rgb(var(--elevated) / .34)); }
+  .panel { @apply rounded-xl border border-stroke bg-surface shadow-panel; }
   .panel-heading { @apply flex flex-wrap items-center justify-between gap-3 border-b border-stroke px-5 py-4; }
   .eyebrow { @apply text-[11px] font-bold uppercase tracking-[.19em] text-muted; }
-  .control { @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-stroke bg-surface px-3 text-sm font-semibold text-ink transition-colors hover:bg-elevated disabled:cursor-not-allowed disabled:opacity-50; }
+  .control { @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-stroke bg-surface px-3 text-sm font-semibold text-ink transition-colors hover:border-accent/40 hover:bg-elevated disabled:cursor-not-allowed disabled:opacity-50; }
   .control-primary { @apply border-transparent bg-accent hover:opacity-90; color: rgb(var(--accent-contrast)); }
-  .field { @apply h-10 w-full rounded-xl border border-stroke bg-elevated px-3 text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-hidden; }
+  .field { @apply h-10 w-full rounded-lg border border-stroke bg-elevated px-3 text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-hidden; }
   .status-dot { @apply inline-block h-2 w-2 shrink-0 rounded-full; }
 }
 .command-rail {
-  background-color: rgb(var(--surface) / .94);
-  background-image:
-    linear-gradient(180deg, rgb(var(--accent) / .11), transparent 16rem),
-    radial-gradient(circle at 15% 92%, rgb(var(--signal) / .10), transparent 17rem);
-  box-shadow: 20px 0 60px rgb(31 24 45 / .08);
+  background-color: rgb(var(--surface) / .98);
+  background-image: linear-gradient(180deg, rgb(var(--accent) / .07), transparent 12rem);
+  box-shadow: 16px 0 40px rgb(4 8 20 / .06);
 }
-.command-topbar { box-shadow: 0 1px 0 rgb(var(--stroke) / .55), 0 14px 40px rgb(31 24 45 / .06); }
+.command-topbar { box-shadow: 0 1px 0 rgb(var(--stroke) / .75); }
 .brand-mark {
-  background: linear-gradient(145deg, rgb(var(--accent)), rgb(var(--signal)));
+  background: rgb(var(--accent));
   color: rgb(var(--accent-contrast));
-  box-shadow: 0 10px 28px rgb(var(--accent) / .24);
+  box-shadow: 0 0 0 4px rgb(var(--accent) / .12);
 }
 .nav-active {
-  background: linear-gradient(100deg, rgb(var(--accent) / .16), rgb(var(--signal) / .08));
+  background: rgb(var(--accent) / .12);
   box-shadow: inset 3px 0 0 rgb(var(--accent));
 }
-.aegis-map { position: relative; height: 100%; min-height: 300px; overflow: hidden; border-radius: 0 0 1rem 1rem; background: #241f35; }
-.aegis-marker { width: 31px; height: 31px; display: grid; place-items: center; background: #f0a33a; color: #261d2d; border: 3px solid #fffaf0; border-radius: 50%; box-shadow: 0 3px 12px #1f182d88; cursor: pointer; font-size: 14px; font-weight: 800; }
+.command-deck {
+  background: rgb(var(--surface));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .04), 0 18px 50px rgb(4 8 20 / .09);
+}
+.metric-card { position: relative; overflow: hidden; }
+.metric-card::after { content: ""; position: absolute; inset: auto 0 0; height: 2px; background: linear-gradient(90deg, rgb(var(--accent)), rgb(var(--signal))); opacity: .72; }
+.aegis-map { position: relative; height: 100%; min-height: 300px; overflow: hidden; border-radius: 0 0 .75rem .75rem; background: #08101f; }
+.aegis-marker { width: 31px; height: 31px; display: grid; place-items: center; background: #38bdf8; color: #06101f; border: 3px solid #edf7ff; border-radius: 50%; box-shadow: 0 3px 14px #020713aa; cursor: pointer; font-size: 14px; font-weight: 800; }
 .aegis-marker[data-status="active"] { background: #ee715f; }
 .aegis-marker[data-status="resolved"] { background: #7abf9a; }
-.aegis-marker[data-selected="true"] { box-shadow: 0 0 0 5px #6967d877, 0 3px 12px #1f182d88; transform: scale(1.13); }
+.aegis-marker[data-selected="true"] { box-shadow: 0 0 0 5px #5b8cff66, 0 3px 14px #020713aa; transform: scale(1.13); }
 .maplibregl-ctrl-attrib { font-size: 10px !important; }
-.maplibregl-popup-content { background: #292337 !important; color: #fff8ec !important; border: 1px solid #6b5d78 !important; border-radius: 12px !important; padding: 12px !important; }
-.maplibregl-popup-tip { border-top-color: #292337 !important; }
+.maplibregl-popup-content { background: #0d1220 !important; color: #f3f7fc !important; border: 1px solid #242d42 !important; border-radius: 10px !important; padding: 12px !important; }
+.maplibregl-popup-tip { border-top-color: #0d1220 !important; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
@@ -111,13 +115,9 @@ body {
 /* Depth without continuous animation; status remains driven by real responses. */
 .operator-hero {
   position: relative;
-  background: radial-gradient(ellipse at 8% 5%, rgb(var(--accent) / .13), transparent 58%),
-    linear-gradient(125deg, rgb(var(--surface)), rgb(var(--elevated)));
+  background: rgb(var(--surface));
 }
 .operator-hero::before {
-  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .13;
-  background-image: linear-gradient(rgb(var(--accent) / .25) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(var(--accent) / .25) 1px, transparent 1px);
-  background-size: 42px 42px;
-  mask-image: linear-gradient(100deg, transparent, black);
+  content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; pointer-events: none;
+  background: linear-gradient(rgb(var(--accent)), rgb(var(--signal)));
 }

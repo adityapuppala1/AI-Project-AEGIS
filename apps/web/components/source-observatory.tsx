@@ -231,7 +231,7 @@ export function SourceObservatory() {
                   <CartesianGrid stroke="rgb(var(--chart-grid) / .22)" strokeDasharray="3 4" vertical={false}/>
                   <XAxis dataKey="time" tick={{ fill: "rgb(var(--muted))", fontSize: 10 }} axisLine={false} tickLine={false}/>
                   <YAxis tick={{ fill: "rgb(var(--muted))", fontSize: 10 }} axisLine={false} tickLine={false}/>
-                  <Tooltip contentStyle={{ background: "rgb(var(--chart-tooltip))", border: "1px solid rgb(var(--stroke))", borderRadius: 12, color: "#fff8ec" }}/>
+                  <Tooltip contentStyle={{ background: "rgb(var(--chart-tooltip))", border: "1px solid rgb(var(--stroke))", borderRadius: 10, color: "#f3f7fc" }}/>
                   <Line type="monotone" dataKey="value" name={selected.metric_label} stroke="rgb(var(--accent))" strokeWidth={2.5} dot={{r:3}} isAnimationActive={false}/>
                 </LineChart>
               </ResponsiveContainer>

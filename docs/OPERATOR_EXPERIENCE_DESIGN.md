@@ -62,6 +62,8 @@ application is fully autonomous or self-aware.
 
 ## Monsoon atlas visual system — 18 October 2026
 
+Superseded the same day by the operations graphite system after owner review.
+
 The application now uses a purpose-built emergency coordination palette instead
 of the earlier generic slate/teal dashboard treatment. Light mode uses warm
 mineral canvas and paper surfaces with indigo for decisions. Dark mode uses
@@ -76,3 +78,19 @@ reduced-motion contract remains in force. A static theme contract checks token
 completeness plus WCAG AA contrast for body copy, muted copy and primary
 controls in both themes. Browser acceptance must still confirm both themes at
 mobile and desktop widths before this visual slice is marked laptop-verified.
+
+## Operations graphite redesign — 18 October 2026
+
+Owner review rejected the warm monsoon-atlas direction. The replacement follows
+the common structure in the supplied command-center references: cool white or
+near-black foundations, electric blue decision controls, a single cyan signal
+accent, compact modular cards, clear drill-down paths and dense scan-first
+hierarchy. It removes decorative warm gradients and reduces corner radius,
+shadow spread and hero height. The command workflow is now a compact three-stage
+deck above smaller metrics; the narrower rail and tighter page header return
+more space to maps, queues and operational data.
+
+The redesign borrows layout principles rather than copying artwork or product
+branding. Existing data contracts, human approval boundaries, status colors,
+keyboard behavior and reduced-motion rules remain unchanged. No additional UI
+dependency is required.

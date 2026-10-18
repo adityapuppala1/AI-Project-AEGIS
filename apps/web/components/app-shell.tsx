@@ -49,7 +49,7 @@ export function AppShell({ children, title, description }: { children: ReactNode
     <div className="min-h-screen lg:flex">
       <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:rounded-lg focus:bg-surface focus:p-3">Skip to content</a>
       {menuOpen && <button className="fixed inset-0 z-30 bg-black/60 lg:hidden" aria-label="Close navigation" onClick={() => setMenuOpen(false)} />}
-      <aside className={`command-rail fixed inset-y-0 left-0 z-40 flex w-[264px] flex-col overflow-y-auto border-r border-stroke transition-transform duration-200 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${menuOpen ? "translate-x-0" : "-translate-x-full"}`}>
+      <aside className={`command-rail fixed inset-y-0 left-0 z-40 flex w-[236px] flex-col overflow-y-auto border-r border-stroke transition-transform duration-200 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${menuOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex h-20 items-center justify-between border-b border-stroke px-6">
           <Link href="/" className="flex items-center gap-3" aria-label="AEGIS home">
             <span className="brand-mark flex h-10 w-10 items-center justify-center rounded-xl"><Command size={22}/></span>
@@ -92,11 +92,14 @@ export function AppShell({ children, title, description }: { children: ReactNode
             <OperatorAuth />
           </div>
         </div>
-        <main id="main-content" className="mx-auto max-w-[1700px] px-4 pb-12 pt-8 sm:px-8">
-          <div className="mb-8">
+        <main id="main-content" className="mx-auto max-w-[1800px] px-4 pb-12 pt-6 sm:px-7">
+          <div className="mb-6 flex flex-wrap items-end justify-between gap-3 border-b border-stroke pb-5">
+            <div>
             <p className="eyebrow mb-2">Adaptive Emergency Geospatial Intelligence System</p>
             <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{title}</h1>
             <p className="mt-2 text-sm text-muted">{description}</p>
+            </div>
+            <span className="rounded-md border border-stroke bg-surface px-3 py-2 text-[10px] font-bold uppercase tracking-[.17em] text-muted">Local exercise node · HYD-01</span>
           </div>
           {children}
         </main>
