@@ -44,6 +44,21 @@ const { chromium } = createRequire(path.resolve(__dirname, '../../.git/browser-q
       await toggle.click();
       await page.waitForFunction(previous => document.documentElement.className !== previous, before);
       assert.notEqual(await page.locator('html').getAttribute('class'), before);
+      await page.goto('http://localhost:3000/');
+      assert.equal(await page.getByRole('navigation', { name: 'Primary navigation' }).getByText('Observe', { exact: true }).count(), 1);
+      assert.equal(await page.getByRole('region', { name: 'Operator quick actions' }).getByRole('link').count(), 4);
+      if (width === 390) {
+        const metrics = page.getByRole('region', { name: 'Exercise overview metrics' }).locator('article');
+        const first = await metrics.nth(0).boundingBox();
+        const second = await metrics.nth(1).boundingBox();
+        assert.ok(first && second && Math.abs(first.y - second.y) < 2, 'mobile metrics must form a two-column scan row');
+        await page.goto('http://localhost:3000/demo');
+        const stepNav = page.getByRole('navigation', { name: 'Exercise demo steps' });
+        const stageButtons = stepNav.getByRole('button');
+        const firstStage = await stageButtons.nth(0).boundingBox();
+        const secondStage = await stageButtons.nth(1).boundingBox();
+        assert.ok(firstStage && secondStage && Math.abs(firstStage.y - secondStage.y) < 2, 'mobile journey stages must use a horizontal selector');
+      }
       assert.deepEqual(errors, []);
       await page.close();
       console.log(`PASS operations graphite themes at ${width}px: light/dark hierarchy, toggle, no overflow/page errors`);

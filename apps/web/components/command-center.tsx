@@ -1,7 +1,7 @@
 "use client";
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Activity, AlertTriangle, ArrowRight, CloudRain, Database, MapPinned, RefreshCw, ShieldCheck, Waves } from "lucide-react";
+import { Activity, AlertTriangle, ArrowRight, Archive, CloudRain, Database, MapPinned, RefreshCw, ShieldCheck, UsersRound, Waves } from "lucide-react";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { AppShell } from "./app-shell";
 import { GeoMap } from "./geo-map";
@@ -27,6 +27,12 @@ export function CommandCenter() {
   const [query, setQuery] = useState("");
   const selected = incidents.find(item => item.id === selectedId);
   const filtered = useMemo(() => incidents.filter(item => item.hazard_type.toLowerCase().includes(query.toLowerCase()) || item.status.includes(query.toLowerCase())), [incidents, query]);
+  const quickActions = [
+    { href: "/incidents", label: "Triage evidence", detail: `${incidents.filter(i => i.status === "review").length} cases await review`, icon: Activity },
+    { href: "/approvals", label: "Decision workbench", detail: "Independent checker gate", icon: ShieldCheck },
+    { href: "/department-tasks", label: "Coordinate desks", detail: "Scripted exercise tasks", icon: UsersRound },
+    { href: "/audit", label: "Inspect audit", detail: "Trace evidence and decisions", icon: Archive },
+  ];
   return <AppShell title="Command Center" description="Geospatial awareness, simulated hazard observations and human-controlled response coordination.">
     <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-500/25 bg-amber-500/5 px-4 py-3">
       <div className="flex items-center gap-2 text-xs font-semibold text-amber-700 dark:text-amber-300"><ShieldCheck size={17}/><span>EXERCISE ONLY — all incidents and telemetry are synthetic; no operational warnings or dispatch.</span></div>
@@ -50,16 +56,18 @@ export function CommandCenter() {
       <div className="flex items-center gap-2"><span className={`status-dot ${error ? "bg-rose-400" : lastSynced ? "bg-emerald-400" : "bg-amber-400"}`}/><span className="text-xs font-medium text-muted">{error ? "Data feed unavailable" : lastSynced ? "Exercise API connected" : "Connecting to exercise API"}</span></div>
       <button type="button" className="control" onClick={() => void refresh()} disabled={refreshing}><RefreshCw size={16} className={refreshing ? "animate-spin" : ""}/> {refreshing ? "Refreshing" : "Refresh data"}</button>
     </div>
-    <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Exercise overview metrics">
+    <section className="grid grid-cols-2 gap-3 xl:grid-cols-4" aria-label="Exercise overview metrics">
       <Metric label="Registered incidents" value={loading ? "—" : incidents.length} caption="Seeded exercise records" icon={Database}/>
       <Metric label="Awaiting human review" value={loading ? "—" : incidents.filter(i => i.status === "review").length} caption="Review queue" icon={ShieldCheck} tone="amber"/>
       <Metric label="In-progress exercises" value={loading ? "—" : incidents.filter(i => i.status === "active").length} caption="Not real deployments" icon={Activity} tone="rose"/>
       <Metric label="Public alerts issued" value="0" caption="Operational alerting disabled" icon={AlertTriangle}/>
     </section>
-    <section className="panel mt-5 flex flex-wrap items-center justify-between gap-3 p-4 sm:p-5" aria-label="Fictional agency task workflow">
-      <div><h2 className="text-sm font-bold">AgencySync · Exercise Acknowledgements</h2>
-        <p className="mt-1 text-xs text-muted">Explore scripted task acknowledgements with no outbound departmental messaging.</p></div>
-      <Link href="/agency-sync" className="control text-xs">Explore fictional tasks <ArrowRight size={14}/></Link>
+    <section className="mt-5 grid gap-2 sm:grid-cols-2 xl:grid-cols-4" aria-label="Operator quick actions">
+      {quickActions.map(({href,label,detail,icon:Icon}) => <Link href={href} key={href} className="group flex items-center gap-3 rounded-lg border border-stroke bg-surface p-3 transition-colors hover:border-accent/45 hover:bg-elevated">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-accent/10 text-accent"><Icon size={17}/></span>
+        <span className="min-w-0 flex-1"><span className="block text-xs font-bold">{label}</span><span className="mt-1 block truncate text-[10px] text-muted">{detail}</span></span>
+        <ArrowRight size={14} className="text-muted transition-transform group-hover:translate-x-0.5 group-hover:text-accent"/>
+      </Link>)}
     </section>
     <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1.55fr)_minmax(350px,1fr)]">
       <section className="panel min-w-0 overflow-hidden" aria-label="Exercise geospatial overview">

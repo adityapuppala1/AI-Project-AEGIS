@@ -94,3 +94,19 @@ The redesign borrows layout principles rather than copying artwork or product
 branding. Existing data contracts, human approval boundaries, status colors,
 keyboard behavior and reduced-motion rules remain unchanged. No additional UI
 dependency is required.
+
+### Information architecture and responsive composition
+
+The redesign extends beyond color tokens. Primary navigation is grouped by
+operator intent—Overview, Observe, Coordinate and Govern—and child incident
+routes keep their parent navigation state. The command center exposes four
+data-driven quick actions next to the live overview, replacing the isolated
+AgencySync promotional strip. Metrics use a compact two-column mobile scan row
+and four-column desktop row.
+
+The exercise walkthrough keeps the same ordered scenario data and safety
+language, but its six environment facts now form a two-column mobile snapshot.
+The eleven-stage selector becomes a horizontal mobile rail while retaining the
+desktop navigation column, so the current task appears before a long list of
+future stages. Browser acceptance asserts these structures in addition to
+theme, overflow, interaction and accessibility checks.

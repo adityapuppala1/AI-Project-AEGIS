@@ -129,7 +129,7 @@ export function DemoJourney({ snapshot }: { snapshot: Snapshot }) {
       <ShieldAlert size={20} className="mt-1 shrink-0"/>
       <p><strong>Tabletop simulation only.</strong> This walkthrough uses fictional Hyderabad incident fixtures. It cannot forecast actual floods, contact departments, issue public warnings or dispatch responders. Advancing a step only changes what is shown on this page.</p>
     </div>
-    <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="Demonstration environment snapshot">
+    <section className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6" aria-label="Demonstration environment snapshot">
       {[
         ["Local database", snapshot.database === "ready" ? "Fixtures present" : snapshot.database === "not_ready" ? "Not ready" : "Unavailable", "Schema and seeds, not field readiness"],
         ["Source registry", snapshot.sourceAvailable ? "Demo sources available" : "Unavailable", "No real feeds connected"],
@@ -139,10 +139,10 @@ export function DemoJourney({ snapshot }: { snapshot: Snapshot }) {
          snapshot.assessmentState === "insufficient_simulated_context" ? "Insufficient demo context" : "Unavailable", "Never a validated flood prediction"],
         ["AgencySync", snapshot.taskCount === null ? "Unavailable" : snapshot.taskCount + " scripted tasks",
           snapshot.scriptedAcknowledgements === null ? "No field contacts" : snapshot.scriptedAcknowledgements + " simulated acknowledgements"],
-      ].map(([heading,value,caption]) => <article className="panel p-4" key={heading}>
-        <h2 className="text-xs font-semibold text-muted">{heading}</h2>
-        <p className="mt-3 text-base font-bold">{value}</p>
-        <p className="mt-2 text-[11px] text-muted">{caption}</p>
+      ].map(([heading,value,caption]) => <article className="panel p-3 sm:p-4" key={heading}>
+        <h2 className="text-[10px] font-bold uppercase tracking-[.1em] text-muted">{heading}</h2>
+        <p className="mt-2 text-sm font-bold sm:text-base">{value}</p>
+        <p className="mt-1 text-[10px] leading-4 text-muted">{caption}</p>
       </article>)}
     </section>
     <section className="panel mt-5 p-5" aria-label="Local dependency diagnostics">
@@ -160,12 +160,12 @@ export function DemoJourney({ snapshot }: { snapshot: Snapshot }) {
       </ul> : <p className="mt-4 rounded-xl border border-amber-500/25 bg-amber-500/10 p-3 text-xs text-amber-800 dark:text-amber-200">Dependency diagnostics unavailable. Check the guarded local services before continuing.</p>}
     </section>
     <div className="mt-5 grid items-start gap-5 lg:grid-cols-[minmax(210px,.65fr)_minmax(0,1.4fr)]">
-      <nav className="panel p-3" aria-label="Exercise demo steps">
+      <nav className="panel min-w-0 overflow-hidden p-3" aria-label="Exercise demo steps">
         <p className="eyebrow px-3 pt-2">Guided journey · {steps.length} stages</p>
-        <div className="mt-3 space-y-1">
+        <div className="mt-3 flex gap-2 overflow-x-auto pb-2 lg:block lg:space-y-1 lg:overflow-visible lg:pb-0">
           {steps.map((step,index) => <button key={step.title} type="button"
             onClick={() => setActive(index)} aria-current={index === active ? "step" : undefined}
-            className={`flex w-full items-center gap-3 rounded-xl p-3 text-left text-xs font-semibold transition-colors ${index === active ? "bg-accent/10 text-accent" : "text-muted hover:bg-elevated"}`}>
+            className={`flex min-w-[190px] items-center gap-3 rounded-lg p-3 text-left text-xs font-semibold transition-colors lg:w-full lg:min-w-0 ${index === active ? "bg-accent/10 text-accent" : "text-muted hover:bg-elevated"}`}>
             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-current/30 text-[11px] tabular-nums">{index+1}</span>
             <span>{step.title}</span>
           </button>)}

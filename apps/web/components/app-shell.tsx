@@ -13,19 +13,27 @@ import { OperatorAuth } from "./operator-auth";
 import { GlobalSearch } from "./global-search";
 
 const navigation = [
-  { href: "/", label: "Command Center", icon: LayoutDashboard },
-  { href: "/demo", label: "Exercise Walkthrough", icon: Route },
-  { href: "/incidents", label: "Incident Registry", icon: Activity },
-  { href: "/sources", label: "Source Freshness", icon: RadioTower },
-  { href: "/ingestion", label: "DataFusion Replay", icon: Workflow },
-  { href: "/model-lab", label: "Model Evaluation Lab", icon: BrainCircuit },
-  { href: "/approvals", label: "Approval Workbench", icon: ClipboardCheck },
-  { href: "/department-tasks", label: "Department Inbox", icon: ClipboardCheck },
-  { href: "/agency-sync", label: "AgencySync Tasks", icon: UsersRound },
-  { href: "/audit", label: "Audit360 Export", icon: Archive },
-  { href: "/playbooks", label: "Response Playbooks", icon: BookOpenCheck },
-  { href: "/help", label: "Help & Learning", icon: LifeBuoy },
-  { href: "/admin", label: "Administration", icon: Settings2 },
+  { label: "Overview", items: [
+    { href: "/", label: "Command Center", icon: LayoutDashboard },
+    { href: "/demo", label: "Exercise Walkthrough", icon: Route },
+  ]},
+  { label: "Observe", items: [
+    { href: "/incidents", label: "Incident Registry", icon: Activity },
+    { href: "/sources", label: "Source Freshness", icon: RadioTower },
+    { href: "/ingestion", label: "DataFusion Replay", icon: Workflow },
+    { href: "/model-lab", label: "Model Evaluation Lab", icon: BrainCircuit },
+  ]},
+  { label: "Coordinate", items: [
+    { href: "/approvals", label: "Approval Workbench", icon: ClipboardCheck },
+    { href: "/department-tasks", label: "Department Inbox", icon: ClipboardCheck },
+    { href: "/agency-sync", label: "AgencySync Tasks", icon: UsersRound },
+  ]},
+  { label: "Govern", items: [
+    { href: "/audit", label: "Audit360 Export", icon: Archive },
+    { href: "/playbooks", label: "Response Playbooks", icon: BookOpenCheck },
+    { href: "/help", label: "Help & Learning", icon: LifeBuoy },
+    { href: "/admin", label: "Administration", icon: Settings2 },
+  ]},
 ];
 
 function ThemeToggle() {
@@ -53,19 +61,22 @@ export function AppShell({ children, title, description }: { children: ReactNode
         <div className="flex h-20 items-center justify-between border-b border-stroke px-6">
           <Link href="/" className="flex items-center gap-3" aria-label="AEGIS home">
             <span className="brand-mark flex h-10 w-10 items-center justify-center rounded-xl"><Command size={22}/></span>
-            <span><strong className="block text-xl font-black tracking-[.16em]">AEGIS</strong><span className="text-[10px] font-bold uppercase tracking-[.21em] text-muted">Intelligence System</span></span>
+            <span><strong className="block text-lg font-black tracking-[.14em]">AEGIS</strong><span className="text-[9px] font-bold uppercase tracking-[.13em] text-muted">Emergency intelligence</span></span>
           </Link>
           <button className="control h-9 w-9 !px-0 lg:hidden" aria-label="Close menu" onClick={() => setMenuOpen(false)}><X size={18}/></button>
         </div>
-        <div className="px-4 pt-8"><p className="eyebrow px-3">Operations workspace</p>
-          <nav className="mt-4 space-y-1" aria-label="Primary navigation">
-            {navigation.map(({ href, label, icon: Icon }) => {
-              const active = pathname === href;
-              return <Link key={href} href={href} aria-current={active ? "page" : undefined}
-                className={`flex min-h-11 items-center gap-3 rounded-r-xl px-3 text-sm font-semibold transition-colors ${active ? "nav-active text-accent" : "text-muted hover:bg-elevated hover:text-ink"}`}>
-                <Icon size={18} aria-hidden="true" /><span className="flex-1">{label}</span>{active && <ChevronRight size={16} aria-hidden="true"/>}
-              </Link>;
-            })}
+        <div className="px-3 pt-5">
+          <nav className="space-y-5" aria-label="Primary navigation">
+            {navigation.map(group => <div key={group.label}>
+              <p className="px-3 text-[9px] font-bold uppercase tracking-[.18em] text-muted/75">{group.label}</p>
+              <div className="mt-2 space-y-0.5">{group.items.map(({ href, label, icon: Icon }) => {
+                const active = href === "/" ? pathname === href : pathname === href || pathname.startsWith(href + "/");
+                return <Link key={href} href={href} aria-current={active ? "page" : undefined}
+                  className={`flex min-h-9 items-center gap-3 rounded-r-lg px-3 text-xs font-semibold transition-colors ${active ? "nav-active text-accent" : "text-muted hover:bg-elevated hover:text-ink"}`}>
+                  <Icon size={16} aria-hidden="true" /><span className="flex-1">{label}</span>{active && <ChevronRight size={14} aria-hidden="true"/>}
+                </Link>;
+              })}</div>
+            </div>)}
           </nav>
         </div>
         <div className="mt-auto p-4">
