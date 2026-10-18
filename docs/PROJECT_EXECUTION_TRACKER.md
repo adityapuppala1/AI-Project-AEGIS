@@ -536,3 +536,12 @@ TypeScript, production build/start, light/dark checks at 390px and 1440px, all
 21 smoke/axe checks with no violations, HTTP boundaries, audit checksum and
 single-runtime inventory. No application dependency or workflow authority was
 added.
+
+### Operator workspace structure accepted — 18 October 2026
+
+Checkpoint `b31b6d1` groups navigation by operator intent, keeps parent route
+state, adds data-driven quick actions, compresses mobile metrics and converts
+the eleven-stage mobile walkthrough to a horizontal selector. Laptop PID 86520
+exited 0 in 135.43 seconds after production build/start, structural checks at
+390px and 1440px, all 21 browser/axe checks with no violations, HTTP safety
+boundaries, audit checksum and final single-runtime inventory.
