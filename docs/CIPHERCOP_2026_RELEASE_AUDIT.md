@@ -1,7 +1,7 @@
 # CipherCop 2026 AEGIS — Consolidated Delivery Audit
 
-**Audit:** 17 October 2026 · **Demo deadline:** 30 November–1 December 2026  
-**Repository:** `adityapuppala1/AI-Project-AEGIS` · **Candidate branch:** `feat/ciphercop-integrated-demo-rc`
+**Audit opened:** 17 October 2026 · **Last reconciled:** 18 October 2026 · **Demo deadline:** 30 November–1 December 2026
+**Repository:** `adityapuppala1/AI-Project-AEGIS` · **Integration baseline:** `feat/ciphercop-integrated-demo-rc` · **Current local candidate:** `feat/aegis-local-demo-continuation`
 
 ## Current local continuation evidence
 
@@ -25,7 +25,7 @@ because similarly named demo pages exist.
 | Remaining capability | Current boundary / dependency |
 |---|---|
 | Real OIDC/MFA and two-person acceptance | Owner chose **keep local IdP inactive** on 17 October; intentionally deferred, not a request for credentials |
-| Manual accessibility/operator acceptance and judge rehearsal | [Concrete rehearsal checklist](DEMO_REHEARSAL.md) prepared; actual human execution and release decision pending |
+| Manual accessibility/operator acceptance and judge rehearsal | [Fillable rehearsal and acceptance record](DEMO_REHEARSAL.md) prepared; actual human execution and release decision pending |
 | Agency jurisdiction ABAC, DB RLS, identity revocation | Existing signed agency/role checks are implemented; richer authority/lifecycle model and security acceptance remain future work |
 | Signed real feeds, durable queues/DLQ and corroboration | Local synthetic contract/ledger/quarantine/replay only; requires approved source access and operational design |
 | Licensed hazard footprints and infrastructure exposure | Current spatial results are synthetic point/proximity candidates; official layers, licensing and exposure validation absent |

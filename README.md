@@ -8,6 +8,10 @@ CipherCop 2026 · AI-powered disaster prediction, preparedness and accountable r
 
 **Latest verified local continuation:** `feat/aegis-local-demo-continuation` (transferred locally; not pushed). See [current handoff](docs/LOCAL_DEMO_HANDOFF.md).
 
+**Manual release evidence:** use the fillable [demo rehearsal and human
+acceptance record](docs/DEMO_REHEARSAL.md). Human accessibility/operator review
+and the deferred two-person IdP rehearsal remain open until recorded there.
+
 **Start here:** [Original-plan reconciliation and acceptance gates](docs/CIPHERCOP_2026_RELEASE_AUDIT.md) · [Guided exercise](http://localhost:3000/demo) (after local startup).
 
 ```powershell

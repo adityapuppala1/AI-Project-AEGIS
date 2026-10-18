@@ -1441,3 +1441,19 @@ page errors or sampled accessibility violations. HTTP routes, anonymous
 refusal, blocked live warning and public audit checksum passed. Final inventory
 was exactly one web/API/database. Transcript:
 `.git/visual-theme-verification.log`.
+
+## Human acceptance package — prepared, execution pending
+
+At application checkpoint `b31b6d1bbb26e151cfe7a4b9e40cf595b2f9f453`,
+the automated Windows acceptance above is complete and the single AEGIS
+web/API/database runtime remains the expected topology. The UI specification
+has been reconciled to the implemented Tailwind 4.3 Operations Graphite system,
+task-oriented navigation, complete route inventory and responsive behavior.
+
+`DEMO_REHEARSAL.md` is now the fillable evidence record for the locked-identity
+walkthrough, operator comprehension, keyboard/screen-reader/zoom/theme checks,
+findings and owner decision. It separately records the IdP-dependent two-person
+steps as deferred. This documentation work does not convert automated axe
+results into human accessibility acceptance and does not activate the prepared
+IdP or alter Windows trust. Documentation link and whitespace validation passed;
+application code and the running stack were unchanged.

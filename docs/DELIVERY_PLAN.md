@@ -51,4 +51,5 @@ IdP/trust activation and two-person MFA rehearsal, manual screen-reader and
 operator usefulness evaluation, owner release review, and authorized historical
 data plus independent domain validation before any forecasting claim. Real
 feeds, paid infrastructure, public warning delivery and responder dispatch are
-separate future programs and remain disabled.
+separate future programs and remain disabled. Record performed human checks and
+the decision in the fillable [demo rehearsal and acceptance record](DEMO_REHEARSAL.md).

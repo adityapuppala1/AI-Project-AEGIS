@@ -1,109 +1,83 @@
-# AEGIS UI/UX system — Command Center v0.2
+# AEGIS UI/UX system — Operations Graphite
 
-## Purpose and interaction principles
-AEGIS is a high-stakes, exercise-only public safety decision-support prototype. Favor legibility, explicit data provenance, minimal cognitive load and strong operator feedback over decorative complexity.
+## Purpose
 
-- **Visual system:** Tailwind CSS 3.4, CSS custom-property tokens, accessible components styled in a shadcn-inspired manner, Lucide icons.
-- **Theme:** system-adaptive light/dark via next-themes; manual toggle available in the application header.
-- **Responsive:** compact mobile navigation, 2-column tablet metrics, 4-column wide-screen metrics; panels collapse without horizontal scrolling except deliberate tabular data.
-- **Accessibility:** semantic landmarks, labeled controls, keyboard focus, status text in addition to color, reduced-motion support, descriptive map fallback.
-- **Color:** dark canvas #08101d, dark surface #0f1c2d, teal accent; warning amber and active rose. Light theme uses contrast-aware neutral surfaces.
-- **Typography:** system fonts (Inter if locally installed, then Segoe UI/Arial); no external font downloads.
-- **Information integrity:** every simulated observation is labeled synthetic; network failure shows a warning and does not imply data is current.
+AEGIS is a high-stakes, exercise-only public-safety decision-support prototype. The interface prioritizes legibility, evidence provenance, uncertainty and explicit human control. Visual depth helps operators scan the workspace; it must never imply that synthetic data is live or that a proposed response has been executed.
 
-## Application screens
-| Route | Function |
-|---|---|
-| / | Command Center: metrics, live API polling, MapLibre map, searchable queue, synthetic telemetry |
-| /incidents | Filterable PostGIS-backed incident registry |
-| /playbooks | Clearly labeled illustrative flood-response checklist |
-| /admin | Local UI-only preview of policy modes and integration registry |
+## Implemented foundation
 
-## Geospatial layer
-MapLibre GL renders public OpenStreetMap raster tiles from tile.openstreetmap.org, with attribution. **External network access is required for map tiles**, and the browser sends requests to that third-party host. This public demo configuration is not appropriate for restricted operational deployments; use an approved internal tile server in production. Incident markers use synthetic seed coordinates from PostGIS. When WebGL fails, the incident queue remains usable.
+- **Stack:** Next.js 15.5, React 19, Tailwind CSS 4.3, CSS custom-property tokens, Lucide icons, Recharts and MapLibre GL.
+- **Theme:** system-adaptive light/dark through `next-themes`, with a manual header toggle. Both themes use the same semantic tokens.
+- **Typography:** local system fonts (Inter when installed, then Segoe UI and Arial); the application makes no external font request.
+- **Responsive behavior:** a compact mobile header, two-column mobile metric grids, wider four-column grids, a horizontally scrollable guided-stage selector and deliberately contained table overflow.
+- **Accessibility:** semantic landmarks, labeled controls, visible keyboard focus, text plus color for status, chart/table equivalents, reduced-motion handling and a usable incident list when the map is unavailable.
+- **Information integrity:** every observation, model measure, task and acknowledgement is identified as synthetic or scripted. Transport errors and stale timestamps remain visible.
 
-## 3D policy
-Do not introduce Three.js into primary operations screens unless a tested task (e.g., terrain-aware inundation visualization) benefits. If introduced later, make it optional, lazy-loaded, GPU-aware, accessible via 2D fallback and disabled by default on low-power devices.
+## Operations Graphite visual language
 
-## Components and engineering conventions
-- Reusable AppShell and StatusBadge; central CSS theme tokens.
-- Fixed server-side API proxy routes; no browser access to private Docker network names.
-- 30-second data refresh with explicit last-sync timestamp and stale/error states.
-- Avoid fake controls or operationally misleading action buttons.
-- Mobile keyboard and screen-reader support remain release acceptance criteria.
-- Target 16 GB Windows laptop; Docker Compose includes separate memory limits.
+The product uses cool neutral surfaces rather than a generic neon dashboard. Graphite framing gives dense operational data a stable hierarchy; electric blue identifies interaction and cyan identifies system signals.
 
-## Production gaps
-The UI is not yet a certified emergency interface. Authentication, authorization, actual CAP integration, live hazard forecasting, map data governance, production monitoring, user acceptance tests and formal agency review remain future work.
+| Semantic role | Light | Dark | Use |
+|---|---:|---:|---|
+| Canvas | `#f4f7fb` | `#060914` | Page background and restrained 32 px grid |
+| Surface | `#ffffff` | `#0d1220` | Panels and navigation rail |
+| Elevated | `#edf2f8` | `#131a2b` | Inputs and nested data regions |
+| Stroke | `#d8e0ec` | `#242d42` | Separation without heavy shadows |
+| Ink | `#172033` | `#f3f7fc` | Primary text |
+| Muted | `#5e6c82` | `#93a4bd` | Secondary text |
+| Action | `#1452da` | `#5b8cff` | Focus, links and primary action |
+| Signal | `#0899b0` | `#2dd4bf` | System activity and data accents |
 
-## Discovery and self-help milestone (October 2026)
+Amber, rose, emerald and violet are reserved for named states and always have a readable label. Panels use compact radii, fine borders and restrained shadows. A three-pixel blue-to-cyan rail gives major workspaces depth without continuous animation. Decorative motion is limited to noncritical help surfaces and stops when `prefers-reduced-motion` is enabled.
 
-Current branch: `feat/ux-discovery-data-grid`.
+## Information architecture
 
-- **Incident Registry:** read-only backend-driven search, status filter, sortable
-  columns, page controls and 10/25/50 rows per page. Stale-data warnings and
-  accessible text summaries complement the table.
-- **Global search:** Ctrl/⌘+K opens keyboard-accessible navigation and
-  synthetic incident discovery; typed search is throttled and backend-sourced.
-  The palette is not a full government-wide indexed search system yet.
-- **Help Center:** `/help` features curated searchable FAQs, categories and
-  clear explanations of the prototype's AI and data limitations.
-- **Magic UI feasibility:** decorative components are optional. Original
-  `signal-surface` styling is used for the Help header and respects
-  reduced motion; no external Magic UI registry code has been installed.
-- **Scale:** query pagination uses validated sort allowlists and an idempotent
-  trigram index migration. Production full-text/faceted search, keyset
-  pagination and multi-tenant ABAC remain follow-up milestones.
+The persistent rail groups routes by operator intent. Incident detail routes retain the Incident Registry parent selection.
 
-See [Magic UI review](MAGIC_UI_FEASIBILITY.md) and
-[full UX interaction roadmap](UX_INTERACTION_ROADMAP.md).
+| Group | Route | Operator purpose |
+|---|---|---|
+| Overview | `/` | Command Center status, queue, map and next actions |
+| Overview | `/demo` | Guided end-to-end synthetic exercise |
+| Observe | `/incidents` | Search, filter and open synthetic cases |
+| Observe | `/incidents/{id}` | Evidence, chronology, assessment and spatial candidates |
+| Observe | `/sources` | Source freshness and missing/stale context |
+| Observe | `/ingestion` | Accepted, duplicate and quarantined replay events |
+| Observe | `/model-lab` | Reproducible synthetic model evaluation and limits |
+| Coordinate | `/approvals` | Identity-gated maker/checker decision workspace |
+| Coordinate | `/department-tasks` | Proposal-linked scripted desk work |
+| Coordinate | `/agency-sync` | Seeded fictional task and acknowledgement examples |
+| Govern | `/audit` | Bounded public audit export and checksum |
+| Govern | `/playbooks` | Illustrative response preparation steps |
+| Govern | `/help` | Searchable guidance, shortcuts and AI limitations |
+| Govern | `/admin` | Local policy and integration previews |
 
+Global Ctrl/Command+K search covers navigation and public synthetic incidents; it does not index private agency data. The Command Center action deck routes directly to evidence triage, approval review, desk coordination and audit.
 
-## Detailed Incident Experience
+## Maps, charts and depth
 
-The Incident Intelligence workspace follows the same tokens and responsive
-layout, with clear simulated-data banners and tab-like category buttons for
-source manifests, historical event chronology, and AI transparency. The
-interface exposes observed/ingested times, ingestion delay, fixture provenance,
-and explicit model-absence and action-disablement states. Critical text does
-not depend on color or motion. Real evidentiary-chain and encrypted-media
-workflows remain separate milestones. See
-[Incident Intelligence Workspace](INCIDENT_INTELLIGENCE_WORKSPACE.md).
+MapLibre GL renders public OpenStreetMap raster tiles with attribution. This sends requests to a third-party host and is unsuitable for a restricted deployment without an approved internal tile service. When WebGL or tile transport fails, the warning, retry affordance and incident list remain usable.
 
+Recharts visuals have adjacent text or table equivalents. Animation is off for technical charts. Three.js is intentionally absent: the present workflow does not need 3D terrain to make a decision, and decorative GPU load would reduce clarity on the target 16 GB Windows laptop. A future terrain view must be optional, lazy-loaded, backed by an equivalent 2D representation and disabled on low-power devices.
 
-## Source Observatory visual system
+## Interaction rules
 
-Source freshness is shown as a separate operator surface rather than adding
-unverified risk scores to the Command Center. The interface uses calm textual
-status indicators, timestamps in IST, age and ingestion lag, colored badges
-with readable labels, a small Recharts trend and expandable table equivalent.
-Low-power Windows devices retain a 2D view. No new Magic UI or Three.js
-dependencies are introduced. The Command Center card explicitly says these
-are **synthetic** observations rather than live-source health claims.
+- Primary actions describe the next reversible step; destructive or live operations are not exposed.
+- Loading, empty, stale, locked and failed states use explanatory text.
+- Approval views fail closed without a trusted identity and never invent a local operator.
+- Model output is described as a synthetic research measurement, never as real-world forecasting accuracy.
+- Proximity is not labeled exposure. Missing evidence stays unknown.
+- A captured response draft must pass an independent checker before scripted department work can be prepared.
+- Tables retain headers and controlled horizontal overflow at high zoom.
+- Minimum interactive height is 40 px; focus uses the action token with a three-pixel offset.
 
+## Acceptance evidence
 
-## DataFusion ingestion status
+The local automated browser gate checks desktop and 390 px layouts, keyboard reachability, sampled axe rules, theme contrast, locked identity guidance, transport warnings and the full route set. The latest executed commands and results belong in [the local handoff](LOCAL_DEMO_HANDOFF.md).
 
-The `/ingestion` screen uses the same light/dark Tailwind theme, source
-quality disclaimers, simple data cards and categorized quarantines. Charts
-are intentionally omitted when a precise count table better conveys
-validation failures. The Command Center provides an unobtrusive summary,
-and the browser never auto-invokes the replay CLI or any external source.
+Automated checks support but do not replace screen-reader and operator review. Use [the demo rehearsal and acceptance record](DEMO_REHEARSAL.md) for manual evidence. Do not call the interface certified or the full maker/checker journey accepted until those open gates are recorded.
 
+## Deliberate limits
 
-## PostGIS correlation interface
+This design is not a certified emergency interface. Authentication provider activation, real telemetry, validated hazard forecasting, operational map-data governance, production monitoring, formal accessibility conformance and agency acceptance remain outside the completed local synthetic demonstration.
 
-The Incident Intelligence details panel now includes a separate
-radius-controlled candidate explorer. Spatial distance appears alongside
-source freshness and unambiguous *fictional* asset labels. Long explanatory
-copy is used where a compact badge might imply false certainty.
-No decorative animation or false map-impact overlay is used.
-
-## Model evaluation visual pattern
-
-Synthetic model quality is presented as a dedicated research lab, **not** as
-a live operational hazard indicator. Every metric explicitly says synthetic;
-the score chart has an equivalent table; confusion counts are labeled; and
-the source/model version and non-transferability limitations appear adjacent
-to the visualizations. Animations are disabled on technical charts and no
-heavy AI/3D frontend dependencies have been added.
+Related detail: [UX roadmap](UX_INTERACTION_ROADMAP.md), [Incident Intelligence](INCIDENT_INTELLIGENCE_WORKSPACE.md), and [Magic UI feasibility](MAGIC_UI_FEASIBILITY.md).

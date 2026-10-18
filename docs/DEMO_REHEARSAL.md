@@ -1,62 +1,112 @@
-# Local synthetic demo rehearsal and remaining human acceptance
+# Local synthetic demo rehearsal and human acceptance record
 
-Use the existing continuation checkout. Keep the IdP **inactive** and Windows
-certificate trust unchanged, per the owner's 17 October 2026 decision. The
-complete authenticated two-person rehearsal is deferred, not passed. No live
-messages, warning issuance, deployment or CI are part of this runbook.
+This is the authoritative manual evidence form for the local release candidate. Copy the blank record section for each run; do not replace earlier results. A checkbox is evidence only when a named tester actually performs the step and records the outcome.
 
-## Five-minute walkthrough with the current locked identity gate
+Keep the local IdP **inactive** and Windows certificate trust unchanged under the owner's 17 October 2026 decision. The authenticated two-person rehearsal is deferred, not passed. This runbook never authorizes live messages, warning issuance, deployment, CI, a push or a database reset.
 
-1. Open `http://localhost:3000/demo`. Explain that all incidents, sources and
-   model measurements are fictional. The readiness cards report local fixture
-   availability, not real emergency readiness. Missing/stale context is valid
-   and must remain visible.
-2. Inspect `/ingestion` and `/sources`: accepted versus quarantined events,
-   observed/ingested timestamps, delayed/stale/missing sources and quality.
-   For provenance, open sample case `22222222-2222-4222-8222-222222222222` and
-   inspect accepted replay evidence and chronology. Do not reset the database.
-3. Inspect the case assessment and URB playbook. Point out that proximity is
-   not exposure and the index is not a calibrated forecast. Model Lab reports
-   are reproducible synthetic holdout measurements only.
-4. Open `/approvals`. Show that unconfigured identity fails closed. Explain
-   the implemented captured-draft → independent-checker → staged scripted task progress
-   workflow, citing test evidence, **mention the approved-only local CAP XML draft download (also locked here),
-   without presenting it as a completed
-   two-human browser demonstration**. Do not fabricate a session or approval.
-5. Open `/agency-sync` and `/audit`: these are separate seeded examples.
-   Export the public JSON/checksum. Private decisions and proposal receipts
-   belong to the signed-agency proposal audit, which remains locked here.
+## Before the rehearsal
 
-Replaying/refreshing sources is optional and writes synthetic history. If that
-is intentionally part of a rehearsal, use the documented confirmed replay or
-scenario helper with a recorded run ID; never delete volumes to refresh data.
+From the existing continuation checkout, confirm the recorded commit and the single-instance runtime. These checks are read-only.
 
-## Manual accessibility/operator acceptance — not yet executed
+```powershell
+git status --short --branch
+git rev-parse HEAD
+powershell -ExecutionPolicy Bypass -File .\scripts\check-local-runtime.ps1 -RequireRunning
+```
 
-Record tester, date, branch/commit, browser and assistive technology, each
-pass/failure and reproduction steps. Automated axe is supporting evidence.
+Stop and investigate if the checkout is unexpectedly dirty, a required service is absent, or duplicate AEGIS services are reported. Do not stop unrelated laptop processes.
 
-- Use keyboard only to reach navigation, global search, incident search,
-  filters/sort, case links, guided stages and audit export. Check visible focus,
-  logical order, Escape behavior and absence of keyboard traps.
-- With Narrator or another screen reader, check page titles/headings, landmarks,
-  input labels, announced loading/error/empty states, table headers, filter/sort
-  feedback and locked identity guidance. Use text/table alternatives to charts
-  and map markers; do not require geographic color alone to understand a case.
-- At 200% zoom and a narrow mobile viewport, inspect text and controls for
-  clipping or overlap. A registry table may scroll within its own container;
-  primary navigation and actions must remain reachable.
-- Check light/dark themes and reduced motion. Simulate tile transport failure
-  in an isolated test browser; confirm the visible warning, incident-list
-  fallback and explicit retry. Never disrupt the laptop network or firewall.
-- Have an operator explain evidence quality, stale observations, uncertainty,
-  illustrative playbooks, scripted acknowledgements and public versus private
-  audit. Any confusion is a usability finding, not a successful acceptance.
+## Five-minute locked-identity walkthrough
 
-## Owner release record — pending
+1. Open `http://localhost:3000/demo`. State that all incidents, sources and model measurements are fictional. Readiness cards report local fixture availability, not emergency readiness. Missing or stale context is valid and remains visible.
+2. Inspect `/ingestion` and `/sources`: accepted and quarantined events, observed/ingested times, delayed/stale/missing sources and quality. Open sample case `22222222-2222-4222-8222-222222222222` and inspect its accepted replay evidence and chronology. Do not reset the database.
+3. Inspect the case assessment and URB playbook. State that proximity is not exposure and the index is not a calibrated forecast. Model Lab results are reproducible measurements on synthetic holdout scenarios only.
+4. Open `/approvals`. Confirm unconfigured identity fails closed. Explain the implemented captured-draft → independent-checker → staged scripted-task workflow and the approved-only exercise CAP XML draft download. Do not describe this as a completed two-human browser demonstration.
+5. Open `/department-tasks`, `/agency-sync` and `/audit`. Distinguish proposal-linked private tasks from seeded public examples. Export the public JSON/checksum. Private decisions and proposal receipts remain locked.
 
-Review [current handoff](LOCAL_DEMO_HANDOFF.md), known deferrals and recorded
-checks. Decide whether the locked-identity walkthrough is acceptable for a
-presentation. The original full observation-to-independent-human-approval demo
-cannot be called accepted while the IdP/two-person rehearsal is deferred.
-A release decision does not authorize a main merge, push, CI or deployment.
+Replaying sources is optional and writes synthetic history. When specifically included in a rehearsal, use the confirmed replay/scenario helper and record its run ID. Never delete volumes to refresh data.
+
+## Blank acceptance record
+
+### Run metadata
+
+| Field | Recorded value |
+|---|---|
+| Date and time (with timezone) | |
+| Tester name/role | |
+| Observer/operator name/role | |
+| Branch | |
+| Commit SHA | |
+| Browser and version | |
+| Screen reader/assistive technology | |
+| Display size and scaling | |
+| Runtime guard result | |
+| Optional replay run ID | Not run / |
+
+Outcome values are **Pass**, **Fail**, **Blocked** or **Not run**. Record a finding or reproduction note for every result other than Pass.
+
+### Scenario and comprehension
+
+| ID | Task and expected evidence | Outcome | Finding / evidence reference |
+|---|---|---|---|
+| S1 | Guided exercise identifies every record as synthetic and links each stage to its workspace. | | |
+| S2 | Ingestion separates accepted, duplicate and quarantined events without implying live collection. | | |
+| S3 | Source view exposes observed/ingested times, freshness evaluation time and missing context. | | |
+| S4 | Sample case shows source provenance, chronology, uncertainty and the rule-only assessment. | | |
+| S5 | Playbook is illustrative and an operator can explain that its steps are proposed guidance. | | |
+| S6 | Approval Workbench fails closed and explains the independent checker requirement. | | |
+| S7 | Department tasks are clearly scripted/prepared and are never described as dispatched. | | |
+| S8 | Public audit JSON downloads and its displayed SHA-256 checksum verifies. | | |
+| S9 | Operator correctly explains stale evidence, unknowns, model limits and public/private audit boundaries. | | |
+
+### Accessibility and responsive behavior
+
+| ID | Task and expected evidence | Outcome | Finding / evidence reference |
+|---|---|---|---|
+| A1 | Keyboard reaches navigation, global search, registry controls, case links, guided stages and audit export in logical order. | | |
+| A2 | Focus remains visible; Escape closes overlays; no keyboard trap occurs. | | |
+| A3 | Screen reader announces page titles, headings, landmarks, labels and loading/error/empty states. | | |
+| A4 | Table headers and filter/sort feedback are understandable; charts and map markers have text alternatives. | | |
+| A5 | At 200% zoom, navigation/actions remain reachable and text does not overlap; tables may scroll within their container. | | |
+| A6 | At a 390 px viewport, the task selector, metrics and controls remain usable without page-level horizontal overflow. | | |
+| A7 | Light and dark themes preserve readable text/status distinctions. | | |
+| A8 | Reduced-motion preference removes nonessential animation without hiding information. | | |
+| A9 | In an isolated test browser, blocked map tiles show a warning, retry and usable incident-list fallback. | | |
+
+Do not alter the laptop firewall or network to test A9. Browser request blocking is sufficient.
+
+### Findings
+
+| Finding ID | Severity | Route/control | Reproduction and expected behavior | Owner/status |
+|---|---|---|---|---|
+| | | | | |
+
+Suggested severity: **Critical** blocks safe task completion; **Major** causes an incorrect decision or inaccessible primary task; **Minor** causes friction without changing the decision; **Editorial** is a wording correction.
+
+## Deferred authenticated two-person rehearsal
+
+Run this section only after the owner separately authorizes local IdP activation and the documented CurrentUser certificate-trust change. Never put passwords, tokens or client secrets in this record.
+
+| ID | Required evidence | Outcome | Finding / evidence reference |
+|---|---|---|---|
+| I1 | Two distinct approved test identities authenticate through the configured local provider. | Deferred | Owner kept setup inactive |
+| I2 | Maker creates and submits an evidence-linked proposal; the same identity cannot approve it. | Deferred | |
+| I3 | Independent checker reviews captured evidence/assessment/playbook and approves or rejects with rationale. | Deferred | |
+| I4 | Only an approved proposal can prepare scripted department tasks and the exercise CAP XML draft. | Deferred | |
+| I5 | Task acknowledgements/closure and private audit show verified identities, timestamps and proposal linkage. | Deferred | |
+| I6 | Logout/session expiry returns protected views to the locked state and does not expose another agency's records. | Deferred | |
+
+Setup and reversal are documented in [LOCAL_IDP_REVIEW.md](LOCAL_IDP_REVIEW.md). Until I1–I6 pass, the original observation-to-independent-human-approval browser journey remains incomplete.
+
+## Owner release decision
+
+| Field | Recorded value |
+|---|---|
+| Decision | Pending / Accept locked-identity presentation / Reject pending fixes |
+| Accepted commit SHA | |
+| Open findings explicitly accepted | |
+| Reviewer name | |
+| Review date | |
+| Notes | |
+
+The reviewer should compare this record with [the current handoff](LOCAL_DEMO_HANDOFF.md). Acceptance of the locked-identity presentation does not certify real operations and does not authorize merge, push, CI, deployment, live telemetry, public warning or responder dispatch.
