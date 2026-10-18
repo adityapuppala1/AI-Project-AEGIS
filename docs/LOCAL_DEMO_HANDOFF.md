@@ -1457,3 +1457,14 @@ steps as deferred. This documentation work does not convert automated axe
 results into human accessibility acceptance and does not activate the prepared
 IdP or alter Windows trust. Documentation link and whitespace validation passed;
 application code and the running stack were unchanged.
+
+### Final read-only laptop recheck — 18 October 2026
+
+On documentation checkpoint `d00886a0332a82bfc3d5e58ee53a5f9097b8b63f`,
+PID **99060** completed with exit code 0 in **8.23 seconds**. The
+single-instance guard found exactly one web, API and database service and no
+conflicting managed job. `python .\scripts\verify-local-http.py` passed every
+listed API and web route, anonymous approval/private-audit/CAP refusal,
+blocked live-warning boundary and the public audit checksum. The branch was
+`feat/aegis-local-demo-continuation` and the checkout was clean. Human browser,
+screen-reader, IdP and owner-decision gates remain separate and open.
