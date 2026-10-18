@@ -511,3 +511,14 @@ IdP/trust activation and separate-person MFA rehearsal, manual screen-reader
 and operator usefulness review, owner release review, and authorized data plus
 domain validation before any real forecasting claim. No CI, push, deployment,
 live dispatch or operational integration was performed.
+
+### Monsoon atlas visual system accepted — 18 October 2026
+
+Application checkpoint `2cb6d4f` introduces a distinct semantic light/dark
+palette and layered command-center treatment without changing operational
+workflow or adding a rendering dependency. Laptop PID 138528 exited 0 in
+117.71 seconds after three theme/contrast tests, TypeScript, production web
+build/start, light/dark checks at 390px and 1440px, all 21 smoke/axe checks,
+HTTP refusal/live-warning boundaries, audit checksum and final single-runtime
+inventory. Human usefulness, IdP/MFA, screen-reader and owner release gates
+remain external/deferred.
