@@ -68,11 +68,12 @@ Recharts visuals have adjacent text or table equivalents. Animation is off for t
 - Proximity is not labeled exposure. Missing evidence stays unknown.
 - A captured response draft must pass an independent checker before scripted department work can be prepared.
 - Tables retain headers and controlled horizontal overflow at high zoom.
+- Below the `lg` breakpoint, including 200% zoom, the navigation rail is an overlay drawer: inert and out of the Tab order while closed, focus moves to its close control on open, and Escape, the close control or the backdrop returns focus to the menu control. At `lg` and wider the rail is persistent and never inert.
 - Minimum interactive height is 40 px; focus uses the action token with a three-pixel offset.
 
 ## Acceptance evidence
 
-The local automated browser gate checks desktop and 390 px layouts, keyboard reachability, sampled axe rules, theme contrast, locked identity guidance, transport warnings and the full route set. The latest executed commands and results belong in [the local handoff](LOCAL_DEMO_HANDOFF.md).
+The local automated browser gate checks desktop and 390 px layouts, 640/720 px 200%-zoom reflow and drawer keyboard behavior (`scripts/verify-zoom-keyboard.ps1`), keyboard reachability, sampled axe rules, theme contrast, locked identity guidance, transport warnings and the full route set. The latest executed commands and results belong in [the local handoff](LOCAL_DEMO_HANDOFF.md).
 
 Automated checks support but do not replace screen-reader and operator review. Use [the demo rehearsal and acceptance record](DEMO_REHEARSAL.md) for manual evidence. Do not call the interface certified or the full maker/checker journey accepted until those open gates are recorded.
 

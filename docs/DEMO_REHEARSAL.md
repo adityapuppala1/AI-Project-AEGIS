@@ -16,6 +16,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check-local-runtime.ps1 -Requ
 
 Stop and investigate if the checkout is unexpectedly dirty, a required service is absent, or duplicate AEGIS services are reported. Do not stop unrelated laptop processes.
 
+Automated proxies exist for parts of A1, A2, A5 and A6 (see the handoff for the latest executed results). They reduce the chance of avoidable findings but are **not** outcomes for this record: fill A1–A9 only from what the named tester observes with their own keyboard, zoom setting and assistive technology.
+
 ## Five-minute locked-identity walkthrough
 
 1. Open `http://localhost:3000/demo`. State that all incidents, sources and model measurements are fictional. Readiness cards report local fixture availability, not emergency readiness. Missing or stale context is valid and remains visible.

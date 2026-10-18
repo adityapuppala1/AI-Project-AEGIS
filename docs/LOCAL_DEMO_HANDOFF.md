@@ -20,7 +20,12 @@ Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 
 ## Latest continuation status
 
-Laptop and mirror application checkpoint:
+Latest laptop application checkpoint: `dae1a696f655b6c3f7a78aed9e513b1c30d0e12c`
+(navigation drawer keyboard fix; see
+[Navigation drawer keyboard and 200% zoom](#navigation-drawer-keyboard-and-200-zoom--laptop-acceptance-complete)).
+It exists on the Windows laptop only; the Linux mirror has not received or run it.
+
+Previous laptop and mirror application checkpoint:
 `b31b6d1bbb26e151cfe7a4b9e40cf595b2f9f453`. The original complete guarded acceptance
 run finished with exit 0 in 117.80 seconds. The local synthetic demonstration
 now covers observation -> validation -> incident/evidence -> assessment ->
@@ -47,6 +52,7 @@ IdP/trust activation stays deferred by the owner.
 | Verified on laptop | Signed department inbox and auditable coordinator reassignment: native/proxy/build, 15 retained PostGIS tests, targeted mobile/desktop browser, 21 smoke/axe checks, HTTP/refusal/checksum and single-runtime inventory |
 | Verified on laptop | Bounded free-form grounded evidence guide: deterministic cited answers/abstention, strict BFF, production builds, real 390/1440 browser checks and complete regression gate |
 | Verified on laptop | Operations graphite visual system: cool white/graphite foundations, electric-blue controls, cyan data signals, compact decision deck, semantic chart/map tokens, AA contrast and real 390/1440 browser acceptance |
+| Verified on laptop | Navigation drawer keyboard behavior and 640/720 px 200%-zoom reflow proxy across 14 routes; supports, but does not fill, manual A1/A2/A5 |
 | Engineering closure | No remaining implementation item is required for the authorized local synthetic hackathon chain; further real-world capability depends on the human/external gates below |
 | Verified bounded recovery | Opt-in same-tab reload/navigation recovery; cross-device/server backup and guaranteed browser-restart recovery are outside this slice |
 | Deferred by owner | Local IdP/trust activation and real two-person MFA/browser approval acceptance; do not reactivate or bypass |
@@ -1468,3 +1474,45 @@ listed API and web route, anonymous approval/private-audit/CAP refusal,
 blocked live-warning boundary and the public audit checksum. The branch was
 `feat/aegis-local-demo-continuation` and the checkout was clean. Human browser,
 screen-reader, IdP and owner-decision gates remain separate and open.
+
+## Navigation drawer keyboard and 200% zoom — laptop acceptance complete
+
+Gap: the manual record's A5 (200% zoom) had no automated proxy. Existing
+browser checks used only 390 px and 1440 px, while a 1280–1440 px window at
+200% zoom renders a 640–720 CSS px viewport. A new read-only check,
+`scripts/browser/zoom-keyboard.cjs`, found that all 14 routes reflowed without
+page-level overflow or off-screen controls. It also found two keyboard defects
+below `lg` (1024 px), which also affect mobile:
+
+- the closed off-canvas rail left **15 invisible focusable elements** (brand,
+  close control and all 13 navigation links) in the Tab order;
+- Escape did not close the open drawer, and focus did not move into it.
+
+Run against the pre-fix image, the check reported 8 failures (both defects at
+both zoom viewports). Fix `dae1a69` (`apps/web/components/app-shell.tsx` only)
+makes the closed drawer `inert` below `lg` via a `matchMedia` store whose server
+snapshot is the persistent desktop rail. It also focuses the close control on
+open, and Escape, the close control or the backdrop return focus to the menu
+control. Navigating from the drawer closes it without moving focus back. An
+interim attempt that toggled CSS `visibility` failed: under reduced motion,
+Chrome kept the drawer hidden for two frames during a 0.01 ms visibility
+transition, so it rejected the focus move. The check caught this before commit.
+
+Windows laptop, branch `feat/aegis-local-demo-continuation`, tested tree
+identical to `dae1a696f655b6c3f7a78aed9e513b1c30d0e12c`. All commands
+ran inside the shared operation lease:
+
+| Command | Result |
+|---|---|
+| `powershell -ExecutionPolicy Bypass -File .\scripts\check-local-runtime.ps1 -RequireRunning` (before work) | PASS: exactly one web/API/db, no conflicting managed job |
+| `services/api/.venv/Scripts/python.exe scripts/verify-local-http.py` (before work, on `e9b403d`) | PASS in 7.29 s: 26 routes 200, six protected approval/audit/CAP routes 503, live warning 403, public checksum |
+| `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify-zoom-keyboard.ps1` | **Exit 0, 154.00 s**. Theme contract tests 3/3; TypeScript; production web image built; guarded `start-windows.ps1 -NoBuild -LocalCopilot` recreated only web (API/db kept running, existing volume); zoom/keyboard **41 checks, 0 failures, 0 page errors**; theme browser 390/1440 PASS; smoke **21 checks, 0 page errors, 0 sampled axe violations**; HTTP routes/refusals/live-warning 403/public checksum PASS; final single-runtime PASS |
+
+Transcript: `.git/zoom-keyboard-verification.log` (console copy
+`.git/zoom-keyboard-run.out`). API, database, Python tests and model artifacts
+were unchanged, so they were not re-run. The Linux mirror has not run this
+check. This is automated proxy evidence only. It does not fill A1, A2 or A5 in
+[DEMO_REHEARSAL.md](DEMO_REHEARSAL.md); a named tester must still perform
+real keyboard, 200% zoom, reduced-motion and screen-reader review. IdP/trust
+activation remains deferred by the owner. Nothing was pushed, merged, sent to
+CI, reset or made live.
