@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -36,6 +36,14 @@ const navigation = [
   ]},
 ];
 
+// Matches Tailwind's lg breakpoint, where the rail stops being an overlay drawer.
+const RAIL_QUERY = "(min-width: 64rem)";
+function subscribeToRailQuery(onChange: () => void) {
+  const query = matchMedia(RAIL_QUERY);
+  query.addEventListener("change", onChange);
+  return () => query.removeEventListener("change", onChange);
+}
+
 function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -52,18 +60,34 @@ function ThemeToggle() {
 export function AppShell({ children, title, description }: { children: ReactNode; title: string; description: string }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const openMenuRef = useRef<HTMLButtonElement>(null);
+  const closeMenuRef = useRef<HTMLButtonElement>(null);
+  const persistentRail = useSyncExternalStore(subscribeToRailQuery, () => matchMedia(RAIL_QUERY).matches, () => true);
   useEffect(() => setMenuOpen(false), [pathname]);
+  // Below lg the rail is an overlay drawer: it is inert while closed, focus enters it on
+  // open, and an explicit dismissal (Escape, close control or backdrop) returns focus.
+  const dismissMenu = () => { setMenuOpen(false); openMenuRef.current?.focus(); };
+  useEffect(() => {
+    if (!menuOpen) return;
+    closeMenuRef.current?.focus();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") { setMenuOpen(false); openMenuRef.current?.focus(); }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [menuOpen]);
   return (
     <div className="min-h-screen lg:flex">
       <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:rounded-lg focus:bg-surface focus:p-3">Skip to content</a>
-      {menuOpen && <button className="fixed inset-0 z-30 bg-black/60 lg:hidden" aria-label="Close navigation" onClick={() => setMenuOpen(false)} />}
-      <aside className={`command-rail fixed inset-y-0 left-0 z-40 flex w-[236px] flex-col overflow-y-auto border-r border-stroke transition-transform duration-200 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${menuOpen ? "translate-x-0" : "-translate-x-full"}`}>
+      {menuOpen && <button className="fixed inset-0 z-30 bg-black/60 lg:hidden" aria-label="Close navigation" onClick={dismissMenu} />}
+      <aside className={`command-rail fixed inset-y-0 left-0 z-40 flex w-[236px] flex-col overflow-y-auto border-r border-stroke transition-transform duration-200 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${menuOpen ? "translate-x-0" : "-translate-x-full"}`}
+        inert={!menuOpen && !persistentRail}>
         <div className="flex h-20 items-center justify-between border-b border-stroke px-6">
           <Link href="/" className="flex items-center gap-3" aria-label="AEGIS home">
             <span className="brand-mark flex h-10 w-10 items-center justify-center rounded-xl"><Command size={22}/></span>
             <span><strong className="block text-lg font-black tracking-[.14em]">AEGIS</strong><span className="text-[9px] font-bold uppercase tracking-[.13em] text-muted">Emergency intelligence</span></span>
           </Link>
-          <button className="control h-9 w-9 !px-0 lg:hidden" aria-label="Close menu" onClick={() => setMenuOpen(false)}><X size={18}/></button>
+          <button ref={closeMenuRef} className="control h-9 w-9 !px-0 lg:hidden" aria-label="Close menu" onClick={dismissMenu}><X size={18}/></button>
         </div>
         <div className="px-3 pt-5">
           <nav className="space-y-5" aria-label="Primary navigation">
@@ -90,7 +114,7 @@ export function AppShell({ children, title, description }: { children: ReactNode
       <div className="min-w-0 flex-1">
         <div className="command-topbar sticky top-0 z-20 flex h-16 items-center justify-between border-b border-stroke bg-surface/90 px-4 backdrop-blur-xl sm:px-8">
           <div className="flex items-center gap-3">
-            <button className="control h-10 w-10 !px-0 lg:hidden" aria-label="Open navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen(true)}><Menu size={19}/></button>
+            <button ref={openMenuRef} className="control h-10 w-10 !px-0 lg:hidden" aria-label="Open navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen(true)}><Menu size={19}/></button>
             <span className="hidden text-xs font-semibold uppercase tracking-[.16em] text-muted sm:inline">Public safety / Hyderabad</span>
             <span className="text-xs font-semibold text-muted sm:hidden">AEGIS / Exercise</span>
           </div>
