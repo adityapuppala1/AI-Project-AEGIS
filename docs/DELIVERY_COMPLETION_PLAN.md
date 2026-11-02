@@ -18,7 +18,7 @@ reversible, local, free, synthetic-safe actions. Any decision below can be rever
 | D4 | **Public intake stays loopback-only and off by default; never enabled in front of an audience unless asked** | Security review accepted limits that only hold on one laptop | Re-run the review and meet the listed prerequisites first |
 | D5 | **Demo-day profile**: default synthetic stack, plus `-PublicEarth` only if the venue network is confirmed good. Rehearse an offline fallback script | Public feeds depend on external networks the judges' venue may block; the product must not depend on them | Flip the flag |
 | D6 | **No forecasting accuracy claim, ever, until Phase 2 is expert-reviewed.** Real retrospective results appear only as a separately labelled, read-only "Real historical retrospective" view | Matches AGENTS.md and the research plan | n/a |
-| D7 | **Defer multilingual (Telugu/Hindi) and Magic UI polish** to a stretch slot after 23 Nov | Highest visible value now is verified rehearsal and honest data work, not more screens | Move the item up |
+| D7 | **Defer multilingual (Telugu/Hindi) and Magic UI polish** to a stretch slot after 23 Nov | Highest visible value now is verified rehearsal and honest data work, not more screens | Move the item up. **Update 2026-11-02: multilingual was brought forward and built (native review pending).** |
 | D8 | **Feature freeze 24 Nov.** After that only fixes, acceptance runs and rehearsal | Leaves five days for acceptance, recovery drills and rehearsal | Owner can extend |
 | D9 | **Model routing** (below) | Matches the owner's `CLAUDE.md` routing rule | Change the table |
 
@@ -117,7 +117,9 @@ whether to request written terms from IMD and India-WRIS; decide the offline til
 | 2026-11-02 | Demo runbook, demo-readiness preflight, repeatable recovery drill | done; preflight GO with warnings, recovery drill PASSED |
 | 2026-11-02 | Second independent security review (Earth Watch adapters) and fixes; telemetry chart-to-table toggle; two pre-existing contrast defects fixed | done; see the handoff |
 | 2026-11-02 | Phase 1 downloads: 5 of 14 files (Musi discharge) saved; rainfall archive files still blocked by an upstream 503 | background retry continues |
-| next | Finish downloads, `verify.py`, candidates, second-person review; human gates | waiting on the API and on people |
+| 2026-11-02 | Phase 1 downloads completed (14 files); `verify.py` clean; `--refetch 3` checksums differ (likely per-request metadata, unconfirmed); 100 unreviewed candidates generated | done; reproducibility open |
+| 2026-11-02 | Telugu/Hindi UI, API non-root image, Core Web Vitals check, remaining UX items closed by decision (`6805d87`) | done; native-language review pending |
+| next | Second-person review of candidates, refetch-checksum explanation, human gates | waiting on people |
 
 ## 9. Definition of done for the demonstration
 
