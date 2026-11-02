@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "./globals.css";
 import { ThemeProvider } from "../components/theme-provider";
+import { LanguageProvider } from "../components/language-provider";
 
 export const metadata: Metadata = {
   title: { default: "AEGIS | Command Center", template: "%s | AEGIS" },
@@ -12,7 +13,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen bg-canvas font-sans text-ink antialiased">
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider><LanguageProvider>{children}</LanguageProvider></ThemeProvider>
       </body>
     </html>
   );

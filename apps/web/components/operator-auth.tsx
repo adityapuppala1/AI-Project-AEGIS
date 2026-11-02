@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useT } from "./language-provider";
 import { clearExerciseDraftRecovery } from "../lib/exercise-draft-buffer";
 import { LogIn, LogOut, ShieldCheck } from "lucide-react";
 
@@ -10,6 +11,7 @@ interface Session {
   roles?: string[];
 }
 export function OperatorAuth() {
+  const t = useT();
   const [session, setSession] = useState<Session | null>(null);
   const [busy, setBusy] = useState(false);
   useEffect(() => {
@@ -36,6 +38,6 @@ export function OperatorAuth() {
     </span>
     <button type="button" onClick={signOut} disabled={busy} className="control h-9 text-xs" aria-label="Sign out of operator session"><LogOut size={15}/>Sign out</button>
   </div>;
-  if (!session.configured) return <span className="hidden text-xs text-amber-700 dark:text-amber-300 md:inline" title="Operator access requires a configured trusted identity provider">SSO not configured</span>;
+  if (!session.configured) return <span className="hidden text-xs text-amber-700 dark:text-amber-300 md:inline" title={t("Operator access requires a configured trusted identity provider")}>{t("SSO not configured")}</span>;
   return <a className="control h-9 text-xs" href="/api/auth/login"><LogIn size={15}/>Operator sign in</a>;
 }

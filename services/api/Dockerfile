@@ -7,5 +7,8 @@ RUN --mount=type=secret,id=proxy_ca \
     pip install --no-cache-dir -r requirements.txt
 COPY app ./app
 # The deterministic replay JSON fixture ships inside app/fixtures.
+# Run as an unprivileged user: the API reads its code and writes nothing to the image.
+RUN useradd --system --uid 10001 --no-create-home --shell /usr/sbin/nologin aegis
+USER aegis
 EXPOSE 8000
 CMD ["uvicorn","app.main:app","--host","0.0.0.0","--port","8000"]

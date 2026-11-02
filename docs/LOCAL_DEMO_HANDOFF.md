@@ -1664,3 +1664,17 @@ check. This is automated proxy evidence only. It does not fill A1, A2 or A5 in
 real keyboard, 200% zoom, reduced-motion and screen-reader review. IdP/trust
 activation remains deferred by the owner. Nothing was pushed, merged, sent to
 CI, reset or made live.
+
+
+## Multilingual UI, non-root API image and Core Web Vitals — 2026-11-02 (Windows laptop, local)
+
+Executed on the Windows laptop only; no Linux runner result is claimed.
+
+- **Telugu and Hindi interface.** Language switcher (English, తెలుగు, हिन्दी), dictionary keyed by exact English text with English fallback, choice kept in `localStorage` (`aegis-language`, try/catch), `html lang` follows. Covers the shell, navigation, banners, the full Public Intake form and the main Earth Watch and Command Center labels. Translations are AI-written: **native-speaker review is pending**; do not present them as reviewed. Safety anchors (112, NASA/USGS, "not an AEGIS assessment", quarantine wording) are enforced by `translations.test.cjs`.
+- **API image runs non-root** (UID 10001, no compilers in the slim base). P0 smoke, recovery drill and 20 PostGIS integration tests pass on it.
+- **Core Web Vitals** (`scripts/browser/web-vitals.cjs`, 9 pages): all within budget at 1x CPU (LCP ≤ 2500 ms, CLS ≤ 0.1, interaction ≤ 200 ms). At 4x CPU (information only) `/incidents` interaction was 224 ms and `/approvals` LCP 2108 ms. Lab numbers, not field data or a capacity claim.
+- **Gates this session:** pytest 443 passed / 20 skipped; web node tests 104 passed; typecheck and build pass; `public-pages.cjs` 9 checks pass; 21-check smoke zero violations; theme gate pass; `verify-windows.ps1` PASSED; recovery drill PASSED.
+- **Closed by decision** (see `UX_INTERACTION_ROADMAP.md`): notification preferences, bulk actions, realtime events, spatial exposure overlay; saved views, advanced filters and density preferences are future work.
+- **Open-Meteo pilot download: complete (attempt 5, after upstream 503s).** 14 files (9 rainfall, 5 discharge). `verify.py`: 14 checked, no problems. `verify.py --refetch 3`: all 3 re-downloads differ from the stored checksum; the files embed a per-request `generationtime_ms`, so this is probably response metadata rather than revised data, but that was not confirmed, so reproducibility is **not** yet established. `candidates.py` wrote 100 rows to `research/real-data/catalogue/candidates.csv` (20 dry baseline, 40 wet comparison, 40 heavy-rain candidates). These are unreviewed candidates, not validated events. Research tests: 48 passed.
+- **Still owner/human:** rehearsal participants, push/PR/CI decision, hydrology reviewer, native-language review, screen-reader session, release go/no-go, IdP activation.
+- **Not run:** Linux mirror; the `verify-visual-theme.ps1` wrapper (its component checks were run directly).

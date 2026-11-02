@@ -235,6 +235,15 @@ and the single-stage image still retains build dependencies. These remaining
 gates prevent a blanket security/release-complete claim. Current evidence is
 in [LOCAL_DEMO_HANDOFF.md](LOCAL_DEMO_HANDOFF.md).
 
+> **Update 2026-11-02.** The web image has since been multi-stage and non-root
+> (standalone runner, UID 1000), and the npm audit was later recorded as zero
+> including development dependencies (see the handoff). The API image was the
+> remaining root image: it now runs as an unprivileged user (UID 10001) and the
+> slim base contains no compilers, which was verified inside the running
+> container; the P0 smoke, recovery drill and PostGIS integration suite pass on
+> it. A true multi-stage API build was judged not worthwhile because there is
+> nothing to strip. This does not make the project release-complete.
+
 
 The audit consistency follow-up (`a613a04`) passed four real PostGIS integration
 tests on both Linux and the actual Windows laptop, native Windows API/model/type

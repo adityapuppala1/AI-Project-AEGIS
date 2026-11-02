@@ -164,6 +164,48 @@ const pass = message => { results.push(message); console.log('PASS ' + message);
       await context.close();
     }
 
+    // 3d. Telugu and Hindi: switching, html lang, persistence, axe in each language, and blocked storage.
+    {
+      const context = await newContext(browser, { width: 1440, height: 1000 });
+      const page = await context.newPage();
+      await page.goto(BASE + '/public-intake');
+      const picker = page.locator('select:has(option[value="te"])');
+      await picker.waitFor();
+      await page.addScriptTag({ path: axePath });
+      const checks = [['te', 'ప్రజా నివేదికలు', 'భూమి పరిశీలన'], ['hi', 'सार्वजनिक रिपोर्ट', 'पृथ्वी निगरानी']];
+      for (const [code, title, navLabel] of checks) {
+        await picker.selectOption(code);
+        await page.getByRole('heading', { name: title, level: 1 }).waitFor();
+        assert.equal(await page.evaluate(() => document.documentElement.lang), code, 'html lang follows the language');
+        assert.ok(await page.getByRole('link', { name: navLabel }).count() >= 1, 'translated navigation label ' + navLabel);
+        assert.match(await page.locator('main').innerText(), /112/, 'emergency number is shown in ' + code);
+        await page.waitForTimeout(1500);  // let the staggered fade-in finish; axe measures mid-fade text as low contrast
+        for (const theme of ['light', 'dark']) {
+          await page.emulateMedia({ colorScheme: theme });
+          const report = await page.evaluate(() => axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa'] } }));
+          assert.deepEqual(report.violations.map(v => ({ id: v.id, targets: v.nodes.map(n => n.target.join(' ')).slice(0, 3) })), [], `axe in ${code} ${theme}`);
+        }
+        await page.reload();
+        await page.getByRole('heading', { name: title, level: 1 }).waitFor();   // preference persisted
+        assert.equal(await page.evaluate(() => document.documentElement.lang), code, 'language persists across reload');
+        await page.addScriptTag({ path: axePath });
+      }
+      await picker.selectOption('en');
+      await page.getByRole('heading', { name: 'Public Intake', level: 1 }).waitFor();
+      assert.equal(await page.evaluate(() => document.documentElement.lang), 'en');
+      await context.close();
+      const blocked = await newContext(browser, { width: 1440, height: 1000 });
+      await blocked.addInitScript(() => { Object.defineProperty(window, 'localStorage', { get() { throw new Error('blocked'); } }); });
+      const lone = await blocked.newPage();
+      const errors = [];
+      lone.on('pageerror', error => errors.push(error.message));
+      await lone.goto(BASE + '/public-intake');
+      await lone.getByRole('heading', { name: 'Public Intake', level: 1 }).waitFor();
+      assert.deepEqual(errors, [], 'blocked storage must not break the page');
+      await blocked.close();
+      pass('Telugu and Hindi: nav, titles and the emergency notice translate, html lang follows, choice persists, axe clean in both themes, blocked storage falls back to English');
+    }
+
     // 4. Reduced motion: decorative animations must stop; with no preference they must run.
     for (const motion of ['reduce', 'no-preference']) {
       const context = await newContext(browser, { width: 1440, height: 1000 }, { reducedMotion: motion });

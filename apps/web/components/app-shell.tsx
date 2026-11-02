@@ -11,6 +11,8 @@ import {
 
 import { OperatorAuth } from "./operator-auth";
 import { GlobalSearch } from "./global-search";
+import { LanguageSwitcher } from "./language-switcher";
+import { useT } from "./language-provider";
 
 const navigation = [
   { label: "Overview", items: [
@@ -62,6 +64,7 @@ function ThemeToggle() {
 
 export function AppShell({ children, title, description }: { children: ReactNode; title: string; description: string }) {
   const pathname = usePathname();
+  const t = useT();
   const [menuOpen, setMenuOpen] = useState(false);
   const openMenuRef = useRef<HTMLButtonElement>(null);
   const closeMenuRef = useRef<HTMLButtonElement>(null);
@@ -81,26 +84,26 @@ export function AppShell({ children, title, description }: { children: ReactNode
   }, [menuOpen]);
   return (
     <div className="min-h-screen lg:flex">
-      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:rounded-lg focus:bg-surface focus:p-3">Skip to content</a>
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:rounded-lg focus:bg-surface focus:p-3">{t("Skip to content")}</a>
       {menuOpen && <button className="fixed inset-0 z-30 bg-black/60 lg:hidden" aria-label="Close navigation" onClick={dismissMenu} />}
       <aside className={`command-rail fixed inset-y-0 left-0 z-40 flex w-[236px] flex-col overflow-y-auto border-r border-stroke transition-transform duration-200 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${menuOpen ? "translate-x-0" : "-translate-x-full"}`}
         inert={!menuOpen && !persistentRail}>
         <div className="flex h-20 items-center justify-between border-b border-stroke px-6">
           <Link href="/" className="flex items-center gap-3" aria-label="AEGIS home">
             <span className="brand-mark flex h-10 w-10 items-center justify-center rounded-xl"><Command size={22}/></span>
-            <span><strong className="block text-lg font-black tracking-[.14em]">AEGIS</strong><span className="text-[9px] font-bold uppercase tracking-[.13em] text-muted">Emergency intelligence</span></span>
+            <span><strong className="block text-lg font-black tracking-[.14em]">AEGIS</strong><span className="text-[9px] font-bold uppercase tracking-[.13em] text-muted">{t("Emergency intelligence")}</span></span>
           </Link>
           <button ref={closeMenuRef} className="control h-9 w-9 !px-0 lg:hidden" aria-label="Close menu" onClick={dismissMenu}><X size={18}/></button>
         </div>
         <div className="px-3 pt-5">
           <nav className="space-y-5" aria-label="Primary navigation">
             {navigation.map(group => <div key={group.label}>
-              <p className="px-3 text-[9px] font-bold uppercase tracking-[.18em] text-muted/75">{group.label}</p>
+              <p className="px-3 text-[9px] font-bold uppercase tracking-[.18em] text-muted/75">{t(group.label)}</p>
               <div className="mt-2 space-y-0.5">{group.items.map(({ href, label, icon: Icon }) => {
                 const active = href === "/" ? pathname === href : pathname === href || pathname.startsWith(href + "/");
                 return <Link key={href} href={href} aria-current={active ? "page" : undefined}
                   className={`flex min-h-9 items-center gap-3 rounded-r-lg px-3 text-xs font-semibold transition-colors ${active ? "nav-active text-accent" : "text-muted hover:bg-elevated hover:text-ink"}`}>
-                  <Icon size={16} aria-hidden="true" /><span className="flex-1">{label}</span>{active && <ChevronRight size={14} aria-hidden="true"/>}
+                  <Icon size={16} aria-hidden="true" /><span className="flex-1">{t(label)}</span>{active && <ChevronRight size={14} aria-hidden="true"/>}
                 </Link>;
               })}</div>
             </div>)}
@@ -108,8 +111,8 @@ export function AppShell({ children, title, description }: { children: ReactNode
         </div>
         <div className="mt-auto p-4">
           <div className="rounded-xl border border-amber-400/30 bg-amber-400/10 p-4">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300"><ShieldCheck size={15}/> Exercise environment</div>
-            <p className="mt-2 text-xs leading-5 text-muted">Synthetic exercise data. Optional NASA/USGS context is labelled separately. No real emergency alerts or responder dispatch.</p>
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300"><ShieldCheck size={15}/> {t("Exercise environment")}</div>
+            <p className="mt-2 text-xs leading-5 text-muted">{t("Synthetic exercise data. Optional NASA/USGS context is labelled separately. No real emergency alerts or responder dispatch.")}</p>
           </div>
           <p className="mt-4 px-2 text-[11px] text-muted">AEGIS v0.2 · CipherCop 2026</p>
         </div>
@@ -118,13 +121,14 @@ export function AppShell({ children, title, description }: { children: ReactNode
         <div className="command-topbar sticky top-0 z-20 flex h-16 items-center justify-between border-b border-stroke bg-surface/90 px-4 backdrop-blur-xl sm:px-8">
           <div className="flex items-center gap-3">
             <button ref={openMenuRef} className="control h-10 w-10 !px-0 lg:hidden" aria-label="Open navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen(true)}><Menu size={19}/></button>
-            <span className="hidden text-xs font-semibold uppercase tracking-[.16em] text-muted sm:inline">Public safety / Hyderabad</span>
+            <span className="hidden text-xs font-semibold uppercase tracking-[.16em] text-muted sm:inline">{t("Public safety / Hyderabad")}</span>
             <span className="text-xs font-semibold text-muted sm:hidden">AEGIS / Exercise</span>
           </div>
           <div className="flex items-center gap-3">
             <span className="hidden items-center gap-2 rounded-full border border-amber-400/25 bg-amber-400/10 px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300 sm:inline-flex">
-              <span className="status-dot bg-amber-400"/> Simulation mode
+              <span className="status-dot bg-amber-400"/> {t("Simulation mode")}
             </span>
+            <LanguageSwitcher />
             <GlobalSearch />
             <ThemeToggle />
             <OperatorAuth />
@@ -133,11 +137,11 @@ export function AppShell({ children, title, description }: { children: ReactNode
         <main id="main-content" className="mx-auto max-w-[1800px] px-4 pb-12 pt-6 sm:px-7">
           <div className="mb-6 flex flex-wrap items-end justify-between gap-3 border-b border-stroke pb-5">
             <div>
-            <p className="eyebrow mb-2">Adaptive Emergency Geospatial Intelligence System</p>
-            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{title}</h1>
-            <p className="mt-2 text-sm text-muted">{description}</p>
+            <p className="eyebrow mb-2">{t("Adaptive Emergency Geospatial Intelligence System")}</p>
+            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{t(title)}</h1>
+            <p className="mt-2 text-sm text-muted">{t(description)}</p>
             </div>
-            <span className="rounded-md border border-stroke bg-surface px-3 py-2 text-[10px] font-bold uppercase tracking-[.17em] text-muted">Local exercise node · HYD-01</span>
+            <span className="rounded-md border border-stroke bg-surface px-3 py-2 text-[10px] font-bold uppercase tracking-[.17em] text-muted">{t("Local exercise node · HYD-01")}</span>
           </div>
           {children}
         </main>

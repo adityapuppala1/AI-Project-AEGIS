@@ -1,0 +1,413 @@
+{
+  "attribution": "Weather data by Open-Meteo.com (https://open-meteo.com/), CC BY 4.0, https://open-meteo.com/en/licence",
+  "files": {
+    "openmeteo-archive/hyd_17.30_78.35.json": {
+      "bytes": 259277,
+      "elevation": 533.0,
+      "first_date": "2000-01-01",
+      "id": "hyd_17.30_78.35",
+      "last_date": "2025-12-31",
+      "non_null_values": 28491,
+      "note": null,
+      "requested_lat": 17.3,
+      "requested_lon": 78.35,
+      "retrieved_at": "2026-11-02T15:48:37+00:00",
+      "returned_lat": 17.328646,
+      "returned_lon": 78.3815,
+      "rows": 9497,
+      "sha256": "99709311575f8fda87cd1dbfb531f332111971072aa7deb7496147d32e734f89",
+      "source": "openmeteo-archive",
+      "units": {
+        "precipitation_hours": "h",
+        "precipitation_sum": "mm",
+        "rain_sum": "mm",
+        "time": "iso8601"
+      },
+      "url": "https://archive-api.open-meteo.com/v1/archive?latitude=17.3&longitude=78.35&start_date=2000-01-01&end_date=2025-12-31&daily=precipitation_sum%2Crain_sum%2Cprecipitation_hours&timezone=Asia%2FKolkata",
+      "variables": [
+        "precipitation_sum",
+        "rain_sum",
+        "precipitation_hours"
+      ]
+    },
+    "openmeteo-archive/hyd_17.30_78.47.json": {
+      "bytes": 259140,
+      "elevation": 553.0,
+      "first_date": "2000-01-01",
+      "id": "hyd_17.30_78.47",
+      "last_date": "2025-12-31",
+      "non_null_values": 28491,
+      "note": null,
+      "requested_lat": 17.3,
+      "requested_lon": 78.47,
+      "retrieved_at": "2026-11-02T15:48:49+00:00",
+      "returned_lat": 17.328646,
+      "returned_lon": 78.46821,
+      "rows": 9497,
+      "sha256": "3e892c6f14f000c60959f958fd7d46cb5f7561c79da8efdd84bc2906aac3fd7a",
+      "source": "openmeteo-archive",
+      "units": {
+        "precipitation_hours": "h",
+        "precipitation_sum": "mm",
+        "rain_sum": "mm",
+        "time": "iso8601"
+      },
+      "url": "https://archive-api.open-meteo.com/v1/archive?latitude=17.3&longitude=78.47&start_date=2000-01-01&end_date=2025-12-31&daily=precipitation_sum%2Crain_sum%2Cprecipitation_hours&timezone=Asia%2FKolkata",
+      "variables": [
+        "precipitation_sum",
+        "rain_sum",
+        "precipitation_hours"
+      ]
+    },
+    "openmeteo-archive/hyd_17.30_78.60.json": {
+      "bytes": 259098,
+      "elevation": 509.0,
+      "first_date": "2000-01-01",
+      "id": "hyd_17.30_78.60",
+      "last_date": "2025-12-31",
+      "non_null_values": 28491,
+      "note": null,
+      "requested_lat": 17.3,
+      "requested_lon": 78.6,
+      "retrieved_at": "2026-11-02T15:48:58+00:00",
+      "returned_lat": 17.328646,
+      "returned_lon": 78.64162,
+      "rows": 9497,
+      "sha256": "eac49278f656c6d774cdf256276e2a3ba33247a5973f9e1d943043c9da44d8fb",
+      "source": "openmeteo-archive",
+      "units": {
+        "precipitation_hours": "h",
+        "precipitation_sum": "mm",
+        "rain_sum": "mm",
+        "time": "iso8601"
+      },
+      "url": "https://archive-api.open-meteo.com/v1/archive?latitude=17.3&longitude=78.6&start_date=2000-01-01&end_date=2025-12-31&daily=precipitation_sum%2Crain_sum%2Cprecipitation_hours&timezone=Asia%2FKolkata",
+      "variables": [
+        "precipitation_sum",
+        "rain_sum",
+        "precipitation_hours"
+      ]
+    },
+    "openmeteo-archive/hyd_17.40_78.35.json": {
+      "bytes": 259353,
+      "elevation": 542.0,
+      "first_date": "2000-01-01",
+      "id": "hyd_17.40_78.35",
+      "last_date": "2025-12-31",
+      "non_null_values": 28491,
+      "note": null,
+      "requested_lat": 17.4,
+      "requested_lon": 78.35,
+      "retrieved_at": "2026-11-02T15:49:07+00:00",
+      "returned_lat": 17.398945,
+      "returned_lon": 78.37029,
+      "rows": 9497,
+      "sha256": "e290a19f932597aeaeac9b9f25f327f1f1b94c66654e899ec62ac9c0cd1454f0",
+      "source": "openmeteo-archive",
+      "units": {
+        "precipitation_hours": "h",
+        "precipitation_sum": "mm",
+        "rain_sum": "mm",
+        "time": "iso8601"
+      },
+      "url": "https://archive-api.open-meteo.com/v1/archive?latitude=17.4&longitude=78.35&start_date=2000-01-01&end_date=2025-12-31&daily=precipitation_sum%2Crain_sum%2Cprecipitation_hours&timezone=Asia%2FKolkata",
+      "variables": [
+        "precipitation_sum",
+        "rain_sum",
+        "precipitation_hours"
+      ]
+    },
+    "openmeteo-archive/hyd_17.40_78.47.json": {
+      "bytes": 259265,
+      "elevation": 511.0,
+      "first_date": "2000-01-01",
+      "id": "hyd_17.40_78.47",
+      "last_date": "2025-12-31",
+      "non_null_values": 28491,
+      "note": null,
+      "requested_lat": 17.4,
+      "requested_lon": 78.47,
+      "retrieved_at": "2026-11-02T15:49:15+00:00",
+      "returned_lat": 17.398945,
+      "returned_lon": 78.457085,
+      "rows": 9497,
+      "sha256": "ed17470396aa385a54dc3594604cd439dbade03d56d7913684db2af0f95288fa",
+      "source": "openmeteo-archive",
+      "units": {
+        "precipitation_hours": "h",
+        "precipitation_sum": "mm",
+        "rain_sum": "mm",
+        "time": "iso8601"
+      },
+      "url": "https://archive-api.open-meteo.com/v1/archive?latitude=17.4&longitude=78.47&start_date=2000-01-01&end_date=2025-12-31&daily=precipitation_sum%2Crain_sum%2Cprecipitation_hours&timezone=Asia%2FKolkata",
+      "variables": [
+        "precipitation_sum",
+        "rain_sum",
+        "precipitation_hours"
+      ]
+    },
+    "openmeteo-archive/hyd_17.40_78.60.json": {
+      "bytes": 259250,
+      "elevation": 472.0,
+      "first_date": "2000-01-01",
+      "id": "hyd_17.40_78.60",
+      "last_date": "2025-12-31",
+      "non_null_values": 28491,
+      "note": null,
+      "requested_lat": 17.4,
+      "requested_lon": 78.6,
+      "retrieved_at": "2026-11-02T15:49:22+00:00",
+      "returned_lat": 17.398945,
+      "returned_lon": 78.63066,
+      "rows": 9497,
+      "sha256": "b8847f9b7193f24ff3770c2c11b29e7a3c2c54b909a36e6fa06cdb10bc9e5701",
+      "source": "openmeteo-archive",
+      "units": {
+        "precipitation_hours": "h",
+        "precipitation_sum": "mm",
+        "rain_sum": "mm",
+        "time": "iso8601"
+      },
+      "url": "https://archive-api.open-meteo.com/v1/archive?latitude=17.4&longitude=78.6&start_date=2000-01-01&end_date=2025-12-31&daily=precipitation_sum%2Crain_sum%2Cprecipitation_hours&timezone=Asia%2FKolkata",
+      "variables": [
+        "precipitation_sum",
+        "rain_sum",
+        "precipitation_hours"
+      ]
+    },
+    "openmeteo-archive/hyd_17.50_78.35.json": {
+      "bytes": 259339,
+      "elevation": 573.0,
+      "first_date": "2000-01-01",
+      "id": "hyd_17.50_78.35",
+      "last_date": "2025-12-31",
+      "non_null_values": 28491,
+      "note": null,
+      "requested_lat": 17.5,
+      "requested_lon": 78.35,
+      "retrieved_at": "2026-11-02T15:49:32+00:00",
+      "returned_lat": 17.469244,
+      "returned_lon": 78.35907,
+      "rows": 9497,
+      "sha256": "c4f12be17da895578341f3ec4971e563013abbca9400b80276fe5b1ccc3db1e9",
+      "source": "openmeteo-archive",
+      "units": {
+        "precipitation_hours": "h",
+        "precipitation_sum": "mm",
+        "rain_sum": "mm",
+        "time": "iso8601"
+      },
+      "url": "https://archive-api.open-meteo.com/v1/archive?latitude=17.5&longitude=78.35&start_date=2000-01-01&end_date=2025-12-31&daily=precipitation_sum%2Crain_sum%2Cprecipitation_hours&timezone=Asia%2FKolkata",
+      "variables": [
+        "precipitation_sum",
+        "rain_sum",
+        "precipitation_hours"
+      ]
+    },
+    "openmeteo-archive/hyd_17.50_78.47.json": {
+      "bytes": 259290,
+      "elevation": 556.0,
+      "first_date": "2000-01-01",
+      "id": "hyd_17.50_78.47",
+      "last_date": "2025-12-31",
+      "non_null_values": 28491,
+      "note": null,
+      "requested_lat": 17.5,
+      "requested_lon": 78.47,
+      "retrieved_at": "2026-11-02T15:50:11+00:00",
+      "returned_lat": 17.469244,
+      "returned_lon": 78.445946,
+      "rows": 9497,
+      "sha256": "36db7d8f5f0deabf0be906e604294597dab794b47e20c859597525c17bbda154",
+      "source": "openmeteo-archive",
+      "units": {
+        "precipitation_hours": "h",
+        "precipitation_sum": "mm",
+        "rain_sum": "mm",
+        "time": "iso8601"
+      },
+      "url": "https://archive-api.open-meteo.com/v1/archive?latitude=17.5&longitude=78.47&start_date=2000-01-01&end_date=2025-12-31&daily=precipitation_sum%2Crain_sum%2Cprecipitation_hours&timezone=Asia%2FKolkata",
+      "variables": [
+        "precipitation_sum",
+        "rain_sum",
+        "precipitation_hours"
+      ]
+    },
+    "openmeteo-archive/hyd_17.50_78.60.json": {
+      "bytes": 259239,
+      "elevation": 529.0,
+      "first_date": "2000-01-01",
+      "id": "hyd_17.50_78.60",
+      "last_date": "2025-12-31",
+      "non_null_values": 28491,
+      "note": null,
+      "requested_lat": 17.5,
+      "requested_lon": 78.6,
+      "retrieved_at": "2026-11-02T15:50:18+00:00",
+      "returned_lat": 17.469244,
+      "returned_lon": 78.61969,
+      "rows": 9497,
+      "sha256": "66aad13cf93702a75369f179c0e83d659dfceba88698a1b5420e9cf164e375f8",
+      "source": "openmeteo-archive",
+      "units": {
+        "precipitation_hours": "h",
+        "precipitation_sum": "mm",
+        "rain_sum": "mm",
+        "time": "iso8601"
+      },
+      "url": "https://archive-api.open-meteo.com/v1/archive?latitude=17.5&longitude=78.6&start_date=2000-01-01&end_date=2025-12-31&daily=precipitation_sum%2Crain_sum%2Cprecipitation_hours&timezone=Asia%2FKolkata",
+      "variables": [
+        "precipitation_sum",
+        "rain_sum",
+        "precipitation_hours"
+      ]
+    },
+    "openmeteo-flood/musi_city.json": {
+      "bytes": 279750,
+      "elevation": 505.0,
+      "first_date": "2000-01-01",
+      "id": "musi_city",
+      "last_date": "2025-12-31",
+      "non_null_values": 28491,
+      "note": "Musi through central Hyderabad (approximate)",
+      "requested_lat": 17.36,
+      "requested_lon": 78.47,
+      "retrieved_at": "2026-11-02T14:56:01+00:00",
+      "returned_lat": 17.375,
+      "returned_lon": 78.475006,
+      "rows": 9497,
+      "sha256": "e8d23500aefbde08b877b87c45be7473134110d46a4411492cad0e540be996af",
+      "source": "openmeteo-flood",
+      "units": {
+        "river_discharge": "m\u00b3/s",
+        "river_discharge_max": "m\u00b3/s",
+        "river_discharge_mean": "m\u00b3/s",
+        "time": "iso8601"
+      },
+      "url": "https://flood-api.open-meteo.com/v1/flood?latitude=17.36&longitude=78.47&start_date=2000-01-01&end_date=2025-12-31&daily=river_discharge%2Criver_discharge_mean%2Criver_discharge_max",
+      "variables": [
+        "river_discharge",
+        "river_discharge_mean",
+        "river_discharge_max"
+      ]
+    },
+    "openmeteo-flood/musi_downstream.json": {
+      "bytes": 266292,
+      "elevation": 509.0,
+      "first_date": "2000-01-01",
+      "id": "musi_downstream",
+      "last_date": "2025-12-31",
+      "non_null_values": 28491,
+      "note": "Musi downstream of the city (approximate)",
+      "requested_lat": 17.3,
+      "requested_lon": 78.6,
+      "retrieved_at": "2026-11-02T14:56:09+00:00",
+      "returned_lat": 17.275002,
+      "returned_lon": 78.625,
+      "rows": 9497,
+      "sha256": "621412f099f8aee857fd4b0d8a9570a98b6fdfd55d22b9ebdcb4fb6c879cbdbc",
+      "source": "openmeteo-flood",
+      "units": {
+        "river_discharge": "m\u00b3/s",
+        "river_discharge_max": "m\u00b3/s",
+        "river_discharge_mean": "m\u00b3/s",
+        "time": "iso8601"
+      },
+      "url": "https://flood-api.open-meteo.com/v1/flood?latitude=17.3&longitude=78.6&start_date=2000-01-01&end_date=2025-12-31&daily=river_discharge%2Criver_discharge_mean%2Criver_discharge_max",
+      "variables": [
+        "river_discharge",
+        "river_discharge_mean",
+        "river_discharge_max"
+      ]
+    },
+    "openmeteo-flood/musi_far_downstream.json": {
+      "bytes": 266293,
+      "elevation": 420.0,
+      "first_date": "2000-01-01",
+      "id": "musi_far_downstream",
+      "last_date": "2025-12-31",
+      "non_null_values": 28491,
+      "note": "further downstream (approximate)",
+      "requested_lat": 17.2,
+      "requested_lon": 78.85,
+      "retrieved_at": "2026-11-02T14:56:17+00:00",
+      "returned_lat": 17.225006,
+      "returned_lon": 78.875,
+      "rows": 9497,
+      "sha256": "09adb26122587b3051146a50b907918ffc29c2b39048c9e38ec174a772308f96",
+      "source": "openmeteo-flood",
+      "units": {
+        "river_discharge": "m\u00b3/s",
+        "river_discharge_max": "m\u00b3/s",
+        "river_discharge_mean": "m\u00b3/s",
+        "time": "iso8601"
+      },
+      "url": "https://flood-api.open-meteo.com/v1/flood?latitude=17.2&longitude=78.85&start_date=2000-01-01&end_date=2025-12-31&daily=river_discharge%2Criver_discharge_mean%2Criver_discharge_max",
+      "variables": [
+        "river_discharge",
+        "river_discharge_mean",
+        "river_discharge_max"
+      ]
+    },
+    "openmeteo-flood/musi_himayat_sagar.json": {
+      "bytes": 266306,
+      "elevation": 563.0,
+      "first_date": "2000-01-01",
+      "id": "musi_himayat_sagar",
+      "last_date": "2025-12-31",
+      "non_null_values": 28491,
+      "note": "near Himayat Sagar reservoir (approximate)",
+      "requested_lat": 17.32,
+      "requested_lon": 78.38,
+      "retrieved_at": "2026-11-02T14:55:47+00:00",
+      "returned_lat": 17.325005,
+      "returned_lon": 78.375,
+      "rows": 9497,
+      "sha256": "ebdd13691f4b09b9e38cc50b19713275ef28f673ccaedf9e6c6cb5a749092af6",
+      "source": "openmeteo-flood",
+      "units": {
+        "river_discharge": "m\u00b3/s",
+        "river_discharge_max": "m\u00b3/s",
+        "river_discharge_mean": "m\u00b3/s",
+        "time": "iso8601"
+      },
+      "url": "https://flood-api.open-meteo.com/v1/flood?latitude=17.32&longitude=78.38&start_date=2000-01-01&end_date=2025-12-31&daily=river_discharge%2Criver_discharge_mean%2Criver_discharge_max",
+      "variables": [
+        "river_discharge",
+        "river_discharge_mean",
+        "river_discharge_max"
+      ]
+    },
+    "openmeteo-flood/musi_osman_sagar.json": {
+      "bytes": 269591,
+      "elevation": 541.0,
+      "first_date": "2000-01-01",
+      "id": "musi_osman_sagar",
+      "last_date": "2025-12-31",
+      "non_null_values": 28491,
+      "note": "near Osman Sagar / Gandipet reservoir (approximate)",
+      "requested_lat": 17.38,
+      "requested_lon": 78.31,
+      "retrieved_at": "2026-11-02T14:55:54+00:00",
+      "returned_lat": 17.375,
+      "returned_lon": 78.32501,
+      "rows": 9497,
+      "sha256": "5301f7fb898b22fae98e43bfbff137af8ecda8f63826d21868b3a1c0d1ee2894",
+      "source": "openmeteo-flood",
+      "units": {
+        "river_discharge": "m\u00b3/s",
+        "river_discharge_max": "m\u00b3/s",
+        "river_discharge_mean": "m\u00b3/s",
+        "time": "iso8601"
+      },
+      "url": "https://flood-api.open-meteo.com/v1/flood?latitude=17.38&longitude=78.31&start_date=2000-01-01&end_date=2025-12-31&daily=river_discharge%2Criver_discharge_mean%2Criver_discharge_max",
+      "variables": [
+        "river_discharge",
+        "river_discharge_mean",
+        "river_discharge_max"
+      ]
+    }
+  },
+  "licence_register": "research/real-data/LICENCES.md#1-open-meteo",
+  "notes": "Reanalysis (ERA5-based) rainfall and GloFAS model discharge. Not station or gauge observations. Non-commercial research use only; raw files are not redistributed."
+}

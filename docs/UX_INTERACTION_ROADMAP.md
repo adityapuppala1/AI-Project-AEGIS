@@ -4,7 +4,13 @@ Updated: 2026-10-16 · For CipherCop 2026 · **Exercise-only**
 
 > **Status refresh — 2026-11-02.** The table and branch names below are the original 2026-10-16 plan and are preserved as history; current status is in [LOCAL_DEMO_HANDOFF.md](LOCAL_DEMO_HANDOFF.md).
 > Present in `apps/web` now: incident provenance/intelligence panel inside the incident view, global search with keyboard shortcut (command-palette style), grouped navigation in the app shell, Earth Watch, public intake, team availability, and situation-brief download.
-> Not found in `apps/web` (grep, still not built): saved views, chart-to-table toggle, advanced filters, density preferences, bulk actions, notification preferences, multilingual UI, realtime events.
+> Added since that grep (2026-11-02): a chart-to-table toggle on the Command Center telemetry chart, and a Telugu and Hindi interface (shell, navigation, banners, the full Public Intake form and the main Earth Watch and Command Center labels; machine-written, **native-speaker review pending**, everything else falls back to English). Core Web Vitals were measured on nine key pages and are within budget at normal speed.
+>
+> **Closed by decision (not built, with reasons), 2026-11-02:**
+> - *Notification preferences* and *bulk actions*: AEGIS deliberately sends no notifications and grants no write shortcut around independent maker-checker approval, so these would contradict a core safety rule.
+> - *Realtime events*: the data is synthetic and replayed; a push channel would imply live operational feeds, which are out of scope.
+> - *Spatial exposure overlay*: needs authorised GIS layers and domain validation; the explorer stays "geographic candidates only".
+> - *Saved views, advanced filters, density preferences*: useful but not needed for the exercise; recorded as future work, not required for the demonstration.
 
 ## Product design objective
 

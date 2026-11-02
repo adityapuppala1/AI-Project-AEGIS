@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { GeoJSONSource, Map as MapLibreMap, Popup } from "maplibre-gl";
 import { AlertTriangle, Globe2, Layers, RefreshCw, ShieldAlert, Sparkles } from "lucide-react";
 import { AppShell } from "./app-shell";
+import { useT } from "./language-provider";
 import {
   ageLabel, categoryStyle, CATEGORY_STYLE, countdownLabel, dateAvailable, feedFreshness, formatIst,
   fetchEarthFeed, gibsTileUrl, imageryLabel, inRegion, INDIA_BOUNDS, markerRadius,
@@ -23,6 +24,7 @@ type Gate = "checking" | "disabled" | "enabled" | "error";
 const getFeed = fetchEarthFeed;
 
 export function EarthWatch() {
+  const t = useT();
   const [gate, setGate] = useState<Gate>("checking");
   const [quakes, setQuakes] = useState<RecordFeed | null>(null);
   const [events, setEvents] = useState<RecordFeed | null>(null);
@@ -269,8 +271,7 @@ export function EarthWatch() {
   return <AppShell title="Earth Watch" description="A read-only view of public satellite imagery and hazard reports, kept separate from every AEGIS case, approval and task.">
     <div className="mb-5 flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs leading-6 text-amber-800 dark:text-amber-200" role="note">
       <ShieldAlert className="mt-1 shrink-0" size={19}/>
-      <p><strong>Public reference data, not an AEGIS assessment.</strong> NASA and USGS reports are delayed, incomplete and sometimes preliminary.
-        Nothing here creates a case, evidence, approval, task or warning. No markers does not mean an area is safe.</p>
+      <p><strong>{t("Public reference data, not an AEGIS assessment.")}</strong>{t(" NASA and USGS reports are delayed, incomplete and sometimes preliminary. Nothing here creates a case, evidence, approval, task or warning. No markers does not mean an area is safe.")}</p>
     </div>
 
     {gate === "checking" && <p className="panel p-6 text-sm text-muted" role="status">Checking whether public Earth feeds are enabled…</p>}
@@ -286,7 +287,7 @@ export function EarthWatch() {
     {gate === "enabled" && <>
       <section aria-label="Feed heartbeat" className="panel mb-5 flex flex-wrap items-center gap-3 p-4">
         <span className="inline-flex items-center gap-2 text-sm font-bold">
-          <span aria-hidden="true" className="h-2.5 w-2.5 rounded-full bg-emerald-500 motion-safe:animate-pulse"/> Public feeds
+          <span aria-hidden="true" className="h-2.5 w-2.5 rounded-full bg-emerald-500 motion-safe:animate-pulse"/> {t("Public feeds")}
         </span>
         {feedChip("USGS", quakes, errors.earthquakes)}
         {feedChip("NASA EONET", events, errors.events)}
@@ -296,7 +297,7 @@ export function EarthWatch() {
           {nextAt ? `Next refresh in ${countdownLabel(nextAt - now)}` : "Loading feeds…"}
         </span>
         <button type="button" className="control" onClick={manualRefresh} disabled={refreshing}>
-          <RefreshCw size={16} className={refreshing ? "animate-spin" : ""}/> Refresh feeds
+          <RefreshCw size={16} className={refreshing ? "animate-spin" : ""}/> {t("Refresh feeds")}
         </button>
       </section>
       {(errors.earthquakes || errors.events) && <p role="alert" className="mb-4 text-xs text-rose-700 dark:text-rose-300">
@@ -305,22 +306,22 @@ export function EarthWatch() {
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.6fr)_minmax(320px,1fr)]">
         <section className="panel min-w-0 overflow-hidden" aria-label="Earth Watch map">
           <div className="flex flex-wrap items-end gap-3 border-b border-stroke p-4">
-            <label className="text-xs font-semibold text-muted">Imagery source
+            <label className="text-xs font-semibold text-muted">{t("Imagery source")}
               <select className="field mt-1 min-w-[190px]" value={baseId} onChange={event => { setBaseId(event.target.value); setPickedDate(null); }}>
                 {(imagery?.layers ?? []).map(layer => <option key={layer.id} value={layer.id}>NASA · {imageryLabel(layer.id)}</option>)}
                 <option value="streets">OpenStreetMap reference</option>
               </select>
             </label>
-            <label className="text-xs font-semibold text-muted">Imagery day (UTC)
+            <label className="text-xs font-semibold text-muted">{t("Imagery day (UTC)")}
               <input type="date" className="field mt-1" disabled={!meta || baseId === "streets"} value={effectiveDate ?? ""}
                 min={meta?.start} max={meta?.latest}
                 onChange={event => { if (meta && dateAvailable(event.target.value, meta.ranges)) setPickedDate(event.target.value); }}/>
             </label>
-            <button type="button" className="control" disabled={!meta || baseId === "streets"} onClick={() => setPickedDate(null)}>Latest available</button>
+            <button type="button" className="control" disabled={!meta || baseId === "streets"} onClick={() => setPickedDate(null)}>{t("Latest available")}</button>
             <div className="ml-auto flex gap-2" role="group" aria-label="Region">
               {(["india", "global"] as Region[]).map(value => <button key={value} type="button" aria-pressed={region === value}
                 className={`control ${region === value ? "!border-accent !text-accent" : ""}`} onClick={() => setRegion(value)}>
-                {value === "india" ? "India & neighbours" : "Global"}</button>)}
+                {value === "india" ? t("India & neighbours") : t("Global")}</button>)}
             </div>
           </div>
           <div className="relative">
@@ -336,14 +337,14 @@ export function EarthWatch() {
         </section>
 
         <aside className="panel min-w-0 overflow-hidden" aria-label="Public hazard reports">
-          <div className="panel-heading"><h2 className="flex items-center gap-2 text-base font-bold"><Layers size={18} className="text-accent"/> Hazard layers</h2>
-            <span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">Read-only</span></div>
+          <div className="panel-heading"><h2 className="flex items-center gap-2 text-base font-bold"><Layers size={18} className="text-accent"/> {t("Hazard layers")}</h2>
+            <span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">{t("Read-only")}</span></div>
           <div className="space-y-3 border-b border-stroke p-4 text-sm">
             <label className="flex items-center gap-2"><input type="checkbox" checked={showQuakes} onChange={event => setShowQuakes(event.target.checked)}/> USGS earthquakes <small className="text-muted">M2.5+ · 7 days</small></label>
             <label className="flex items-center gap-2"><input type="checkbox" checked={showEvents} onChange={event => setShowEvents(event.target.checked)}/> NASA EONET events <small className="text-muted">open · 30 days</small></label>
-            <label className="block text-xs font-semibold text-muted">Event category
+            <label className="block text-xs font-semibold text-muted">{t("Event category")}
               <select className="field mt-1 w-full" value={category} onChange={event => setCategory(event.target.value)}>
-                <option value="all">All natural events</option>
+                <option value="all">{t("All natural events")}</option>
                 {Object.entries(CATEGORY_STYLE).filter(([key]) => key !== "earthquakes").map(([key, style]) => <option key={key} value={key}>{style.label}</option>)}
               </select>
             </label>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useT } from "./language-provider";
 import { useRouter } from "next/navigation";
 import { BookOpenCheck, ClipboardCheck, Command, LayoutDashboard, LifeBuoy, Search, Settings2, X, Activity, RadioTower, Workflow, BrainCircuit, Route, UsersRound, Archive } from "lucide-react";
 import type { Incident } from "../lib/types";
@@ -24,6 +25,7 @@ const icons = [LayoutDashboard, Route, Activity, RadioTower, Workflow, BrainCirc
 const searchUrl = (term: string) => "/incidents?q=" + encodeURIComponent(term);
 
 export function GlobalSearch() {
+  const t = useT();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -123,7 +125,7 @@ export function GlobalSearch() {
   return <>
     <button type="button" ref={trigger} className="control h-10 gap-2 px-3 text-muted"
       aria-label="Open global search. Shortcut Control K" onClick={() => setOpen(true)}>
-      <Search size={17} aria-hidden="true"/><span className="hidden text-xs sm:inline">Search anything</span><kbd className="hidden rounded border border-stroke px-1.5 py-0.5 text-[10px] lg:inline">Ctrl K</kbd>
+      <Search size={17} aria-hidden="true"/><span className="hidden text-xs sm:inline">{t("Search anything")}</span><kbd className="hidden rounded border border-stroke px-1.5 py-0.5 text-[10px] lg:inline">Ctrl K</kbd>
     </button>
     {open && <div className="fixed inset-0 z-[100] flex items-start justify-center px-3 pt-[8vh] sm:pt-[14vh]">
       <button type="button" className="absolute inset-0 bg-[#17131f]/78 backdrop-blur-sm" aria-label="Close global search" onClick={close}/>
