@@ -37,6 +37,17 @@ and CI evidence do not establish current acceptance. Official data feeds,
 scientifically validated forecasting, agency accreditation and real dispatch
 are outside this synthetic demonstration's scope. No CI or merge is authorized.
 
+## Earth Watch enhancement — started 2 November 2026
+
+A second, additive program combines IndTrana-style visibility (public satellite
+imagery, public hazard markers, live freshness) with AEGIS governance. It
+was planned across the existing calendar (E1/E2 week of 2 Nov, E3/E4 from 9 Nov,
+E6/E7/E5 from 16 Nov, hardening 23–29 Nov; 96–142 engineering hours, 128–190 with E5)
+and was implemented locally on 2 Nov 2026. Scope, safety rules, effort and status:
+[EARTH_WATCH_ENHANCEMENT_PLAN.md](EARTH_WATCH_ENHANCEMENT_PLAN.md). The remaining
+calendar time is better spent on the unrun acceptance checks and the human gates
+below. It does not close any human or owner gate.
+
 ## Remaining gates after local engineering closure
 
 The authorized local synthetic engineering chain is complete. The context and

@@ -10,6 +10,16 @@ commands and the retained startup failure/fix are in [the handoff](LOCAL_DEMO_HA
 
 Updated: 2026-10-18 · Time zone: Asia/Kolkata (IST) · Repository: `adityapuppala1/AI-Project-AEGIS`.
 
+## Earth Watch program (from 2 November 2026)
+
+New additive work packages E0–E8 are planned and costed in
+[EARTH_WATCH_ENHANCEMENT_PLAN.md](EARTH_WATCH_ENHANCEMENT_PLAN.md): about
+96–142 engineering hours (128–190 with the gated intake item), four calendar
+weeks. All packages E0–E8 are implemented locally and verified as listed in the
+handoff (including the independently reviewed, opt-in quarantine-only public intake).
+Unrun checks and the human and owner gates remain pending. The historical tables
+below are unchanged.
+
 ## Current work, before historical records
 
 Use `feat/aegis-local-demo-continuation` and [the current handoff](LOCAL_DEMO_HANDOFF.md).

@@ -8,6 +8,18 @@ only at that checkpoint; saved focus and a bounded explicit-step runner are now
 implemented and accepted locally. Exact source,
 commands and the retained startup failure/fix are in [the handoff](LOCAL_DEMO_HANDOFF.md).
 
+## Earth Watch enhancement backlog — 2 November 2026
+
+Ordered packages E1–E8 (public USGS/NASA feeds, satellite imagery layer, "alive"
+freshness UX, case context, team availability board, cited situation brief,
+gated public intake, hardening) with effort and dates are in
+[EARTH_WATCH_ENHANCEMENT_PLAN.md](EARTH_WATCH_ENHANCEMENT_PLAN.md). E1–E8 are
+implemented and locally verified; see the handoff. E5 (public intake) passed an
+independent security review for loopback use only; the prerequisites for any
+exposure (reviewer authentication, per-client limits, retention policy, penetration
+test) are listed in [PUBLIC_INTAKE_SECURITY.md](PUBLIC_INTAKE_SECURITY.md) and are
+new backlog items.
+
 ## Expanded operator-assistance plan
 
 See [AI assistance and prediction roadmap](AI_ASSISTANCE_ROADMAP.md) for the

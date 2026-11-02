@@ -52,7 +52,7 @@ curl.exe -H "Authorization: Bearer $env:AEGIS_ACCESS_TOKEN" http://localhost:800
 
 To create a proposal, POST a JSON body with `incident_id`, `action_type`, and `rationale`. Maker/checker identity **must not** be included. A different identity with `incident_checker` role must review a submitted proposal.
 
-The prototype frontend does **not** yet provide OAuth login or secure session management. Do not paste tokens into the browser console, localStorage, URLs or GitHub issues. A secure browser login and backend-for-frontend integration are separate implementation milestones.
+The frontend now has a server-side browser login (Authorization Code + PKCE via `apps/web/app/api/auth/login`, `callback`, `logout`, `session` and `lib/auth-server.ts`) with server sessions. Activating a real IdP and two-person MFA sign-in remains deferred by the owner. Do not paste tokens into the browser console, localStorage, URLs or GitHub issues.
 
 ## Threats and production gap
 

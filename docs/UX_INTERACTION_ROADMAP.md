@@ -2,6 +2,10 @@
 
 Updated: 2026-10-16 · For CipherCop 2026 · **Exercise-only**
 
+> **Status refresh — 2026-11-02.** The table and branch names below are the original 2026-10-16 plan and are preserved as history; current status is in [LOCAL_DEMO_HANDOFF.md](LOCAL_DEMO_HANDOFF.md).
+> Present in `apps/web` now: incident provenance/intelligence panel inside the incident view, global search with keyboard shortcut (command-palette style), grouped navigation in the app shell, Earth Watch, public intake, team availability, and situation-brief download.
+> Not found in `apps/web` (grep, still not built): saved views, chart-to-table toggle, advanced filters, density preferences, bulk actions, notification preferences, multilingual UI, realtime events.
+
 ## Product design objective
 
 Provide a fast, reliable, accessible multi-agency operating console where users

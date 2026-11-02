@@ -7,14 +7,16 @@
 - Host ports 3000 and 8000 available. PostgreSQL uses port 5432 **inside Docker only**; no Windows port 5432 is required.
 - This environment is **exercise-only**; never use it for real warnings or emergency dispatch.
 
-## Clone and run
+## Clone and run (current continuation flow)
 ```powershell
 git clone https://github.com/adityapuppala1/AI-Project-AEGIS.git
 cd AI-Project-AEGIS
 git fetch origin
-git switch feat/windows-local-dev
+git switch feat/aegis-local-demo-continuation
+powershell -ExecutionPolicy Bypass -File .\scripts\check-local-runtime.ps1 -RequireRunning
 powershell -ExecutionPolicy Bypass -File .\scripts\start-windows.ps1
 ```
+`start-windows.ps1` accepts `-NoBuild`, `-LocalCopilot`, `-PublicEarth` and `-PublicIntake`. Run one AEGIS operation at a time and preserve the existing database volume; see [Single-instance local runtime](SINGLE_INSTANCE_LOCAL_RUNTIME.md) and the current status in [LOCAL_DEMO_HANDOFF.md](LOCAL_DEMO_HANDOFF.md). The older per-feature `git switch` branches further below are historical milestones, not startup instructions.
 Open http://localhost:3000 (command center), http://localhost:3000/admin (admin preview) and http://localhost:8000/docs (API reference).
 
 ## Fix for Windows error: `listen tcp4 127.0.0.1:5432: bind ... forbidden by its access permissions`
@@ -24,8 +26,8 @@ Older versions of this branch published the database's port 5432 to Windows. Tha
 If you previously attempted to start the stack, update your branch and restart from the repository root:
 
 ```powershell
-git switch feat/windows-local-dev
-git pull --ff-only origin feat/windows-local-dev
+git switch feat/aegis-local-demo-continuation
+git pull --ff-only origin feat/aegis-local-demo-continuation
 docker compose down
 docker compose up --build -d
 docker compose ps
@@ -61,7 +63,7 @@ On the **first** startup, PostgreSQL runs `db/schema.sql` and `db/seed.sql`. Two
 - If ports are occupied, stop conflicting local services.
 - If the page shows zero incidents, inspect `docker compose logs api db` and confirm seed initialization.
 - The initial Docker web image is built for local evaluation, not production.
-- Frontend is a responsive schematic command center, not a real GIS map.
+- The command center uses MapLibre with OpenStreetMap tiles (with a fallback when tiles/WebGL are unavailable); incident locations are synthetic exercise data, not a live operational GIS.
 - No operational SSO, external agency integration or trained prediction model is configured.
 
 ## Development workflow

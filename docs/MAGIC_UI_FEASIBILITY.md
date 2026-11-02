@@ -6,7 +6,7 @@ Last reviewed: 2026-10-16
 
 **Magic UI is feasible and useful selectively, not as the foundation for all controls.**
 
-The project already uses Next.js 15, React 19, Tailwind CSS 3, next-themes,
+The project already uses Next.js 15, React 19, Tailwind CSS 4, next-themes,
 Lucide, Recharts and MapLibre. Magic UI distributes copyable React/Tailwind
 animated components through a shadcn-compatible registry. The upstream
 Magic UI GitHub project advertises the **MIT license**; audit license

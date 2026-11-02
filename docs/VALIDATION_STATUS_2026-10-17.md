@@ -1,5 +1,7 @@
 # AEGIS verified delivery status — 17 October 2026
 
+> **Historical snapshot (17 October 2026), superseded by [LOCAL_DEMO_HANDOFF.md](LOCAL_DEMO_HANDOFF.md)** for current status and results.
+
 Repository: `adityapuppala1/AI-Project-AEGIS`  
 Consolidated candidate: `feat/ciphercop-integrated-demo-rc`  
 Review: [draft PR #21](https://github.com/adityapuppala1/AI-Project-AEGIS/pull/21)

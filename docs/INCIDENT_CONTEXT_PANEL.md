@@ -34,9 +34,11 @@ remain generic; no database/provider root-cause diagnosis is invented.
 
 Everything remains synthetic and read-only. Existing fail-closed source,
 case, agency, forecast and action restrictions remain. This is a deterministic
-context checklist, not a generative copilot or prediction model. Observation
-agreement/corroboration rules and consolidated per-dependency status are future
-work; absence of an identified conflict does not mean sources agree.
+context checklist, not a generative copilot or prediction model. Opt-in
+source comparison (`services/api/app/source_comparison.py`) and per-dependency
+diagnostics (`doctor.py`) have since been implemented; see the handoff and
+SOURCE_COMPARISON_DIAGNOSTICS.md. Agreement is not corroboration or accuracy;
+absence of an identified conflict does not mean sources agree.
 
 See [current handoff](LOCAL_DEMO_HANDOFF.md) for exact source SHAs, executed
 commands and results; [AI assistance roadmap](AI_ASSISTANCE_ROADMAP.md) retains

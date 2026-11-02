@@ -107,10 +107,10 @@ repeatable idempotency; a new run ID appends a new isolated scenario.
 
 | Gate | Required evidence | Status |
 |---|---|---|
-| Full backend code suite | Python tests, contract checks, fixture idempotence and model report regeneration | **Pending for this release candidate**; previous PR #17 had 143 passing tests |
-| Frontend release build | TypeScript and Next.js production build with all new demo routes | **Pending for this release candidate** |
+| Full backend code suite | Python tests, contract checks, fixture idempotence and model report regeneration | **Pending at this snapshot**; later runs (hundreds of native API tests) are recorded as passing in [LOCAL_DEMO_HANDOFF.md](LOCAL_DEMO_HANDOFF.md); previous PR #17 had 143 passing tests |
+| Frontend release build | TypeScript and Next.js production build with all new demo routes | **Pending at this snapshot**; later production builds are recorded as passing in [LOCAL_DEMO_HANDOFF.md](LOCAL_DEMO_HANDOFF.md) |
 | Fresh-volume Docker startup | Migrations 002–009, all seeds, PostGIS and API/Next.js readiness | **Pending** |
-| Existing-volume safe upgrade | Preserve user data, re-run additive migrations and seeds | **Pending** |
+| Existing-volume safe upgrade | Preserve user data, re-run additive migrations and seeds | **Passed at later snapshot** on the Windows laptop (existing-volume migration/seed and API/web recreation); see [LOCAL_DEMO_HANDOFF.md](LOCAL_DEMO_HANDOFF.md) |
 | Integrated E2E walkthrough | Inspect all 11 stages and check rule/AgencySync/Audit360 results | **Pending Windows/browser QA** |
 | OIDC maker-checker | Signed IdP, MFA, two separate approved operator identities and negative tests | **Externally blocked until IdP credentials/provisioning** |
 | Performance/accessibility | 16 GB laptop use, keyboard/screen reader, maps offline fallback, zoom | **Pending manual verification** |

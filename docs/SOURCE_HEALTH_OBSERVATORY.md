@@ -137,6 +137,6 @@ the UI; it permanently deletes the database volume.
 - [x] Synthetic schema/seed and Compose integration committed.
 - [x] Typed frontend overview/detail, trends, help, navigation committed.
 - [ ] GitHub API/typecheck/build verification.
-- [ ] Windows existing-volume migration/seed smoke.
+- [x] Windows existing-volume migration/seed smoke (recorded in LOCAL_DEMO_HANDOFF.md).
 - [ ] Browser/manual accessibility and reduced-motion review.
 - [ ] Real IdP, approved sources, and security review before production.

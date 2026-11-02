@@ -42,6 +42,101 @@ current application checkpoint. Exact results are recorded near the end.
 
 IdP/trust activation stays deferred by the owner.
 
+## Earth Watch E1/E2 — local implementation, 2 November 2026
+
+Plan: [EARTH_WATCH_ENHANCEMENT_PLAN.md](EARTH_WATCH_ENHANCEMENT_PLAN.md).
+Branch `feat/aegis-local-demo-continuation`, base commit `00e7220`; the changes
+are **uncommitted** in the Windows laptop working tree (nothing pushed).
+
+Implemented: opt-in, display-only USGS earthquake, NASA EONET and NASA GIBS
+imagery adapters (`services/api/app/earth_watch.py`), strict web proxy
+(`/api/earth-watch/[feed]`), the `/earth-watch` page (satellite imagery with UTC
+date, hazard markers, per-feed freshness, five-minute visible-tab refresh with
+countdown, "new since last refresh"), `compose.public-earth.yaml` and
+`start-windows.ps1 -PublicEarth`. Default stack remains synthetic and the
+public feeds return 503 until the override is used. Nothing is written to
+PostgreSQL or reaches cases, approvals, tasks, warnings or CAP.
+
+Executed on the Windows laptop under the shared operation lease:
+
+| Gate | Result |
+|---|---|
+| `python -m pytest -q` (services/api) | 367 passed, 15 skipped (includes 18 new Earth Watch tests, mocked upstreams) |
+| `python -m app.model_lab --check` | PASS |
+| Web Node tests (all `scripts/tests/*.test.cjs`) | 77 passed, 0 failed (includes 11 new) |
+| `npm.cmd run typecheck`, `npm.cmd run build` | PASS; `/earth-watch` and `/api/earth-watch/[feed]` built |
+| Live HTTP through the web proxy with `-PublicEarth` | status 200; earthquakes 346 records, events 41, imagery 3 layers; unknown feed 404; live public-warning endpoint still 403 |
+| Browser (Chrome DevTools, 1440 px) | page rendered with NASA imagery, markers, freshness chips and countdown; one cold-start imagery 502 was diagnosed as a transient first fetch and fixed with one server retry and client retry |
+
+Later the same day on the laptop: 390 px layout had no horizontal overflow;
+Lighthouse snapshot on mobile scored Accessibility 100, Best Practices 100,
+SEO 100 (34 audits passed, 0 failed); with the API container stopped, a manual
+refresh failed within about one second, kept the 10 existing reports and showed
+"fetched 3m ago · refresh failed" (API restored with the guarded start script
+afterwards). E3 added a Command Center "Public signals · reference only" strip
+(`components/public-signals-strip.tsx`, rendered only when the opt-in profile is
+enabled); web Node tests are now 78 passed and the production build passed.
+
+Not yet run: keyboard-only pass, tile-blocked scenario, a manual sampled axe
+pass (Lighthouse's accessibility audit is not the repo's axe gate), PostGIS
+suites, the guarded full acceptance script, Linux mirror. Treat E1–E3 as
+**implemented, partially verified** until those run. Upstream terms (USGS, NASA EONET, GIBS) must be re-checked before any
+release review. Currently running stack uses `-PublicEarth`; restart without it
+(`scripts/start-windows.ps1 -NoBuild`) to return to the default synthetic profile.
+
+## Earth Watch E3–E8 — completed locally, 2 November 2026
+
+Plan and effort: [EARTH_WATCH_ENHANCEMENT_PLAN.md](EARTH_WATCH_ENHANCEMENT_PLAN.md). Same branch and base commit
+(`00e7220`); all changes remain **uncommitted** in the Windows laptop working tree and nothing is pushed.
+
+Implemented, all opt-in or read-only and off in the base stack:
+- **E3** Command Center "Public signals · reference only" strip (only when feeds are enabled), plus the live freshness
+  countdown and "new since last refresh" markers on Earth Watch.
+- **E4** "Public signals near this case" radar and table on the incident page (great-circle distance, 100/300/1000 km,
+  display-only, never stored, labelled "Not evidence").
+- **E6** `/response-teams` team availability board from the seeded fictional task table (3-slot capacity is a labelled
+  synthetic planning parameter).
+- **E7** "Download situation brief" (template-only Markdown from the case record and the existing cited readiness brief; excludes public data).
+- **E5** opt-in quarantine-only public intake: migration `011`, `/v1/public-intake/*`, `/public-intake`,
+  `compose.public-intake.yaml`, `start-windows.ps1 -PublicIntake`. Design, independent security review and accepted
+  limits are in [PUBLIC_INTAKE_SECURITY.md](PUBLIC_INTAKE_SECURITY.md). Not approved for network exposure.
+- **E8** stale-documentation corrections (see the plan status log) and regression guards that fail if either public
+  feature is ever enabled in base Compose.
+
+Executed on the Windows laptop under the shared operation lease:
+
+| Gate | Result |
+|---|---|
+| `python -m pytest -q` (services/api) | 425 passed, 15 skipped (includes 35 intake tests, 18 Earth Watch tests, release-contract and default-off compose guards; storage and upstreams mocked) |
+| `python -m app.model_lab --check` | PASS |
+| Web Node tests (`scripts/tests/*.test.cjs`) | 95 passed, 0 failed |
+| `npm.cmd run typecheck`, `npm.cmd run build` | PASS |
+| Migration `011` on the existing database volume (no reset) | table, constraints and UPDATE-blocking trigger present; `UPDATE` rejected by the trigger; case and task tables unchanged (5 incidents, 7 tasks) |
+| Live intake through the web proxy with both profiles | valid report 201 stored; identical report returns a generic duplicate receipt; phone number and `[at]/[dot]` email 422; out-of-range 422; wrong Origin 403; direct `text/plain` to the API 415; queue and status respond; my own test rows were deleted afterwards |
+| Real browser UI (Chrome DevTools) | empty submit and contact-number input are caught client-side; a valid report shows the animated success check and appears in the queue labelled "Quarantined · not a case"; situation brief download built from the live case (8 sections, 5 evidence records, 6 timeline events, no public data) |
+| Lighthouse mobile snapshot (390 px) | Accessibility, Best Practices and SEO all 100 on `/earth-watch`, `/public-intake` and `/response-teams`; zero horizontal overflow on those pages and the case page |
+| **Default profile restart (no opt-ins)** | both status endpoints `enabled:false`; earth feed, intake queue, proxy POST and direct API POST all 503; live public-warning endpoint 403; Command Center shows no public strip; intake table 0 rows |
+
+### Acceptance run for E3–E8 (same day, Windows laptop, shared operation lease)
+
+| Gate | Result |
+|---|---|
+| `scripts/verify-windows.ps1` (read-only P0 smoke) | PASSED, exit 0, with the new features present: fixture counts, "No external ingestion route", "Live public warning blocked [403]", "Anonymous governance workflow stays locked [503]", all 13 page checks 200 |
+| `.git/browser-qa/smoke.cjs` (21 functional desktop/mobile/keyboard checks + sampled axe, light and dark, on `/demo`, `/approvals` and the incident page that now carries the radar and brief button) | PASS, `errors: []`, `violations: []` |
+| `scripts/browser/theme-system.cjs` (390 and 1440 px) | PASS |
+| `.git/browser-qa/offline-map.cjs` (tile failure, retry, worker, missing WebGL) | PASS, 5 checks |
+| `scripts/verify-local-http.py` | PASS, including all 503/403 refusals and the public audit checksum |
+| **New** `scripts/browser/public-pages.cjs` | PASS, 7 checks: axe WCAG 2.1 AA (light and dark) with no overflow or page errors on `/earth-watch`, `/public-intake`, `/response-teams` at 390 and 1440 px; keyboard-only intake (empty submit blocked, visible focus on options, arrow-key selection, Enter submits; POST mocked); Earth Watch controls by keyboard; radar renders a mocked nearby quake (about 60 km north) in plot and table and the radius buttons filter; `prefers-reduced-motion: reduce` stops the radar sweep, radar ping and pulse dot while `no-preference` animates them |
+| PostGIS integration suite, separate `aegis_verification_57878ac` database, ephemeral container with `db/` mounted read-only | **20 passed** (15 retained regression tests plus 5 new in `integration_tests/test_postgis_public_intake.py`: insert, duplicate, list and count; rows cannot be updated or promoted; database constraints hold without the API validator; no identity columns, no foreign keys, case and task counts unchanged; migration idempotent). The app database kept 0 intake rows and the verification database kept 0 leftover rows |
+| `docker compose config --quiet` | PASS for the base file and for the base plus both overlays |
+
+Still not run: the Linux mirror, the repo's `verify-visual-theme.ps1` wrapper (it rebuilds and restarts the stack with
+`-LocalCopilot`, so its component scripts were run directly instead), manual screen-reader review, and everything in the
+owner and human gates. Lighthouse accessibility scores and the intake behaviour above were observed in Chrome; none of
+this establishes accessibility conformance or safety for real public use. E3–E8 are now **implemented and locally accepted
+by the automated gates**; human acceptance remains pending.
+The stack was left running with `-PublicEarth -PublicIntake` unless stated otherwise below.
+
 ## Current closure and remaining work
 
 | Status | Scope |
