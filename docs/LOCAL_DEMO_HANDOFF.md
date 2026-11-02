@@ -45,8 +45,8 @@ IdP/trust activation stays deferred by the owner.
 ## Earth Watch E1/E2 — local implementation, 2 November 2026
 
 Plan: [EARTH_WATCH_ENHANCEMENT_PLAN.md](EARTH_WATCH_ENHANCEMENT_PLAN.md).
-Branch `feat/aegis-local-demo-continuation`, base commit `00e7220`; the changes
-are **uncommitted** in the Windows laptop working tree (nothing pushed).
+Branch `feat/aegis-local-demo-continuation`, base commit `00e7220`. Committed locally on the Windows laptop
+as `9d514c9` (API and database), `3063ab6` (web) and `9f176ae` (docs); **nothing is pushed**.
 
 Implemented: opt-in, display-only USGS earthquake, NASA EONET and NASA GIBS
 imagery adapters (`services/api/app/earth_watch.py`), strict web proxy
@@ -87,7 +87,8 @@ release review. Currently running stack uses `-PublicEarth`; restart without it
 ## Earth Watch E3–E8 — completed locally, 2 November 2026
 
 Plan and effort: [EARTH_WATCH_ENHANCEMENT_PLAN.md](EARTH_WATCH_ENHANCEMENT_PLAN.md). Same branch and base commit
-(`00e7220`); all changes remain **uncommitted** in the Windows laptop working tree and nothing is pushed.
+(`00e7220`); committed locally as `9d514c9`, `3063ab6` and `9f176ae` (the acceptance evidence below was
+gathered on that tree; this section was written after, in a fourth docs commit). Nothing is pushed, and the Linux mirror has not received these commits.
 
 Implemented, all opt-in or read-only and off in the base stack:
 - **E3** Command Center "Public signals · reference only" strip (only when feeds are enabled), plus the live freshness
