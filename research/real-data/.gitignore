@@ -1,0 +1,8 @@
+# Raw downloads are never committed; only scripts, manifests and the reviewed catalogue are.
+raw/
+.venv/
+__pycache__/
+*.pyc
+*.tmp
+.cdsapirc
+*.token
