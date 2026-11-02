@@ -2,6 +2,8 @@
 
 **Status:** proposal, 2026-11-02. Nothing in this document is built or approved.
 **Owner decisions needed before any phase starts:** see section 8.
+**Build contract:** [PROACTIVE_IMPLEMENTATION_CONTRACT.md](PROACTIVE_IMPLEMENTATION_CONTRACT.md)
+(owner approved building the framework on 2026-11-02; keys to be entered by a platform admin later).
 
 ## 1. What was asked
 

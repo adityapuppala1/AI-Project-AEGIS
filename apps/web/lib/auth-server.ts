@@ -10,7 +10,7 @@ import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { EncryptJWT, createRemoteJWKSet, jwtDecrypt, jwtVerify, type JWTPayload } from "jose";
 
-export type Role = "incident_operator" | "incident_checker" | "incident_auditor" | "department_operator";
+export type Role = "incident_operator" | "incident_checker" | "incident_auditor" | "department_operator" | "platform_admin";
 export interface OperatorSession {
   accessToken: string;
   subject: string;
@@ -35,7 +35,7 @@ interface OidcDocument {
   jwks_uri: string;
 }
 interface AuthFlow { state: string; nonce: string; verifier: string }
-const ALL_ROLES: Role[] = ["incident_operator", "incident_checker", "incident_auditor", "department_operator"];
+const ALL_ROLES: Role[] = ["incident_operator", "incident_checker", "incident_auditor", "department_operator", "platform_admin"];
 
 export function configuration(): AuthConfig | null {
   const issuer = process.env.OIDC_ISSUER?.trim();

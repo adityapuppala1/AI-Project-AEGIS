@@ -1,0 +1,39 @@
+{
+  "version": "aegis.hazard-triggers.v1",
+  "classification": "synthetic_exercise",
+  "note": "Synthetic rehearsal thresholds, not calibrated. They are not forecasting accuracy, official warning criteria or a validated model; a trigger candidate is information for a human, never a warning.",
+  "states": ["clear", "watch", "candidate"],
+  "hazards": {
+    "heavy_rain": {
+      "label": "Flood / heavy rain", "connector": "open_meteo", "variable": "precipitation_sum",
+      "unit": "mm/day", "comparison": "value", "watch": 35, "candidate": 64.5,
+      "rationale": "Daily rainfall total. 64.5 mm matches the lower bound of the IMD 'heavy rain' category (64.5-115.5 mm); 35 mm is an earlier rehearsal watch level."
+    },
+    "river_discharge": {
+      "label": "River discharge", "connector": "open_meteo", "variable": "river_discharge",
+      "unit": "x median", "comparison": "ratio_to_median", "watch": 2, "candidate": 5,
+      "rationale": "GloFAS model discharge relative to the median of the returned series for the same cell; model output, not gauge data."
+    },
+    "fire": {
+      "label": "Active fire", "connector": "nasa_firms", "variable": "viirs_high_confidence_detections",
+      "unit": "detections within 10 km", "comparison": "count_within_km", "radius_km": 10, "confidence": ["h", "high"],
+      "watch": 3, "candidate": 10,
+      "rationale": "Count of high-confidence VIIRS detections within 10 km of a grid point; detections are satellite hotspots, not confirmed fires."
+    },
+    "landslide": {
+      "label": "Landslide", "connector": "nasa_lhasa", "variable": "nowcast_probability",
+      "unit": "probability", "comparison": "value", "watch": 0.5, "candidate": 0.8,
+      "rationale": "LHASA model nowcast probability; model output with known false alarms."
+    },
+    "wind": {
+      "label": "Wind gusts", "connector": "open_meteo", "variable": "wind_gusts_10m_max",
+      "unit": "km/h", "comparison": "value", "watch": 60, "candidate": 90,
+      "rationale": "Daily maximum 10 m gust from the forecast model."
+    },
+    "heat": {
+      "label": "Heat", "connector": "open_meteo", "variable": "temperature_2m_max",
+      "unit": "degC", "comparison": "value", "watch": 42, "candidate": 45,
+      "rationale": "Daily maximum 2 m temperature; 45 degC is near the IMD heat-wave absolute criterion for plains."
+    }
+  }
+}

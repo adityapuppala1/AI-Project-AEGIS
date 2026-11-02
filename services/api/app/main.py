@@ -68,6 +68,13 @@ app.include_router(earth_watch_router)
 # Opt-in public report intake (quarantine only); disabled unless AEGIS_PUBLIC_INTAKE=1.
 from app.public_intake import router as public_intake_router
 app.include_router(public_intake_router)
+# Opt-in proactive multi-hazard watch (exercise only, no send path); 404 unless AEGIS_PROACTIVE=1.
+from app.connectors import router as proactive_connectors_router
+from app.hazard_watch import router as proactive_watch_router
+from app.proactive_run import router as proactive_run_router
+app.include_router(proactive_connectors_router)
+app.include_router(proactive_watch_router)
+app.include_router(proactive_run_router)
 
 @app.get("/v1/exercise/incidents/query")
 def search_exercise_incidents(

@@ -120,6 +120,7 @@ whether to request written terms from IMD and India-WRIS; decide the offline til
 | 2026-11-02 | Phase 1 downloads completed (14 files); `verify.py` clean; `--refetch 3` bytes differ only in `generationtime_ms`; payload identical on 3 of 14 files; 100 unreviewed candidates generated | done |
 | 2026-11-02 | Telugu/Hindi UI, API non-root image, Core Web Vitals check, remaining UX items closed by decision (`6805d87`) | done; native-language review pending |
 | 2026-11-02 | Proactive multi-hazard research and plan written (`PROACTIVE_MULTI_HAZARD_PLAN.md`) | proposal; owner decisions in its section 8 |
+| 2026-11-02 | Proactive watch, admin connector framework, trigger engine, bounded run, CAP exercise export built and tested offline (see handoff) | done offline; keys and live testing are the owner's last step |
 | next | Second-person review of candidates, human gates, decision on the proactive plan | waiting on people |
 
 ## 9. Definition of done for the demonstration

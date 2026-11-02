@@ -1,0 +1,8 @@
+# Optional proactive multi-hazard watch (exercise only; no send path, CAP downloads are status Exercise).
+# Base Compose stays disabled. Generate the connector master key with scripts/new-connector-key.ps1.
+# See docs/PROACTIVE_IMPLEMENTATION_CONTRACT.md.
+services:
+  api:
+    environment:
+      AEGIS_PROACTIVE: "1"
+      AEGIS_CONNECTOR_KEY: "${AEGIS_CONNECTOR_KEY:?set AEGIS_CONNECTOR_KEY (scripts/new-connector-key.ps1)}"

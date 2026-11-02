@@ -24,6 +24,9 @@
         },
         {
           "name": "incident_auditor"
+        },
+        {
+          "name": "platform_admin"
         }
       ]
     }
@@ -109,6 +112,26 @@
       ]
     },
     {
+      "username": "exercise-admin",
+      "enabled": true,
+      "requiredActions": [
+        "UPDATE_PASSWORD",
+        "CONFIGURE_TOTP"
+      ],
+      "clientRoles": {
+        "aegis-local-web": [
+          "platform_admin"
+        ]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "${AEGIS_ADMIN_PASSWORD}",
+          "temporary": true
+        }
+      ]
+    },
+    {
       "username": "exercise-checker",
       "enabled": true,
       "requiredActions": [
@@ -136,7 +159,8 @@
         "roles": [
           "incident_operator",
           "incident_checker",
-          "incident_auditor"
+          "incident_auditor",
+          "platform_admin"
         ]
       }
     ]

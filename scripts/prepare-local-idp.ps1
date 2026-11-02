@@ -19,11 +19,13 @@ function New-LocalSecret([int]$Count) {
 New-Item -ItemType Directory -Force $destination | Out-Null
 $makerPassword = New-LocalSecret 32
 $checkerPassword = New-LocalSecret 32
+$adminPassword = New-LocalSecret 32
 $provider = @(
   'KC_BOOTSTRAP_ADMIN_USERNAME=aegis-local-bootstrap',
   ('KC_BOOTSTRAP_ADMIN_PASSWORD=' + (New-LocalSecret 32)),
   ('AEGIS_MAKER_PASSWORD=' + $makerPassword),
-  ('AEGIS_CHECKER_PASSWORD=' + $checkerPassword)
+  ('AEGIS_CHECKER_PASSWORD=' + $checkerPassword),
+  ('AEGIS_ADMIN_PASSWORD=' + $adminPassword)
 )
 $app = @(('AEGIS_LOCAL_IDP_PRIVATE_DIR=' + $destination.Replace('\','/')), 'APP_ORIGIN=http://localhost:3000', ('BFF_SESSION_KEY_BASE64=' + (New-LocalSecret 32)))
 # Render the private realm explicitly; never rely on provider placeholder substitution.
@@ -31,6 +33,7 @@ $realm = Get-Content (Join-Path $repo 'ops/local-idp/realm.json') -Raw | Convert
 foreach ($operator in $realm.users) {
   if ($operator.username -eq 'exercise-maker') { $operator.credentials[0].value = $makerPassword }
   elseif ($operator.username -eq 'exercise-checker') { $operator.credentials[0].value = $checkerPassword }
+  elseif ($operator.username -eq 'exercise-admin') { $operator.credentials[0].value = $adminPassword }
   else { throw 'Unexpected realm account; no credentials files were written.' }
 }
 [IO.File]::WriteAllText((Join-Path $destination 'realm.json'), ($realm | ConvertTo-Json -Depth 32), [Text.Encoding]::UTF8)

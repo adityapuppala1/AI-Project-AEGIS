@@ -24,7 +24,7 @@ class Operator:
     department_id: str | None = None
 
 
-ALLOWED_ROLES = frozenset({"incident_operator", "incident_checker", "incident_auditor", "department_operator"})
+ALLOWED_ROLES = frozenset({"incident_operator", "incident_checker", "incident_auditor", "department_operator", "platform_admin"})
 
 
 def require_role(operator: Operator, allowed: set[str]) -> None:
