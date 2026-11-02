@@ -1,7 +1,9 @@
 # Real historical data research plan (proposed, not authorized)
 
-Status: **proposal only**. Nothing in this plan is implemented, and no real
-data is connected. AEGIS remains a local synthetic demonstration. Each phase
+Status (2026-11-02): **Phase 0 complete; a bounded Phase 1 pilot is approved to start under the conditions in
+the approval table** (delegated decision, see below). The licence register is
+[`research/real-data/LICENCES.md`](../research/real-data/LICENCES.md). No real data has been downloaded yet and none
+is connected to the application. AEGIS remains a local synthetic demonstration. Each phase
 below needs explicit owner approval before it starts. Phase 3 also needs a
 separate safety and licensing review.
 
@@ -116,7 +118,7 @@ infrastructure and explicit owner authorization. Treat it as a new project.
 
 | Field | Value |
 |---|---|
-| Phase approved | |
-| Approved by | |
-| Date | |
-| Conditions | |
+| Phase approved | Phase 0 (licence register) — **complete**. Phase 1 — **bounded pilot approved to start**, conditional (below). Phases 2 and 3 — not approved. |
+| Approved by | The assistant (Claude), acting under the owner's written instruction of 2026-11-02, "u take decision behalf of me". **This is a delegated decision, not a human signature.** The owner can revoke it by clearing this table. |
+| Date | 2026-11-02 |
+| Conditions | Only register rows with a PERMITTED or PERMITTED-WITH-CONDITIONS verdict, and for Phase 1 only row 1 (Open-Meteo). IMD and India-WRIS stay excluded until written terms exist. Hyderabad grid points and Musi basin cells only; rate limits far below the published ones; under 5 GB; raw files outside Git; no database writes; no imports into or from `services/api`. Credentials for Copernicus or Earthdata, if the owner creates accounts, stay in the owner's local environment only. The event catalogue stays "needs second-person review" until a human checks it. No accuracy claim and no display in the app before Phase 2 and an expert review. Register: [`research/real-data/LICENCES.md`](../research/real-data/LICENCES.md). |

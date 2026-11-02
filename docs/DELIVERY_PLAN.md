@@ -48,6 +48,13 @@ and was implemented locally on 2 Nov 2026. Scope, safety rules, effort and statu
 calendar time is better spent on the unrun acceptance checks and the human gates
 below. It does not close any human or owner gate.
 
+## Completion plan and decision log — 2 November 2026
+
+The schedule from now to the demonstration, the decisions taken on the owner's behalf (and those deliberately not
+taken: push, PR, CI, rehearsal people, release go/no-go), the owner's deadlines and the licence-register findings are
+in [DELIVERY_COMPLETION_PLAN.md](DELIVERY_COMPLETION_PLAN.md). A pull-request body is drafted but **not submitted**:
+[PR_DRAFT_EARTH_WATCH.md](PR_DRAFT_EARTH_WATCH.md).
+
 ## Remaining gates after local engineering closure
 
 The authorized local synthetic engineering chain is complete. The context and
