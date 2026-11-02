@@ -62,6 +62,12 @@ from app.exercise_workflows import router as exercise_workflow_router
 app.include_router(exercise_workflow_router)
 from app.department_tasks import router as department_tasks_router
 app.include_router(department_tasks_router)
+# Display-only public reference feeds; disabled unless AEGIS_PUBLIC_EARTH_FEEDS=1.
+from app.earth_watch import router as earth_watch_router
+app.include_router(earth_watch_router)
+# Opt-in public report intake (quarantine only); disabled unless AEGIS_PUBLIC_INTAKE=1.
+from app.public_intake import router as public_intake_router
+app.include_router(public_intake_router)
 
 @app.get("/v1/exercise/incidents/query")
 def search_exercise_incidents(

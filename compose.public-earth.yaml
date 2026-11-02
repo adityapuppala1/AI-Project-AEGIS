@@ -1,0 +1,7 @@
+# Optional display-only public Earth reference feeds (USGS, NASA EONET, NASA GIBS).
+# Base Compose stays disabled. Data is never stored or used by cases, approvals or tasks.
+# See docs/EARTH_WATCH_ENHANCEMENT_PLAN.md.
+services:
+  api:
+    environment:
+      AEGIS_PUBLIC_EARTH_FEEDS: "1"

@@ -1,0 +1,7 @@
+# Optional public report intake (quarantine only). Base Compose stays disabled.
+# Reports are stored in an isolated table, hold no contact details and never become cases.
+# See docs/EARTH_WATCH_ENHANCEMENT_PLAN.md (E5).
+services:
+  api:
+    environment:
+      AEGIS_PUBLIC_INTAKE: "1"
