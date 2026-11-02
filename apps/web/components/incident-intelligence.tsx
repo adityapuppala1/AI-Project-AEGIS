@@ -12,6 +12,8 @@ import { GeoMap } from "./geo-map";
 import { StatusBadge } from "./status-badge";
 import { SpatialAnalysis } from "./spatial-analysis";
 import { AssessmentReadiness } from "./assessment-readiness";
+import { PublicSignalsNearCase } from "./public-signals-near-case";
+import { SituationBriefButton } from "./situation-brief-button";
 import type { IncidentWorkspace, IncidentEvent, IncidentEvidence } from "../lib/incident-intelligence";
 
 type View = "evidence" | "timeline" | "interpretation";
@@ -76,6 +78,7 @@ export function IncidentIntelligence({ workspace }: { workspace: IncidentWorkspa
         <ClipboardCheck size={16}/> Exercise Approval Workbench <ArrowRight size={15}/>
       </Link>
     </div>
+    <div className="mb-5"><SituationBriefButton workspace={workspace}/></div>
     <div role="note" className="mb-5 flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4">
       <ShieldAlert className="mt-0.5 shrink-0 text-amber-700 dark:text-amber-300" size={20}/>
       <p className="text-xs leading-6 text-amber-800 dark:text-amber-200">
@@ -121,6 +124,8 @@ export function IncidentIntelligence({ workspace }: { workspace: IncidentWorkspa
         <p className="mt-1 text-xs text-muted">{item.detail}</p>
       </div>)}
     </section>
+
+    <PublicSignalsNearCase lat={incident.lat} lon={incident.lon}/>
 
     <div className="grid items-start gap-5 2xl:grid-cols-[minmax(0,1.55fr)_minmax(330px,1fr)]">
       <section className="panel min-w-0 overflow-hidden">

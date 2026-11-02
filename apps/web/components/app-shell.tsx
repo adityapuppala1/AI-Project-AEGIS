@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import {
   Activity, BookOpenCheck, ChevronRight, Command, LayoutDashboard,
-  Menu, Moon, Settings2, ShieldCheck, Sun, X, ClipboardCheck, LifeBuoy, RadioTower, Workflow, BrainCircuit, Route, UsersRound, Archive,
+  Menu, Moon, Settings2, ShieldCheck, Sun, X, ClipboardCheck, LifeBuoy, RadioTower, Workflow, BrainCircuit, Route, UsersRound, Archive, Globe2, Gauge, Inbox,
 } from "lucide-react";
 
 import { OperatorAuth } from "./operator-auth";
@@ -20,12 +20,15 @@ const navigation = [
   { label: "Observe", items: [
     { href: "/incidents", label: "Incident Registry", icon: Activity },
     { href: "/sources", label: "Source Freshness", icon: RadioTower },
+    { href: "/earth-watch", label: "Earth Watch", icon: Globe2 },
+    { href: "/public-intake", label: "Public Intake", icon: Inbox },
     { href: "/ingestion", label: "DataFusion Replay", icon: Workflow },
     { href: "/model-lab", label: "Model Evaluation Lab", icon: BrainCircuit },
   ]},
   { label: "Coordinate", items: [
     { href: "/approvals", label: "Approval Workbench", icon: ClipboardCheck },
     { href: "/department-tasks", label: "Department Inbox", icon: ClipboardCheck },
+    { href: "/response-teams", label: "Team Availability", icon: Gauge },
     { href: "/agency-sync", label: "AgencySync Tasks", icon: UsersRound },
   ]},
   { label: "Govern", items: [
@@ -106,7 +109,7 @@ export function AppShell({ children, title, description }: { children: ReactNode
         <div className="mt-auto p-4">
           <div className="rounded-xl border border-amber-400/30 bg-amber-400/10 p-4">
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300"><ShieldCheck size={15}/> Exercise environment</div>
-            <p className="mt-2 text-xs leading-5 text-muted">Synthetic data only. No real emergency alerts or responder dispatch.</p>
+            <p className="mt-2 text-xs leading-5 text-muted">Synthetic exercise data. Optional NASA/USGS context is labelled separately. No real emergency alerts or responder dispatch.</p>
           </div>
           <p className="mt-4 px-2 text-[11px] text-muted">AEGIS v0.2 · CipherCop 2026</p>
         </div>

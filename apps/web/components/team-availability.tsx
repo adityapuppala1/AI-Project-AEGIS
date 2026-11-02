@@ -1,0 +1,116 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import {
+  AlertTriangle, ArrowRight, Bus, Clock3, HeartPulse, LifeBuoy, Megaphone, RefreshCw, ShieldAlert, ShieldCheck, UsersRound, Waves,
+  type LucideIcon,
+} from "lucide-react";
+import { AppShell } from "./app-shell";
+import { isSyntheticTaskPayload, type ExerciseAgencyTaskBoard } from "../lib/agency-sync";
+import { DEMO_CAPACITY, summarizeTeams, type TeamKind, type TeamStatus, type TeamSummary } from "../lib/team-availability";
+
+const ICONS: Record<TeamKind, LucideIcon> = {
+  police: ShieldCheck, transport: Bus, municipal: Waves, rescue: LifeBuoy, health: HeartPulse, comms: Megaphone, general: UsersRound,
+};
+const STATUS: Record<TeamStatus, { label: string; chip: string; ring: string }> = {
+  available: { label: "Available", chip: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 ring-emerald-500/20", ring: "#34b4a6" },
+  engaged: { label: "Engaged", chip: "bg-amber-500/10 text-amber-700 dark:text-amber-300 ring-amber-500/20", ring: "#ed9955" },
+  at_capacity: { label: "At planning capacity", chip: "bg-rose-500/10 text-rose-700 dark:text-rose-300 ring-rose-500/20", ring: "#d77b74" },
+};
+const RADIUS = 30, CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+const when = (value: string | null) => {
+  if (!value) return "None scheduled";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "Invalid time" : date.toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Kolkata" }) + " IST";
+};
+
+function Gauge({ team, animate }: { team: TeamSummary; animate: boolean }) {
+  const offset = CIRCUMFERENCE * (1 - (animate ? team.load : 0));
+  return <svg viewBox="0 0 80 80" className="h-20 w-20 shrink-0" role="img" aria-label={`${team.open} of ${DEMO_CAPACITY} planning slots in use`}>
+    <circle cx="40" cy="40" r={RADIUS} fill="none" stroke="rgb(var(--chart-grid) / .3)" strokeWidth="7"/>
+    <circle cx="40" cy="40" r={RADIUS} fill="none" stroke={STATUS[team.status].ring} strokeWidth="7" strokeLinecap="round"
+      className="ring-fill" strokeDasharray={CIRCUMFERENCE} strokeDashoffset={offset} transform="rotate(-90 40 40)"/>
+    <text x="40" y="44" textAnchor="middle" fontSize="15" fontWeight="700" fill="currentColor">{team.open}/{DEMO_CAPACITY}</text>
+  </svg>;
+}
+
+export function TeamAvailability() {
+  const [board, setBoard] = useState<ExerciseAgencyTaskBoard | null>(null);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [revision, setRevision] = useState(0);
+  const [animate, setAnimate] = useState(false);
+
+  useEffect(() => {
+    const timer = setInterval(() => { if (document.visibilityState === "visible") setRevision(value => value + 1); }, 60000);
+    return () => clearInterval(timer);
+  }, []);
+  useEffect(() => {
+    const controller = new AbortController();
+    setLoading(true);
+    fetch("/api/agency-tasks?limit=50", { cache: "no-store", signal: controller.signal })
+      .then(async response => {
+        if (!response.ok) throw new Error("Exercise task registry unavailable");
+        const data: unknown = await response.json();
+        if (!isSyntheticTaskPayload(data) || !Array.isArray((data as { tasks?: unknown }).tasks)) throw new Error("Unexpected task classification");
+        if (!controller.signal.aborted) { setBoard(data as ExerciseAgencyTaskBoard); setError(""); }
+      })
+      .catch(reason => { if (!controller.signal.aborted) setError(reason instanceof Error ? reason.message : "Team board unavailable"); })
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+    return () => controller.abort();
+  }, [revision]);
+  useEffect(() => { const frame = requestAnimationFrame(() => setAnimate(true)); return () => cancelAnimationFrame(frame); }, []);
+
+  const teams = useMemo(() => summarizeTeams(board?.tasks ?? []), [board]);
+  const totals = useMemo(() => ({ open: teams.reduce((sum, team) => sum + team.open, 0), overdue: teams.reduce((sum, team) => sum + team.overdue, 0) }), [teams]);
+
+  return <AppShell title="Team Availability" description="A read-only synthetic view of which fictional desks are loaded with scripted exercise tasks.">
+    <div className="mb-5 flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs leading-6 text-amber-800 dark:text-amber-200" role="note">
+      <ShieldAlert className="mt-1 shrink-0" size={19}/>
+      <p><strong>Exercise board, not real staffing.</strong> Teams and tasks are fictional scripted fixtures. The {DEMO_CAPACITY}-slot capacity is a planning
+        parameter for this rehearsal only. Nothing here assigns, notifies or dispatches anyone.</p>
+    </div>
+    {error && <div role="alert" className="mb-5 flex items-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-700 dark:text-rose-300">
+      <AlertTriangle size={18}/>{error}. Any values shown may be out of date.</div>}
+    <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+      <p className="text-xs text-muted" role="status">{board ? `${teams.length} fictional teams · ${totals.open} open scripted tasks · ${totals.overdue} past their demo due window` : "Awaiting the exercise task registry"}</p>
+      <div className="flex gap-2">
+        <Link href="/agency-sync" className="control text-xs">Task details <ArrowRight size={14}/></Link>
+        <button type="button" className="control text-xs" onClick={() => setRevision(value => value + 1)} disabled={loading}>
+          <RefreshCw size={15} className={loading ? "animate-spin" : ""}/> Refresh</button>
+      </div>
+    </div>
+    {board && teams.length === 0 && <p className="panel p-8 text-center text-sm text-muted">No scripted exercise tasks exist yet, so no team load can be shown.</p>}
+    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-label="Fictional team load">
+      {teams.map((team, index) => {
+        const Icon = ICONS[team.kind];
+        const total = Math.max(1, team.prepared + team.acknowledged + team.closed);
+        return <article key={team.label} className="panel reveal-in p-5" style={{ "--i": index } as React.CSSProperties}>
+          <div className="flex items-start gap-4">
+            <Gauge team={team} animate={animate}/>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2"><span className="rounded-lg bg-accent/10 p-1.5 text-accent"><Icon size={16} aria-hidden="true"/></span>
+                <h2 className="truncate text-sm font-bold">{team.label}</h2></div>
+              <span className={`mt-2 inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ${STATUS[team.status].chip}`}>{STATUS[team.status].label}</span>
+              {team.overdue > 0 && <span className="ml-2 inline-flex items-center gap-1 text-[11px] font-semibold text-rose-700 dark:text-rose-300"><AlertTriangle size={12}/>{team.overdue} past demo due</span>}
+            </div>
+          </div>
+          <div className="mt-4 flex h-2 overflow-hidden rounded-full bg-elevated" role="img"
+            aria-label={`${team.prepared} prepared, ${team.acknowledged} acknowledged, ${team.closed} closed in simulation`}>
+            <span style={{ width: `${team.prepared / total * 100}%`, background: "#94a3b8" }}/>
+            <span style={{ width: `${team.acknowledged / total * 100}%`, background: "#ed9955" }}/>
+            <span style={{ width: `${team.closed / total * 100}%`, background: "#34b4a6" }}/>
+          </div>
+          <dl className="mt-3 grid grid-cols-3 gap-2 text-center text-[11px]">
+            <div><dt className="text-muted">Prepared</dt><dd className="font-bold tabular-nums">{team.prepared}</dd></div>
+            <div><dt className="text-muted">Acknowledged</dt><dd className="font-bold tabular-nums">{team.acknowledged}</dd></div>
+            <div><dt className="text-muted">Closed</dt><dd className="font-bold tabular-nums">{team.closed}</dd></div>
+          </dl>
+          <p className="mt-3 flex items-center gap-1.5 border-t border-stroke pt-3 text-[11px] text-muted"><Clock3 size={13} aria-hidden="true"/>Next demo due: {when(team.nextDueAt)}</p>
+        </article>;
+      })}
+    </section>
+    <p className="mt-5 text-xs leading-6 text-muted">Counts come from the seeded exercise task table. “Acknowledged” and “closed” are scripted states, not responder activity.</p>
+  </AppShell>;
+}

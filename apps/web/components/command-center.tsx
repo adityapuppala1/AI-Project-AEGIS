@@ -10,6 +10,7 @@ import { useExerciseData } from "../lib/use-exercise-data";
 import { SourceHealthSummary } from "./source-health-summary";
 import { LocalReviewFocus } from "./local-review-focus";
 import { IngestionStatusSummary } from "./ingestion-status-summary";
+import { PublicSignalsStrip } from "./public-signals-strip";
 
 function Metric({ label, value, caption, icon: Icon, tone = "accent" }: {
   label: string; value: string | number; caption: string; icon: typeof Activity; tone?: "accent" | "amber" | "rose";
@@ -69,6 +70,7 @@ export function CommandCenter() {
         <ArrowRight size={14} className="text-muted transition-transform group-hover:translate-x-0.5 group-hover:text-accent"/>
       </Link>)}
     </section>
+    <PublicSignalsStrip/>
     <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1.55fr)_minmax(350px,1fr)]">
       <section className="panel min-w-0 overflow-hidden" aria-label="Exercise geospatial overview">
         <div className="panel-heading"><div><h2 className="flex items-center gap-2 text-base font-bold"><MapPinned size={18} className="text-accent"/> Geospatial Overview</h2><p className="mt-1 text-xs text-muted">Hyderabad · incident positions from PostGIS</p></div><span className="rounded-full bg-accent/10 px-3 py-1 text-xs font-semibold text-accent">MapLibre / OSM</span></div>

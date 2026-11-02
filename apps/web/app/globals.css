@@ -112,6 +112,20 @@ body {
   }
 }
 
+/* Decorative motion graphics (radar, rings, reveals). Motion-safe only, never on approval or
+   emergency-status controls; the reduced-motion rule above also collapses these durations. */
+@media (prefers-reduced-motion: no-preference) {
+  .radar-sweep { transform-box: view-box; transform-origin: 50% 50%; animation: aegis-radar-sweep 9s linear infinite; }
+  .radar-ping { transform-box: fill-box; transform-origin: center; animation: aegis-radar-ping 3s ease-out infinite; }
+  .reveal-in { animation: aegis-reveal .5s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i, 0) * 70ms); }
+  .ring-fill { transition: stroke-dashoffset 1s cubic-bezier(.2,.8,.2,1); }
+  .draw-check { stroke-dasharray: 32; stroke-dashoffset: 32; animation: aegis-draw .6s .15s ease-out forwards; }
+  @keyframes aegis-radar-sweep { to { transform: rotate(360deg); } }
+  @keyframes aegis-radar-ping { 0% { transform: scale(.5); opacity: .75; } 100% { transform: scale(2.6); opacity: 0; } }
+  @keyframes aegis-reveal { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @keyframes aegis-draw { to { stroke-dashoffset: 0; } }
+}
+
 /* Depth without continuous animation; status remains driven by real responses. */
 .operator-hero {
   position: relative;
