@@ -152,7 +152,42 @@ a patient background retry is in progress and **no real data had been downloaded
 | `scripts/verify-backup-restore.ps1` (new, repeatable recovery drill) | RECOVERY DRILL PASSED: `pg_dump` of the running database, restore into a separate throwaway database, `doctor` and `migration_audit` pass on the copy, row counts equal (5 incidents, 5 sources, 7 tasks, 13 task events), only the throwaway database dropped; the application database was only read. Backup kept under `.git/backups/` (untracked) |
 | `docs/DEMO_RUNBOOK.md` (new) | Profiles, T-3 days and T-1 hour checklists, route, failure table, safe answers; references the preflight and recovery scripts |
 
-Not done: the real-data download itself, any real result, the expert review, the two-person rehearsal and the other
+### Independent security review of Earth Watch and the resulting fixes (same day)
+
+An Opus reviewer (read-only) found no critical issue. It found that goals "bounded time" and "isolation from other
+endpoints" did not hold: a slow or failing upstream could tie up the shared API worker pool (a blocking per-feed lock,
+no total deadline, no backoff, proxy environment variables honoured), the XML DOCTYPE guard could be bypassed with
+UTF-16, and several fields were unbounded. All findings were fixed:
+
+| Finding | Fix |
+|---|---|
+| Waiters queue behind a 20 s fetch; failures retried by every request | Non-blocking lock (answer from retained data or fail fast), 60 s failure backoff, retained data never older than 24 h |
+| No total time limit (slow-drip upstream) | Streaming read with a 25 s overall deadline (`read1`) and 10 s per read |
+| Proxy variables honoured | Opener built with `ProxyHandler({})`; direct connections only |
+| XML guard bypass via UTF-16 | Only plain UTF-8 or ASCII accepted (no NULs, BOMs or other declared encodings) plus the DTD and entity rejection |
+| Unbounded string fields, duplicate ids | Every string truncated at the API; duplicates removed at the API and the proxy; over-long links dropped, not cut |
+| Prototype-style category keys (`__proto__`, `constructor`) | Own-key lookup in the UI and a category allowlist in the proxy |
+| Duplicate imagery layer ids satisfied the layer count | Exact set comparison |
+
+New tests prove each one with the hostile input (slow drip, proxy variable set, UTF-16 and NUL payloads, backoff,
+in-flight lock, 24 h limit, prototype keys, duplicates). Results after the fixes: API 443 passed and 20 skipped, web 97
+passed, model-lab check PASS, build PASS, browser script 8 checks PASS, 21-check smoke with axe PASS, theme gate PASS.
+
+### Accessibility additions and a pre-existing defect found
+
+- The Command Center telemetry chart now has a keyboard-operable data-table equivalent ("Show data table" / "Show chart").
+- The new browser script axe-checks the Command Center itself in both themes, which the repo's smoke test did not.
+  It found **two pre-existing light-theme contrast failures** in the incident status badges ("In progress" 3.9:1 and
+  "New" 3.6:1) and one defect in the new table (a scrollable region with no keyboard focus). All three are fixed
+  (darker badge text colours; the table container is focusable with a label).
+
+### Real-data download status (written 20:45 IST)
+
+All five Musi discharge files (Open-Meteo Flood API) are downloaded and recorded in the manifest. The nine rainfall
+archive files are **not**: that endpoint kept answering HTTP 503 "service is overloaded"; the background job is still
+retrying every five minutes. No data values have been analysed. The Phase 2 protocol was committed first.
+
+Not done: completing the rainfall download, any real result, the expert review, the two-person rehearsal and the other
 human and owner gates.
 
 ## Current closure and remaining work

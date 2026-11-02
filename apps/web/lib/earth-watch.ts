@@ -33,7 +33,9 @@ export const CATEGORY_STYLE: Record<string, { label: string; color: string }> = 
   landslides: { label: "Landslides", color: "#b5a16d" },
   other: { label: "Other events", color: "#90a8a3" },
 };
-export const categoryStyle = (category: string) => CATEGORY_STYLE[category] ?? CATEGORY_STYLE.other;
+// Own keys only: an upstream category such as "__proto__" or "constructor" must never resolve to a prototype member.
+export const categoryStyle = (category: string) =>
+  Object.prototype.hasOwnProperty.call(CATEGORY_STYLE, category) ? CATEGORY_STYLE[category] : CATEGORY_STYLE.other;
 
 export function inRegion(record: Pick<PublicRecord, "lat" | "lon">, region: Region) {
   return region === "global" || (record.lat >= INDIA_BOUNDS.south && record.lat <= INDIA_BOUNDS.north &&

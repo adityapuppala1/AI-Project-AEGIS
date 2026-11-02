@@ -18,14 +18,22 @@ const timestamp = (value: unknown) => {
   return raw && !Number.isNaN(Date.parse(raw)) ? raw : null;
 };
 
+const RESERVED_KEYS = new Set(["__proto__", "constructor", "prototype", "hasownproperty", "tostring", "valueof"]);
+const safeCategory = (value: unknown) => {
+  const raw = text(value, 40);
+  return raw && /^[A-Za-z][A-Za-z0-9]{0,39}$/.test(raw) && !RESERVED_KEYS.has(raw.toLowerCase()) ? raw : "other";
+};
+
 function cleanRecords(value: unknown) {
   if (!Array.isArray(value) || value.length > 500) throw new Error("Invalid records");
+  const seen = new Set<string>();
   return value.flatMap(item => {
     if (!isObject(item)) return [];
     const id = text(item.id, 80), lat = finite(item.lat), lon = finite(item.lon);
-    if (!id || lat === null || lon === null || Math.abs(lat) > 90 || Math.abs(lon) > 180) return [];
+    if (!id || seen.has(id) || lat === null || lon === null || Math.abs(lat) > 90 || Math.abs(lon) > 180) return [];
+    seen.add(id);
     return [{
-      id, source: text(item.source, 40) ?? "unknown", category: text(item.category, 40) ?? "other",
+      id, source: text(item.source, 40) ?? "unknown", category: safeCategory(item.category),
       kind: text(item.kind, 120) ?? "Event", title: text(item.title, 160) ?? "Untitled",
       observed_at: timestamp(item.observed_at), updated_at: timestamp(item.updated_at),
       lat, lon, magnitude: finite(item.magnitude), status: text(item.status, 60) ?? "not supplied",

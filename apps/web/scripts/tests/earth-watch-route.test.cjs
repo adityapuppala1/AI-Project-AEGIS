@@ -52,6 +52,23 @@ test('drops invalid records and non-HTTPS links', async () => {
   assert.equal(body.records[1].url, null);
 });
 
+test('proxy removes duplicate ids and neutralises prototype-style category keys', async () => {
+  const { body } = await call('earthquakes', quakeFeed([
+    rec({ id: 'a', category: '__proto__' }), rec({ id: 'a', category: 'floods' }), rec({ id: 'b', category: 'constructor' }),
+    rec({ id: 'c', category: 'toString' }), rec({ id: 'd', category: 'floods' }), rec({ id: 'e', category: 'bad key!' }), rec({ id: 'f', category: 'dustHaze' }),
+  ]));
+  assert.deepEqual(body.records.map(r => r.id), ['a', 'b', 'c', 'd', 'e', 'f']);
+  assert.deepEqual(body.records.map(r => r.category), ['other', 'other', 'other', 'floods', 'other', 'dustHaze']);
+});
+
+test('category styling only resolves own keys', () => {
+  for (const key of ['__proto__', 'constructor', 'toString', 'hasOwnProperty', 'valueOf']) {
+    assert.equal(lib.categoryStyle(key).label, 'Other events', key);
+    assert.equal(typeof lib.categoryStyle(key).color, 'string', key);
+  }
+  assert.equal(lib.categoryStyle('floods').label, 'Floods');
+});
+
 test('rejects wrong classification, feed mismatch and missing freshness', async () => {
   for (const upstream of [quakeFeed([], { classification: 'synthetic_exercise' }), quakeFeed([], { feed: 'events' }),
     quakeFeed([], { fetched_at: 'not a date' }), quakeFeed([], { stale: 'no' }), { classification: 'public_reference' }]) {

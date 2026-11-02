@@ -115,7 +115,9 @@ whether to request written terms from IMD and India-WRIS; decide the offline til
 | 2026-11-02 | Phase 2 protocol registered before any real data (`ddcb7b6`) | done; 48 offline tests pass |
 | 2026-11-02 | Attribution follow-up (GIBS, USGS, EONET wording) | done |
 | 2026-11-02 | Demo runbook, demo-readiness preflight, repeatable recovery drill | done; preflight GO with warnings, recovery drill PASSED |
-| next | Phase 1 downloads, `verify.py`, candidates, second-person review; human gates | waiting on the API and on people |
+| 2026-11-02 | Second independent security review (Earth Watch adapters) and fixes; telemetry chart-to-table toggle; two pre-existing contrast defects fixed | done; see the handoff |
+| 2026-11-02 | Phase 1 downloads: 5 of 14 files (Musi discharge) saved; rainfall archive files still blocked by an upstream 503 | background retry continues |
+| next | Finish downloads, `verify.py`, candidates, second-person review; human gates | waiting on the API and on people |
 
 ## 9. Definition of done for the demonstration
 

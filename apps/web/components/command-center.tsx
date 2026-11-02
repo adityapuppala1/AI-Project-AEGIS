@@ -1,7 +1,7 @@
 "use client";
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Activity, AlertTriangle, ArrowRight, Archive, CloudRain, Database, MapPinned, RefreshCw, ShieldCheck, UsersRound, Waves } from "lucide-react";
+import { Activity, AlertTriangle, ArrowRight, Archive, CloudRain, Database, MapPinned, RefreshCw, ShieldCheck, Table2, UsersRound, Waves } from "lucide-react";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { AppShell } from "./app-shell";
 import { GeoMap } from "./geo-map";
@@ -26,6 +26,7 @@ export function CommandCenter() {
   const { incidents, telemetry, loading, refreshing, error, lastSynced, refresh } = useExerciseData();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const [showTable, setShowTable] = useState(false);
   const selected = incidents.find(item => item.id === selectedId);
   const filtered = useMemo(() => incidents.filter(item => item.hazard_type.toLowerCase().includes(query.toLowerCase()) || item.status.includes(query.toLowerCase())), [incidents, query]);
   const quickActions = [
@@ -104,8 +105,15 @@ export function CommandCenter() {
     <IngestionStatusSummary/>
     <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1.5fr)_minmax(320px,1fr)]">
       <section className="panel min-w-0" aria-label="Synthetic rainfall trend">
-        <div className="panel-heading"><div><h2 className="flex items-center gap-2 text-base font-bold"><CloudRain size={18} className="text-accent"/> Hazard Telemetry</h2><p className="mt-1 text-xs text-muted">Synthetic time-series fixture · not a weather forecast</p></div><span className="text-xs font-semibold text-muted">Simulated 60 minutes</span></div>
-        <div className="h-[250px] w-full px-2 pb-4 pt-5 sm:px-5">
+        <div className="panel-heading"><div><h2 className="flex items-center gap-2 text-base font-bold"><CloudRain size={18} className="text-accent"/> Hazard Telemetry</h2><p className="mt-1 text-xs text-muted">Synthetic time-series fixture · not a weather forecast</p></div><div className="flex items-center gap-2"><span className="text-xs font-semibold text-muted">Simulated 60 minutes</span>
+          <button type="button" className="control text-xs" aria-pressed={showTable} disabled={!telemetry?.points?.length} onClick={() => setShowTable(value => !value)}>
+            {showTable ? <Activity size={14}/> : <Table2 size={14}/>} {showTable ? "Show chart" : "Show data table"}</button></div></div>
+        {showTable && telemetry?.points?.length ? <div className="max-h-[250px] overflow-auto px-5 pb-4 pt-3" tabIndex={0} role="region" aria-label="Telemetry data table (scrollable)">
+          <table className="w-full text-left text-xs"><caption className="sr-only">Synthetic telemetry values by time; not a weather forecast</caption>
+            <thead className="sticky top-0 bg-surface text-muted"><tr><th className="p-2">Time</th><th className="p-2">Rainfall (mm)</th><th className="p-2">Water index</th></tr></thead>
+            <tbody className="divide-y divide-stroke">{telemetry.points.map(point => <tr key={point.label}>
+              <td className="p-2">{point.label}</td><td className="p-2 tabular-nums">{point.rainfall_mm}</td><td className="p-2 tabular-nums">{point.water_index}</td></tr>)}</tbody></table>
+        </div> : <div className="h-[250px] w-full px-2 pb-4 pt-5 sm:px-5">
           {telemetry?.points?.length ? <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={telemetry.points} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
               <defs><linearGradient id="rainArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="rgb(var(--accent))" stopOpacity={0.42}/><stop offset="95%" stopColor="rgb(var(--accent))" stopOpacity={0}/></linearGradient></defs>
@@ -116,7 +124,7 @@ export function CommandCenter() {
               <Area type="monotone" dataKey="rainfall_mm" name="Rainfall (mm)" stroke="rgb(var(--accent))" strokeWidth={3} fill="url(#rainArea)" dot={false}/>
             </AreaChart>
           </ResponsiveContainer> : <div className="flex h-full items-center justify-center text-sm text-muted">{loading ? "Loading chart..." : "No telemetry available"}</div>}
-        </div>
+        </div>}
       </section>
       <section className="panel">
         <div className="panel-heading"><h2 className="flex items-center gap-2 text-base font-bold"><Waves size={18} className="text-accent"/> Response Readiness</h2><span className="rounded-full bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-700 dark:text-amber-300">Planning preview</span></div>

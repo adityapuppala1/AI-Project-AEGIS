@@ -132,6 +132,38 @@ const pass = message => { results.push(message); console.log('PASS ' + message);
       await context.close();
     }
 
+    // 3c. Command Center telemetry: the chart has a keyboard-operable data-table equivalent.
+    {
+      const context = await newContext(browser, { width: 1440, height: 1000 });
+      const page = await context.newPage();
+      await page.goto(BASE + '/');
+      const toggle = page.getByRole('button', { name: 'Show data table' });
+      await toggle.waitFor();
+      await page.waitForFunction(() => [...document.querySelectorAll('button')].find(b => b.textContent.includes('Show data table'))?.disabled === false, null, { timeout: 30000 });
+      await page.addScriptTag({ path: axePath });
+      for (const theme of ['light', 'dark']) {  // the Command Center itself, chart mode (status badges, metrics)
+        await page.emulateMedia({ colorScheme: theme });
+        const report = await page.evaluate(() => axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa'] } }));
+        assert.deepEqual(report.violations.map(v => ({ id: v.id, targets: v.nodes.map(n => n.target.join(' ')).slice(0, 3) })), [], 'axe on the Command Center in ' + theme);
+      }
+      await toggle.focus();
+      await page.keyboard.press('Enter');
+      const table = page.getByRole('table', { name: /Synthetic telemetry values by time/ });
+      await table.waitFor();
+      assert.ok((await table.locator('tbody tr').count()) >= 12, 'one row per telemetry point');
+      assert.equal(await page.getByRole('button', { name: 'Show chart' }).getAttribute('aria-pressed'), 'true');
+      for (const theme of ['light', 'dark']) {
+        await page.emulateMedia({ colorScheme: theme });
+        const report = await page.evaluate(() => axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa'] } }));
+        assert.deepEqual(report.violations.map(v => v.id), [], 'axe with the telemetry table in ' + theme);
+      }
+      await page.getByRole('button', { name: 'Show chart' }).click();
+      await page.getByRole('button', { name: 'Show data table' }).waitFor();
+      assert.equal(await page.getByRole('table', { name: /Synthetic telemetry values by time/ }).count(), 0);
+      pass('Command Center telemetry: Enter toggles an accessible data table (12+ rows, axe clean in both themes) and back to the chart');
+      await context.close();
+    }
+
     // 4. Reduced motion: decorative animations must stop; with no preference they must run.
     for (const motion of ['reduce', 'no-preference']) {
       const context = await newContext(browser, { width: 1440, height: 1000 }, { reducedMotion: motion });

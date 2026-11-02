@@ -115,7 +115,7 @@ def test_cache_prevents_refetch(monkeypatch):
 def test_upstream_failure_marks_retained_data_stale(monkeypatch):
     serve(monkeypatch, {"events": json.dumps(EVENTS).encode()})
     client.get("/v1/public-reference/earth-watch/events")
-    earth_watch._cache["events"]["fetched_epoch"] = 0
+    earth_watch._cache["events"]["fetched_epoch"] = earth_watch.time.time() - 1000  # past the TTL, within the stale limit
     serve(monkeypatch, {"events": OSError("offline")})
     body = client.get("/v1/public-reference/earth-watch/events").json()
     assert body["stale"] is True and "previously fetched" in body["warning"]
@@ -180,6 +180,141 @@ def test_records_are_capped():
     many = {"features": [{"id": f"q{i}", "geometry": {"type": "Point", "coordinates": [1, 1]},
                           "properties": {"type": "earthquake", "mag": 3}} for i in range(700)]}
     assert len(earth_watch.normalize_earthquakes(many)) == earth_watch.MAX_RECORDS
+
+
+# --- hardening from the independent security review ------------------------------------------------
+
+def test_retained_data_older_than_a_day_is_never_served(monkeypatch):
+    serve(monkeypatch, {"events": json.dumps(EVENTS).encode()})
+    client.get("/v1/public-reference/earth-watch/events")
+    earth_watch._cache["events"]["fetched_epoch"] = earth_watch.time.time() - earth_watch.STALE_MAX_SECONDS - 5
+    serve(monkeypatch, {"events": OSError("offline")})
+    assert client.get("/v1/public-reference/earth-watch/events").status_code == 502
+
+
+def test_failed_refresh_backs_off_instead_of_hammering_the_upstream(monkeypatch):
+    calls = serve(monkeypatch, {"events": OSError("offline")})
+    assert client.get("/v1/public-reference/earth-watch/events").status_code == 502
+    first = len(calls)
+    for _ in range(5):
+        assert client.get("/v1/public-reference/earth-watch/events").status_code == 502
+    assert len(calls) == first  # no further upstream attempts inside the backoff window
+    earth_watch._next_attempt["events"] = 0  # window over
+    client.get("/v1/public-reference/earth-watch/events")
+    assert len(calls) > first
+
+
+def test_backoff_serves_retained_data_as_stale(monkeypatch):
+    serve(monkeypatch, {"events": json.dumps(EVENTS).encode()})
+    client.get("/v1/public-reference/earth-watch/events")
+    earth_watch._cache["events"]["fetched_epoch"] = earth_watch.time.time() - 1000
+    calls = serve(monkeypatch, {"events": OSError("offline")})
+    client.get("/v1/public-reference/earth-watch/events")
+    again = client.get("/v1/public-reference/earth-watch/events").json()
+    assert again["stale"] is True and len(calls) == 1
+
+
+def test_a_request_never_queues_behind_an_in_flight_refresh(monkeypatch):
+    calls = serve(monkeypatch, {"events": json.dumps(EVENTS).encode()})
+    lock = earth_watch._locks["events"]
+    assert lock.acquire(blocking=False)
+    try:
+        assert client.get("/v1/public-reference/earth-watch/events").status_code == 502  # cold cache: fail fast
+        assert calls == []
+        earth_watch._cache["events"] = {"classification": "public_reference", "feed": "events", "attribution": "x", "upstream": "u",
+                                        "fetched_epoch": earth_watch.time.time() - 1000, "fetched_at": "2026-11-02T00:00:00+00:00",
+                                        "cache_seconds": 300, "limitations": [], "records": []}
+        body = client.get("/v1/public-reference/earth-watch/events").json()
+        assert body["stale"] is True and "in progress" in body["warning"] and calls == []
+    finally:
+        lock.release()
+
+
+class _DripResponse:
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_exc):
+        return False
+
+    def read1(self, _size):
+        return b"x"  # one byte per read, forever
+
+
+def test_slow_drip_upstream_hits_the_total_deadline(monkeypatch):
+    import types
+    ticks = iter(range(0, 10_000, 10))
+    clock = types.SimpleNamespace(monotonic=lambda: next(ticks), time=earth_watch.time.time, sleep=lambda _s: None)
+    monkeypatch.setattr(earth_watch, "time", clock)
+    monkeypatch.setattr(earth_watch, "build_opener", lambda *_handlers: types.SimpleNamespace(open=lambda *_a, **_k: _DripResponse()))
+    with pytest.raises(TimeoutError):
+        earth_watch._fetch_bytes(earth_watch.FEEDS["events"][0])
+
+
+def test_fetch_ignores_proxy_environment_variables(monkeypatch):
+    import types
+    from urllib.request import ProxyHandler
+    seen = {}
+
+    class Empty:
+        def __enter__(self):
+            return types.SimpleNamespace(read1=lambda _size: b"")
+
+        def __exit__(self, *_exc):
+            return False
+
+    def capture(*handlers):
+        seen["handlers"] = handlers
+        return types.SimpleNamespace(open=lambda *_a, **_k: Empty())
+    monkeypatch.setattr(earth_watch, "build_opener", capture)
+    monkeypatch.setenv("HTTPS_PROXY", "http://proxy.invalid:3128")
+    assert earth_watch._fetch_bytes(earth_watch.FEEDS["events"][0]) == b""
+    assert any(isinstance(handler, ProxyHandler) and handler.proxies == {} for handler in seen["handlers"])
+
+
+@pytest.mark.parametrize("payload", [
+    ("<!DOCTYPE x [<!ENTITY a 'aaaa'>]><Capabilities>&a;</Capabilities>").encode("utf-16"),
+    ("<?xml version='1.0' encoding='UTF-16'?><!DOCTYPE x><Capabilities/>").encode("utf-16-le"),
+    b"\xef\xbb\xbf<Capabilities/>",
+    b"<Capabilities/>\x00",
+    b"<?xml version='1.0' encoding='ISO-8859-1'?><Capabilities/>",
+    b"<?xml version='1.0'?><!doctype x><Capabilities/>",
+    b"<?xml version='1.0'?><Capabilities>&x;</Capabilities><!entity y 'z'>",
+    b"not xml at all",
+])
+def test_xml_guard_rejects_other_encodings_and_dtds(payload):
+    with pytest.raises(ValueError):
+        earth_watch.parse_imagery(payload)
+
+
+def test_plain_utf8_capabilities_still_parse():
+    xml = b"<?xml version='1.0' encoding='UTF-8'?>" + imagery_xml()
+    assert len(earth_watch.parse_imagery(xml)) == 3
+
+
+def test_duplicate_imagery_layer_ids_do_not_satisfy_the_layer_check():
+    ids = [earth_watch.GIBS_LAYERS[0], earth_watch.GIBS_LAYERS[0], earth_watch.GIBS_LAYERS[1]]
+    with pytest.raises(ValueError):
+        earth_watch.parse_imagery(imagery_xml(ids))
+
+
+def test_fields_are_length_limited_and_duplicates_removed():
+    long_status, long_url = "s" * 500, "https://example.test/" + "a" * 600
+    data = {"features": [
+        {"id": "dup", "geometry": {"type": "Point", "coordinates": [10, 10]}, "properties": {"type": "earthquake", "status": long_status, "url": long_url}},
+        {"id": "dup", "geometry": {"type": "Point", "coordinates": [11, 11]}, "properties": {"type": "earthquake"}},
+        {"id": "x" * 200, "geometry": {"type": "Point", "coordinates": [12, 12]}, "properties": {"type": "earthquake"}},
+        {"id": "x" * 200 + "different", "geometry": {"type": "Point", "coordinates": [13, 13]}, "properties": {"type": "earthquake"}},
+    ]}
+    records = earth_watch.normalize_earthquakes(data)
+    assert [r["id"][:8] for r in records] == ["usgs-dup", "usgs-xxx"]  # same truncated id collapses to one record
+    assert len(records[0]["status"]) <= 40 and records[0]["url"] is None
+    events = {"events": [{"id": "E1", "title": "t" * 500, "categories": [{"id": "c" * 200, "title": "k" * 300}],
+                          "geometry": [{"type": "Point", "date": "2026-11-01T00:00:00Z", "coordinates": [1, 1]}]},
+                         {"id": "E1", "title": "again", "categories": [],
+                          "geometry": [{"type": "Point", "date": "2026-11-01T00:00:00Z", "coordinates": [2, 2]}]}]}
+    result = earth_watch.normalize_events(events)
+    assert len(result) == 1 and len(result[0]["category"]) <= 40 and len(result[0]["kind"]) <= 120 and len(result[0]["title"]) <= 140
 
 
 def test_live_public_warning_still_denied():
