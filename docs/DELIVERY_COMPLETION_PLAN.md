@@ -106,7 +106,18 @@ Full detail and sources: [`research/real-data/LICENCES.md`](../research/real-dat
 Owner actions added: confirm non-commercial status; decide whether to create Copernicus and Earthdata accounts; decide
 whether to request written terms from IMD and India-WRIS; decide the offline tile approach.
 
-## 8. Definition of done for the demonstration
+## 8. Progress log
+
+| Date | Item | State |
+|---|---|---|
+| 2026-11-02 | Phase 0 licence register | done |
+| 2026-11-02 | Phase 1 pilot toolchain (`1bacb98`) | done and tested offline; **real download blocked by an Open-Meteo overload (HTTP 503); retrying patiently** |
+| 2026-11-02 | Phase 2 protocol registered before any real data (`ddcb7b6`) | done; 48 offline tests pass |
+| 2026-11-02 | Attribution follow-up (GIBS, USGS, EONET wording) | done |
+| 2026-11-02 | Demo runbook, demo-readiness preflight, repeatable recovery drill | done; preflight GO with warnings, recovery drill PASSED |
+| next | Phase 1 downloads, `verify.py`, candidates, second-person review; human gates | waiting on the API and on people |
+
+## 9. Definition of done for the demonstration
 
 - Default stack starts with one guarded command and passes the P0 smoke, browser, axe and PostGIS gates.
 - Two-person rehearsal recorded (or honestly marked deferred).

@@ -38,12 +38,16 @@ FEEDS = {
 ALLOWED_HOSTS = {urlparse(url).hostname for url, _, _ in FEEDS.values()}
 LIMITATIONS = {
     "earthquakes": ["USGS M2.5+ reports from the past 7 days; some are preliminary.",
-                    "Public reference data, not an AEGIS assessment or warning."],
+                    "Public reference data, not an AEGIS assessment or warning.",
+                    "Earthquake data compiled by the U.S. Geological Survey. No USGS endorsement is implied."],
     "events": ["EONET is a curated, incomplete catalogue of open events, not a warning service.",
                "Only the latest point observation per event is shown; no hazard footprint.",
-               "No markers does not mean safe."],
+               "No markers does not mean safe.",
+               "Event data from NASA EONET. No NASA endorsement is implied."],
     "imagery": ["Daily delayed composites, not live video.",
-                "Clouds and gaps are possible; availability does not guarantee coverage."],
+                "Clouds and gaps are possible; availability does not guarantee coverage.",
+                "We acknowledge the use of imagery provided by services from NASA's Global Imagery Browse Services "
+                "(GIBS), part of NASA's Earth Science Data and Information System (ESDIS). No NASA endorsement is implied."],
 }
 
 _cache: dict[str, dict] = {}

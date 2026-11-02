@@ -53,7 +53,8 @@ below. It does not close any human or owner gate.
 The schedule from now to the demonstration, the decisions taken on the owner's behalf (and those deliberately not
 taken: push, PR, CI, rehearsal people, release go/no-go), the owner's deadlines and the licence-register findings are
 in [DELIVERY_COMPLETION_PLAN.md](DELIVERY_COMPLETION_PLAN.md). A pull-request body is drafted but **not submitted**:
-[PR_DRAFT_EARTH_WATCH.md](PR_DRAFT_EARTH_WATCH.md).
+[PR_DRAFT_EARTH_WATCH.md](PR_DRAFT_EARTH_WATCH.md). Day-of operations (profiles, preflight, recovery, safe answers):
+[DEMO_RUNBOOK.md](DEMO_RUNBOOK.md).
 
 ## Remaining gates after local engineering closure
 

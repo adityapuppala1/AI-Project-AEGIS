@@ -138,6 +138,23 @@ this establishes accessibility conformance or safety for real public use. E3–E
 by the automated gates**; human acceptance remains pending.
 The stack was left running with `-PublicEarth -PublicIntake` unless stated otherwise below.
 
+## Completion-plan work done in parallel with the data download — 2 November 2026
+
+Plan: [DELIVERY_COMPLETION_PLAN.md](DELIVERY_COMPLETION_PLAN.md). Real-data Phase 1 is **not finished**: the pilot
+toolchain is committed (`1bacb98`) but Open-Meteo answered "The service is overloaded" (HTTP 503) on the first run, so
+a patient background retry is in progress and **no real data had been downloaded when this was written**.
+
+| Item | Result |
+|---|---|
+| Phase 2 protocol and code, registered **before any real data was read** (commit `ddcb7b6`, 2026-11-02 20:22 IST) | 48 research tests pass (25 pilot + 23 protocol, all synthetic); fixed split train 2000–2017 and test 2018–2025 evaluated once; baseline `rain_1d >= 64.5 mm` as a convention; stop rule under 5 test events; allowed and forbidden wording; amendments log. Built by an Opus agent, then independently re-run and reviewed here. Open decision noted: a catalogue row with two reviewers but `needs_second_person_review=true` is counted and reported as a flag inconsistency, not excluded |
+| Attribution wording (licence register follow-up) | Earth Watch now serves the USGS credit, the NASA EONET credit and the fuller NASA GIBS acknowledgement, each with "No ... endorsement is implied"; covered by a new API test; API suite 426 passed, 20 skipped |
+| `scripts/verify-demo-ready.ps1` (new, read-only preflight) | Run on the laptop: GO with 2 warnings (uncommitted changes at the time; public intake on). All core pages, health, readiness and the live-warning 403 passed; NASA GIBS, NASA EONET, USGS and one OSM tile were reachable from this network |
+| `scripts/verify-backup-restore.ps1` (new, repeatable recovery drill) | RECOVERY DRILL PASSED: `pg_dump` of the running database, restore into a separate throwaway database, `doctor` and `migration_audit` pass on the copy, row counts equal (5 incidents, 5 sources, 7 tasks, 13 task events), only the throwaway database dropped; the application database was only read. Backup kept under `.git/backups/` (untracked) |
+| `docs/DEMO_RUNBOOK.md` (new) | Profiles, T-3 days and T-1 hour checklists, route, failure table, safe answers; references the preflight and recovery scripts |
+
+Not done: the real-data download itself, any real result, the expert review, the two-person rehearsal and the other
+human and owner gates.
+
 ## Current closure and remaining work
 
 | Status | Scope |

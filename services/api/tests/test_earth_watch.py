@@ -93,6 +93,18 @@ def test_events_use_latest_point_and_skip_non_points(monkeypatch):
     assert records[0]["lat"] == 26.2 and records[0]["observed_at"].startswith("2026-11-01T06:00")
 
 
+def test_attribution_and_no_endorsement_wording_is_served(monkeypatch):
+    serve(monkeypatch, {"earthquakes": json.dumps(QUAKES).encode(), "events": json.dumps(EVENTS).encode(), "imagery": imagery_xml()})
+    quakes = " ".join(client.get("/v1/public-reference/earth-watch/earthquakes").json()["limitations"])
+    events = " ".join(client.get("/v1/public-reference/earth-watch/events").json()["limitations"])
+    imagery = " ".join(client.get("/v1/public-reference/earth-watch/imagery").json()["limitations"])
+    assert "compiled by the U.S. Geological Survey" in quakes
+    assert "NASA EONET" in events
+    assert "Global Imagery Browse Services" in imagery and "ESDIS" in imagery
+    for text in (quakes, events, imagery):
+        assert "endorsement is implied" in text
+
+
 def test_cache_prevents_refetch(monkeypatch):
     calls = serve(monkeypatch, {"events": json.dumps(EVENTS).encode()})
     client.get("/v1/public-reference/earth-watch/events")
