@@ -117,9 +117,9 @@ whether to request written terms from IMD and India-WRIS; decide the offline til
 | 2026-11-02 | Demo runbook, demo-readiness preflight, repeatable recovery drill | done; preflight GO with warnings, recovery drill PASSED |
 | 2026-11-02 | Second independent security review (Earth Watch adapters) and fixes; telemetry chart-to-table toggle; two pre-existing contrast defects fixed | done; see the handoff |
 | 2026-11-02 | Phase 1 downloads: 5 of 14 files (Musi discharge) saved; rainfall archive files still blocked by an upstream 503 | background retry continues |
-| 2026-11-02 | Phase 1 downloads completed (14 files); `verify.py` clean; `--refetch 3` checksums differ (likely per-request metadata, unconfirmed); 100 unreviewed candidates generated | done; reproducibility open |
+| 2026-11-02 | Phase 1 downloads completed (14 files); `verify.py` clean; `--refetch 3` bytes differ only in `generationtime_ms`; payload identical on 3 of 14 files; 100 unreviewed candidates generated | done |
 | 2026-11-02 | Telugu/Hindi UI, API non-root image, Core Web Vitals check, remaining UX items closed by decision (`6805d87`) | done; native-language review pending |
-| next | Second-person review of candidates, refetch-checksum explanation, human gates | waiting on people |
+| next | Second-person review of candidates, human gates | waiting on people |
 
 ## 9. Definition of done for the demonstration
 

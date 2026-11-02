@@ -40,6 +40,13 @@ def verify_files() -> list[str]:
     return problems
 
 
+def _without_timing(body: bytes):
+    """Parsed payload minus the per-request server timing field, which changes on every call."""
+    payload = json.loads(body)
+    payload.pop("generationtime_ms", None)
+    return payload
+
+
 def refetch_sample(count: int, delay: float, get=dl.http_get, sleep=time.sleep) -> list[str]:
     """Download `count` files again and compare checksums. Differences are reported, never overwritten."""
     manifest = dl.load_manifest()
@@ -48,6 +55,9 @@ def refetch_sample(count: int, delay: float, get=dl.http_get, sleep=time.sleep) 
         entry = manifest["files"][key]
         body = dl.fetch_with_retry(entry["url"], get=get, sleep=sleep)
         if dl.sha256(body) != entry["sha256"]:
+            stored = (cfg.RAW_DIR / key).read_bytes()
+            if _without_timing(body) == _without_timing(stored):
+                continue  # only the per-request generationtime_ms differs; the data is identical
             mismatches.append(f"{key}: re-download differs from the stored checksum (upstream data may have been revised)")
         sleep(delay)
     return mismatches
