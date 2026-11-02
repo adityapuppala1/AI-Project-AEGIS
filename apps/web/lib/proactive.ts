@@ -88,6 +88,8 @@ const HAZARD_STYLE: Record<string, HazardStyle> = {
   cyclone: { label: "Cyclone", color: "#8b5cf6", icon: "wind" },
   heat: { label: "Heat", color: "#ef4444", icon: "thermometer" },
   rainfall: { label: "Rainfall", color: "#3b82f6", icon: "droplets" },
+  heavy_rain: { label: "Heavy rain", color: "#3b82f6", icon: "droplets" },
+  wind: { label: "Wind", color: "#8b5cf6", icon: "wind" },
   flood_extent: { label: "Flood extent", color: "#0284c7", icon: "satellite" },
 };
 const FALLBACK_STYLE: HazardStyle = { label: "Other", color: "#64748b", icon: "alert" };
@@ -107,6 +109,24 @@ export const barWidth = (probability: number) => `${Math.round(Math.max(0, Math.
 export const pct = (value: number | null | undefined) => typeof value === "number" && Number.isFinite(value) ? `${Math.round(value * 100)}%` : "n/a";
 /** First `count` lines of CAP XML for the on-page preview. */
 export const previewLines = (xml: string, count = 40) => xml.split(/\r?\n/).slice(0, count).join("\n");
+/** Watch and candidate marks from a trigger threshold bag, or null when they are not both numeric. */
+export function thresholdMarks(threshold: Scalar | Bag | null): { watch: number; candidate: number; unit: string } | null {
+  if (threshold === null || typeof threshold !== "object" || Array.isArray(threshold)) return null;
+  const bag = threshold as Bag;
+  const watch = bag.watch ?? bag.watch_threshold, candidate = bag.candidate ?? bag.candidate_threshold;
+  if (typeof watch !== "number" || typeof candidate !== "number" || !Number.isFinite(watch) || !Number.isFinite(candidate)) return null;
+  return { watch, candidate, unit: typeof bag.unit === "string" ? bag.unit : "" };
+}
+/** Coarse age for display; null when the time is missing or invalid. */
+export function ageParts(iso: string | null | undefined, nowMs: number): { n: number; unit: "now" | "min" | "hr" | "days" } | null {
+  const time = iso ? Date.parse(iso) : NaN;
+  if (Number.isNaN(time)) return null;
+  const minutes = Math.max(0, Math.round((nowMs - time) / 60_000));
+  if (minutes < 1) return { n: 0, unit: "now" };
+  if (minutes < 90) return { n: minutes, unit: "min" };
+  if (minutes < 48 * 60) return { n: Math.round(minutes / 60), unit: "hr" };
+  return { n: Math.round(minutes / 1440), unit: "days" };
+}
 /** Equal-height schematic columns: height never encodes score, flood extent or severity (colour shows state). */
 export const COLUMN_HEIGHT_M = 3000;
 export function dayBuckets(rows: HistoryDay[], days: number, nowMs: number) {
@@ -290,3 +310,19 @@ export function cleanRun(value: unknown): ProactiveRun {
   return { id: value.id, status, trigger_event_id: value.trigger_event_id, evidence_ids: uuidList(value.evidence_ids), variants,
     judgment: cleanJudgment(value.judgment), cap, completed_steps: completed, next_step: isRunStep(value.next_step) ? value.next_step : null };
 }
+
+// ---------- connector status (admin page) ----------
+export type ConnectorStatus = "not_configured" | "untested" | "passed" | "failed" | "disabled" | "blocked_terms";
+/** Labels of required fields that have no stored value yet. Secret values are never read, only the `set` flag. */
+export function missingRequired(connector: Connector): ConnectorField[] {
+  return connector.fields.filter(field => field.required && (field.secret ? !field.set : connector.settings[field.name] === undefined || connector.settings[field.name] === ""));
+}
+export function connectorStatus(connector: Connector): ConnectorStatus {
+  if (connector.id === "imd_warnings" && connector.settings.terms_accepted !== true) return "blocked_terms";
+  if (missingRequired(connector).length > 0) return "not_configured";
+  if (!connector.enabled) return "disabled";
+  if (!connector.last_test) return "untested";
+  return connector.last_test.ok ? "passed" : "failed";
+}
+/** Ready means enabled and the last saved test passed. Authority notification can never be enabled and is not counted. */
+export const isReady = (connector: Connector) => connector.id !== "authority_notification" && connector.enabled && connectorStatus(connector) === "passed";

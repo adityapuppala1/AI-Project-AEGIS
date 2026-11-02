@@ -7,7 +7,7 @@ const qaRequire = createRequire(path.resolve(__dirname, '../../.git/browser-qa/p
 const { chromium } = qaRequire('playwright');
 const BASE = 'http://localhost:3000';
 const CASE = '22222222-2222-4222-8222-222222222222';
-const PAGES = ['/', '/demo', '/incidents', '/incidents/' + CASE, '/sources', '/earth-watch', '/public-intake', '/response-teams', '/approvals'];
+const PAGES = ['/', '/demo', '/incidents', '/incidents/' + CASE, '/sources', '/earth-watch', '/public-intake', '/response-teams', '/approvals', '/watch', '/admin/connectors'];
 const BUDGET = { lcp: 2500, cls: 0.1, interaction: 200 };
 
 const collector = () => {

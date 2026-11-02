@@ -281,7 +281,7 @@ export function EarthWatch() {
       <h2 className="flex items-center gap-2 text-base font-bold"><Globe2 size={18} className="text-accent"/> Public feeds are switched off</h2>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">The base AEGIS stack stays fully synthetic. To view USGS earthquakes, NASA EONET events and NASA satellite imagery,
         restart the API with the optional display-only profile. Data is fetched on demand, held in memory only and never written to the database.</p>
-      <pre className="mt-4 overflow-x-auto rounded-xl bg-elevated p-4 text-xs"><code>powershell -ExecutionPolicy Bypass -File scripts/start-windows.ps1 -NoBuild -PublicEarth</code></pre>
+      <pre className="mt-4 overflow-x-auto rounded-xl bg-elevated p-4 text-xs" tabIndex={0} aria-label="Start command"><code>powershell -ExecutionPolicy Bypass -File scripts/start-windows.ps1 -NoBuild -PublicEarth</code></pre>
     </section>}
 
     {gate === "enabled" && <>

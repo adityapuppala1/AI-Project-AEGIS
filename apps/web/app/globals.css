@@ -135,3 +135,17 @@ body {
   content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; pointer-events: none;
   background: linear-gradient(rgb(var(--accent)), rgb(var(--signal)));
 }
+
+/* Loading, stepper and gauge motion for the Hazard Watch and connector pages. Static under reduced motion. */
+.shimmer { background-color: rgb(var(--elevated)); border-radius: .5rem; }
+.line-grow { transform-origin: left center; }
+@media (prefers-reduced-motion: no-preference) {
+  .shimmer { background-image: linear-gradient(90deg, transparent, rgb(var(--stroke) / .8), transparent); background-size: 200% 100%; animation: aegis-shimmer 1.4s linear infinite; }
+  .step-pulse { animation: aegis-step-pulse 1.8s ease-in-out infinite; }
+  .line-grow { transition: transform .7s cubic-bezier(.2,.8,.2,1); }
+  .bar-grow { transition: width .8s cubic-bezier(.2,.8,.2,1); }
+  .sheet-in { animation: aegis-sheet .35s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes aegis-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+  @keyframes aegis-step-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgb(var(--accent) / .4); } 50% { box-shadow: 0 0 0 7px rgb(var(--accent) / 0); } }
+  @keyframes aegis-sheet { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+}

@@ -15,15 +15,16 @@ function square(lon: number, lat: number) {
   return [[[lon - dx, lat - HALF_DEGREES], [lon + dx, lat - HALF_DEGREES], [lon + dx, lat + HALF_DEGREES], [lon - dx, lat + HALF_DEGREES], [lon - dx, lat - HALF_DEGREES]]];
 }
 
-export function HazardWatchMap({ triggers, evidence, selectedId, pitched, onSelect, onFail }: Readonly<{
+export function HazardWatchMap({ triggers, evidence, selectedId, pitched, onSelect, onFail, onReady }: Readonly<{
   triggers: TriggerEvent[]; evidence: EvidenceRecord[]; selectedId: string | null; pitched: boolean;
-  onSelect: (id: string) => void; onFail: () => void;
+  onSelect: (id: string) => void; onFail: () => void; onReady?: () => void;
 }>) {
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const [ready, setReady] = useState(false);
   const selectRef = useRef(onSelect); selectRef.current = onSelect;
   const failRef = useRef(onFail); failRef.current = onFail;
+  const readyRef = useRef(onReady); readyRef.current = onReady;
 
   useEffect(() => {
     let disposed = false;
@@ -58,7 +59,7 @@ export function HazardWatchMap({ triggers, evidence, selectedId, pitched, onSele
             ],
           },
         });
-        map.on("load", () => { if (!disposed) setReady(true); });
+        map.on("load", () => { if (!disposed) { setReady(true); readyRef.current?.(); } });
         map.on("webglcontextlost", () => { if (!disposed) failRef.current(); });
         map.on("error", event => { if ((event as { sourceId?: string }).sourceId === "osm" && !disposed) failRef.current(); });
         for (const layer of ["trigger-columns", "trigger-points"]) {

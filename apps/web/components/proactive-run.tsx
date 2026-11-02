@@ -1,41 +1,79 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Ban, Check, Download, FileText, Gavel, Loader2, Play, StepForward } from "lucide-react";
+import { Ban, Check, CheckCircle2, Copy, Download, FileText, Gavel, Loader2, Play, ShieldAlert, StepForward, UserCheck, type LucideIcon } from "lucide-react";
 import { useT } from "./language-provider";
+import { SampleChip } from "./watch-parts";
+import { SAMPLE_CAP_TEXT, sampleRunAt } from "../lib/proactive-sample";
 import {
   BAND_LABEL, BAND_POLICY, BAND_STYLE, RUN_STEPS, barWidth, capFilename, pct, previewLines,
-  type ProactiveRun, type Question, type RunStep,
+  type DecisionBand, type ProactiveRun, type Question, type RunStep,
 } from "../lib/proactive";
 
 const STEP_LABEL: Record<RunStep, string> = {
   gather_evidence: "Gather evidence", simulate_variants: "Simulate variants", judge: "Judge", draft_cap: "Draft CAP", hand_to_human: "Hand to human",
 };
+const STEP_CAPTION: Record<RunStep, string> = {
+  gather_evidence: "Cited records for this trigger", simulate_variants: "Threshold what-ifs", judge: "Pick among fixed options", draft_cap: "Exercise CAP file", hand_to_human: "Stops at a person",
+};
+const BAND_ICON: Record<DecisionBand, LucideIcon> = { recommended: CheckCircle2, needs_review: UserCheck, blocked: Ban };
+const humanise = (name: string) => name.replace(/_/g, " ");
 
 function Bars({ title, question }: Readonly<{ title: string; question: Question }>) {
   const t = useT();
   const entries = Object.entries(Object.keys(question.probabilities).length ? question.probabilities : question.values);
+  const top = Math.max(...entries.map(([, value]) => value), 0);
   return <div className="rounded-lg border border-stroke p-3">
     <h4 className="text-xs font-bold">{title}</h4>
     {entries.length === 0 ? <p className="mt-2 text-[11px] text-muted">{t("No values returned.")}</p>
-      : <ul className="mt-2 space-y-1.5">{entries.map(([name, value]) => <li key={name} className="text-[11px]">
-        <div className="flex justify-between"><span>{name}</span><span className="tabular-nums">{pct(value)}</span></div>
-        <div className="h-1.5 rounded-full bg-elevated" aria-hidden="true"><div className="h-1.5 rounded-full bg-accent" style={{ width: barWidth(value) }}/></div>
+      : <ul className="mt-2 space-y-2">{entries.map(([name, value]) => <li key={name} className="text-[11px]">
+        <div className="flex justify-between gap-2"><span className="min-w-0 break-words">{humanise(name)}</span><span className="tabular-nums font-semibold">{pct(value)}</span></div>
+        <div className="mt-1 h-2 rounded-full bg-elevated" aria-hidden="true"><div className={`bar-grow h-2 rounded-full ${value === top ? "bg-accent" : "bg-muted/50"}`} style={{ width: barWidth(value) }}/></div>
       </li>)}</ul>}
   </div>;
 }
 
-export function ProactiveRunPanel({ triggerEventId, canOperate, disabledReason, onRun }: Readonly<{ triggerEventId: string; canOperate: boolean; disabledReason: string; onRun?: (run: ProactiveRun | null) => void }>) {
+function Stepper({ run, active, busy }: Readonly<{ run: ProactiveRun; active: boolean; busy: boolean }>) {
+  const t = useT();
+  const doneCount = run.completed_steps.length;
+  const progress = Math.max(0, Math.min(1, doneCount / (RUN_STEPS.length - 1)));
+  const lineStyle = (axis: "x" | "y") => ({ transform: axis === "x" ? `scaleX(${progress})` : `scaleY(${progress})` });
+  return <ol className="relative grid gap-4 sm:grid-cols-5 sm:gap-2" aria-label={t("Run steps")}>
+    <span className="absolute bottom-4 left-4 top-4 w-0.5 bg-stroke sm:hidden" aria-hidden="true"/>
+    <span className="line-grow absolute bottom-4 left-4 top-4 w-0.5 origin-top bg-emerald-500 sm:hidden" style={lineStyle("y")} aria-hidden="true"/>
+    <span className="absolute left-[10%] right-[10%] top-4 hidden h-0.5 bg-stroke sm:block" aria-hidden="true"/>
+    <span className="line-grow absolute left-[10%] right-[10%] top-4 hidden h-0.5 bg-emerald-500 sm:block" style={lineStyle("x")} aria-hidden="true"/>
+    {RUN_STEPS.map((step, index) => {
+      const done = run.completed_steps.includes(step);
+      const current = run.next_step === step && active;
+      const blocked = !done && run.status === "cancelled";
+      const status = done ? t("done") : current ? t("next") : blocked ? t("blocked") : t("pending");
+      return <li key={step} aria-current={current ? "step" : undefined} className="reveal-in relative flex items-center gap-3 sm:flex-col sm:gap-2 sm:text-center" style={{ "--i": index } as React.CSSProperties}>
+        <span className={`relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 bg-surface text-xs font-bold ${done ? "border-emerald-600 bg-emerald-600 text-white" : current ? "step-pulse border-accent text-accent" : blocked ? "border-rose-500 text-rose-700 dark:text-rose-300" : "border-stroke text-muted"}`}>
+          {done ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" aria-hidden="true"><path className="draw-check" d="M4 12.5l5 5L20 6.5"/></svg>
+            : current && busy ? <Loader2 size={14} className="animate-spin" aria-hidden="true"/>
+            : blocked ? <Ban size={14} aria-hidden="true"/> : <span aria-hidden="true">{index + 1}</span>}
+        </span>
+        <span className="min-w-0"><span className="block text-xs font-bold">{t(STEP_LABEL[step])}</span>
+          <span className="block text-[11px] text-muted">{t(STEP_CAPTION[step])}</span>
+          <span className="sr-only">{status}</span></span>
+      </li>;
+    })}
+  </ol>;
+}
+
+export function ProactiveRunPanel({ triggerEventId, canOperate, disabledReason, onRun, sample = false }: Readonly<{ triggerEventId: string; canOperate: boolean; disabledReason: string; onRun?: (run: ProactiveRun | null) => void; sample?: boolean }>) {
   const t = useT();
   const [run, setRun] = useState<ProactiveRun | null>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [cancelling, setCancelling] = useState(false);
   const [rationale, setRationale] = useState("");
-  const [capText, setCapText] = useState<string | null>(null);
+  const [capFull, setCapFull] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   // A different trigger always starts from a clean slate; runs are never carried across selections.
-  useEffect(() => { setRun(null); setMessage(""); setCancelling(false); setRationale(""); setCapText(null); }, [triggerEventId]);
+  useEffect(() => { setRun(null); setMessage(""); setCancelling(false); setRationale(""); setCapFull(null); setCopied(false); }, [triggerEventId, sample]);
 
   useEffect(() => { onRun?.(run); }, [run]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -49,53 +87,67 @@ export function ProactiveRunPanel({ triggerEventId, canOperate, disabledReason, 
     } catch { setMessage(t("Run request failed")); return null; } finally { setBusy(false); }
   }, [t]);
 
-  async function start() { const next = await post("/api/proactive/runs", { trigger_event_id: triggerEventId }); if (next) setRun(next); }
-  async function advance() { if (run?.next_step) { const next = await post(`/api/proactive/runs/${run.id}/advance`, { expected_step: run.next_step }); if (next) setRun(next); } }
+  // In sample mode every step is local: no request is made and nothing is written.
+  async function start() {
+    if (sample) { setRun(sampleRunAt(0, triggerEventId)); return; }
+    const next = await post("/api/proactive/runs", { trigger_event_id: triggerEventId }); if (next) setRun(next);
+  }
+  async function advance() {
+    if (!run?.next_step) return;
+    if (sample) { setRun(sampleRunAt(run.completed_steps.length + 1, triggerEventId)); return; }
+    const next = await post(`/api/proactive/runs/${run.id}/advance`, { expected_step: run.next_step }); if (next) setRun(next);
+  }
   async function cancel() {
     if (!run) return;
+    if (sample) { setRun({ ...run, status: "cancelled", next_step: null }); setCancelling(false); setRationale(""); return; }
     const next = await post(`/api/proactive/runs/${run.id}/cancel`, { rationale });
     if (next) { setRun(next); setCancelling(false); setRationale(""); }
   }
   const capSha = run?.cap?.sha256;
   useEffect(() => {
-    if (!run || !capSha) { setCapText(null); return; }
+    if (!run || !capSha) { setCapFull(null); return; }
+    if (sample) { setCapFull(SAMPLE_CAP_TEXT); return; }
     const controller = new AbortController();
     fetch(`/api/proactive/runs/${run.id}/cap`, { cache: "no-store", signal: controller.signal })
       .then(response => response.ok ? response.text() : Promise.reject(new Error("cap")))
-      .then(xml => setCapText(previewLines(xml, 40)))
-      .catch(() => { if (!controller.signal.aborted) setCapText(null); });
+      .then(setCapFull)
+      .catch(() => { if (!controller.signal.aborted) setCapFull(null); });
     return () => controller.abort();
-  }, [run?.id, capSha]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [run?.id, capSha, sample]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function copyCap() {
+    if (!capFull) return;
+    try { await navigator.clipboard.writeText(capFull); setCopied(true); setTimeout(() => setCopied(false), 2000); }
+    catch { setMessage(t("Copy failed. Select the text and copy it manually.")); }
+  }
+  function downloadSample() {
+    const url = URL.createObjectURL(new Blob([SAMPLE_CAP_TEXT], { type: "application/xml" }));
+    const link = document.createElement("a"); link.href = url; link.download = "aegis-sample-exercise-cap.xml"; link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
 
   const judgment = run?.judgment ?? null;
   const active = run?.status === "running";
+  const BandIcon = judgment ? BAND_ICON[judgment.decision_band] : ShieldAlert;
   return <section className="panel min-w-0" aria-labelledby="proactive-run-title">
     <div className="panel-heading">
       <h3 id="proactive-run-title" className="flex items-center gap-2 text-base font-bold"><Gavel size={18} className="text-accent" aria-hidden="true"/>{t("Bounded run")}</h3>
+      {sample && <SampleChip/>}
       {!run && <button type="button" className="control control-primary" onClick={start} disabled={!canOperate || busy} aria-describedby="run-reason">
         {busy ? <Loader2 size={16} className="animate-spin" aria-hidden="true"/> : <Play size={16} aria-hidden="true"/>}{t("Start bounded run")}</button>}
     </div>
     <div className="space-y-4 p-5">
       {!run && !canOperate && <p id="run-reason" className="text-xs text-muted">{disabledReason}</p>}
-      {!run && canOperate && <p id="run-reason" className="text-xs text-muted">{t("A bounded run gathers cited evidence, simulates threshold variants, asks the judge to pick among fixed options and drafts an Exercise CAP file. It stops at a human.")}</p>}
+      {!run && canOperate && <p id="run-reason" className="text-xs text-muted">{sample ? t("Sample walkthrough: each step reveals a pre-computed result. Nothing is requested or saved.") : t("A bounded run gathers cited evidence, simulates threshold variants, asks the judge to pick among fixed options and drafts an Exercise CAP file. It stops at a human.")}</p>}
 
       {run && <>
-        <ol className="flex flex-wrap items-center gap-2" aria-label={t("Run steps")}>
-          {RUN_STEPS.map((step, index) => {
-            const done = run.completed_steps.includes(step);
-            const current = run.next_step === step && active;
-            return <li key={step} className="reveal-in flex items-center gap-2" style={{ "--i": index } as React.CSSProperties} aria-current={current ? "step" : undefined}>
-              <span className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold ${done ? "border-emerald-500/40 bg-emerald-500/10" : current ? "border-accent bg-accent/10 text-accent" : "border-stroke text-muted"}`}>
-                {done ? <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" aria-hidden="true"><path className="draw-check" d="M4 12.5l5 5L20 6.5"/></svg> : <span className="h-3.5 w-3.5 rounded-full border border-current" aria-hidden="true"/>}
-                {t(STEP_LABEL[step])}<span className="sr-only">{done ? ` ${t("done")}` : current ? ` ${t("next")}` : ""}</span>
-              </span>
-              {index < RUN_STEPS.length - 1 && <span className={`h-px w-4 ${done ? "bg-emerald-500" : "bg-stroke"}`} aria-hidden="true"/>}
-            </li>;
-          })}
-        </ol>
+        <p className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs font-semibold leading-5 text-amber-800 dark:text-amber-200" role="note">
+          <ShieldAlert size={16} className="mt-0.5 shrink-0" aria-hidden="true"/>
+          {run.status === "review_ready" ? t("Stopped at a human. An accountable person must review the draft; AEGIS sends nothing.") : t("Exercise only. This run stops at a human and AEGIS sends nothing.")}</p>
+        <Stepper run={run} active={active} busy={busy}/>
         <p className="text-xs text-muted" role="status" aria-live="polite">{t("Run status")}: <strong>{run.status === "running" ? t("running") : run.status === "review_ready" ? t("review ready") : t("cancelled")}</strong>{run.next_step ? ` · ${t("Next step")}: ${t(STEP_LABEL[run.next_step])}` : ""}</p>
 
-        {run.variants.length > 0 && <div className="overflow-x-auto">
+        {run.variants.length > 0 && <div className="reveal-in overflow-x-auto">
           <table className="w-full text-left text-xs">
             <caption className="sr-only">{t("Threshold variants")}</caption>
             <thead><tr className="text-muted"><th scope="col" className="py-1 pr-3">{t("Variant")}</th><th scope="col" className="pr-3">{t("Threshold change")}</th><th scope="col" className="pr-3">{t("Outcome")}</th><th scope="col">{t("Score")}</th></tr></thead>
@@ -108,10 +160,13 @@ export function ProactiveRunPanel({ triggerEventId, canOperate, disabledReason, 
           <div className="flex flex-wrap items-center gap-2">
             <span className={`rounded-full px-3 py-1 text-[11px] font-bold ring-1 ${judgment.provider === "typesafe_jev" ? "bg-sky-500/10 text-sky-700 ring-sky-500/30 dark:text-sky-300" : "bg-slate-500/10 text-slate-700 ring-slate-500/30 dark:text-slate-300"}`}>
               {judgment.provider === "typesafe_jev" ? t("Typesafe Jev") : t("Test double")} · {judgment.model}</span>
-            <span className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide ring-1 ${BAND_STYLE[judgment.decision_band]}`}>{t(BAND_LABEL[judgment.decision_band])}</span>
           </div>
-          <p className="text-xs leading-5 text-muted">{t(BAND_POLICY[judgment.decision_band])}</p>
-          <p className="text-xs"><strong>{t("Playbook option")}:</strong> {judgment.playbook_option.choice || t("none")} · {t("confidence")} {pct(judgment.playbook_option.confidence)}</p>
+          <div className={`flex items-center gap-3 rounded-xl px-4 py-3 ring-1 ${BAND_STYLE[judgment.decision_band]}`}>
+            <BandIcon size={28} className="shrink-0" aria-hidden="true"/>
+            <div className="min-w-0"><p className="text-lg font-bold uppercase tracking-wide">{t(BAND_LABEL[judgment.decision_band])}</p>
+              <p className="text-xs leading-5">{t(BAND_POLICY[judgment.decision_band])}</p></div>
+          </div>
+          <p className="text-sm leading-6">{t("Evidence supports option")} <strong>{humanise(judgment.playbook_option.choice) || t("none")}</strong> {t("with")} <strong>{pct(judgment.playbook_option.confidence)}</strong> {t("confidence")} — {t(BAND_LABEL[judgment.decision_band])}.</p>
           <div className="grid gap-3 md:grid-cols-2">
             <Bars title={t("Playbook option")} question={judgment.playbook_option}/>
             <Bars title={t("Severity band")} question={judgment.severity_band}/>
@@ -120,13 +175,17 @@ export function ProactiveRunPanel({ triggerEventId, canOperate, disabledReason, 
           </div>
         </div>}
 
-        {run.cap && <div className="space-y-2">
+        {run.cap && <div className="reveal-in space-y-2">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h4 className="flex items-center gap-2 text-sm font-bold"><FileText size={16} aria-hidden="true"/>{t("Exercise CAP preview")}</h4>
-            <a className="control" href={`/api/proactive/runs/${run.id}/cap`} download={capFilename(run.id)}><Download size={16} aria-hidden="true"/>{t("Download CAP draft")}</a>
+            <div className="flex flex-wrap gap-2">
+              <button type="button" className="control !min-h-9 text-xs" onClick={copyCap} disabled={!capFull}>{copied ? <Check size={14} aria-hidden="true"/> : <Copy size={14} aria-hidden="true"/>}{copied ? t("Copied") : t("Copy")}</button>
+              {sample ? <button type="button" className="control !min-h-9 text-xs" onClick={downloadSample}><Download size={14} aria-hidden="true"/>{t("Download CAP draft")}</button>
+                : <a className="control !min-h-9 text-xs" href={`/api/proactive/runs/${run.id}/cap`} download={capFilename(run.id)}><Download size={14} aria-hidden="true"/>{t("Download CAP draft")}</a>}
+            </div>
           </div>
           <p className="break-all text-[11px] text-muted">SHA-256 {run.cap.sha256}</p>
-          <pre className="max-h-72 overflow-auto rounded-xl bg-elevated p-3 text-[11px] leading-5" tabIndex={0} aria-label={t("First 40 lines of the Exercise CAP draft")}><code>{capText ?? t("Loading preview…")}</code></pre>
+          <pre className="max-h-72 overflow-auto rounded-xl border border-stroke bg-elevated p-3 font-mono text-[11px] leading-5" tabIndex={0} aria-label={t("First 40 lines of the Exercise CAP draft")}><code>{capFull ? previewLines(capFull, 40) : t("Loading preview…")}</code></pre>
         </div>}
 
         {active && <div className="flex flex-wrap items-center gap-3">
@@ -140,7 +199,6 @@ export function ProactiveRunPanel({ triggerEventId, canOperate, disabledReason, 
           <p id="run-cancel-hint" className="text-[11px] text-muted">{rationale.trim().length}/2000 · {t("Recorded in the run audit.")}</p>
           <button type="button" className="control control-primary" onClick={cancel} disabled={busy || rationale.trim().length < 10}><Check size={16} aria-hidden="true"/>{t("Confirm cancellation")}</button>
         </div>}
-        {run.status === "review_ready" && <p className="text-xs font-semibold text-amber-700 dark:text-amber-300">{t("Stopped at a human. An accountable person must review the draft; AEGIS sends nothing.")}</p>}
       </>}
       <div aria-live="polite" role="status" className="min-h-4 text-xs text-rose-700 dark:text-rose-300">{message}</div>
     </div>

@@ -66,7 +66,7 @@ test('every navigation label and group in the app shell is translated', () => {
 
 test('every literal t("...") in the translated components has a translation', () => {
   const known = new Set(tr.TRANSLATION_ENTRIES.map(entry => entry[0]));
-  const files = ['components/app-shell.tsx', 'components/public-intake.tsx', 'components/earth-watch.tsx', 'components/command-center.tsx', 'components/language-switcher.tsx', 'components/global-search.tsx', 'components/operator-auth.tsx', 'components/connector-admin.tsx', 'components/hazard-watch.tsx', 'components/proactive-run.tsx'];
+  const files = ['components/app-shell.tsx', 'components/public-intake.tsx', 'components/earth-watch.tsx', 'components/command-center.tsx', 'components/language-switcher.tsx', 'components/global-search.tsx', 'components/operator-auth.tsx', 'components/connector-admin.tsx', 'components/hazard-watch.tsx', 'components/proactive-run.tsx', 'components/watch-parts.tsx'];
   let checked = 0;
   for (const file of files) {
     const source = fs.readFileSync(path.join(root, file), 'utf8');

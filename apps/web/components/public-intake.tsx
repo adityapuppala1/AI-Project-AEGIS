@@ -110,7 +110,7 @@ export function PublicIntake() {
     {gate === "disabled" && <section className="panel p-6">
       <h2 className="flex items-center gap-2 text-base font-bold"><Inbox size={18} className="text-accent"/> {t("Public intake is switched off")}</h2>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">{t("The base AEGIS stack accepts no public input. To rehearse intake, restart with the optional profile. Reports go to an isolated quarantine table only.")}</p>
-      <pre className="mt-4 overflow-x-auto rounded-xl bg-elevated p-4 text-xs"><code>powershell -ExecutionPolicy Bypass -File scripts/start-windows.ps1 -NoBuild -PublicIntake</code></pre>
+      <pre className="mt-4 overflow-x-auto rounded-xl bg-elevated p-4 text-xs" tabIndex={0} aria-label="Start command"><code>powershell -ExecutionPolicy Bypass -File scripts/start-windows.ps1 -NoBuild -PublicIntake</code></pre>
     </section>}
 
     {gate === "enabled" && <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,1fr)]">
