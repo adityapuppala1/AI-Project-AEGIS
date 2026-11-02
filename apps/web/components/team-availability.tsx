@@ -3,10 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
-  AlertTriangle, ArrowRight, Bus, Clock3, HeartPulse, LifeBuoy, Megaphone, RefreshCw, ShieldAlert, ShieldCheck, UsersRound, Waves,
+  AlertTriangle, ArrowRight, Bus, ClipboardList, Clock3, HeartPulse, LifeBuoy, Megaphone, RefreshCw, ShieldAlert, ShieldCheck, UsersRound, Waves,
   type LucideIcon,
 } from "lucide-react";
 import { AppShell } from "./app-shell";
+import { useT } from "./language-provider";
+import { DataFreshness, EmptyState, ErrorState, SegmentedControl, SkeletonCards, StatStrip, StatTile, StatusPill, type Tone } from "./ui";
 import { isSyntheticTaskPayload, type ExerciseAgencyTaskBoard } from "../lib/agency-sync";
 import { DEMO_CAPACITY, summarizeTeams, type TeamKind, type TeamStatus, type TeamSummary } from "../lib/team-availability";
 
@@ -35,7 +37,11 @@ function Gauge({ team, animate }: { team: TeamSummary; animate: boolean }) {
   </svg>;
 }
 
+const STATUS_TONE: Record<TeamStatus, Tone> = { available: "success", engaged: "warning", at_capacity: "danger" };
+
 export function TeamAvailability() {
+  const t = useT();
+  const [statusFilter, setStatusFilter] = useState<"all" | TeamStatus>("all");
   const [board, setBoard] = useState<ExerciseAgencyTaskBoard | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -65,25 +71,39 @@ export function TeamAvailability() {
   const teams = useMemo(() => summarizeTeams(board?.tasks ?? []), [board]);
   const totals = useMemo(() => ({ open: teams.reduce((sum, team) => sum + team.open, 0), overdue: teams.reduce((sum, team) => sum + team.overdue, 0) }), [teams]);
 
+  const atCapacity = teams.filter(team => team.status === "at_capacity").length;
+  const shown = teams.filter(team => statusFilter === "all" || team.status === statusFilter);
+
   return <AppShell title="Team Availability" description="A read-only synthetic view of which fictional desks are loaded with scripted exercise tasks.">
     <div className="mb-5 flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs leading-6 text-amber-800 dark:text-amber-200" role="note">
       <ShieldAlert className="mt-1 shrink-0" size={19}/>
       <p><strong>Exercise board, not real staffing.</strong> Teams and tasks are fictional scripted fixtures. The {DEMO_CAPACITY}-slot capacity is a planning
         parameter for this rehearsal only. Nothing here assigns, notifies or dispatches anyone.</p>
     </div>
-    {error && <div role="alert" className="mb-5 flex items-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-700 dark:text-rose-300">
-      <AlertTriangle size={18}/>{error}. Any values shown may be out of date.</div>}
+    {error && <ErrorState className="mb-5" message={error + ". " + t("Any values shown may be out of date.")} onRetry={() => setRevision(value => value + 1)}/>}
+    <StatStrip label={t("Fictional team load summary")}>
+      <StatTile index={0} label={t("Fictional teams")} icon={UsersRound} tone="info" value={board ? teams.length : "—"}/>
+      <StatTile index={1} label={t("Open scripted tasks")} icon={ClipboardList} tone="info" value={board ? totals.open : "—"}/>
+      <StatTile index={2} label={t("Past demo due")} icon={AlertTriangle} tone={totals.overdue > 0 ? "warning" : "neutral"} value={board ? totals.overdue : "—"}/>
+      <StatTile index={3} label={t("At planning capacity")} icon={ShieldAlert} tone={atCapacity > 0 ? "danger" : "neutral"} value={board ? atCapacity : "—"}/>
+    </StatStrip>
     <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-      <p className="text-xs text-muted" role="status">{board ? `${teams.length} fictional teams · ${totals.open} open scripted tasks · ${totals.overdue} past their demo due window` : "Awaiting the exercise task registry"}</p>
+      <p className="flex flex-wrap items-center gap-2 text-xs text-muted" role="status">{board && <DataFreshness observedAt={board.as_of} staleAfterHours={1}/>}{board ? `${teams.length} fictional teams · ${totals.open} open scripted tasks · ${totals.overdue} past their demo due window` : "Awaiting the exercise task registry"}</p>
       <div className="flex gap-2">
         <Link href="/agency-sync" className="control text-xs">Task details <ArrowRight size={14}/></Link>
         <button type="button" className="control text-xs" onClick={() => setRevision(value => value + 1)} disabled={loading}>
           <RefreshCw size={15} className={loading ? "animate-spin" : ""}/> Refresh</button>
       </div>
     </div>
-    {board && teams.length === 0 && <p className="panel p-8 text-center text-sm text-muted">No scripted exercise tasks exist yet, so no team load can be shown.</p>}
+    {loading && !board && <SkeletonCards count={3} label={t("Loading fictional team load")}/>}
+    {board && teams.length > 0 && <SegmentedControl className="mb-4" label={t("Filter teams by status")} value={statusFilter} onChange={setStatusFilter}
+      options={[{ value: "all", label: t("All teams") }, { value: "available", label: t("Available") }, { value: "engaged", label: t("Engaged") }, { value: "at_capacity", label: t("At planning capacity") }]}/>}
+    {board && teams.length === 0 && <div className="panel"><EmptyState icon={UsersRound} title={t("No scripted exercise tasks yet")}
+      body={t("No team load can be shown. An empty board does not mean any team is free or staffed.")}/></div>}
+    {board && teams.length > 0 && shown.length === 0 && <div className="panel"><EmptyState icon={UsersRound} title={t("No teams match this status")}
+      body={t("Choose another status to see the other fictional teams.")}/></div>}
     <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-label="Fictional team load">
-      {teams.map((team, index) => {
+      {shown.map((team, index) => {
         const Icon = ICONS[team.kind];
         const total = Math.max(1, team.prepared + team.acknowledged + team.closed);
         return <article key={team.label} className="panel reveal-in p-5" style={{ "--i": index } as React.CSSProperties}>
@@ -92,7 +112,7 @@ export function TeamAvailability() {
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2"><span className="rounded-lg bg-accent/10 p-1.5 text-accent"><Icon size={16} aria-hidden="true"/></span>
                 <h2 className="truncate text-sm font-bold">{team.label}</h2></div>
-              <span className={`mt-2 inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ${STATUS[team.status].chip}`}>{STATUS[team.status].label}</span>
+              <StatusPill className="mt-2" tone={STATUS_TONE[team.status]}>{t(STATUS[team.status].label)}</StatusPill>
               {team.overdue > 0 && <span className="ml-2 inline-flex items-center gap-1 text-[11px] font-semibold text-rose-700 dark:text-rose-300"><AlertTriangle size={12}/>{team.overdue} past demo due</span>}
             </div>
           </div>

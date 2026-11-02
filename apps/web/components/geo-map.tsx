@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import type { Map as MapLibreMap, Marker, GeoJSONSource } from "maplibre-gl";
 import type { Incident } from "../lib/types";
-import { Box, MapPinned } from "lucide-react";
+import { Box, CheckCircle2, Eye, Info, MapPinned, ShieldAlert } from "lucide-react";
+import { useT } from "./language-provider";
 
 const BASE_TILES = ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"];
 
@@ -12,6 +13,7 @@ export function GeoMap({ incidents, selectedId, onSelect }: {
   selectedId: string | null;
   onSelect: (id: string) => void;
 }) {
+  const t = useT();
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const markersRef = useRef<Marker[]>([]);
@@ -163,6 +165,15 @@ export function GeoMap({ incidents, selectedId, onSelect }: {
         Hyderabad · synthetic incident locations
       </div>
     </div>
+      <div className="border-t border-stroke px-4 py-3" aria-label={t("Map legend")} role="group">
+        <ul className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-muted">
+          <li className="inline-flex items-center gap-1"><Info size={12} aria-hidden="true"/>{t("New")}</li>
+          <li className="inline-flex items-center gap-1"><Eye size={12} aria-hidden="true"/>{t("In review")}</li>
+          <li className="inline-flex items-center gap-1"><ShieldAlert size={12} aria-hidden="true"/>{t("Active exercise")}</li>
+          <li className="inline-flex items-center gap-1"><CheckCircle2 size={12} aria-hidden="true"/>{t("Resolved")}</li>
+        </ul>
+        <p className="mt-1 text-[11px] text-muted">{t("Locators are equal-height schematic symbols, not building geometry, flood extent or severity.")} {t("The incident queue lists every case if the map is unavailable.")}</p>
+      </div>
     </div>
   );
 }

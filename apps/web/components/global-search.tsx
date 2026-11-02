@@ -3,10 +3,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useT } from "./language-provider";
 import { useRouter } from "next/navigation";
-import { BookOpenCheck, ClipboardCheck, Command, LayoutDashboard, LifeBuoy, Search, Settings2, X, Activity, RadioTower, Workflow, BrainCircuit, Route, UsersRound, Archive } from "lucide-react";
+import { BookOpenCheck, ClipboardCheck, Command, LayoutDashboard, LifeBuoy, Search, Settings2, X, Activity, RadioTower, Workflow, BrainCircuit, Route, UsersRound, Archive, SearchX, FileText } from "lucide-react";
+import { EmptyState, ErrorState, Skeleton } from "./ui";
 import type { Incident } from "../lib/types";
 
-type CommandItem = { label: string; description: string; href: string; kind: "page" | "incident" };
+type CommandItem = { label: string; description: string; href: string; kind: "page" | "incident"; group?: "pages" | "cases" | "help" };
 const pages: CommandItem[] = [
   { label: "Command Center", description: "System overview and geospatial map", href: "/", kind: "page" },
   { label: "Exercise Walkthrough", description: "Nine-stage integrated CipherCop simulation", href: "/demo", kind: "page" },
@@ -22,6 +23,18 @@ const pages: CommandItem[] = [
   { label: "Self Help & FAQ", description: "Guides, shortcuts, troubleshooting and AI explanations", href: "/help", kind: "page" },
 ];
 const icons = [LayoutDashboard, Route, Activity, RadioTower, Workflow, BrainCircuit, ClipboardCheck, UsersRound, Archive, BookOpenCheck, Settings2, LifeBuoy];
+const GROUPS = [
+  { key: "pages", label: "Pages", icon: LayoutDashboard },
+  { key: "cases", label: "Cases", icon: FileText },
+  { key: "help", label: "Help", icon: LifeBuoy },
+] as const;
+function highlight(text: string, query: string) {
+  const term = query.trim();
+  if (!term) return text;
+  const at = text.toLowerCase().indexOf(term.toLowerCase());
+  if (at < 0) return text;
+  return <>{text.slice(0, at)}<mark className="rounded-sm bg-accent/20 px-0.5 text-ink">{text.slice(at, at + term.length)}</mark>{text.slice(at + term.length)}</>;
+}
 const searchUrl = (term: string) => "/incidents?q=" + encodeURIComponent(term);
 
 export function GlobalSearch() {
@@ -90,19 +103,23 @@ export function GlobalSearch() {
   }, [open, query]);
   const options = useMemo<CommandItem[]>(() => {
     const term = query.trim().toLowerCase();
-    const matched = pages.filter(page => !term || (page.label + " " + page.description).toLowerCase().includes(term));
+    const matched = pages
+      .filter(page => !term || (page.label + " " + page.description + " " + t(page.label) + " " + t(page.description)).toLowerCase().includes(term))
+      .map(page => ({ ...page, group: page.href === "/help" ? "help" as const : "pages" as const }));
     const matches: CommandItem[] = incidents.map(item => ({
       label: item.hazard_type,
       description: "Synthetic case " + item.id.slice(0,8) + " · " + item.status,
-      href: "/incidents/" + item.id, kind: "incident",
+      href: "/incidents/" + item.id, kind: "incident", group: "cases",
     }));
-    return [...matched, ...matches, ...(term ? [{
+    const full: CommandItem[] = term ? [{
       label: 'Open full incident search: "' + query.trim().slice(0,70) + '"',
       description: "Search additional paginated results",
       href: searchUrl(query.trim()),
-      kind: "page" as const,
-    }] : [])];
-  }, [query, incidents]);
+      kind: "page", group: "cases",
+    }] : [];
+    // Order follows the visible groups so arrow keys move through the list top to bottom.
+    return [...matched.filter(item => item.group === "pages"), ...matches, ...full, ...matched.filter(item => item.group === "help")];
+  }, [query, incidents, t]);
   useEffect(() => setActive(0), [query, incidents]);
   function navigate(href: string) {
     setOpen(false);setQuery("");setIncidents([]);setActive(0);
@@ -140,19 +157,29 @@ export function GlobalSearch() {
           <button type="button" className="control h-8 w-8 !min-h-8 !p-0" aria-label="Close global search" onClick={close}><X size={15}/></button>
         </div>
         <div id="aegis-global-results" role="listbox" aria-label="Matching pages and synthetic incidents" className="max-h-[min(65vh,420px)] overflow-y-auto p-2">
-          {options.length === 0 && !waiting && <p className="p-6 text-center text-sm text-muted">No matches. Try another term.</p>}
-          {options.map((option,index) => {
-            const Icon = option.kind === "incident" ? Activity : icons[pages.findIndex(page => page.href === option.href)] || Search;
-            return <button type="button" role="option" aria-selected={index === active} id={"aegis-command-" + index}
-              key={option.kind + option.href + index} onMouseEnter={() => setActive(index)}
-              onClick={() => navigate(option.href)} className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition-colors ${index === active ? "bg-accent/10" : "hover:bg-elevated"}`}>
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-elevated text-accent"><Icon size={17}/></span>
-              <span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold text-ink">{option.label}</span><span className="mt-1 block truncate text-xs text-muted">{option.description}</span></span>
-              <span className="text-[11px] text-muted">{option.kind === "incident" ? "CASE" : "PAGE"}</span>
-            </button>;
+          {GROUPS.map(group => {
+            const rows = options.map((option, index) => ({ option, index })).filter(row => (row.option.group ?? "pages") === group.key);
+            if (rows.length === 0) return null;
+            const GroupIcon = group.icon;
+            return <div key={group.key} role="group" aria-labelledby={"aegis-group-" + group.key} className="mb-1">
+              <p id={"aegis-group-" + group.key} className="flex items-center gap-1.5 px-3 pb-1 pt-2 text-[11px] font-bold uppercase tracking-wide text-muted">
+                <GroupIcon size={12} aria-hidden="true"/>{t(group.label)}</p>
+              {rows.map(({ option, index }) => {
+                const Icon = option.kind === "incident" ? Activity : icons[pages.findIndex(page => page.href === option.href)] || Search;
+                return <button type="button" role="option" aria-selected={index === active} id={"aegis-command-" + index}
+                  key={option.kind + option.href + index} onMouseEnter={() => setActive(index)}
+                  onClick={() => navigate(option.href)} className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition-colors ${index === active ? "bg-accent/10 ring-1 ring-accent/40" : "hover:bg-elevated"}`}>
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-elevated text-accent"><Icon size={17} aria-hidden="true"/></span>
+                  <span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold text-ink">{highlight(option.kind === "page" && option.group !== "cases" ? t(option.label) : option.label, query)}</span><span className="mt-1 block truncate text-xs text-muted">{option.kind === "page" && option.group !== "cases" ? t(option.description) : option.description}</span></span>
+                  <span className="text-[11px] text-muted">{option.kind === "incident" ? t("CASE") : t("PAGE")}</span>
+                </button>;
+              })}
+            </div>;
           })}
-          {issue && <p role="status" className="px-4 py-2 text-xs text-amber-700 dark:text-amber-300">Incident search is unavailable; page navigation still works.</p>}
-          {waiting && <p className="px-4 py-2 text-xs text-muted" role="status">Searching exercise incidents...</p>}
+          {options.length === 0 && !waiting && <EmptyState icon={SearchX} title={t("No matches")}
+            body={t("Try another term. No match does not mean an area is safe; only pages and synthetic exercise cases are searched.")}/>}
+          {issue && <ErrorState className="m-2" message={t("Incident search is unavailable; page navigation still works.")}/>}
+          {waiting && <div className="px-3 py-2" role="status"><span className="sr-only">{t("Searching exercise incidents...")}</span><div aria-hidden="true" className="space-y-2"><Skeleton className="h-8 w-full"/><Skeleton className="h-8 w-2/3"/></div></div>}
         </div>
         <div className="flex items-center justify-between gap-3 border-t border-stroke px-4 py-3 text-[11px] text-muted">
           <span>↑↓ Move · Enter Open · Esc Close</span><span>Exercise data only · No private records indexed</span>

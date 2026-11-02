@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Globe2 } from "lucide-react";
+import { StatusPill } from "./ui";
 import { ageLabel, feedFreshness, fetchEarthFeed, formatIst, summarizeSignals, type Freshness, type RecordFeed } from "../lib/earth-watch";
 
 const REFRESH_MS = 300_000;
@@ -69,9 +70,7 @@ export function PublicSignalsStrip() {
           <span aria-hidden="true" className="h-2.5 w-2.5 rounded-full bg-emerald-500 motion-safe:animate-pulse"/>
           <Globe2 size={16} className="text-accent"/> Public signals · reference only
         </h2>
-        <span className={`rounded-full px-3 py-1 text-[11px] font-semibold ring-1 ${CHIP[worst]}`}>
-          {worst === "stale" ? "Stale · " : ""}USGS &amp; NASA fetched {ageLabel((now - oldest) / 1000)}
-        </span>
+        <StatusPill tone={worst === "stale" ? "danger" : worst === "aging" ? "warning" : "success"}>{worst === "stale" ? "Stale · " : ""}USGS &amp; NASA fetched {ageLabel((now - oldest) / 1000)}</StatusPill>
         {failed && <span className="text-[11px] text-rose-700 dark:text-rose-300">Last refresh failed; showing earlier data.</span>}
       </div>
       <Link href="/earth-watch" className="inline-flex items-center gap-1 text-xs font-semibold text-accent">Open Earth Watch <ArrowRight size={14}/></Link>

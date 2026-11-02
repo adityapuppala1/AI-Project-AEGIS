@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Check, FileDown, Loader2 } from "lucide-react";
 import type { IncidentWorkspace } from "../lib/incident-intelligence";
+import { useT } from "./language-provider";
+import { useToast } from "./ui";
 import { briefFileName, buildSituationBrief, type BriefReadiness } from "../lib/situation-brief";
 
 type Phase = "idle" | "working" | "done" | "partial" | "failed";
@@ -10,6 +12,8 @@ type Phase = "idle" | "working" | "done" | "partial" | "failed";
 /** Builds a template-only Markdown brief in the browser. Nothing is sent to a server or any recipient. */
 export function SituationBriefButton({ workspace }: { workspace: IncidentWorkspace }) {
   const [phase, setPhase] = useState<Phase>("idle");
+  const t = useT();
+  const { notify } = useToast();
 
   async function download() {
     setPhase("working");
@@ -31,7 +35,8 @@ export function SituationBriefButton({ workspace }: { workspace: IncidentWorkspa
       document.body.append(link); link.click(); link.remove();
       setTimeout(() => URL.revokeObjectURL(url), 1500);
       setPhase(readiness ? "done" : "partial");
-    } catch { setPhase("failed"); }
+      notify(t(readiness ? "Situation brief saved." : "Situation brief saved without the context checklist."), readiness ? "success" : "warning");
+    } catch { setPhase("failed"); notify(t("The brief could not be created."), "danger"); }
   }
 
   return <div className="inline-flex flex-wrap items-center gap-3">

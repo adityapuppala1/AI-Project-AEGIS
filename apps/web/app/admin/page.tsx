@@ -2,6 +2,8 @@
 import { useEffect, useState } from "react";
 import { Activity, Database, LockKeyhole, RadioTower, Settings2, ShieldCheck, SlidersHorizontal } from "lucide-react";
 import { AppShell } from "../../components/app-shell";
+import { useT } from "../../components/language-provider";
+import { StatStrip, StatTile, StatusPill } from "../../components/ui";
 
 const modes = [
   { id: "observe", label: "Observe only", description: "Collect and inspect observations without preparing operational actions." },
@@ -15,6 +17,7 @@ const integrations = [
   { name: "Authorized edge vision", purpose: "Environmental imagery observations" },
 ];
 export default function AdminPage() {
+  const t = useT();
   const [mode, setMode] = useState<(typeof modes)[number]["id"]>("observe");
   const [profile, setProfile] = useState<{
     policy_version: string;
@@ -52,17 +55,16 @@ export default function AdminPage() {
       <h2 className="text-base font-bold">Effective Exercise Policy · Read-only manifest</h2>
       {profileError && <p role="alert" className="mt-3 text-sm text-rose-700 dark:text-rose-300">{profileError}. No configuration value is assumed.</p>}
       {!profile && !profileError && <p className="mt-3 text-sm text-muted">Loading local exercise policy…</p>}
-      {profile && <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {[
-          ["Policy version", profile.policy_version],
-          ["Effective mode", profile.effective_mode.replaceAll("_", " ")],
-          ["Independent checker", profile.independent_checker_required ? "Required" : "Unavailable"],
-          ["Live warnings / dispatch", profile.live_public_warning_enabled || profile.live_dispatch_enabled ? "Unexpected" : "Disabled"],
-        ].map(([label,value]) => <div key={label} className="rounded-xl bg-elevated p-4">
-          <p className="text-xs font-semibold text-muted">{label}</p>
-          <p className="mt-2 text-sm font-bold">{value}</p>
-        </div>)}
-      </div>}
+      {profile && <><StatStrip label={t("Effective policy summary")} className="mt-4">
+        <StatTile label="Policy version" value={<span className="text-base">{profile.policy_version}</span>} icon={ShieldCheck} tone="info"/>
+        <StatTile label="Effective mode" value={<span className="text-base capitalize">{profile.effective_mode.replaceAll("_", " ")}</span>} icon={SlidersHorizontal} tone="info"/>
+        <StatTile label="Independent checker" value={<span className="text-base">{profile.independent_checker_required ? "Required" : "Unavailable"}</span>} icon={LockKeyhole} tone={profile.independent_checker_required ? "success" : "warning"}/>
+        <StatTile label="Live warnings / dispatch" value={<span className="text-base">{profile.live_public_warning_enabled || profile.live_dispatch_enabled ? "Unexpected" : "Disabled"}</span>} icon={LockKeyhole} tone="success"/>
+      </StatStrip>
+      <ul className="flex flex-wrap gap-2" aria-label={t("Locked safety switches")}>
+        {["Live public warning", "Live dispatch", "Policy editor"].map(name => <li key={name}><StatusPill tone="neutral" icon={LockKeyhole}>{name}: {t("Locked off")}</StatusPill></li>)}
+      </ul>
+      <p className="mt-2 text-xs text-muted">{t("Locked by the server-side exercise policy; the browser cannot change these switches.")}</p></>}
       <p className="mt-3 text-xs leading-6 text-muted">The controls below are local visual previews only. They cannot update this server-side policy or enable external action integrations.</p>
     </section>
     <div className="grid gap-5 xl:grid-cols-[minmax(0,1.3fr)_minmax(320px,1fr)]">

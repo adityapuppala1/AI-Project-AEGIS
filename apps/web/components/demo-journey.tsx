@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
+import { useT } from "./language-provider";
 import { ArrowLeft, ArrowRight, BookOpenCheck, ClipboardCheck, Compass, Database, FlaskConical, RadioTower, ShieldAlert, UsersRound, Workflow, Archive, Calculator } from "lucide-react";
 
 type ReadinessState = "ready" | "not_ready" | "unavailable";
@@ -122,6 +123,13 @@ const steps = [
 
 export function DemoJourney({ snapshot }: { snapshot: Snapshot }) {
   const [active, setActive] = useState(0);
+  const t = useT();
+  const stageRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const onStageKey = (event: React.KeyboardEvent, index: number) => {
+    const next = event.key === "ArrowDown" || event.key === "ArrowRight" ? Math.min(steps.length - 1, index + 1) : event.key === "ArrowUp" || event.key === "ArrowLeft" ? Math.max(0, index - 1) : event.key === "Home" ? 0 : event.key === "End" ? steps.length - 1 : -1;
+    if (next >= 0) { event.preventDefault(); setActive(next); stageRefs.current[next]?.focus(); }
+  };
+  const percent = Math.round(((active + 1) / steps.length) * 100);
   const current = steps[active];
   const ActiveIcon = current.icon;
   return <>
@@ -163,7 +171,7 @@ export function DemoJourney({ snapshot }: { snapshot: Snapshot }) {
       <nav className="panel min-w-0 overflow-hidden p-3" aria-label="Exercise demo steps">
         <p className="eyebrow px-3 pt-2">Guided journey · {steps.length} stages</p>
         <div className="mt-3 flex gap-2 overflow-x-auto pb-2 lg:block lg:space-y-1 lg:overflow-visible lg:pb-0">
-          {steps.map((step,index) => <button key={step.title} type="button"
+          {steps.map((step,index) => <button key={step.title} type="button" ref={node => { stageRefs.current[index] = node; }} onKeyDown={event => onStageKey(event, index)} tabIndex={index === active ? 0 : -1}
             onClick={() => setActive(index)} aria-current={index === active ? "step" : undefined}
             className={`flex min-w-[190px] items-center gap-3 rounded-lg p-3 text-left text-xs font-semibold transition-colors lg:w-full lg:min-w-0 ${index === active ? "bg-accent/10 text-accent" : "text-muted hover:bg-elevated"}`}>
             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-current/30 text-[11px] tabular-nums">{index+1}</span>
@@ -174,14 +182,16 @@ export function DemoJourney({ snapshot }: { snapshot: Snapshot }) {
       <article className="panel min-w-0 p-5 sm:p-7">
         <div className="flex items-center justify-between gap-3">
           <span className="eyebrow">Stage {active+1} / {steps.length}</span>
-          <span className="rounded-full bg-elevated px-3 py-1 text-[11px] font-semibold text-muted">No live actions</span>
+          <span className="rounded-full bg-elevated px-3 py-1 text-[11px] font-semibold text-muted">{t("No live actions")}</span>
         </div>
+        <div role="progressbar" aria-label={t("Walkthrough progress")} aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent} className="mt-3 h-1.5 rounded-full bg-elevated"><div className="bar-grow h-1.5 rounded-full bg-accent" style={{ width: `${percent}%` }}/></div>
         <div className="mt-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent/10 text-accent"><ActiveIcon size={27}/></div>
         <h2 className="mt-5 text-xl font-bold">{current.title}</h2>
         <p className="mt-2 text-sm font-semibold text-accent">{current.subtitle}</p>
         <p className="mt-4 text-sm leading-7 text-muted">{current.description}</p>
         <div className="mt-5 rounded-xl border border-stroke bg-elevated/40 p-4 text-xs leading-6">
-          <p className="font-semibold">Exercise reference</p>
+          <p className="font-semibold">{t("What you will see")}: {current.subtitle}</p>
+          <p className="mt-1 text-muted">{t("Exercise reference")}</p>
           <p className="mt-1 text-muted">{current.playbook} · AEGIS-URBAN-FLOOD-EXERCISE-v0.1</p>
         </div>
         <div className="mt-6">

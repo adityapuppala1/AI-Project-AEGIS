@@ -1,8 +1,10 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { Activity, AlertTriangle, ArrowRight, CheckCircle2, ClipboardList, Database, LockKeyhole, RefreshCw, ShieldCheck, TerminalSquare, XCircle } from "lucide-react";
+import { Activity, AlertTriangle, ArrowRight, CheckCircle2, ClipboardList, Database, LockKeyhole, RefreshCw, GitMerge, ShieldCheck, TerminalSquare, XCircle } from "lucide-react";
 import { AppShell } from "../../components/app-shell";
+import { useT } from "../../components/language-provider";
+import { DataFreshness, ErrorState, InlineHelp, Panel, StatStrip, StatTile, Stepper } from "../../components/ui";
 import { REASON_LABELS, type IngestionOverview, type QuarantineReason } from "../../lib/ingestion";
 
 const REASONS = Object.keys(REASON_LABELS) as QuarantineReason[];
@@ -11,6 +13,7 @@ function dateLabel(value: string) {
   return Number.isNaN(date.getTime()) ? "Unknown" : date.toLocaleString("en-IN", { timeZone: "Asia/Kolkata", dateStyle: "medium", timeStyle: "short" }) + " IST";
 }
 export default function IngestionPage() {
+  const t = useT();
   const [data, setData] = useState<IngestionOverview | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -37,21 +40,28 @@ export default function IngestionPage() {
       <ShieldCheck size={20} className="mt-1 shrink-0"/>
       <span><strong>Exercise-only: no live ingestion.</strong> Replay runs only through a local Docker CLI command using bundled fixture data. The browser cannot send measurements, warnings or dispatch instructions.</span>
     </div>
-    {error && <p role="alert" className="mb-4 rounded-xl border border-rose-500/25 bg-rose-500/10 p-4 text-sm text-rose-700 dark:text-rose-300">{error}. Any previous counts may be out of date.</p>}
+    {error && <ErrorState className="mb-4" message={error + ". " + t("Any previous counts may be out of date.")} onRetry={refresh}/>}
     <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-      <span className="text-xs text-muted">{data ? "Measured from local exercise database · " + dateLabel(data.generated_at) : "Awaiting exercise database status"}</span>
+      <span className="flex flex-wrap items-center gap-2 text-xs text-muted">{data ? "Measured from local exercise database · " + dateLabel(data.generated_at) : "Awaiting exercise database status"}{data && <DataFreshness observedAt={data.generated_at} staleAfterHours={1}/>}</span>
       <button type="button" className="control" onClick={refresh} disabled={loading}><RefreshCw size={16} className={loading ? "animate-spin" : ""}/> Refresh summary</button>
     </div>
-    <section className="grid gap-4 sm:grid-cols-3" aria-label="Synthetic replay metrics">
-      {[
-        { title: "Accepted unique events", value: data?.accepted_events ?? "—", icon: CheckCircle2, color: "text-accent", description: "Stored only after validation" },
-        { title: "Quarantined unique records", value: data?.quarantine_records ?? "—", icon: XCircle, color: "text-rose-500", description: "Invalid records held as metadata only" },
-        { title: "Live ingest connections", value: "0", icon: LockKeyhole, color: "text-amber-500", description: "Not configured or available" },
-      ].map(card => <article className="panel p-5" key={card.title}>
-        <div className="flex items-center justify-between gap-3"><span className="text-sm font-semibold text-muted">{card.title}</span><card.icon size={20} className={card.color}/></div>
-        <p className="mt-3 text-3xl font-bold tabular-nums">{card.value}</p><p className="mt-2 text-xs text-muted">{card.description}</p>
-      </article>)}
-    </section>
+    <StatStrip label={t("Synthetic replay metrics")} className="sm:grid-cols-3 xl:grid-cols-3">
+      <StatTile index={0} label={t("Accepted unique events")} icon={CheckCircle2} tone="success" value={data?.accepted_events ?? "—"} hint={t("Stored only after validation")}/>
+      <StatTile index={1} label={t("Quarantined unique records")} icon={XCircle} tone={data && data.quarantine_records > 0 ? "warning" : "neutral"} value={data?.quarantine_records ?? "—"} hint={t("Invalid records held as metadata only")}/>
+      <StatTile index={2} label={t("Live ingest connections")} icon={LockKeyhole} tone="neutral" value="0" hint={t("Not configured or available")}/>
+    </StatStrip>
+    <Panel className="mb-5" level={2} icon={GitMerge} title={t("How a replay moves through DataFusion")}
+      description={t("Local-only and synthetic: bundled fixture data, no live intake.")}>
+      <Stepper label={t("Replay stages")} steps={[
+        { id: "fixture", label: t("Read fixture"), description: t("Bundled synthetic file"), status: "done" },
+        { id: "validate", label: t("Validate"), description: t("Contract checks"), status: "done" },
+        { id: "dedupe", label: t("Deduplicate"), description: t("Repeat runs add nothing"), status: "done" },
+        { id: "store", label: t("Store or quarantine"), description: t("Metadata only for rejects"), status: "current" },
+      ]}/>
+      <InlineHelp label={t("What does this page show?")}>
+        {t("Counts come from the local exercise database. They describe replay bookkeeping, not real observations, and they are not an accuracy measure.")}
+      </InlineHelp>
+    </Panel>
     <div className="mt-5 grid items-start gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(330px,1fr)]">
       <section className="panel overflow-hidden">
         <div className="panel-heading"><div><h2 className="flex items-center gap-2 text-base font-bold"><ClipboardList size={18} className="text-accent"/> Quarantine reasons</h2><p className="mt-1 text-xs text-muted">Counts never display rejected raw payloads.</p></div><span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">Read only</span></div>

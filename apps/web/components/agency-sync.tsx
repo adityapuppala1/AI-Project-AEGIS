@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import Link from "next/link";
 import {
   AlertTriangle, ArrowRight, CheckCircle2, ClipboardList,
   Clock3, FileClock, GitBranch, RefreshCw, ShieldAlert,
 } from "lucide-react";
 import { AppShell } from "./app-shell";
+import { useT } from "./language-provider";
+import { DataFreshness, EmptyState, ErrorState, SearchField, SegmentedControl, SkeletonRows, StatStrip, StatTile, StatusPill, type Tone } from "./ui";
 import { isSyntheticTaskPayload,
   type ExerciseAgencyTask, type ExerciseAgencyTaskBoard,
   type ExerciseAgencyTaskDetail, type ExerciseTaskState,
@@ -37,7 +39,12 @@ function stateLabel(state: ExerciseTaskState): string {
     state === "acknowledged" ? "Acknowledged in simulation" : "Closed in simulation";
 }
 
+const STATE_TONE: Record<ExerciseTaskState, Tone> = { prepared: "neutral", acknowledged: "warning", closed: "success" };
+
 export function AgencySync() {
+  const t = useT();
+  const listRef = useRef<HTMLDivElement>(null);
+  const [dept, setDept] = useState("all");
   const [board, setBoard] = useState<ExerciseAgencyTaskBoard | null>(null);
   const [detail, setDetail] = useState<ExerciseAgencyTaskDetail | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -98,6 +105,18 @@ export function AgencySync() {
       .join(" ").toLowerCase().includes(search.trim().toLowerCase())
   ), [board, search]);
 
+  const departments = useMemo(() => Array.from(new Set((board?.tasks ?? []).map(task => task.agency_label))).sort(), [board]);
+  const shown = visible.filter(task => dept === "all" || task.agency_label === dept);
+  const onListKey = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
+    const rows = Array.from(listRef.current?.querySelectorAll<HTMLButtonElement>("[data-task-row]") ?? []);
+    const at = rows.indexOf(document.activeElement as HTMLButtonElement);
+    if (at < 0) return;
+    event.preventDefault();
+    const next = event.key === "Home" ? 0 : event.key === "End" ? rows.length - 1 : Math.max(0, Math.min(rows.length - 1, at + (event.key === "ArrowDown" ? 1 : -1)));
+    rows[next]?.focus();
+  };
+
   return <AppShell title="AgencySync — Exercise Tasks"
     description="Reproducible fictional department follow-up and acknowledgement history. No messages or field tasks are sent.">
     <div className="mb-5 flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs leading-6 text-amber-800 dark:text-amber-200" role="note">
@@ -105,65 +124,62 @@ export function AgencySync() {
       <p><strong>Fully scripted simulation.</strong> Department names, task assignments, acknowledgements and closures are local database fixtures.
         This interface cannot send operational requests, notify responders or change task state.</p>
     </div>
-    {error && <p role="alert" className="mb-4 rounded-xl border border-rose-500/25 bg-rose-500/10 p-4 text-sm text-rose-700 dark:text-rose-300">{error}. No past result is treated as current.</p>}
+    {error && <ErrorState className="mb-4" message={error + ". " + t("No past result is treated as current.")} onRetry={() => setRevision(value => value+1)}/>}
     <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-      <p className="text-xs text-muted">Version: AEGIS urban flood exercise v0.1 · {board ? when(board.as_of) : "Awaiting local database"}</p>
+      <p className="flex flex-wrap items-center gap-2 text-xs text-muted">Version: AEGIS urban flood exercise v0.1 · {board ? when(board.as_of) : "Awaiting local database"}{board && <DataFreshness observedAt={board.as_of} staleAfterHours={1}/>}</p>
       <button type="button" className="control" onClick={() => setRevision(value => value+1)} disabled={loading}>
         <RefreshCw size={16} className={loading ? "animate-spin" : ""}/> Refresh scripted tasks
       </button>
     </div>
-    <div className="grid gap-4 sm:grid-cols-3">
+    <StatStrip label={t("Scripted task summary")} className="sm:grid-cols-3 xl:grid-cols-3">
       {([
         { state: "prepared", title: "Prepared, not sent", icon: FileClock },
         { state: "acknowledged", title: "Scripted acknowledgements", icon: Clock3 },
         { state: "closed", title: "Scripted closures", icon: CheckCircle2 },
-      ] as const).map(item => <article key={item.state} className="panel flex items-start justify-between gap-3 p-5">
-        <div><p className="text-xs font-semibold text-muted">{item.title}</p>
-          <p className="mt-3 text-3xl font-bold tabular-nums">{board ? board.status_counts[item.state] : "—"}</p>
-          <p className="mt-1 text-[11px] text-muted">Fictional department tasks</p>
-        </div><item.icon size={20} className="text-accent"/>
-      </article>)}
-    </div>
+      ] as const).map((item, index) => <StatTile key={item.state} index={index} label={t(item.title)} icon={item.icon} tone={STATE_TONE[item.state]}
+        value={board ? board.status_counts[item.state] : "—"} hint={t("Fictional department tasks")}/>)}
+    </StatStrip>
     <div className="mt-5 grid items-start gap-5 2xl:grid-cols-[minmax(0,1.25fr)_minmax(320px,1fr)]">
       <section className="panel min-w-0 overflow-hidden">
         <div className="panel-heading"><div>
           <h2 className="flex items-center gap-2 text-base font-bold"><ClipboardList size={18} className="text-accent"/> Task registry</h2>
           <p className="mt-1 text-xs text-muted">Select a task for its immutable scripted chronology.</p>
         </div></div>
-        <div className="flex flex-wrap gap-3 border-b border-stroke p-4">
-          <label className="flex-1"><span className="sr-only">Filter fictional task records</span>
-            <input type="search" className="field" value={search} maxLength={100}
-              placeholder="Search desk, kind or case..." onChange={event => setSearch(event.target.value)}/></label>
+        <div className="flex flex-wrap items-center gap-3 border-b border-stroke p-4">
+          <SearchField label={t("Filter fictional task records")} value={search} onChange={setSearch} placeholder={t("Search desk, kind or case...")} className="min-w-[190px] flex-1"/>
           <label><span className="sr-only">Filter task state</span>
             <select className="field min-w-[170px]" value={filter} onChange={event => setFilter(event.target.value as Filter)}>
               {STATES.map(option => <option key={option.code} value={option.code}>{option.label}</option>)}
             </select></label>
+          {departments.length > 1 && <SegmentedControl label={t("Filter by department")} value={dept} onChange={setDept}
+            options={[{ value: "all", label: t("All departments") }, ...departments.map(name => ({ value: name, label: name }))]}/>}
         </div>
-        {loading && <p className="p-5 text-sm text-muted">Loading scripted task history…</p>}
-        {!loading && visible.length === 0 && <p className="p-6 text-sm text-muted">No fictional tasks match this filter.</p>}
-        <div className="divide-y divide-stroke">
-          {visible.map(task => <button type="button" key={task.id} onClick={() => setSelectedId(task.id)}
+        {loading && <div className="p-4"><SkeletonRows rows={4} label={t("Loading scripted task history…")}/></div>}
+        {!loading && shown.length === 0 && <EmptyState icon={ClipboardList} title={t("No fictional tasks match this filter.")}
+          body={t("Clear the filters to see every scripted task. An empty list does not mean no work is pending.")}/>}
+        <div className="divide-y divide-stroke" ref={listRef} onKeyDown={onListKey}>
+          {shown.map(task => <button type="button" key={task.id} data-task-row onClick={() => setSelectedId(task.id)}
             aria-pressed={selectedId === task.id}
             className={`w-full p-4 text-left transition-colors hover:bg-elevated/60 sm:p-5 ${selectedId === task.id ? "bg-accent/5" : ""}`}>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <strong className="text-sm">{task.agency_label}</strong>
-              <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${STATUS[task.state]}`}>
-                {stateLabel(task.state)}</span>
+              <StatusPill tone={STATE_TONE[task.state]}>{t(stateLabel(task.state))}</StatusPill>
             </div>
             <p className="mt-2 text-xs leading-5 text-muted">{task.summary}</p>
             <p className="mt-2 text-[11px] text-muted">
               Case {task.incident_id.slice(0,8)} · Drafted {when(task.prepared_at)}
               {task.demo_due_window_elapsed ? " · Demo review window elapsed" : ""}
             </p>
+            <DataFreshness className="mt-1" observedAt={task.prepared_at} staleAfterHours={24 * 365}/>
           </button>)}
         </div>
-        <p className="border-t border-stroke px-5 py-3 text-xs text-muted">{visible.length} matching of {board?.total_in_scope ?? "—"} local fictional records.</p>
+        <p className="border-t border-stroke px-5 py-3 text-xs text-muted">{shown.length} matching of {board?.total_in_scope ?? "—"} local fictional records.</p>
       </section>
       <section className="panel min-w-0 overflow-hidden" aria-label="Scripted acknowledgement timeline">
         <div className="panel-heading"><h2 className="flex items-center gap-2 text-base font-bold"><GitBranch size={18} className="text-accent"/> Scripted audit trail</h2></div>
-        {historyError && <p role="alert" className="p-4 text-sm text-rose-700 dark:text-rose-300">{historyError}</p>}
-        {historyLoading && <p className="p-4 text-sm text-muted">Loading chronology…</p>}
-        {!selectedId && <p className="p-5 text-sm text-muted">Select a fictional task to inspect its scripted acknowledgement chain.</p>}
+        {historyError && <ErrorState className="m-4" message={historyError} onRetry={() => setRevision(value => value+1)}/>}
+        {historyLoading && <div className="p-4"><SkeletonRows rows={3} label={t("Loading chronology…")}/></div>}
+        {!selectedId && <EmptyState icon={GitBranch} title={t("Select a fictional task")} body={t("Select a fictional task to inspect its scripted acknowledgement chain.")}/>}
         {detail && <div className="p-5">
           <p className="text-sm font-bold">{detail.task.agency_label}</p>
           <p className="mt-2 text-xs leading-6 text-muted">Playbook: {detail.task.playbook_ref}</p>

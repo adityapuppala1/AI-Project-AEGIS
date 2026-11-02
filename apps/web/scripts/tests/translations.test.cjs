@@ -9,7 +9,10 @@ function load(file) {
   const source = fs.readFileSync(path.join(root, file), 'utf8');
   const code = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
   const mod = { exports: {} };
-  new Function('require', 'module', 'exports', code)(require, mod, mod.exports);
+  const localRequire = request => request.startsWith('.')
+    ? load(path.posix.join(path.posix.dirname(file), request) + '.ts')
+    : require(request);
+  new Function('require', 'module', 'exports', code)(localRequire, mod, mod.exports);
   return mod.exports;
 }
 const tr = load('lib/translations.ts');
@@ -66,7 +69,7 @@ test('every navigation label and group in the app shell is translated', () => {
 
 test('every literal t("...") in the translated components has a translation', () => {
   const known = new Set(tr.TRANSLATION_ENTRIES.map(entry => entry[0]));
-  const files = ['components/app-shell.tsx', 'components/public-intake.tsx', 'components/earth-watch.tsx', 'components/command-center.tsx', 'components/language-switcher.tsx', 'components/global-search.tsx', 'components/operator-auth.tsx', 'components/connector-admin.tsx', 'components/hazard-watch.tsx', 'components/proactive-run.tsx', 'components/watch-parts.tsx'];
+  const files = fs.readdirSync(path.join(root, 'components')).filter(name => name.endsWith('.tsx')).map(name => 'components/' + name).filter(file => fs.readFileSync(path.join(root, file), 'utf8').includes('language-provider')).concat(fs.readdirSync(path.join(root, 'components/ui')).filter(name => name.endsWith('.tsx')).map(name => 'components/ui/' + name));
   let checked = 0;
   for (const file of files) {
     const source = fs.readFileSync(path.join(root, file), 'utf8');

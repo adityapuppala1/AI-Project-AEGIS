@@ -10,7 +10,13 @@ export const LANGUAGES: { code: Lang; native: string; english: string }[] = [
 export const isLang = (value: unknown): value is Lang => value === "en" || value === "te" || value === "hi";
 
 type Entry = readonly [string, string, string]; // [english, telugu, hindi]
+import { ENTRIES_COMMAND } from "./translations-extra/command";
+import { ENTRIES_REGISTRY } from "./translations-extra/registry";
+import { ENTRIES_OPERATIONS } from "./translations-extra/operations";
+import { ENTRIES_REVIEW } from "./translations-extra/review";
+
 const ENTRIES: readonly Entry[] = [
+  ...ENTRIES_COMMAND, ...ENTRIES_REGISTRY, ...ENTRIES_OPERATIONS, ...ENTRIES_REVIEW,
   // Chrome and navigation
   ["Skip to content", "కంటెంట్‌కు వెళ్లండి", "सामग्री पर जाएँ"],
   ["Language", "భాష", "भाषा"],
@@ -461,6 +467,18 @@ const ENTRIES: readonly Entry[] = [
   ["Wind", "గాలి", "हवा"],
   ["min", "నిమి", "मिनट"],
   ["days", "రోజులు", "दिन"],
+  // Shared UI kit (components/ui)
+  ["Breadcrumb", "బ్రెడ్‌క్రంబ్ మార్గం", "ब्रेडक्रंब मार्ग"],
+  ["Exercise data", "అభ్యాస డేటా", "अभ्यास डेटा"],
+  ["Observed", "గమనించినది", "अवलोकित"],
+  ["Ingested", "స్వీకరించినది", "ग्रहण किया गया"],
+  ["Open", "తెరవండి", "खोलें"],
+  ["Retry", "మళ్లీ ప్రయత్నించండి", "पुनः प्रयास करें"],
+  ["Loading…", "లోడ్ అవుతోంది…", "लोड हो रहा है…"],
+  ["Clear search", "శోధనను తొలగించండి", "खोज साफ़ करें"],
+  ["Scroll sideways to see all columns", "అన్ని నిలువు వరుసలను చూడటానికి పక్కకు స్క్రోల్ చేయండి", "सभी कॉलम देखने के लिए बगल में स्क्रॉल करें"],
+  ["Copy failed", "కాపీ విఫలమైంది", "कॉपी विफल रहा"],
+  ["current", "ప్రస్తుతం", "वर्तमान"],
 ];
 
 const TABLES: Record<"te" | "hi", Map<string, string>> = {

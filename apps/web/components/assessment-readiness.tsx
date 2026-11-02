@@ -5,7 +5,9 @@ import Link from "next/link";
 import { LocalReviewFocus } from "./local-review-focus";
 import { contextErrorMessage } from "../lib/context-errors";
 import { ExerciseReviewBrief, type ReviewBrief } from "./exercise-review-brief";
-import { AlertTriangle, ArrowRight, BrainCircuit, CheckCircle2, ClipboardCheck, RefreshCw, ShieldAlert } from "lucide-react";
+import { AlertTriangle, ArrowRight, BrainCircuit, CheckCircle2, CircleHelp, ClipboardCheck, RefreshCw, ShieldAlert } from "lucide-react";
+import { useT } from "./language-provider";
+import { DataFreshness, ErrorState, InlineHelp, Panel, SegmentedControl, SkeletonRegion, Skeleton, StatTile, StatusPill } from "./ui";
 
 type Freshness = "fresh" | "delayed" | "stale" | "no_data" | "clock_anomaly";
 type Readiness = {
@@ -52,6 +54,7 @@ type Readiness = {
 const rad = [1000, 3000, 5000] as const;
 
 export function AssessmentReadiness({ incidentId }: { incidentId: string }) {
+  const t = useT();
   const [radius, setRadius] = useState<(typeof rad)[number]>(3000);
   const [revision, setRevision] = useState(0);
   const [result, setResult] = useState<Readiness | null>(null);
@@ -71,9 +74,9 @@ export function AssessmentReadiness({ incidentId }: { incidentId: string }) {
     ].join("\n").slice(0,1800);
     try {
       await navigator.clipboard.writeText(rationale);
-      setCopyResult("Review text copied to clipboard");
+      setCopyResult(t("Review text copied to clipboard"));
     } catch {
-      setCopyResult("Clipboard access unavailable; review references above manually");
+      setCopyResult(t("Clipboard access unavailable; review references above manually"));
     }
   }
 
@@ -131,112 +134,120 @@ export function AssessmentReadiness({ incidentId }: { incidentId: string }) {
     return () => controller.abort();
   }, [incidentId, radius, revision]);
 
-  return <section className="panel mt-5 overflow-hidden" aria-label="Evidence review readiness">
-    <div className="panel-heading">
-      <div>
-        <h3 className="flex items-center gap-2 text-base font-bold">
-          <BrainCircuit size={19} className="text-accent"/> Human Assessment Readiness
-        </h3>
-        <p className="mt-1 text-xs text-muted">Synthetic evidence checks, not a flood prediction</p>
-      </div>
-      <button type="button" className="control text-xs" disabled={busy} onClick={() => setRevision(n => n+1)}>
-        <RefreshCw size={16} className={busy ? "animate-spin" : ""}/> Recheck
+  const counts = result?.source_freshness_counts;
+  const checks = result && counts ? [
+    { ok: counts.fresh > 0, label: t("Current-window demo feeds"), pass: t("Present"), fail: t("None in window") },
+    { ok: counts.stale + counts.no_data + counts.clock_anomaly === 0, label: t("Stale, empty or clock-anomaly feeds"), pass: t("None"), fail: t("Needs attention") },
+    { ok: result.synthetic_evidence_records > 0, label: t("Synthetic evidence records"), pass: t("Present"), fail: t("None attached") },
+    { ok: result.fictional_assets_nearby > 0, label: t("Nearby fictional assets"), pass: t("Present"), fail: t("None nearby") },
+    { ok: result.source_comparison.status === "agreement", label: t("Explicit source comparison"), pass: t("Agreement"), fail: result.source_comparison.status === "disagreement" ? t("Disagreement") : t("Not comparable") },
+  ] : [];
+  const radiusOptions = rad.map(value => ({ value: String(value), label: `${value / 1000} km` }));
+
+  return <Panel id="readiness" className="mt-5 overflow-hidden" title={t("Human Assessment Readiness")} icon={BrainCircuit}
+    description={t("Synthetic evidence checks, not a flood prediction")}
+    actions={<>
+      <InlineHelp label={t("About this checklist")}>{t("A deterministic checklist of simulated inputs. It does not forecast anything, and approval is still required from an independent human reviewer.")}</InlineHelp>
+      <button type="button" className="control text-xs" disabled={busy} onClick={() => setRevision(n => n + 1)}>
+        <RefreshCw size={16} aria-hidden="true" className={busy ? "animate-spin" : ""}/> {t("Recheck")}
       </button>
-    </div>
+    </>}>
     <div className="flex gap-3 border-b border-amber-500/25 bg-amber-500/10 px-5 py-4 text-xs leading-6 text-amber-800 dark:text-amber-200">
-      <ShieldAlert className="mt-0.5 shrink-0" size={19}/>
-      <p><strong>Exercise-only analysis.</strong> No validated flood probability, verified infrastructure damage, automated response order or authority to send warnings is produced.</p>
+      <ShieldAlert className="mt-0.5 shrink-0" size={19} aria-hidden="true"/>
+      <p><strong>{t("Exercise-only analysis.")}</strong> {t("No validated flood probability, verified infrastructure damage, automated response order or authority to send warnings is produced.")}</p>
     </div>
     <div className="flex flex-wrap items-center gap-3 px-5 py-4">
-      <label htmlFor={"readiness-radius-" + incidentId} className="text-xs font-semibold text-muted">Search radius</label>
-      <select id={"readiness-radius-" + incidentId} className="field !w-32" value={radius}
-        onChange={event => setRadius(Number(event.target.value) as typeof radius)}>
-        {rad.map(value => <option key={value} value={value}>{value/1000} km</option>)}
-      </select>
+      <span className="text-xs font-semibold text-muted">{t("Search radius")}</span>
+      <SegmentedControl label={t("Search radius")} options={radiusOptions} value={String(radius)} onChange={value => setRadius(Number(value) as typeof radius)}/>
       <span className="text-xs text-muted" role="status">
-        {busy ? "Checking synthetic records..." : result ? "Readiness checklist available; human review required" : "No result"}
+        {busy ? t("Checking synthetic records...") : result ? t("Readiness checklist available; human review required") : t("No result")}
       </span>
     </div>
-    {error && <p role="alert" className="border-y border-rose-500/25 bg-rose-500/10 px-5 py-3 text-sm text-rose-700 dark:text-rose-300">
-      {error}. No simulated conclusion is available.
-    </p>}
+    {busy && !result && <div className="px-5 pb-5"><SkeletonRegion label={t("Checking synthetic records...")}>
+      <div className="grid gap-3 sm:grid-cols-3"><Skeleton className="h-20"/><Skeleton className="h-20"/><Skeleton className="h-20"/></div>
+    </SkeletonRegion></div>}
+    {error && <div className="px-5 pb-4"><ErrorState message={`${t(error)}. ${t("No simulated conclusion is available.")}`} onRetry={() => setRevision(n => n + 1)}/></div>}
     {result && <div className="grid gap-5 p-5 lg:grid-cols-2">
       <div className="rounded-xl border border-stroke bg-elevated/40 p-4 lg:col-span-2">
-        <h4 className="text-sm font-bold">Context and limits</h4>
+        <h4 className="text-sm font-bold">{t("Context and limits")}</h4>
         <dl className="mt-3 space-y-2 text-xs leading-6 text-muted">
-          <div><dt className="inline font-semibold">Freshness evaluated at: </dt><dd className="inline"><time dateTime={result.reference_time}>{result.reference_time}</time> (synthetic observations, not live sensors)</dd></div>
-          <div><dt className="inline font-semibold">Checklist retrieved: </dt><dd className="inline"><time dateTime={checkedAt}>{checkedAt}</time> (browser time; does not refresh observations)</dd></div>
-          <div><dt className="inline font-semibold">Checklist version: </dt><dd className="inline">{result.checklist_version}</dd></div>
+          <div><dt className="inline font-semibold">{t("Freshness evaluated at")}: </dt><dd className="inline"><time dateTime={result.reference_time}>{result.reference_time}</time> {t("(synthetic observations, not live sensors)")}</dd></div>
+          <div><dt className="inline font-semibold">{t("Checklist retrieved")}: </dt><dd className="inline"><time dateTime={checkedAt}>{checkedAt}</time> {t("(browser time; does not refresh observations)")} <DataFreshness observedAt={checkedAt}/></dd></div>
+          <div><dt className="inline font-semibold">{t("Checklist version")}: </dt><dd className="inline">{result.checklist_version}</dd></div>
         </dl>
-        <p className="mt-3 text-xs font-semibold">Not established by this checklist</p>
-        <ul className="mt-2 list-disc space-y-1 pl-5 text-xs leading-6 text-muted">
-          {result.unknowns.map(item => <li key={item}>{item}</li>)}
+        <p className="mt-3 text-xs font-semibold">{t("Not established by this checklist")}</p>
+        <ul className="mt-2 space-y-1 text-xs leading-6 text-muted">
+          {result.unknowns.map(item => <li key={item} className="flex items-start gap-2"><CircleHelp size={14} aria-hidden="true" className="mt-1 shrink-0"/><span>{item}</span></li>)}
         </ul>
-        <p className="mt-3 text-sm"><strong>Next human review step:</strong> {result.next_review_step}</p>
+        <p className="mt-3 text-sm"><strong>{t("Next human review step")}:</strong> {result.next_review_step}</p>
         <div className="mt-4 rounded-xl border border-stroke bg-surface p-3 text-xs leading-6">
-          <p className="font-semibold">Explicit source comparison: {result.source_comparison.status.replaceAll("_", " ")}</p>
+          <p className="font-semibold">{t("Explicit source comparison")}: {result.source_comparison.status.replaceAll("_", " ")}</p>
           {result.source_comparison.groups.map(group => <p className="mt-1 text-muted" key={group.comparison_group}>
-            {group.comparison_group}: {group.status.replaceAll("_", " ")} · tolerance {group.tolerance} {group.metric_unit}
-            {group.value_range === null ? "" : ` · observed range ${group.value_range} ${group.metric_unit}`} · {group.source_ids.length} cited sources
+            {group.comparison_group}: {group.status.replaceAll("_", " ")} · {t("tolerance")} {group.tolerance} {group.metric_unit}
+            {group.value_range === null ? "" : ` · ${t("observed range")} ${group.value_range} ${group.metric_unit}`} · {group.source_ids.length} {t("cited sources")}
           </p>)}
           <p className="mt-2 text-muted">{result.source_comparison.note}</p>
         </div>
-        <Link href="/sources" className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-accent">Inspect source history <ArrowRight size={14}/></Link>
+        <Link href="/sources" className="mt-3 inline-flex min-h-9 items-center gap-1 text-xs font-semibold text-accent">{t("Inspect source history")} <ArrowRight size={14} aria-hidden="true"/></Link>
       </div>
       <div>
         <h4 className="flex items-center gap-2 text-sm font-bold">
           {result.context_state === "insufficient_simulated_context" ?
-            <AlertTriangle size={18} className="text-amber-500"/> :
-            <CheckCircle2 size={18} className="text-accent"/>}
+            <AlertTriangle size={18} aria-hidden="true" className="text-amber-500"/> :
+            <CheckCircle2 size={18} aria-hidden="true" className="text-accent"/>}
           {result.context_state === "insufficient_simulated_context" ?
-            "Insufficient simulated context" :
-            "Simulated context available — human interpretation required"}
+            t("Insufficient simulated context") :
+            t("Simulated context available — human interpretation required")}
         </h4>
-        <dl className="mt-4 grid grid-cols-2 gap-3 text-xs">
-          {[
-            ["Current-window demo feeds", result.source_freshness_counts.fresh],
-            ["Delayed demo feeds", result.source_freshness_counts.delayed],
-            ["Stale demo feeds", result.source_freshness_counts.stale],
-            ["Feeds without data", result.source_freshness_counts.no_data],
-            ["Feeds with clock anomalies", result.source_freshness_counts.clock_anomaly],
-            ["Synthetic evidence records", result.synthetic_evidence_records],
-            ["Nearby fictional assets", result.fictional_assets_nearby],
-          ].map(([label,value]) => <div key={label} className="rounded-xl bg-elevated p-3">
-            <dt className="text-muted">{label}</dt>
-            <dd className="mt-2 text-xl font-bold tabular-nums">{value}</dd>
-          </div>)}
-        </dl>
-        <p className="mt-3 text-xs leading-5 text-muted">These are simulation record counts, not hazard probabilities or verified exposure counts.</p>
+        <div className="mt-4 grid grid-cols-2 gap-3">
+          <StatTile index={0} label={t("Current-window demo feeds")} value={result.source_freshness_counts.fresh} tone="success"/>
+          <StatTile index={1} label={t("Delayed demo feeds")} value={result.source_freshness_counts.delayed} tone={result.source_freshness_counts.delayed ? "warning" : "neutral"}/>
+          <StatTile index={2} label={t("Stale demo feeds")} value={result.source_freshness_counts.stale} tone={result.source_freshness_counts.stale ? "warning" : "neutral"}/>
+          <StatTile index={3} label={t("Feeds without data")} value={result.source_freshness_counts.no_data} tone={result.source_freshness_counts.no_data ? "warning" : "neutral"}/>
+          <StatTile index={4} label={t("Feeds with clock anomalies")} value={result.source_freshness_counts.clock_anomaly} tone={result.source_freshness_counts.clock_anomaly ? "danger" : "neutral"}/>
+          <StatTile index={5} label={t("Synthetic evidence records")} value={result.synthetic_evidence_records} tone="info"/>
+          <StatTile index={6} label={t("Nearby fictional assets")} value={result.fictional_assets_nearby} tone="info"/>
+        </div>
+        <p className="mt-3 text-xs leading-5 text-muted">{t("These are simulation record counts, not hazard probabilities or verified exposure counts.")}</p>
+        <h4 className="mt-5 text-sm font-bold">{t("Input checks")}</h4>
+        <ul className="mt-2 space-y-2">
+          {checks.map(check => <li key={check.label} className="flex items-start gap-2 rounded-xl border border-stroke p-3 text-xs">
+            {check.ok ? <CheckCircle2 size={16} aria-hidden="true" className="mt-0.5 shrink-0 text-emerald-700 dark:text-emerald-300"/> : <AlertTriangle size={16} aria-hidden="true" className="mt-0.5 shrink-0 text-amber-700 dark:text-amber-300"/>}
+            <span className="min-w-0 flex-1">{check.label}</span>
+            <StatusPill tone={check.ok ? "success" : "warning"}>{check.ok ? check.pass : check.fail}</StatusPill>
+          </li>)}
+        </ul>
+        <p className="mt-2 text-xs leading-5 text-muted">{t("A passing input check only means simulated records are present. It never means the situation is safe or that a forecast exists.")}</p>
         {result.review_brief && <ExerciseReviewBrief brief={result.review_brief}/>}
         <LocalReviewFocus incidentId={incidentId}/>
       </div>
       <div>
-        <h4 className="text-sm font-bold">Why these checks matter</h4>
+        <h4 className="text-sm font-bold">{t("Why these checks matter")}</h4>
         <ul className="mt-3 space-y-2">
           {result.reasons.map(item => <li className="rounded-xl border border-stroke p-3 text-xs leading-6 text-muted" key={item.code}>{item.description}</li>)}
         </ul>
       </div>
       <div className="rounded-xl border border-stroke bg-elevated/40 p-4 lg:col-span-2">
-        <h4 className="text-sm font-bold">Human exercise-review checklist</h4>
+        <h4 className="text-sm font-bold">{t("Human exercise-review checklist")}</h4>
         <ol className="mt-3 list-decimal space-y-2 pl-5 text-xs leading-6 text-muted">
           {result.recommendation_draft.map(step => <li key={step}>{step}</li>)}
         </ol>
-        <p className="mt-3 text-xs text-muted">Static safety guidance, not a machine-issued emergency action or automatically generated forecast.</p>
+        <p className="mt-3 text-xs text-muted">{t("Static safety guidance, not a machine-issued emergency action or automatically generated forecast.")}</p>
         <div className="mt-4 rounded-xl border border-stroke bg-surface p-3 text-xs leading-6 text-muted">
-          <p className="font-semibold text-ink">Traceable teaching references</p>
-          <p className="mt-1">Playbook: {result.playbook.version} · {result.playbook.status.replaceAll("_", " ")}</p>
-          <p className="mt-1">{result.playbook.synthetic_evidence_ids.length} synthetic case evidence IDs and {result.playbook.synthetic_source_ids.length} synthetic source IDs cited.</p>
-          <p className="mt-1 break-all font-mono text-[11px]">{result.playbook.synthetic_evidence_ids.join(" · ") || "No case evidence reference available"}</p>
-          <Link href="/playbooks" className="mt-2 inline-flex items-center gap-1 font-semibold text-accent">Read referenced playbook <ArrowRight size={14}/></Link>
+          <p className="font-semibold text-ink">{t("Traceable teaching references")}</p>
+          <p className="mt-1">{t("Playbook")}: {result.playbook.version} · {result.playbook.status.replaceAll("_", " ")}</p>
+          <p className="mt-1">{result.playbook.synthetic_evidence_ids.length} {t("synthetic case evidence IDs and")} {result.playbook.synthetic_source_ids.length} {t("synthetic source IDs cited.")}</p>
+          <p className="mt-1 break-all font-mono text-[11px]">{result.playbook.synthetic_evidence_ids.join(" · ") || t("No case evidence reference available")}</p>
+          <Link href="/playbooks" className="mt-2 inline-flex min-h-9 items-center gap-1 font-semibold text-accent">{t("Read referenced playbook")} <ArrowRight size={14} aria-hidden="true"/></Link>
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <button type="button" className="control text-xs" onClick={() => void copyExerciseReview()}>
-            Copy synthetic review rationale
+            {t("Copy synthetic review rationale")}
           </button>
-          <Link href="/approvals" className="control text-xs"><ClipboardCheck size={16}/> Open verified exercise approvals <ArrowRight size={15}/></Link>
+          <Link href="/approvals" className="control text-xs"><ClipboardCheck size={16} aria-hidden="true"/> {t("Open verified exercise approvals")} <ArrowRight size={15} aria-hidden="true"/></Link>
           {copyResult && <span role="status" className="text-xs text-muted">{copyResult}</span>}
         </div>
       </div>
     </div>}
-  </section>;
+  </Panel>;
 }

@@ -4,10 +4,13 @@ import Link from "next/link";
 import { Activity, AlertTriangle, ArrowRight, BarChart3, Binary, BrainCircuit, CheckCircle2, Database, FlaskConical, ShieldAlert, ShieldCheck } from "lucide-react";
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { ModelReport } from "../lib/model-lab";
+import { useT } from "./language-provider";
+import { InlineHelp, ResponsiveTable, StatStrip, StatTile } from "./ui";
 
 const fraction = (value: number) => (value * 100).toFixed(1) + "%";
 
 export function ModelLabDashboard({ report }: { report: ModelReport }) {
+  const t = useT();
   const metrics = report.metrics;
   const matrix = metrics.confusion_matrix;
   const bins = metrics.illustrative_calibration_bins
@@ -31,21 +34,15 @@ export function ModelLabDashboard({ report }: { report: ModelReport }) {
       </div>
     </div>
 
-    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="Synthetic evaluation summary">
-      {[
-        { label: "Holdout scenarios", value: String(report.holdout_group_count), caption: metrics.holdout_count + " fully synthetic cases", icon: Database },
-        { label: "Synthetic accuracy", value: fraction(metrics.accuracy), caption: "Only against generated labels", icon: BarChart3 },
-        { label: "Synthetic ROC AUC", value: metrics.roc_auc.toFixed(3), caption: "Not real-world ranking skill", icon: Activity },
-        { label: "Synthetic Brier error", value: metrics.brier_score.toFixed(3), caption: "Lower is better on this fixture only", icon: BrainCircuit },
-      ].map(item => <article className="panel flex items-start justify-between gap-3 p-5" key={item.label}>
-        <div>
-          <p className="text-xs font-semibold text-muted">{item.label}</p>
-          <h2 className="mt-3 text-2xl font-bold tabular-nums sm:text-3xl">{item.value}</h2>
-          <p className="mt-2 text-xs leading-5 text-muted">{item.caption}</p>
-        </div>
-        <span className="rounded-xl bg-accent/10 p-2.5 text-accent"><item.icon size={21}/></span>
-      </article>)}
-    </section>
+    <StatStrip label={t("Synthetic evaluation summary")} className="xl:grid-cols-4">
+      <StatTile index={0} label={t("Holdout scenarios")} icon={Database} tone="info" value={String(report.holdout_group_count)} hint={metrics.holdout_count + " fully synthetic cases"}/>
+      <StatTile index={1} label={t("Synthetic accuracy")} icon={BarChart3} tone="neutral" value={fraction(metrics.accuracy)} hint={t("Only against generated labels")}/>
+      <StatTile index={2} label={t("Synthetic ROC AUC")} icon={Activity} tone="neutral" value={metrics.roc_auc.toFixed(3)} hint={t("Not real-world ranking skill")}/>
+      <StatTile index={3} label={t("Synthetic Brier error")} icon={BrainCircuit} tone="neutral" value={metrics.brier_score.toFixed(3)} hint={t("Lower is better on this fixture only")}/>
+    </StatStrip>
+    <InlineHelp className="mb-5" label={t("What this does and does not show")}>
+      {t("These numbers check that the offline test pipeline runs the same way every time on generated cases. They do not show how well anything would work on real events, and they must not be used for any warning or dispatch decision.")}
+    </InlineHelp>
 
     <section className="mt-5 grid items-start gap-5 xl:grid-cols-[minmax(0,1.25fr)_minmax(315px,.9fr)]">
       <article className="panel min-w-0 overflow-hidden">
@@ -69,9 +66,8 @@ export function ModelLabDashboard({ report }: { report: ModelReport }) {
         </div>
         <details className="border-t border-stroke px-5 py-4">
           <summary className="cursor-pointer text-sm font-semibold">Show underlying score-bin table</summary>
-          <div className="mt-3 overflow-x-auto">
-            <table className="w-full min-w-[400px] text-left text-xs">
-              <caption className="sr-only">Generated holdout scores versus synthetic labels by bin</caption>
+          <div className="mt-3">
+            <ResponsiveTable label={t("Score-bin table")} caption="Generated holdout scores versus synthetic labels by bin" className="[&>table]:min-w-[400px] [&>table]:text-left [&>table]:text-xs">
               <thead className="text-muted"><tr><th className="p-2">Score bin</th><th className="p-2">Cases</th><th className="p-2">Mean score</th><th className="p-2">Generated positives</th></tr></thead>
               <tbody className="divide-y divide-stroke">{metrics.illustrative_calibration_bins.map(value => <tr key={value.bin}>
                 <td className="p-2 tabular-nums">{value.interval.join("–")}</td>
@@ -79,7 +75,7 @@ export function ModelLabDashboard({ report }: { report: ModelReport }) {
                 <td className="p-2 tabular-nums">{value.mean_score === null ? "N/A" : fraction(value.mean_score)}</td>
                 <td className="p-2 tabular-nums">{value.positive_fraction === null ? "N/A" : fraction(value.positive_fraction)}</td>
               </tr>)}</tbody>
-            </table>
+            </ResponsiveTable>
           </div>
         </details>
       </article>
@@ -87,14 +83,13 @@ export function ModelLabDashboard({ report }: { report: ModelReport }) {
         <div className="panel-heading"><h2 className="flex items-center gap-2 text-base font-bold"><Binary size={18} className="text-accent"/> Classification breakdown</h2></div>
         <div className="p-5">
           <p className="text-xs leading-5 text-muted">Threshold: {report.model_configuration.threshold}. Counts compare model outputs against artificially generated labels.</p>
-          <table className="mt-4 w-full text-center text-xs">
-            <caption className="sr-only">Synthetic holdout confusion matrix</caption>
+          <ResponsiveTable className="mt-4 [&>table]:min-w-0 [&>table]:text-center [&>table]:text-xs" label={t("Confusion matrix table")} caption="Synthetic holdout confusion matrix">
             <thead><tr><th scope="col" className="p-2 text-left text-muted">Prediction</th><th scope="col" className="p-2 text-muted">Generated positive</th><th scope="col" className="p-2 text-muted">Generated negative</th></tr></thead>
             <tbody>
               <tr><th scope="row" className="p-2 text-left text-muted">Positive</th><td className="rounded-lg bg-accent/10 p-3 font-bold tabular-nums">{matrix.true_positive}</td><td className="rounded-lg bg-amber-500/10 p-3 font-bold tabular-nums">{matrix.false_positive}</td></tr>
               <tr><th scope="row" className="p-2 text-left text-muted">Negative</th><td className="rounded-lg bg-amber-500/10 p-3 font-bold tabular-nums">{matrix.false_negative}</td><td className="rounded-lg bg-accent/10 p-3 font-bold tabular-nums">{matrix.true_negative}</td></tr>
             </tbody>
-          </table>
+          </ResponsiveTable>
           <dl className="mt-5 grid grid-cols-2 gap-4 border-t border-stroke pt-4 text-xs">
             <div><dt className="text-muted">Precision (synthetic)</dt><dd className="mt-1 text-lg font-bold tabular-nums">{fraction(metrics.precision)}</dd></div>
             <div><dt className="text-muted">Recall (synthetic)</dt><dd className="mt-1 text-lg font-bold tabular-nums">{fraction(metrics.recall)}</dd></div>

@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { AlertTriangle, BrainCircuit, Calculator, ShieldAlert } from "lucide-react";
+import { BrainCircuit, Calculator, ShieldAlert } from "lucide-react";
+import { ErrorState, InlineHelp, StatusPill } from "./ui";
+import { useT } from "./language-provider";
 
 interface ExerciseResult {
   kind: "synthetic_rule_demo";
@@ -13,6 +15,7 @@ interface ExerciseResult {
   operational_actions_enabled: false;
 }
 export function RiskExercisePanel() {
+  const t = useT();
   const [rainfall, setRainfall] = useState(35);
   const [water, setWater] = useState(45);
   const [drainage, setDrainage] = useState("moderate");
@@ -78,10 +81,11 @@ export function RiskExercisePanel() {
         <p className="eyebrow">Demonstration-only result</p>
         {result ? <>
           <p className="mt-4 text-4xl font-bold tabular-nums">{result.hazard_index}<span className="ml-1 text-base text-muted">/ 100</span></p>
-          <p className="mt-2 text-sm font-semibold">{result.classification === "high" ? "Illustrative high rule index" : "Illustrative monitoring rule index"}</p>
+          <p className="mt-2"><StatusPill tone={result.classification === "high" ? "warning" : "info"}>{result.classification === "high" ? "Illustrative high rule index" : "Illustrative monitoring rule index"}</StatusPill></p>
           <p className="mt-3 text-xs leading-6 text-muted">Human verification remains required. Real probability: unavailable. All live actions: disabled.</p>
         </> : <p className="mt-4 text-sm text-muted">Enter exercise inputs and calculate. No result is shown until the API confirms the synthetic-only classification.</p>}
-        {error && <p role="alert" className="mt-3 flex items-center gap-2 text-xs text-rose-600 dark:text-rose-300"><AlertTriangle size={16}/>{error}</p>}
+        {error && <ErrorState className="mt-3" message={error}/>}
+        <InlineHelp label={t("About this index")}>{t("A deterministic teaching rule over synthetic inputs. It is not trained AI and cannot validate a real flood forecast.")}</InlineHelp>
       </div>
     </div>
   </section>;

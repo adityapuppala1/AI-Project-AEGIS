@@ -6,13 +6,14 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import {
   Activity, BookOpenCheck, ChevronRight, Command, LayoutDashboard,
-  Menu, Moon, Settings2, ShieldCheck, Sun, X, ClipboardCheck, LifeBuoy, RadioTower, Workflow, BrainCircuit, Route, UsersRound, Archive, Globe2, Gauge, Inbox, Radar, Plug,
+  ChevronDown, Menu, Moon, Settings2, ShieldCheck, Sun, X, ClipboardCheck, LifeBuoy, RadioTower, Workflow, BrainCircuit, Route, UsersRound, Archive, Globe2, Gauge, Inbox, Radar, Plug,
 } from "lucide-react";
 
 import { OperatorAuth } from "./operator-auth";
 import { GlobalSearch } from "./global-search";
 import { LanguageSwitcher } from "./language-switcher";
 import { useT } from "./language-provider";
+import { PageHeader, ToastProvider, type Crumb } from "./ui";
 
 const navigation = [
   { label: "Overview", items: [
@@ -51,6 +52,31 @@ function subscribeToRailQuery(onChange: () => void) {
   return () => query.removeEventListener("change", onChange);
 }
 
+// Collapsed nav groups are remembered for the browser session only. Storage can be blocked, so a module-level
+// memory copy keeps the choice alive across page navigations in that case.
+const NAV_STATE_KEY = "aegis-nav-collapsed";
+let memoryCollapsed: string[] = [];
+function readCollapsed(): string[] {
+  try {
+    const parsed: unknown = JSON.parse(sessionStorage.getItem(NAV_STATE_KEY) ?? "null");
+    if (Array.isArray(parsed)) return parsed.filter((item): item is string => typeof item === "string");
+  } catch { /* fall through to memory */ }
+  return memoryCollapsed;
+}
+function writeCollapsed(next: string[]) {
+  memoryCollapsed = next;
+  try { sessionStorage.setItem(NAV_STATE_KEY, JSON.stringify(next)); } catch { /* memory copy only */ }
+}
+const isActive = (pathname: string, href: string) => href === "/" ? pathname === href : pathname === href || pathname.startsWith(href + "/");
+/** The most specific nav entry for a path (so /admin/connectors wins over /admin). */
+function currentSection(pathname: string) {
+  let best: { group: string; label: string; href: string } | null = null;
+  for (const group of navigation) for (const item of group.items) {
+    if (isActive(pathname, item.href) && (!best || item.href.length > best.href.length)) best = { group: group.label, label: item.label, href: item.href };
+  }
+  return best;
+}
+
 function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -64,14 +90,26 @@ function ThemeToggle() {
   );
 }
 
-export function AppShell({ children, title, description }: { children: ReactNode; title: string; description: string }) {
+export function AppShell({ children, title, description, actions, breadcrumbs }: { children: ReactNode; title: string; description: string; actions?: ReactNode; breadcrumbs?: readonly Crumb[] }) {
   const pathname = usePathname();
   const t = useT();
   const [menuOpen, setMenuOpen] = useState(false);
   const openMenuRef = useRef<HTMLButtonElement>(null);
   const closeMenuRef = useRef<HTMLButtonElement>(null);
   const persistentRail = useSyncExternalStore(subscribeToRailQuery, () => matchMedia(RAIL_QUERY).matches, () => true);
-  useEffect(() => setMenuOpen(false), [pathname]);
+  const section = currentSection(pathname);
+  const [collapsed, setCollapsed] = useState<string[]>([]);
+  useEffect(() => setCollapsed(readCollapsed()), []);
+  const toggleGroup = (label: string) => setCollapsed(current => {
+    const next = current.includes(label) ? current.filter(item => item !== label) : [...current, label];
+    writeCollapsed(next); return next;
+  });
+  useEffect(() => {
+    setMenuOpen(false);
+    // Navigating into a collapsed group must never hide the page the operator is on.
+    const active = currentSection(pathname)?.group;
+    if (active) setCollapsed(current => { if (!current.includes(active)) return current; const next = current.filter(item => item !== active); writeCollapsed(next); return next; });
+  }, [pathname]);
   // Below lg the rail is an overlay drawer: it is inert while closed, focus enters it on
   // open, and an explicit dismissal (Escape, close control or backdrop) returns focus.
   const dismissMenu = () => { setMenuOpen(false); openMenuRef.current?.focus(); };
@@ -86,7 +124,7 @@ export function AppShell({ children, title, description }: { children: ReactNode
   }, [menuOpen]);
   return (
     <div className="min-h-screen lg:flex">
-      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:rounded-lg focus:bg-surface focus:p-3">{t("Skip to content")}</a>
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded-lg focus:border focus:border-accent focus:bg-surface focus:px-4 focus:py-3 focus:text-sm focus:font-bold focus:text-ink focus:shadow-panel">{t("Skip to content")}</a>
       {menuOpen && <button className="fixed inset-0 z-30 bg-black/60 lg:hidden" aria-label="Close navigation" onClick={dismissMenu} />}
       <aside className={`command-rail fixed inset-y-0 left-0 z-40 flex w-[236px] flex-col overflow-y-auto border-r border-stroke transition-transform duration-200 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${menuOpen ? "translate-x-0" : "-translate-x-full"}`}
         inert={!menuOpen && !persistentRail}>
@@ -99,16 +137,24 @@ export function AppShell({ children, title, description }: { children: ReactNode
         </div>
         <div className="px-3 pt-5">
           <nav className="space-y-5" aria-label="Primary navigation">
-            {navigation.map(group => <div key={group.label}>
-              <p className="px-3 text-[9px] font-bold uppercase tracking-[.18em] text-muted/75">{t(group.label)}</p>
-              <div className="mt-2 space-y-0.5">{group.items.map(({ href, label, icon: Icon }) => {
-                const active = href === "/" ? pathname === href : pathname === href || pathname.startsWith(href + "/");
-                return <Link key={href} href={href} aria-current={active ? "page" : undefined}
-                  className={`flex min-h-9 items-center gap-3 rounded-r-lg px-3 text-xs font-semibold transition-colors ${active ? "nav-active text-accent" : "text-muted hover:bg-elevated hover:text-ink"}`}>
-                  <Icon size={16} aria-hidden="true" /><span className="flex-1">{t(label)}</span>{active && <ChevronRight size={14} aria-hidden="true"/>}
-                </Link>;
-              })}</div>
-            </div>)}
+            {navigation.map(group => {
+              const open = !collapsed.includes(group.label);
+              const hasActive = section?.group === group.label;
+              const listId = "nav-group-" + group.label.toLowerCase();
+              return <div key={group.label}>
+                <button type="button" aria-expanded={open} aria-controls={listId} onClick={() => toggleGroup(group.label)}
+                  className={`flex min-h-8 w-full items-center justify-between rounded-md px-3 text-[9px] font-bold uppercase tracking-[.18em] hover:bg-elevated ${hasActive ? "text-accent" : "text-muted"}`}>
+                  <span>{t(group.label)}</span><ChevronDown size={12} aria-hidden="true" className={`transition-transform ${open ? "" : "-rotate-90"}`} />
+                </button>
+                <div id={listId} hidden={!open} className="mt-1 space-y-0.5">{group.items.map(({ href, label, icon: Icon }) => {
+                  const active = isActive(pathname, href) && section?.href === href;
+                  return <Link key={href} href={href} aria-current={active ? "page" : undefined}
+                    className={`flex min-h-9 items-center gap-3 rounded-r-lg px-3 text-xs ${active ? "nav-active font-bold text-accent" : "font-semibold text-muted hover:bg-elevated hover:text-ink"} transition-colors`}>
+                    <Icon size={16} aria-hidden="true" /><span className="flex-1">{t(label)}</span>{active && <ChevronRight size={14} aria-hidden="true"/>}
+                  </Link>;
+                })}</div>
+              </div>;
+            })}
           </nav>
         </div>
         <div className="mt-auto p-4">
@@ -123,8 +169,8 @@ export function AppShell({ children, title, description }: { children: ReactNode
         <div className="command-topbar sticky top-0 z-20 flex h-16 items-center justify-between border-b border-stroke bg-surface/90 px-4 backdrop-blur-xl sm:px-8">
           <div className="flex items-center gap-3">
             <button ref={openMenuRef} className="control h-10 w-10 !px-0 lg:hidden" aria-label="Open navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen(true)}><Menu size={19}/></button>
-            <span className="hidden text-xs font-semibold uppercase tracking-[.16em] text-muted sm:inline">{t("Public safety / Hyderabad")}</span>
-            <span className="text-xs font-semibold text-muted sm:hidden">AEGIS / Exercise</span>
+            <p className="hidden text-xs font-semibold uppercase tracking-[.16em] text-muted sm:block">{section ? <><span>{t(section.group)}</span> <span aria-hidden="true">/</span> <span className="text-ink">{t(section.label)}</span></> : t("Public safety / Hyderabad")}</p>
+            <p className="text-xs font-semibold text-muted sm:hidden">{section ? t(section.label) : "AEGIS / Exercise"}</p>
           </div>
           <div className="flex items-center gap-3">
             <span className="hidden items-center gap-2 rounded-full border border-amber-400/25 bg-amber-400/10 px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300 sm:inline-flex">
@@ -136,16 +182,14 @@ export function AppShell({ children, title, description }: { children: ReactNode
             <OperatorAuth />
           </div>
         </div>
-        <main id="main-content" className="mx-auto max-w-[1800px] px-4 pb-12 pt-6 sm:px-7">
-          <div className="mb-6 flex flex-wrap items-end justify-between gap-3 border-b border-stroke pb-5">
-            <div>
-            <p className="eyebrow mb-2">{t("Adaptive Emergency Geospatial Intelligence System")}</p>
-            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{t(title)}</h1>
-            <p className="mt-2 text-sm text-muted">{t(description)}</p>
+        <main id="main-content" tabIndex={-1} className="mx-auto max-w-[1800px] px-4 pb-12 pt-6 outline-none sm:px-7">
+          <ToastProvider>
+            <div className="reveal-in">
+              <PageHeader eyebrow={t("Adaptive Emergency Geospatial Intelligence System")} title={t(title)} description={t(description)} breadcrumbs={breadcrumbs}
+                actions={actions} chip={<span className="rounded-md border border-stroke bg-surface px-3 py-2 text-[10px] font-bold uppercase tracking-[.17em] text-muted">{t("Local exercise node · HYD-01")}</span>} />
+              {children}
             </div>
-            <span className="rounded-md border border-stroke bg-surface px-3 py-2 text-[10px] font-bold uppercase tracking-[.17em] text-muted">{t("Local exercise node · HYD-01")}</span>
-          </div>
-          {children}
+          </ToastProvider>
         </main>
       </div>
     </div>

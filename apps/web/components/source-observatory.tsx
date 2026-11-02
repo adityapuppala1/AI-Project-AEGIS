@@ -1,10 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import Link from "next/link";
 import { Activity, AlertTriangle, ArrowRight, Clock3, Database, Gauge, RadioTower, RefreshCw, Search, ShieldAlert, ShieldCheck, WifiOff } from "lucide-react";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { AppShell } from "./app-shell";
+import { useT } from "./language-provider";
+import { DataFreshness, EmptyState, ErrorState, SearchField, KeyValueList, Panel, SegmentedControl, SkeletonRows, StatStrip, StatTile, StatusPill, type Tone } from "./ui";
 import {
   displayAge, KIND_LABELS, STATUS_LABELS,
   type ExerciseSource, type SourceHealthStatus, type SourceHistory, type SourceOverview,
@@ -34,14 +36,15 @@ function timestamp(value: string | null | undefined) {
     dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Kolkata",
   }).format(date) + " IST";
 }
+const STATUS_TONE: Record<SourceHealthStatus, Tone> = { fresh: "success", delayed: "warning", stale: "danger", no_data: "neutral", clock_anomaly: "info" };
 function Badge({ status }: { status: SourceHealthStatus }) {
-  return <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ${STATUS_STYLE[status]}`}>
-    <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-current"/>
-    {STATUS_LABELS[status]}
-  </span>;
+  const t = useT();
+  return <StatusPill tone={STATUS_TONE[status]}>{t(STATUS_LABELS[status])}</StatusPill>;
 }
 
 export function SourceObservatory() {
+  const t = useT();
+  const listRef = useRef<HTMLDivElement>(null);
   const [overview, setOverview] = useState<SourceOverview | null>(null);
   const [history, setHistory] = useState<SourceHistory | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -124,39 +127,49 @@ export function SourceObservatory() {
     label: timestamp(sample.observed_at),
   })), [history]);
 
+  const freshnessPercent = (source: ExerciseSource) => {
+    const age = source.health.age_seconds;
+    if (age === null || !Number.isFinite(age) || age < 0) return 0;
+    return Math.round(Math.max(0, Math.min(1, 1 - age / Math.max(1, source.expected_interval_seconds * 3))) * 100);
+  };
+  const onListKey = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
+    const rows = Array.from(listRef.current?.querySelectorAll<HTMLButtonElement>("[data-source-row]") ?? []);
+    const at = rows.indexOf(document.activeElement as HTMLButtonElement);
+    if (at < 0) return;
+    event.preventDefault();
+    const next = event.key === "Home" ? 0 : event.key === "End" ? rows.length - 1 : Math.max(0, Math.min(rows.length - 1, at + (event.key === "ArrowDown" ? 1 : -1)));
+    rows[next]?.focus();
+  };
+
   return <AppShell title="Source Health & Freshness" description="Observe simulated feed timeliness, delivery delay and missing data before relying on a signal.">
     <div className="mb-5 flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs leading-6 text-amber-800 dark:text-amber-200" role="note">
       <ShieldAlert className="mt-1 shrink-0" size={19}/>
       <p><strong>Exercise-only observability.</strong> These sources are database fixtures, not connected IMD, NDMA, CCTV or municipal devices.
         Freshness is a timestamp heuristic, not validation that any disaster signal is accurate or any physical equipment is operational.</p>
     </div>
-    {error && <div role="alert" className="mb-5 flex items-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-700 dark:text-rose-300">
-      <AlertTriangle size={18}/>{error}. Any previously displayed measurements may be outdated.
-    </div>}
+    {error && <ErrorState className="mb-5" message={error + ". " + t("Any previously displayed measurements may be outdated.")} onRetry={refresh}/>}
     <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-      <p className="text-xs text-muted" role="status">
-        {overview ? `Computed ${timestamp(overview.as_of)} · ${overview.total} synthetic sources` : "Awaiting exercise source registry"}
-      </p>
+      <div className="flex flex-wrap items-center gap-3">
+        <p className="text-xs text-muted" role="status">
+          {overview ? `Computed ${timestamp(overview.as_of)} · ${overview.total} synthetic sources` : "Awaiting exercise source registry"}
+        </p>
+        {overview && <DataFreshness observedAt={overview.as_of} staleAfterHours={1}/>}
+      </div>
       <button type="button" className="control" onClick={refresh} disabled={loading}>
         <RefreshCw size={16} className={loading ? "animate-spin" : ""}/> Refresh source status
       </button>
     </div>
-    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5" aria-label="Simulated source freshness summary">
-      {[
-        { label: "Within window", count: overview?.counts.fresh, icon: ShieldCheck, color: "text-emerald-500" },
-        { label: "Delayed", count: overview?.counts.delayed, icon: Clock3, color: "text-amber-500" },
-        { label: "Stale", count: overview?.counts.stale, icon: AlertTriangle, color: "text-rose-500" },
-        { label: "No observations", count: overview?.counts.no_data, icon: WifiOff, color: "text-muted" },
-        { label: "Time anomaly", count: overview?.counts.clock_anomaly, icon: Activity, color: "text-violet-500" },
-      ].map(metric => <article className="panel p-4 sm:p-5" key={metric.label}>
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-xs font-semibold text-muted">{metric.label}</span>
-          <metric.icon size={18} className={metric.color} aria-hidden="true"/>
-        </div>
-        <p className="mt-3 text-2xl font-bold tabular-nums">{overview ? metric.count : "—"}</p>
-        <p className="mt-1 text-[11px] text-muted">Synthetic feed count</p>
-      </article>)}
-    </section>
+    <StatStrip label={t("Simulated source freshness summary")} className="xl:grid-cols-5">
+      {([
+        { label: "Within window", count: overview?.counts.fresh, icon: ShieldCheck, tone: "success" },
+        { label: "Delayed", count: overview?.counts.delayed, icon: Clock3, tone: "warning" },
+        { label: "Stale", count: overview?.counts.stale, icon: AlertTriangle, tone: "danger" },
+        { label: "No observations", count: overview?.counts.no_data, icon: WifiOff, tone: "neutral" },
+        { label: "Time anomaly", count: overview?.counts.clock_anomaly, icon: Activity, tone: "info" },
+      ] as const).map((metric, index) => <StatTile key={metric.label} index={index} label={t(metric.label)} icon={metric.icon} tone={metric.tone}
+        value={overview ? (metric.count ?? 0) : "—"} hint={t("Synthetic feed count")}/>)}
+    </StatStrip>
 
     <div className="mt-5 grid items-start gap-5 2xl:grid-cols-[minmax(0,1.1fr)_minmax(370px,1fr)]">
       <section className="panel min-w-0 overflow-hidden">
@@ -165,18 +178,8 @@ export function SourceObservatory() {
             <p className="mt-1 text-xs text-muted">Select a simulated feed to review its latest readings.</p></div>
           <Link href="/help" className="inline-flex items-center gap-1 text-xs font-semibold text-accent">Data guidance <ArrowRight size={14}/></Link>
         </div>
-        <div className="flex flex-wrap gap-3 border-b border-stroke p-4">
-          <label className="relative min-w-[190px] flex-1">
-            <Search size={17} className="pointer-events-none absolute left-3 top-3 text-muted" aria-hidden="true"/>
-            <span className="sr-only">Search synthetic sources</span>
-            <input type="search" className="field !pl-10" value={query} maxLength={100}
-              placeholder="Search sources or status..." onChange={event => setQuery(event.target.value)}/>
-          </label>
-          <label><span className="sr-only">Filter source health</span>
-            <select className="field min-w-[145px]" value={filter} onChange={event => setFilter(event.target.value as Filter)}>
-              {FILTERS.map(item => <option key={item.value} value={item.value}>{item.label}</option>)}
-            </select>
-          </label>
+        <div className="flex flex-wrap items-center gap-3 border-b border-stroke p-4">
+          <SearchField label={t("Search synthetic sources")} value={query} onChange={setQuery} placeholder={t("Search sources or status...")} className="min-w-[190px] flex-1"/>
           <label><span className="sr-only">Sort synthetic sources</span>
             <select className="field min-w-[145px]" value={sort} onChange={event => setSort(event.target.value as typeof sort)}>
               <option value="name">Sort: source</option>
@@ -184,19 +187,28 @@ export function SourceObservatory() {
               <option value="age">Sort: oldest observation</option>
             </select>
           </label>
+          <SegmentedControl label={t("Filter source health")} value={filter} onChange={setFilter}
+            options={FILTERS.map(item => ({ value: item.value, label: t(item.label) }))}/>
         </div>
-        <div className="divide-y divide-stroke">
-          {loading && !overview && <p className="p-6 text-sm text-muted">Loading source registry…</p>}
-          {sources.map(source => <button type="button" key={source.id} onClick={() => setSelectedId(source.id)}
+        <div className="divide-y divide-stroke" ref={listRef} onKeyDown={onListKey}>
+          {loading && !overview && <div className="p-4"><SkeletonRows rows={5} label={t("Loading source registry…")}/></div>}
+          {sources.map(source => <button type="button" key={source.id} data-source-row onClick={() => setSelectedId(source.id)}
             aria-pressed={selectedId === source.id}
             className={`flex w-full flex-wrap items-center gap-3 p-4 text-left transition-colors hover:bg-elevated/60 sm:p-5 ${selectedId === source.id ? "bg-accent/5" : ""}`}>
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent"><Gauge size={20}/></span>
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent"><Gauge size={20} aria-hidden="true"/></span>
             <span className="min-w-0 flex-1"><strong className="block truncate text-sm">{source.name}</strong>
-              <span className="mt-1 block text-xs text-muted">{KIND_LABELS[source.source_kind]} · Observed {displayAge(source.health.age_seconds)} ago</span>
+              <span className="mt-1 block text-xs text-muted">{KIND_LABELS[source.source_kind]}</span>
+              <DataFreshness className="mt-1" observedAt={source.latest?.observed_at} ingestedAt={source.latest?.ingested_at ?? null} staleAfterHours={Math.max(1, (source.expected_interval_seconds * 3) / 3600)} stale={source.health.status === "stale"}/>
+              <span aria-hidden="true" className="mt-2 block h-1.5 w-full max-w-[220px] rounded-full bg-elevated">
+                <span className={`bar-grow block h-1.5 rounded-full ${source.health.status === "fresh" ? "bg-emerald-600" : source.health.status === "delayed" ? "bg-amber-600" : source.health.status === "stale" ? "bg-rose-600" : "bg-slate-500"}`}
+                  style={{ width: `${freshnessPercent(source)}%` }}/>
+              </span>
             </span>
             <Badge status={source.health.status}/>
           </button>)}
-          {!loading && sources.length === 0 && <p className="p-8 text-center text-sm text-muted">No matching exercise feeds. Try clearing filters.</p>}
+          {!loading && sources.length === 0 && <EmptyState icon={Search} title={t("No matching exercise feeds")}
+            body={t("Try clearing the search or filter. An empty list does not mean the sources are healthy.")}
+            actions={<button type="button" className="control text-xs" onClick={() => { setQuery(""); setFilter("all"); }}>{t("Clear filters")}</button>}/>}
         </div>
         <p className="border-t border-stroke px-5 py-3 text-xs text-muted">{sources.length} matching · All records are synthetic</p>
       </section>
@@ -204,7 +216,7 @@ export function SourceObservatory() {
       <section className="panel min-w-0 overflow-hidden" aria-label="Selected source details">
         <div className="panel-heading"><h2 className="flex items-center gap-2 text-base font-bold"><Database size={18} className="text-accent"/> Source Detail & Trends</h2>
           <span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">Read-only</span></div>
-        {!selected ? <p className="p-6 text-sm text-muted">Select an exercise source to view its observations.</p> : <>
+        {!selected ? <EmptyState icon={Database} title={t("Select an exercise source")} body={t("Choose a feed from the registry to review its latest synthetic readings.")}/> : <>
           <div className="space-y-3 p-5">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h3 className="text-base font-bold">{selected.name}</h3>
@@ -221,10 +233,19 @@ export function SourceObservatory() {
             </dl>
           </div>
           <div className="border-t border-stroke px-5 py-4">
+            <Panel level={3} icon={ShieldCheck} title={t("Quality notes")} description={t("From fields already loaded; synthetic fixtures only.")}>
+              <KeyValueList items={[
+                { label: t("Status reason"), value: selected.health.reason },
+                { label: t("Quality label"), value: selected.latest?.quality_status === "synthetic_curated" ? t("Curated fixture") : selected.latest ? t("Unverified fixture") : t("No readings") },
+                { label: t("Metric"), value: `${selected.metric_label} (${selected.metric_unit})` },
+              ]}/>
+            </Panel>
+          </div>
+          <div className="border-t border-stroke px-5 py-4">
             <h4 className="text-sm font-bold">Synthetic sample history</h4>
             <p className="mt-1 text-xs text-muted">{selected.metric_label} ({selected.metric_unit}) · not a weather prediction</p>
-            {historyError && <p role="alert" className="mt-3 text-xs text-rose-600 dark:text-rose-300">{historyError}</p>}
-            {historyLoading && <p className="mt-3 text-xs text-muted">Loading history…</p>}
+            {historyError && <ErrorState className="mt-3" message={historyError} onRetry={refresh}/>}
+            {historyLoading && <div className="mt-3"><SkeletonRows rows={3} label={t("Loading history…")}/></div>}
             {chart.length >= 2 && <div className="mt-4 h-[205px] w-full" role="img" aria-label={`Synthetic ${selected.metric_label} trend. Tabular values are provided below.`}>
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chart} margin={{ top: 8, right: 16, bottom: 4, left: -16 }}>

@@ -2,9 +2,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, GitMerge, ShieldCheck } from "lucide-react";
+import { useT } from "./language-provider";
+import { DataFreshness, StatusPill } from "./ui";
 import type { IngestionOverview } from "../lib/ingestion";
 
 export function IngestionStatusSummary() {
+  const t = useT();
   const [status, setStatus] = useState<IngestionOverview | null>(null);
   const [failed, setFailed] = useState(false);
   useEffect(() => {
@@ -28,7 +31,9 @@ export function IngestionStatusSummary() {
           status ? `${status.accepted_events} accepted event IDs · ${status.quarantine_records} quarantined record fingerprints` :
           "Checking local exercise replay ledger..."}
         </p>
-        <p className="mt-1 flex items-center gap-1 text-[11px] text-muted"><ShieldCheck size={13}/> No live observation intake or operational actions</p>
+        <p className="mt-1 flex items-center gap-1 text-[11px] text-muted"><ShieldCheck size={13}/> No live observation intake or operational actions
+          {status && <StatusPill tone={status.quarantine_records > 0 ? "warning" : "success"}>{status.quarantine_records > 0 ? t("Quarantine holds records") : t("Nothing quarantined")}</StatusPill>}
+          {status && <DataFreshness observedAt={status.generated_at} staleAfterHours={1}/>}</p>
       </div>
     </div>
     <Link href="/ingestion" className="control text-xs">Review replay <ArrowRight size={15}/></Link>

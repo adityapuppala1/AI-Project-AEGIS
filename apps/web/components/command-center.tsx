@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Activity, AlertTriangle, ArrowRight, Archive, CloudRain, Database, MapPinned, RefreshCw, ShieldCheck, Table2, UsersRound, Waves } from "lucide-react";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -12,6 +12,7 @@ import { LocalReviewFocus } from "./local-review-focus";
 import { IngestionStatusSummary } from "./ingestion-status-summary";
 import { PublicSignalsStrip } from "./public-signals-strip";
 import { useT } from "./language-provider";
+import { DataFreshness, EmptyState, ErrorState, SkeletonRows } from "./ui";
 
 function Metric({ label, value, caption, icon: Icon, tone = "accent" }: {
   label: string; value: string | number; caption: string; icon: typeof Activity; tone?: "accent" | "amber" | "rose";
@@ -30,6 +31,12 @@ export function CommandCenter() {
   const t = useT();
   const [query, setQuery] = useState("");
   const [showTable, setShowTable] = useState(false);
+  const rowRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const moveRow = (event: React.KeyboardEvent, index: number, count: number) => {
+    const next = event.key === "ArrowDown" ? Math.min(count - 1, index + 1) : event.key === "ArrowUp" ? Math.max(0, index - 1) : event.key === "Home" ? 0 : event.key === "End" ? count - 1 : -1;
+    if (next >= 0) { event.preventDefault(); rowRefs.current[next]?.focus(); }
+    else if (event.key === "Escape" && selectedId) { const back = rowRefs.current[index]; setSelectedId(null); back?.focus(); }
+  };
   const selected = incidents.find(item => item.id === selectedId);
   const filtered = useMemo(() => incidents.filter(item => item.hazard_type.toLowerCase().includes(query.toLowerCase()) || item.status.includes(query.toLowerCase())), [incidents, query]);
   const quickActions = [
@@ -42,11 +49,9 @@ export function CommandCenter() {
     <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-500/25 bg-amber-500/5 px-4 py-3">
       <div className="flex items-center gap-2 text-xs font-semibold text-amber-700 dark:text-amber-300"><ShieldCheck size={17}/><span>{t("EXERCISE ONLY — all incidents and telemetry are synthetic; no operational warnings or dispatch.")}</span></div>
       <Link href="/demo" className="control text-xs">{t("Run guided exercise")} <ArrowRight size={14}/></Link>
-      <span className="text-xs text-muted">{lastSynced ? `Last sync: ${new Date(lastSynced).toLocaleTimeString()}` : "Awaiting first sync"}</span>
+      {lastSynced ? <span className="text-xs text-muted">{t("Last sync")}: {new Date(lastSynced).toLocaleTimeString()} · <DataFreshness observedAt={lastSynced} staleAfterHours={1}/></span> : <span className="text-xs text-muted">{t("Awaiting first sync")}</span>}
     </div>
-    {error && <div role="alert" className="mb-5 flex items-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-700 dark:text-rose-300">
-      <AlertTriangle size={17}/>{error}. Previously loaded values, if any, may be stale.
-    </div>}
+    {error && <ErrorState className="mb-5" message={`${error}. ${t("Previously loaded values, if any, may be stale.")}`} onRetry={() => void refresh()}/>}
     <section className="command-deck operator-hero mb-5 overflow-hidden rounded-xl border border-stroke p-4 sm:p-5" aria-label="Operator mission workspace">
       <div className="relative z-10 flex flex-wrap items-center justify-between gap-4">
         <div><p className="eyebrow">Active decision path</p><h2 className="mt-2 text-lg font-bold tracking-tight">Evidence to accountable response</h2><p className="mt-1 text-xs text-muted">One bounded workflow · cited context · independent approval</p></div>
@@ -58,8 +63,8 @@ export function CommandCenter() {
       </ol>
     </section>
     <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-      <div className="flex items-center gap-2"><span className={`status-dot ${error ? "bg-rose-400" : lastSynced ? "bg-emerald-400" : "bg-amber-400"}`}/><span className="text-xs font-medium text-muted">{error ? "Data feed unavailable" : lastSynced ? "Exercise API connected" : "Connecting to exercise API"}</span></div>
-      <button type="button" className="control" onClick={() => void refresh()} disabled={refreshing}><RefreshCw size={16} className={refreshing ? "animate-spin" : ""}/> {refreshing ? "Refreshing" : t("Refresh data")}</button>
+      <div className="flex items-center gap-2"><span className={`status-dot ${error ? "bg-rose-400" : lastSynced ? "bg-emerald-400" : "bg-amber-400"}`}/><span className="text-xs font-medium text-muted">{error ? t("Data feed unavailable") : lastSynced ? t("Exercise API connected") : t("Connecting to exercise API")}</span></div>
+      <button type="button" className="control" onClick={() => void refresh()} disabled={refreshing}><RefreshCw size={16} className={refreshing ? "animate-spin" : ""}/> {refreshing ? t("Refreshing") : t("Refresh data")}</button>
     </div>
     <section className="grid grid-cols-2 gap-3 xl:grid-cols-4" aria-label="Exercise overview metrics">
       <Metric label="Registered incidents" value={loading ? "—" : incidents.length} caption="Seeded exercise records" icon={Database}/>
@@ -85,8 +90,8 @@ export function CommandCenter() {
         <div className="panel-heading"><div><h2 className="text-base font-bold">{t("Incident Queue")}</h2><p className="mt-1 text-xs text-muted">Exercise cases from the operational database</p></div><Link href="/incidents" className="inline-flex items-center gap-1 text-xs font-semibold text-accent">All cases <ArrowRight size={14}/></Link></div>
         <div className="px-5 pt-4"><label className="sr-only" htmlFor="incident-search">Search incidents</label><input id="incident-search" className="field" placeholder="Search hazard or status..." value={query} onChange={event => setQuery(event.target.value)}/></div>
         <div className="max-h-[310px] flex-1 overflow-y-auto p-3">
-          {loading ? <p className="p-4 text-sm text-muted">Loading exercise incidents...</p> : filtered.length === 0 ? <p className="p-4 text-sm text-muted">No matching incidents.</p> : filtered.map(item =>
-            <button key={item.id} type="button" onClick={() => setSelectedId(item.id)} aria-pressed={selectedId === item.id}
+          {loading ? <SkeletonRows rows={4} label={t("Loading exercise incidents...")}/> : filtered.length === 0 ? <EmptyState title={t("No matching incidents")} body={t("An empty queue does not mean the area is safe; clear the search or check source freshness.")}/> : filtered.map((item, index) =>
+            <button key={item.id} ref={node => { rowRefs.current[index] = node; }} type="button" onClick={() => setSelectedId(item.id)} onKeyDown={event => moveRow(event, index, filtered.length)} aria-pressed={selectedId === item.id}
               className={`mb-2 w-full rounded-xl border p-3 text-left transition-colors hover:bg-elevated ${selectedId === item.id ? "border-accent bg-accent/5" : "border-transparent"}`}>
               <div className="flex flex-wrap items-center justify-between gap-2"><span className="text-sm font-semibold">{item.hazard_type}</span><StatusBadge status={item.status}/></div>
               <div className="mt-2 flex items-center gap-2 text-xs text-muted"><MapPinned size={13}/>{item.lat.toFixed(3)}, {item.lon.toFixed(3)}</div>
@@ -126,7 +131,7 @@ export function CommandCenter() {
               <Tooltip contentStyle={{ background: "rgb(var(--chart-tooltip))", border: "1px solid rgb(var(--stroke))", borderRadius: 10, color: "#f3f7fc" }} labelStyle={{ color: "#c8d4e8" }}/>
               <Area type="monotone" dataKey="rainfall_mm" name="Rainfall (mm)" stroke="rgb(var(--accent))" strokeWidth={3} fill="url(#rainArea)" dot={false}/>
             </AreaChart>
-          </ResponsiveContainer> : <div className="flex h-full items-center justify-center text-sm text-muted">{loading ? "Loading chart..." : "No telemetry available"}</div>}
+          </ResponsiveContainer> : <div className="flex h-full items-center justify-center text-sm text-muted">{loading ? t("Loading chart...") : t("No telemetry available; this is not a safety signal.")}</div>}
         </div>}
       </section>
       <section className="panel">

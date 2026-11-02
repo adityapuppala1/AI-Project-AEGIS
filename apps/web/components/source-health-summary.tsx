@@ -2,9 +2,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AlertTriangle, ArrowRight, RadioTower, ShieldAlert } from "lucide-react";
+import { useT } from "./language-provider";
+import { DataFreshness, StatusPill } from "./ui";
 import type { SourceOverview } from "../lib/source-health";
 
 export function SourceHealthSummary() {
+  const t = useT();
   const [overview, setOverview] = useState<SourceOverview | null>(null);
   const [error, setError] = useState(false);
   useEffect(() => {
@@ -32,7 +35,9 @@ export function SourceHealthSummary() {
             {attention > 0 ? <ShieldAlert size={14} className="text-amber-500"/> : <RadioTower size={14} className="text-accent"/>}
             {overview.total} synthetic feeds · {attention} with missing, delayed or unusual observations
           </p> : <p className="mt-1 text-xs text-muted">Checking simulated source data age...</p>}
-        <p className="mt-1 text-[11px] text-muted">Not a real-time device-health or official weather-service claim</p>
+        <p className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-muted">Not a real-time device-health or official weather-service claim
+          {overview && <DataFreshness observedAt={overview.as_of} staleAfterHours={1}/>}
+          {overview && <StatusPill tone={attention > 0 ? "warning" : "success"}>{attention > 0 ? t("Needs attention") : t("Within demo window")}</StatusPill>}</p>
       </div>
     </div>
     <Link href="/sources" className="control text-xs">Inspect sources <ArrowRight size={15}/></Link>

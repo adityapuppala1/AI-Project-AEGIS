@@ -1,3 +1,4 @@
+import { CheckCircle2, Eye, Info, ShieldAlert, type LucideIcon } from "lucide-react";
 import type { IncidentStatus } from "../lib/types";
 import { STATUS_LABELS } from "../lib/types";
 
@@ -8,8 +9,12 @@ const variants: Record<IncidentStatus, string> = {
   resolved: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 ring-emerald-500/20",
 };
 
+// An icon per status so the state never relies on colour alone.
+const icons: Record<IncidentStatus, LucideIcon> = { new: Info, review: Eye, active: ShieldAlert, resolved: CheckCircle2 };
+
 export function StatusBadge({ status }: { status: IncidentStatus }) {
+  const Icon = icons[status] ?? icons.new;
   return <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ${variants[status] ?? variants.new}`}>
-    <span className="h-1.5 w-1.5 rounded-full bg-current" />{STATUS_LABELS[status] ?? status}
+    <Icon size={12} aria-hidden="true" />{STATUS_LABELS[status] ?? status}
   </span>;
 }

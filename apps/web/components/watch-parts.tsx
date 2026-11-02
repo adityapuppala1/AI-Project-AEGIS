@@ -43,7 +43,7 @@ export function AgeText({ iso, now }: Readonly<{ iso: string | null; now: number
 }
 
 export function CountUp({ value }: Readonly<{ value: number }>) {
-  const [shown, setShown] = useState(() => prefersReducedMotion() ? value : 0);
+  const [shown, setShown] = useState(0);
   useEffect(() => {
     if (prefersReducedMotion()) { setShown(value); return; }
     let frame = 0; const start = performance.now();

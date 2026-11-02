@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { AlertTriangle, Archive, ArrowRight, Download, FileCheck2, FileClock, RefreshCw, ShieldAlert } from "lucide-react";
+import { AlertTriangle, Archive, ArrowRight, Download, FileCheck2, FileClock, ListChecks, RefreshCw, ShieldAlert } from "lucide-react";
 import { AppShell } from "./app-shell";
+import { useT } from "./language-provider";
+import { CopyButton, DataFreshness, EmptyState, FilterChips, KeyValueList, SkeletonRows, StatStrip, StatTile } from "./ui";
 
 const CASES = [
   { id: "22222222-2222-4222-8222-222222222222", label: "Synthetic waterlogging" },
@@ -38,6 +40,8 @@ function timestamp(value: string): string {
 }
 
 export function Audit360Dashboard() {
+  const t = useT();
+  const [kinds, setKinds] = useState<ReadonlySet<string>>(new Set());
   const [incidentId, setIncidentId] = useState(CASES[0].id);
   const [bundle, setBundle] = useState<AuditBundle | null>(null);
   const [revision, setRevision] = useState(0);
@@ -45,7 +49,7 @@ export function Audit360Dashboard() {
   const [error, setError] = useState("");
   useEffect(() => {
     const controller = new AbortController();
-    setBundle(null); setError(""); setLoading(true);
+    setBundle(null); setKinds(new Set()); setError(""); setLoading(true);
     fetch("/api/incidents/" + incidentId + "/audit", {
       cache: "no-store", signal: controller.signal,
     }).then(async response => {
@@ -89,26 +93,21 @@ export function Audit360Dashboard() {
           onChange={event => setIncidentId(event.target.value)}>
           {CASES.map(item => <option key={item.id} value={item.id}>{item.label} · {item.id.slice(0,8)}</option>)}
         </select>
-        {loading && <p role="status" className="mt-4 text-sm text-muted">Generating safe read-only exercise snapshot…</p>}
+        {loading && <><p role="status" className="mt-4 text-sm text-muted">Generating safe read-only exercise snapshot…</p><SkeletonRows rows={3}/></>}
         {error && <p role="alert" className="mt-4 flex items-center gap-2 text-sm text-rose-700 dark:text-rose-300"><AlertTriangle size={17}/>{error}. No saved prior snapshot is displayed as current.</p>}
         {bundle && <>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              { label: "Synthetic case evidence", value: bundle.incident_workspace.evidence.length },
-              { label: "Case chronology entries", value: bundle.incident_workspace.timeline.length },
-              { label: "Fictional desk tasks", value: bundle.agency_task_board.tasks.length },
-              { label: "Scripted task events", value: bundle.scripted_task_events.length },
-            ].map(item => <article key={item.label} className="rounded-xl border border-stroke bg-elevated/40 p-4">
-              <p className="text-xs font-semibold text-muted">{item.label}</p>
-              <p className="mt-3 text-2xl font-bold tabular-nums">{item.value}</p>
-            </article>)}
-          </div>
-          <dl className="mt-5 space-y-3 rounded-xl border border-stroke p-4 text-xs leading-6">
-            <div><dt className="font-semibold">Playbook reference</dt><dd className="break-all text-muted">{bundle.playbook_ref}</dd></div>
-            <div><dt className="font-semibold">Assessment status</dt><dd className="text-muted">{bundle.readiness_checklist.context_state.replaceAll("_", " ")}</dd></div>
-            <div><dt className="font-semibold">Snapshot time</dt><dd className="text-muted">{timestamp(bundle.exported_at)}</dd></div>
-            <div><dt className="font-semibold">Unsigned SHA-256 manifest</dt><dd className="break-all font-mono text-[11px] text-muted">{bundle.manifest_sha256}</dd></div>
-          </dl>
+          <StatStrip label={t("Audit snapshot counts")} className="mt-5">
+            <StatTile label="Synthetic case evidence" value={bundle.incident_workspace.evidence.length} icon={FileCheck2}/>
+            <StatTile label="Case chronology entries" value={bundle.incident_workspace.timeline.length} icon={FileClock}/>
+            <StatTile label="Fictional desk tasks" value={bundle.agency_task_board.tasks.length} icon={ListChecks}/>
+            <StatTile label="Scripted task events" value={bundle.scripted_task_events.length} icon={Archive}/>
+          </StatStrip>
+          <KeyValueList className="rounded-xl border border-stroke p-4" items={[
+            { label: "Playbook reference", value: <span className="break-all text-muted">{bundle.playbook_ref}</span> },
+            { label: "Assessment status", value: <span className="text-muted">{bundle.readiness_checklist.context_state.replaceAll("_", " ")}</span> },
+            { label: "Snapshot time", value: <span className="text-muted">{timestamp(bundle.exported_at)} <DataFreshness observedAt={bundle.exported_at} staleAfterHours={24}/></span> },
+            { label: "Unsigned SHA-256 manifest", value: <span className="flex flex-wrap items-center gap-2"><span className="break-all font-mono text-[11px] text-muted">{bundle.manifest_sha256}</span><CopyButton value={bundle.manifest_sha256} label={t("Copy checksum")}/></span> },
+          ]}/>
           <div className="mt-5 flex flex-wrap gap-3">
             <a href={"/api/incidents/" + incidentId + "/audit"} className="control control-primary text-xs"
               download={"aegis-exercise-audit-" + incidentId + ".json"}>
@@ -120,13 +119,18 @@ export function Audit360Dashboard() {
           </div>
           <details className="mt-5 rounded-xl border border-stroke p-4">
             <summary className="cursor-pointer text-xs font-semibold">Inspect scripted acknowledgement timeline ({bundle.scripted_task_events.length})</summary>
-            <ol className="mt-4 space-y-3">
-              {bundle.scripted_task_events.map(event => <li key={event.id} className="rounded-lg bg-elevated/40 p-3 text-xs leading-6">
-                <p className="flex items-center gap-2 font-bold"><FileClock size={14}/> {event.kind.replaceAll("_"," ")}</p>
+            <FilterChips label={t("Filter timeline by event kind")} className="mt-4"
+              options={Array.from(new Set(bundle.scripted_task_events.map(e => e.kind))).map(k => ({ value: k, label: k.replaceAll("_", " ") }))}
+              selected={kinds} onToggle={k => setKinds(prev => { const next = new Set(prev); if (next.has(k)) next.delete(k); else next.add(k); return next; })}/>
+            {(() => { const shown = bundle.scripted_task_events.filter(e => kinds.size === 0 || kinds.has(e.kind));
+              return shown.length === 0 ? <EmptyState title={t("No scripted events match")} body={t("An empty filtered view does not mean nothing happened; clear the filter to see all events.")}/> :
+            <ol className="mt-4 space-y-3 border-l-2 border-stroke pl-4">
+              {shown.map(event => <li key={event.id} className="rounded-lg bg-elevated/40 p-3 text-xs leading-6">
+                <p className="flex items-center gap-2 font-bold"><FileClock size={14} aria-hidden="true"/> {event.kind.replaceAll("_"," ")}</p>
                 <p className="mt-1 text-muted">{event.summary}</p>
                 <p className="mt-1 text-[11px] text-muted">{timestamp(event.occurred_at)} · {event.actor_label}</p>
               </li>)}
-            </ol>
+            </ol>; })()}
           </details>
           <p className="mt-4 text-xs leading-5 text-muted">{bundle.integrity_note}</p>
         </>}

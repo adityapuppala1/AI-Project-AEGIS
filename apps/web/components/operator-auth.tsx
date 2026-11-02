@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useT } from "./language-provider";
 import { clearExerciseDraftRecovery } from "../lib/exercise-draft-buffer";
+import { StatusPill } from "./ui";
 import { LogIn, LogOut, ShieldCheck } from "lucide-react";
 
 interface Session {
@@ -36,7 +37,8 @@ export function OperatorAuth() {
     <span className="hidden max-w-[160px] truncate text-xs text-muted xl:inline" title={session.subject}>
       <ShieldCheck size={14} className="mr-1 inline text-accent"/>{session.subject}
     </span>
-    <button type="button" onClick={signOut} disabled={busy} className="control h-9 text-xs" aria-label="Sign out of operator session"><LogOut size={15}/>Sign out</button>
+    {(session.roles ?? []).slice(0, 3).map(role => <span key={role} className="hidden xl:inline"><StatusPill tone="info">{role.replaceAll("_", " ")}</StatusPill></span>)}
+    <button type="button" onClick={signOut} disabled={busy} className="control h-9 text-xs" aria-label="Sign out of operator session"><LogOut size={15}/><span className="hidden sm:inline">Sign out</span></button>
   </div>;
   if (!session.configured) return <span className="hidden text-xs text-amber-700 dark:text-amber-300 md:inline" title={t("Operator access requires a configured trusted identity provider")}>{t("SSO not configured")}</span>;
   return <a className="control h-9 text-xs" href="/api/auth/login"><LogIn size={15}/>Operator sign in</a>;

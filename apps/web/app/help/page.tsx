@@ -2,8 +2,10 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, BookOpenCheck, BrainCircuit, Database, Keyboard, LifeBuoy, LockKeyhole, RadioTower, Search, ShieldCheck } from "lucide-react";
+import { ArrowRight, BookOpenCheck, BrainCircuit, Database, Keyboard, LifeBuoy, LockKeyhole, RadioTower, ShieldCheck } from "lucide-react";
 import { AppShell } from "../../components/app-shell";
+import { useT } from "../../components/language-provider";
+import { SearchField, Stepper, Tabs, TabPanel, type Step } from "../../components/ui";
 
 type Guide = {
   title: string;
@@ -44,9 +46,12 @@ const guides: Guide[] = [
   { title: "What is retrieval-augmented AI?", category: "AI transparency", description: "Grounded recommendations and verified procedures",
     answer: "A future assistant will retrieve approved SOPs, cite original sources and separate observed facts from generated suggestions. It must never autonomously approve an action, and no production RAG assistant is connected yet." },
 ];
+const TROUBLE: [string, string][] = [["t1", "Run docker compose ps"], ["t2", "Read API and DB logs"], ["t3", "Refresh the page"], ["t4", "Treat old data as stale"]];
 const categories = ["All topics", "Getting started", "Security", "Data", "AI transparency"] as const;
 
 export default function HelpPage() {
+  const t = useT();
+  const [openTitle, setOpenTitle] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<(typeof categories)[number]>("All topics");
   const visible = useMemo(() => guides.filter(item =>
@@ -60,10 +65,7 @@ export default function HelpPage() {
         <p className="eyebrow flex items-center gap-2"><LifeBuoy size={16} className="text-accent"/> Knowledge Center</p>
         <h2 className="mt-3 text-xl font-bold tracking-tight sm:text-2xl">Answers for every stage of the response exercise</h2>
         <p className="mt-3 text-sm leading-6 text-muted">Explore concise, verified product guidance. AI-generated help is not connected yet; this library contains curated application documentation.</p>
-        <div className="relative mt-5"><Search size={18} aria-hidden="true" className="pointer-events-none absolute left-4 top-3 text-muted"/>
-          <input type="search" className="field !h-11 !pl-11" aria-label="Search self-help articles" value={query}
-            onChange={event => setQuery(event.target.value)} placeholder="Search login, incident search, AI, alerts..." maxLength={150}/>
-        </div>
+        <SearchField className="mt-5" label={t("Search self-help articles")} value={query} onChange={setQuery} placeholder={t("Search login, incident search, AI, alerts...")}/>
       </div>
     </div>
     <section className="mb-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Quick links">
@@ -81,25 +83,28 @@ export default function HelpPage() {
     <section className="panel overflow-hidden" id="help-articles">
       <div className="panel-heading"><div><h2 className="text-base font-bold">Support articles & FAQs</h2><p className="mt-1 text-xs text-muted">Browse curated answers; no chatbot hallucinations</p></div>
         <span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">{visible.length} articles</span></div>
-      <div className="flex flex-wrap gap-2 border-b border-stroke p-4" aria-label="Help article categories">
-        {categories.map(item => <button key={item} type="button" onClick={() => setCategory(item)}
-          aria-pressed={category===item}
-          className={`rounded-full border px-3 py-2 text-xs font-semibold transition-colors ${category===item ? "border-accent bg-accent/10 text-accent":"border-stroke text-muted hover:bg-elevated"}`}>
-          {item}
-        </button>)}
-      </div>
-      <div className="divide-y divide-stroke px-4 sm:px-5" aria-live="polite">
-        {visible.map(item => <details key={item.title} className="group py-4">
-          <summary className="cursor-pointer list-none rounded-md pr-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent">
-            <span className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-accent">{item.category}</span>
-            <span className="block text-sm font-bold">{item.title}</span><span className="mt-1 block text-xs text-muted">{item.description}</span>
-            <span className="mt-2 block text-xs text-muted group-open:hidden">Expand answer +</span>
-          </summary>
-          <p className="mt-3 max-w-3xl rounded-xl bg-elevated/60 p-4 text-sm leading-7 text-ink">{item.answer}</p>
-          {item.href && <Link className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-accent" href={item.href}>Open related module <ArrowRight size={14}/></Link>}
-        </details>)}
+      <Tabs className="px-4" idPrefix="help" label={t("Help article categories")} value={category} onChange={setCategory}
+        tabs={categories.map(c => ({ value: c, label: t(c) }))}/>
+      <TabPanel idPrefix="help" value={category} active className="divide-y divide-stroke px-4 sm:px-5"><div aria-live="polite" className="divide-y divide-stroke">
+        {visible.map(item => { const open = openTitle === item.title; const pid = "faq-" + item.title.replace(/[^a-z0-9]+/gi, "-").toLowerCase();
+          return <div key={item.title} id={pid} className="py-4">
+            <h3><button type="button" aria-expanded={open} aria-controls={pid + "-answer"} onClick={() => setOpenTitle(open ? null : item.title)}
+              className="block w-full rounded-md pr-4 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent">
+              <span className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-accent">{t(item.category)}</span>
+              <span className="block text-sm font-bold">{item.title}</span><span className="mt-1 block text-xs text-muted">{item.description}</span>
+              <span className="mt-2 block text-xs text-muted">{open ? "Collapse answer −" : "Expand answer +"}</span>
+            </button></h3>
+            <div id={pid + "-answer"} hidden={!open}>
+              <p className="mt-3 max-w-3xl rounded-xl bg-elevated/60 p-4 text-sm leading-7 text-ink">{item.answer}</p>
+              {item.href && <Link className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-accent" href={item.href}>Open related module <ArrowRight size={14}/></Link>}
+            </div>
+          </div>; })}
         {visible.length === 0 && <p className="p-8 text-center text-sm text-muted">No help articles match. Try another query or select All topics.</p>}
-      </div>
+      </div></TabPanel>
+    </section>
+    <section className="panel mt-5 p-5" aria-label={t("Troubleshooting steps")}>
+      <h2 className="text-base font-bold">{t("If the app shows unavailable")}</h2>
+      <Stepper className="mt-4" label={t("Troubleshooting steps")} steps={TROUBLE.map(([id, label]): Step => ({ id, label: t(label), status: "pending" }))}/>
     </section>
     <div className="mt-5 flex flex-wrap items-start gap-3 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 text-xs leading-6 text-muted">
       <ShieldCheck className="mt-1 shrink-0 text-amber-500" size={18}/>

@@ -5,8 +5,16 @@ import { AlertTriangle, Check, ClipboardCheck, LockKeyhole, Plus, RefreshCw, Shi
 import { ReviewFocusDetails, type Focus } from "../../components/local-review-focus";
 import { ExerciseDraftBuffer } from "../../lib/exercise-draft-buffer";
 import { AppShell } from "../../components/app-shell";
+import { useT } from "../../components/language-provider";
+import { Stepper, type Step } from "../../components/ui";
 import { ExerciseReviewBrief, type ReviewBrief } from "../../components/exercise-review-brief";
 
+function workflowSteps(status: string, simulated: boolean): { id: string; label: string; status: "done" | "current" | "pending" | "blocked" }[] {
+  const maker = status === "draft" ? "current" : "done";
+  const checker = status === "draft" ? "pending" : status === "submitted" ? "current" : status === "rejected" ? "blocked" : "done";
+  const sim = status === "approved" ? (simulated ? "done" : "current") : "pending";
+  return [{ id: "maker", label: "Maker", status: maker }, { id: "checker", label: "Checker", status: checker }, { id: "simulate", label: "Simulate", status: sim }];
+}
 type Role = "incident_operator" | "incident_checker" | "incident_auditor";
 interface AuthState { authenticated: boolean; configured: boolean; subject?: string; agencyId?: string; roles?: Role[] }
 interface Incident { id: string; hazard_type: string; status: string }
@@ -35,6 +43,7 @@ function displayError(input: unknown): string {
 }
 
 export default function ApprovalWorkbench() {
+  const t = useT();
   const [assignmentTargets, setAssignmentTargets] = useState<Record<string, string>>({});
   const [auth, setAuth] = useState<AuthState | null>(null);
   const [incidents, setIncidents] = useState<Incident[]>([]);
@@ -201,6 +210,7 @@ export default function ApprovalWorkbench() {
                 }} disabled={!canCreate || busy}
                 placeholder="Explain evidence, affected area, uncertainty, and proposed action..."/>
             </div>
+            <p className="text-xs text-muted" aria-live="polite">{rationale.length}/2000 {t("characters")} · {t("minimum 10")}</p>
             <label className="flex items-start gap-2 text-xs leading-5">
               <input type="checkbox" checked={recoverInTab} disabled={!canCreate || busy}
                 onChange={event => setRecoverInTab(draftBuffer.current.setRecovery(event.target.checked))}/>
@@ -214,6 +224,7 @@ export default function ApprovalWorkbench() {
             <button type="submit" className="control control-primary w-full" disabled={!canCreate || busy || rationale.trim().length < 10}>
               <Plus size={16}/> Save exercise draft
             </button>
+            {(!canCreate || rationale.trim().length < 10) && <p className="text-xs text-muted">{!canCreate ? t("Disabled: the incident-operator role is required to save drafts.") : t("Disabled: enter a rationale of at least 10 characters.")}</p>}
           </form>
         </section>
         <section className="panel min-w-0">
@@ -227,6 +238,7 @@ export default function ApprovalWorkbench() {
                 <p className="text-sm font-bold">{actionTypes.find(item => item.value === proposal.action_type)?.label ?? proposal.action_type}</p>
                 <p className="mt-1 text-xs text-muted">Maker: {proposal.maker_subject} · Incident {proposal.incident_id.slice(0,8)}</p>
               </div><span className={`rounded-full px-3 py-1 text-xs font-semibold capitalize ${statuses[proposal.status] ?? "bg-elevated"}`}>{proposal.status}</span></div>
+              <Stepper className="mt-3" label={t("Approval progress")} steps={workflowSteps(proposal.status, !!proposal.proposal.simulation).map((x): Step => ({ ...x, label: t(x.label) }))}/>
               <p className="mt-3 text-sm leading-6 text-muted">{proposal.proposal?.rationale || "No rationale recorded"}</p>
               {proposal.proposal.response_draft && <div className="mt-3 text-sm text-muted">
                 <p>Playbook: {proposal.proposal.response_draft.playbook.version}</p>
@@ -310,8 +322,10 @@ export default function ApprovalWorkbench() {
                   <button type="button" className="control control-primary" disabled={busy || !(reviewReasons[proposal.id]?.trim())} onClick={() => void change(proposal, "approve")}><Check size={16}/> Approve draft</button>
                   <button type="button" className="control" disabled={busy || !(reviewReasons[proposal.id]?.trim())} onClick={() => void change(proposal, "reject")}><X size={16}/> Reject draft</button>
                 </div>
+                {!(reviewReasons[proposal.id]?.trim()) && <p className="mt-2 text-xs text-muted">{t("Disabled: a checker rationale is required before approving or rejecting.")}</p>}
               </div>}
               {proposal.status === "submitted" && proposal.maker_subject === auth.subject && <p className="mt-3 text-xs text-amber-700 dark:text-amber-300">You cannot approve your own proposal.</p>}
+              {proposal.status === "submitted" && !canReview && <p className="mt-3 text-xs text-muted">{t("Waiting for an independent checker; your role cannot review this proposal.")}</p>}
             </article>)}
           </div>
         </section>
