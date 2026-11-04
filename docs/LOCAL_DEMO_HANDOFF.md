@@ -71,6 +71,12 @@ a phone scrolls inside its card with later columns clipped until swiped.
 Verification: `npm run typecheck` clean; web Node tests 169 pass, 0 fail (167 before plus the two new ones). Web image
 rebuilt three times under the single-operation lease; no other service was touched.
 
+**Runtime state at the end of this session:** all AEGIS services were stopped with `scripts/stop-windows.ps1`
+(containers and the `ai-project-aegis_pgdata` and local IdP volumes retained, nothing reset). To resume, use the guarded
+start helper (`scripts/start-windows.ps1`, with the local IdP overlay as documented in `docs/LOCAL_IDP_REVIEW.md`), then
+run `scripts/check-local-runtime.ps1 -RequireRunning`. The IdP root certificate remains trusted in CurrentUser\Root; the
+throwaway `ops-ui-*` accounts no longer exist. The applied overlay described above is stored in the retained database.
+
 ## UI/UX audit of every page, with fixes — 4 November 2026 (Windows laptop)
 
 Scope: all 23 routes, phone and desktop widths, light and dark themes, signed out (the signed-in views were
