@@ -88,7 +88,7 @@ export function PostEventLearning() {
     {session?.authenticated && !loading && !error && <div className="space-y-4">
       {config && <Panel title={t("Engine configuration")} icon={ShieldCheck}>
         <p className="text-sm">{t("Effective version")}: <code className="break-all">{config.effective_version}</code> · {t("Source")}: <code>{config.config_source}</code></p>
-        <div className="mt-2 overflow-x-auto"><table className="w-full text-left text-xs">
+        <div className="mt-2 overflow-x-auto"><table className="data-table">
           <caption className="sr-only">{t("Effective trigger thresholds")}</caption>
           <thead><tr><th scope="col">{t("Hazard")}</th><th scope="col">{t("Watch")}</th><th scope="col">{t("Candidate")}</th></tr></thead>
           <tbody>{Object.entries(config.thresholds).map(([name, spec]) => <tr key={name}><td>{name}</td><td>{spec.watch}</td><td>{spec.candidate}</td></tr>)}</tbody>
@@ -130,7 +130,7 @@ export function PostEventLearning() {
             <code className="text-[11px] break-all">{w.config_version}</code>
           </div>
           <p className="mt-1 text-xs text-muted">{w.basis_note}</p>
-          <div className="mt-2 overflow-x-auto"><table className="w-full text-left text-xs">
+          <div className="mt-2 overflow-x-auto"><table className="data-table">
             <caption className="sr-only">{t("Per-rule statistics")}</caption>
             <thead><tr><th scope="col">{t("Rule")}</th><th scope="col">{t("Hits")}</th><th scope="col">{t("Misses")}</th><th scope="col">{t("False-alarm episodes")}</th><th scope="col">{t("Detected share")}</th><th scope="col">{t("False-alarm share")}</th><th scope="col">{t("Lead time (days)")}</th></tr></thead>
             <tbody>{w.rules.map(r => <tr key={r.rule_id}><td>{r.rule_id}</td><td>{r.hits}</td><td>{r.misses}</td><td>{r.false_alarm_episodes}</td>

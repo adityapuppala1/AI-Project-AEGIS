@@ -127,7 +127,7 @@ export function ExerciseDrills() {
 
       {report && <Panel title={t("Coach report")} icon={GraduationCap}>
         <p className="mb-2 text-xs text-muted">{report.note}</p>
-        <div className="overflow-x-auto"><table className="w-full text-left text-xs">
+        <div className="overflow-x-auto"><table className="data-table">
           <caption className="sr-only">{t("Timeliness against synthetic targets")}</caption>
           <thead><tr><th scope="col">{t("Step")}</th><th scope="col">{t("Target (min)")}</th><th scope="col">{t("Elapsed (min)")}</th><th scope="col">{t("Result")}</th><th scope="col">{t("Coach note")}</th></tr></thead>
           <tbody>{report.actions.map(a => <tr key={a.action}><td>{t(ACTION_LABEL[a.action])}</td><td>{a.target_minutes}</td><td>{a.elapsed_minutes ?? "-"}</td>

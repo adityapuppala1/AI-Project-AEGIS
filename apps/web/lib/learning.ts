@@ -139,13 +139,14 @@ export interface RuleStats {
 export interface LearningWindow {
   id: string; hazard: string; window_start: string; window_end: string; source: string; basis: Basis; basis_note: string;
   config_version: string; observed_events: string[]; closed_by: string; closed_at: string | null; rules: RuleStats[]; event_refs: string[];
+  accuracy_claim: false;
 }
 export interface Change { path: string; old: number; new: number }
 export interface Proposal {
   id: string; window_id: string; base_version: string; new_version: string; status: ProposalStatus; changes: Change[];
   decisions: { rule_id: string; decision: string }[]; maker_subject: string; checker_subject: string | null;
   decision_rationale: string | null; applied_version: string | null; applied_by: string | null; applied_at: string | null;
-  audit: { action: string; actor: string; at: string | null }[];
+  audit: { action: string; actor: string; at: string | null }[]; accuracy_claim: false;
 }
 
 function cleanRate(value: unknown): Rate {
@@ -166,33 +167,38 @@ function cleanRule(value: unknown): RuleStats | null {
     cited_ids: list(value.cited_ids).filter(isUuid) };
 }
 
+/** Idempotent: the BFF cleans once and the browser cleans again, so output must re-pass its own guard. A raw window nests its
+ * statistics under `stats`; a cleaned one carries them at the top level, still with an explicit accuracy_claim: false. */
 export function cleanWindow(value: unknown): LearningWindow | null {
-  if (!isObject(value) || !isUuid(value.id) || !isObject(value.stats)) return null;
+  if (!isObject(value) || !isUuid(value.id)) return null;
+  const stats = isObject(value.stats) ? value.stats : value;
   const basis = oneOf(value.basis, BASES);
-  if (!basis || value.stats.accuracy_claim !== false) return null;
+  if (!basis || stats.accuracy_claim !== false) return null;
   return { id: value.id, hazard: code(value.hazard) ?? "unknown", window_start: day(value.window_start) ?? "", window_end: day(value.window_end) ?? "",
-    source: code(value.source) ?? "unknown", basis, basis_note: text(value.stats.basis_note, 300), config_version: code(value.config_version) ?? "unknown",
+    source: code(value.source) ?? "unknown", basis, basis_note: text(stats.basis_note, 300), config_version: code(value.config_version) ?? "unknown",
     observed_events: list(value.observed_events, 100).map(day).filter((d): d is string => d !== null),
     closed_by: text(value.closed_by, 120), closed_at: iso(value.closed_at),
-    rules: list(value.stats.rules, 4).map(cleanRule).filter((r): r is RuleStats => r !== null),
-    event_refs: list(value.stats.event_refs).map(ref).filter((r): r is string => r !== null) };
+    rules: list(stats.rules, 4).map(cleanRule).filter((r): r is RuleStats => r !== null),
+    event_refs: list(stats.event_refs).map(ref).filter((r): r is string => r !== null), accuracy_claim: false };
 }
 
+/** Idempotent like cleanWindow: a raw proposal nests `diff` and `rationale`; a cleaned one is flat with accuracy_claim: false. */
 export function cleanProposal(value: unknown): Proposal | null {
   if (!isObject(value) || !isUuid(value.id) || !isUuid(value.window_id)) return null;
   const status = oneOf(value.status, PROPOSAL_STATUSES);
-  const diff = isObject(value.diff) ? value.diff : {};
-  const rationale = isObject(value.rationale) ? value.rationale : {};
+  const raw = isObject(value.rationale);
+  const diff = isObject(value.diff) ? value.diff : raw ? {} : value;
+  const rationale = raw ? value.rationale as Record<string, unknown> : value;
   if (!status || rationale.accuracy_claim !== false) return null;
   const changes = list(diff.changes, 20).filter(isObject).map(c => ({ path: text(c.path, 80), old: num(c.old), new: num(c.new) }))
     .filter((c): c is Change => /^hazards\.[a-z_]+\.(watch|candidate)$/.test(c.path) && c.old !== null && c.new !== null);
   return { id: value.id, window_id: value.window_id, base_version: code(value.base_version) ?? "unknown", new_version: code(value.new_version) ?? "unknown",
-    status, changes, decisions: list(rationale.rules, 4).filter(isObject).map(r => ({ rule_id: text(r.rule_id, 60), decision: code(r.decision) ?? "unknown" })),
+    status, changes, decisions: list(raw ? rationale.rules : value.decisions, 4).filter(isObject).map(r => ({ rule_id: text(r.rule_id, 60), decision: code(r.decision) ?? "unknown" })),
     maker_subject: text(value.maker_subject, 120), checker_subject: typeof value.checker_subject === "string" ? text(value.checker_subject, 120) : null,
     decision_rationale: typeof value.decision_rationale === "string" ? text(value.decision_rationale, 2000) : null,
     applied_version: code(value.applied_version), applied_by: typeof value.applied_by === "string" ? text(value.applied_by, 120) : null,
     applied_at: iso(value.applied_at),
-    audit: list(value.audit, 50).filter(isObject).map(a => ({ action: code(a.action) ?? "unknown", actor: text(a.actor, 120), at: iso(a.at) })) };
+    audit: list(value.audit, 50).filter(isObject).map(a => ({ action: code(a.action) ?? "unknown", actor: text(a.actor, 120), at: iso(a.at) })), accuracy_claim: false };
 }
 
 export interface ConfigView { effective_version: string; config_source: string; fixture_version: string; thresholds: Record<string, { watch: number; candidate: number }>; versions: { version_id: string; proposal_id: string | null; applied_by: string; applied_at: string | null }[] }
@@ -217,7 +223,9 @@ export interface Drill {
   id: string; scenario_id: string; title: string; event_ref: string | null; hazard: string; sim_minute: number; end_minute: number;
   status: "running" | "completed"; trigger_state: "clear" | "watch" | "candidate"; first_watch_minute: number | null; first_candidate_minute: number | null;
   actions: Partial<Record<DrillAction, { minute: number; actor: string }>>; injected: { evidence_id: string; minute: number; value: number; trigger_state: string }[];
+  exercise: true; operational_actions_enabled: false; notifications_sent: false;
 }
+/** Idempotent: the cleaned drill keeps the exercise-only markers so the browser's second pass accepts it. */
 export function cleanDrill(value: unknown): Drill | null {
   if (!isObject(value) || !isUuid(value.id) || value.exercise !== true || value.operational_actions_enabled !== false || value.notifications_sent !== false) return null;
   const status = oneOf(value.status, ["running", "completed"] as const);
@@ -232,10 +240,12 @@ export function cleanDrill(value: unknown): Drill | null {
   return { id: value.id, scenario_id: value.scenario_id, title: text(value.title, 120), event_ref: ref(value.event_ref), hazard: code(value.hazard) ?? "unknown",
     sim_minute: sim, end_minute: end, status, trigger_state: state, first_watch_minute: int(value.first_watch_minute), first_candidate_minute: int(value.first_candidate_minute), actions,
     injected: list(value.injected, 50).filter(isObject).filter(i => isUuid(i.evidence_id) && int(i.minute) !== null && num(i.value) !== null)
-      .map(i => ({ evidence_id: i.evidence_id as string, minute: i.minute as number, value: i.value as number, trigger_state: code(i.trigger_state) ?? "clear" })) };
+      .map(i => ({ evidence_id: i.evidence_id as string, minute: i.minute as number, value: i.value as number, trigger_state: code(i.trigger_state) ?? "clear" })),
+    exercise: true, operational_actions_enabled: false, notifications_sent: false };
 }
 
 export interface DrillReport { drill_id: string; status: string; sim_minute: number; note: string; cited_event_ids: string[];
+  exercise: true; operational_actions_enabled: false;
   actions: { action: DrillAction; target_minutes: number; anchor_minute: number | null; response_minute: number | null; elapsed_minutes: number | null; status: (typeof SLA_STATUSES)[number]; coach_note: string }[] }
 export function cleanReport(value: unknown): DrillReport | null {
   if (!isObject(value) || !isUuid(value.drill_id) || value.exercise !== true || value.operational_actions_enabled !== false) return null;
@@ -243,7 +253,8 @@ export function cleanReport(value: unknown): DrillReport | null {
     anchor_minute: int(a.anchor_minute), response_minute: int(a.response_minute), elapsed_minutes: num(a.elapsed_minutes), status: oneOf(a.status, SLA_STATUSES), coach_note: text(a.coach_note, 300) }))
     .filter((a): a is DrillReport["actions"][number] => a.action !== null && a.target_minutes !== null && a.status !== null);
   return { drill_id: value.drill_id, status: code(value.status) ?? "unknown", sim_minute: int(value.sim_minute) ?? 0, note: text(value.note, 400),
-    cited_event_ids: list(value.cited_event_ids).map(ref).filter((r): r is string => r !== null), actions };
+    cited_event_ids: list(value.cited_event_ids).map(ref).filter((r): r is string => r !== null), actions,
+    exercise: true, operational_actions_enabled: false };
 }
 
 export const pctLabel = (rate: Rate): string => rate.estimate === null ? "n/a"

@@ -118,6 +118,37 @@ test('drill routes: clock and respond are validated and exercise-only output is 
   }
 });
 
+// The BFF cleans a payload once and the browser cleans it again. A cleaner that rejects its own output made every
+// live window, proposal and drill fail with "Invalid response" while the unit tests (one pass only) stayed green.
+test('cleaners are idempotent: output of the BFF passes the browser guard unchanged', () => {
+  const rule = { rule_id: 'heavy_rain:watch', events: 2, hits: 1, misses: 1, false_alarm_episodes: 0,
+    probability_of_detection: { k: 1, n: 2, estimate: 0.5, ci95: [0.1, 0.9], ci_reason: null },
+    false_alarm_ratio: { k: 0, n: 1, estimate: 0, ci95: null, ci_reason: 'too_few' },
+    lead_time_days: { n: 1, min: 1, median: 1, max: 1 }, cited_ids: [A] };
+  const window = { id: A, hazard: 'heavy_rain', window_start: '2026-07-01', window_end: '2026-07-31', source: 'synthetic', basis: 'synthetic_rehearsal',
+    config_version: 'aegis.hazard-triggers.v1', observed_events: ['2026-07-04'], closed_by: 'maker-1', closed_at: '2026-08-01T00:00:00Z',
+    stats: { accuracy_claim: false, basis_note: 'Rehearsal statistics only.', rules: [rule], event_refs: [] } };
+  const report = { drill_id: A, exercise: true, operational_actions_enabled: false, status: 'running', sim_minute: 60, note: 'Synthetic rehearsal targets.',
+    cited_event_ids: [], actions: [{ action: 'acknowledge_watch', target_minutes: 15, anchor_minute: 30, response_minute: 40, elapsed_minutes: 10,
+      status: 'within_synthetic_target', coach_note: 'On time.' }] };
+  const withActions = drill({ actions: { acknowledge_watch: { minute: 40, actor: 'maker-1' } }, first_watch_minute: 30, title: 'T', hazard: 'heavy_rain',
+    injected: [{ evidence_id: A, minute: 0, value: 18, trigger_state: 'clear' }] });
+  for (const [name, fn, raw] of [['drill', lib.cleanDrill, withActions], ['report', lib.cleanReport, report],
+    ['window', lib.cleanWindow, window], ['proposal', lib.cleanProposal, proposal({ rationale: { accuracy_claim: false, rules: [{ rule_id: 'heavy_rain:watch', decision: 'raise' }] } })]]) {
+    const once = fn(raw);
+    assert.ok(once, name + ' raw payload is accepted');
+    assert.deepEqual(fn(once), once, name + ' cleaned output survives a second pass');
+  }
+});
+
+test('cleaned output still cannot be forged into a claim: markers must be exact', () => {
+  const once = lib.cleanDrill(drill());
+  assert.equal(lib.cleanDrill({ ...once, exercise: false }), null);
+  assert.equal(lib.cleanDrill({ ...once, notifications_sent: true }), null);
+  assert.equal(lib.cleanWindow({ ...lib.cleanWindow({ id: A, basis: 'synthetic_rehearsal', stats: { accuracy_claim: false, rules: [] } }), accuracy_claim: true }), null);
+  assert.equal(lib.cleanProposal({ ...lib.cleanProposal(proposal()), accuracy_claim: true }), null);
+});
+
 test('library helpers format rates and the simulated clock', () => {
   assert.equal(lib.pctLabel({ estimate: 0.5, ci95: [0.2366, 0.7634] }), '50% (95% CI 24-76%)');
   assert.equal(lib.pctLabel({ estimate: null, ci95: null }), 'n/a');

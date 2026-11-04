@@ -43,6 +43,10 @@ body {
   .panel-heading { @apply flex flex-wrap items-center justify-between gap-3 border-b border-stroke px-5 py-4; }
   .eyebrow { @apply text-[11px] font-bold uppercase tracking-[.19em] text-muted; }
   .control { @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-stroke bg-surface px-3 text-sm font-semibold text-ink transition-colors hover:border-accent/40 hover:bg-elevated disabled:cursor-not-allowed disabled:opacity-50; }
+  .data-table { @apply w-full border-collapse text-left text-xs; }
+  .data-table th { @apply whitespace-nowrap border-b border-stroke px-3 py-2 text-[11px] font-bold text-muted; }
+  .data-table td { @apply border-b border-stroke/60 px-3 py-2 align-top tabular-nums; }
+  .data-table tbody tr:last-child td { @apply border-b-0; }
   .control-primary { @apply border-transparent bg-accent hover:opacity-90; color: rgb(var(--accent-contrast)); }
   .field { @apply h-10 w-full rounded-lg border border-stroke bg-elevated px-3 text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-hidden; }
   .status-dot { @apply inline-block h-2 w-2 shrink-0 rounded-full; }

@@ -151,7 +151,7 @@ function ConnectorCard({ connector, masterKey, preview, now, onToast, onSaved }:
     const id = `${base}-s-${field.name}`; const value = settings[field.name]; const hint = `${id}-hint`;
     return <div key={field.name}>
       <label htmlFor={id} className="mb-1 flex items-center text-xs font-bold">{field.label}{field.required && required}</label>
-      {typeof value === "boolean" ? <input id={id} type="checkbox" className="h-5 w-5 accent-[rgb(var(--accent))]" checked={value} disabled={readOnly} aria-describedby={hint}
+      {typeof value === "boolean" ? <input id={id} type="checkbox" className="h-6 w-6 accent-[rgb(var(--accent))]" checked={value} disabled={readOnly} aria-describedby={hint}
           onChange={event => setSettings(current => ({ ...current, [field.name]: event.target.checked }))}/>
         : <input id={id} className="field" type={typeof value === "number" ? "number" : "text"} value={value === undefined ? "" : String(value)} disabled={readOnly} aria-describedby={hint} maxLength={512}
           onChange={event => setSettings(current => ({ ...current, [field.name]: typeof value === "number" ? (Number.isFinite(event.target.valueAsNumber) ? event.target.valueAsNumber : 0) : event.target.value }))}/>}
@@ -174,7 +174,7 @@ function ConnectorCard({ connector, masterKey, preview, now, onToast, onSaved }:
           </div>
         </div>
       </div>
-      <label className="inline-flex items-center gap-2 text-sm font-semibold" htmlFor={`${base}-enabled`}>
+      <label className="inline-flex min-h-9 items-center gap-2 text-sm font-semibold" htmlFor={`${base}-enabled`}>
         <input id={`${base}-enabled`} type="checkbox" role="switch" className="h-5 w-5 accent-[rgb(var(--accent))]" checked={enabled} disabled={readOnly || busy !== ""}
           aria-describedby={`${base}-can`} onChange={event => setEnabled(event.target.checked)}/>
         {enabled ? t("Enabled") : t("Disabled")}
@@ -183,7 +183,7 @@ function ConnectorCard({ connector, masterKey, preview, now, onToast, onSaved }:
     <div className="space-y-4 p-5">
       <p id={`${base}-can`} className="text-xs leading-5"><strong>{t("Can")}:</strong> {t(meta.can)} <strong className="ml-1">{t("Cannot")}:</strong> {t(meta.cannot)}</p>
       <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted"><KeyRound size={13} aria-hidden="true"/>{t(meta.where)}
-        {meta.url && <a href={meta.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-semibold text-accent underline underline-offset-2">{meta.urlLabel}<ExternalLink size={12} aria-hidden="true"/><span className="sr-only">({t("opens in a new tab")})</span></a>}</p>
+        {meta.url && <a href={meta.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-9 items-center gap-1 font-semibold text-accent underline underline-offset-2">{meta.urlLabel}<ExternalLink size={12} aria-hidden="true"/><span className="sr-only">({t("opens in a new tab")})</span></a>}</p>
       {readOnly && <p className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs leading-5 text-amber-800 dark:text-amber-200" role="note">
         <Lock size={16} className="mt-0.5 shrink-0" aria-hidden="true"/>{t("Read-only. AEGIS never sends warnings or notifications to authorities; this connector cannot be enabled. Hand-over is a CAP file a human downloads.")}</p>}
 

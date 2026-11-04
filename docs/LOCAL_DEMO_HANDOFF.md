@@ -18,6 +18,59 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Live signed-in run of Post-event Learning and Exercise Drills — found and fixed a blocking bug — 4 November 2026 (Windows laptop)
+
+Branch `feat/agentic-proactive-l3`, base `1bea25d` (fixes uncommitted until the commit that adds this entry). First time
+these two pages were driven live with real signed-in sessions; until now they were covered by unit and opt-in PostGIS tests only.
+Method: three throwaway Keycloak accounts (`ops-ui-maker` incident_operator, `ops-ui-checker` incident_checker,
+`ops-ui-admin` platform_admin; self-generated passwords, no TOTP) in separate isolated browser contexts. One agent
+drove all three, so this is **not** evidence of two real humans. All three accounts and the password file were deleted
+afterwards; the owner's real accounts were not touched.
+
+**Blocking bug (found live, missed by every unit test):** starting a drill returned HTTP 201 but the page showed
+"Invalid response", and the saved-drill list was silently empty. Cause: the BFF proxy sanitised each response with
+`cleanDrill`/`cleanReport`/`cleanWindow`/`cleanProposal` and returned the cleaned object, then the browser ran the same
+cleaner again. The cleaners require raw-only fields (`exercise`, `operational_actions_enabled`, `notifications_sent`,
+`stats`, `rationale`, `diff`) that their own output no longer carried, so they rejected their own output. Only
+`cleanConfig` and `cleanScenarios` were idempotent, which is why the config table and scenario pickers worked. Fix
+(`apps/web/lib/learning.ts`): each cleaner keeps its strict raw-input guard and now emits the markers its own guard
+needs, so a second pass is a no-op. New regression tests in `learning-proxy.test.cjs` assert clean-twice equality for all
+four and that forged markers (`exercise: false`, `accuracy_claim: true`, `notifications_sent: true`) are still refused;
+the first test fails against the previous `learning.ts` and passes now.
+
+**Verified live after the fix:**
+- Drill: maker started a 24 Aug 2000 scenario, advanced the simulated clock to T+04:00 (candidate state), acknowledged,
+  took hand-off and submitted; "Approve (checker)" stayed disabled for the maker. A different identity (checker) opened the
+  same drill from a separate session and approved. Coach report showed synthetic-SLA statuses (two "target elapsed", two
+  "within synthetic target"), correctly labelled rehearsal targets, not forecasting accuracy.
+- Learning: replay of a synthetic scenario recorded a window; a window with only one hit was refused with
+  `stats_do_not_support_change` (fail closed, as designed); the "watch that never becomes an event" scenario produced a
+  stats-only proposal (heavy_rain watch 35 to 38.5, candidate 64.5 to 70.95, fixed +10 percent); maker submitted; checker
+  approved with a rationale. **Config was unchanged after approval** (still `aegis.hazard-triggers.v1`, source `fixture`,
+  zero applied versions). Only the platform admin's separate Apply produced
+  `aegis.hazard-triggers.v1-l746492b5dbee` (source `applied_overlay`, applied by the admin's subject).
+
+**Side effect to be aware of:** that Apply is real and the engine has no revert endpoint, so the local database now
+carries one applied overlay: heavy_rain watch 38.5 / candidate 70.95 instead of the fixture 35 / 64.5. It affects only
+local synthetic trigger evaluation (no feed is enabled). Options: leave it (it is audited and labelled), or restore the
+fixture by removing that one overlay row under the owner's direction. It was not removed unilaterally because the table
+is an audit trail.
+
+**Signed-in layout audit (320 px, admin session):** `/learning`, `/drills`, `/handover`, `/copilot`,
+`/department-tasks`, `/admin`, `/admin/connectors`, `/approvals`, `/watch`: no page-level horizontal overflow, one h1
+each. Fixed: the Engine configuration and rule-statistics tables were unstyled bare tables (no padding, headers or
+dividers); a shared `.data-table` class now styles them and the same bare tables in drills, Hazard Watch and the run
+plan. Connector page: enable-switch label, external source links and boolean checkbox enlarged to at least 24 px targets.
+Re-measured after rebuild: 0 targets under 24 px, no overflow.
+
+**Still not covered:** department task preparation after an approval, cross-agency isolation live (unit and PostGIS
+tests only), a real feed driving impact triggers and the planner, Telugu and Hindi at narrow widths, real devices.
+Minor, not changed: rule-statistics cells show raw reason codes (`n_below_minimum`, `no_cases`) and the per-rule table on
+a phone scrolls inside its card with later columns clipped until swiped.
+
+Verification: `npm run typecheck` clean; web Node tests 169 pass, 0 fail (167 before plus the two new ones). Web image
+rebuilt three times under the single-operation lease; no other service was touched.
+
 ## UI/UX audit of every page, with fixes — 4 November 2026 (Windows laptop)
 
 Scope: all 23 routes, phone and desktop widths, light and dark themes, signed out (the signed-in views were

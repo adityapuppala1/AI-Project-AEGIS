@@ -31,7 +31,7 @@ function Timeline({ history, hazard, sample }: Readonly<{ history: HistoryPayloa
       <button type="button" className="control !min-h-8 text-xs" aria-pressed={asTable} onClick={() => setAsTable(value => !value)}><Table2 size={14} aria-hidden="true"/>{asTable ? t("Show chart") : t("Show table")}</button>
     </div>
     {!history ? <p className="mt-2 text-[11px] text-muted">{t("History unavailable.")}</p>
-      : asTable ? <table className="mt-2 w-full text-left text-xs"><caption className="sr-only">{t("7-day trigger timeline")}</caption>
+      : asTable ? <table className="data-table mt-2"><caption className="sr-only">{t("7-day trigger timeline")}</caption>
         <thead><tr className="text-muted"><th scope="col">{t("Day")}</th><th scope="col">{t("watch")}</th><th scope="col">{t("candidate")}</th></tr></thead>
         <tbody>{buckets.map(bucket => <tr key={bucket.day} className="border-t border-stroke"><td>{bucket.day}</td><td>{bucket.watch}</td><td>{bucket.candidate}</td></tr>)}</tbody></table>
       : <svg viewBox="0 0 280 90" className="mt-2 w-full" role="img" aria-label={t("Bar chart of watch and candidate events per day for this hazard over seven days")}>

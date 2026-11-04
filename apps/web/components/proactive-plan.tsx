@@ -71,7 +71,7 @@ export function RunPlanPanel({ runId, refreshKey, sample = false }: Readonly<{ r
           <span className="text-muted">· {t("Team move")} ≤ {option.max_preposition_minutes} min</span>
         </div>
         <div className="mt-2 overflow-x-auto">
-          <table className="w-full text-left text-[11px]">
+          <table className="data-table">
             <caption className="sr-only">{t("Option")} {option.rank}</caption>
             <thead><tr className="text-muted"><th scope="col" className="py-1 pr-3">{t("Team")}</th><th scope="col" className="pr-3">{t("Staging point")}</th><th scope="col" className="pr-3">{t("Team move")}</th><th scope="col">{t("Covers")}</th></tr></thead>
             <tbody>{option.assignments.map(a => <tr key={a.team_id} className="border-t border-stroke">
@@ -113,7 +113,7 @@ export function RunTimeline({ runId, refreshKey, sample = false }: Readonly<{ ru
         <span className="flex items-center gap-1"><StatusPill tone={NODE_TONE[node.status]}>{t(node.status)}</StatusPill><span className="tabular-nums text-muted">{fmtMs(node.duration_ms)}</span></span>
       </li>)}</ol>}
       {showTable && <div id="timeline-table" className="overflow-x-auto">
-        <table className="w-full text-left text-[11px]">
+        <table className="data-table">
           <caption className="sr-only">{t("Run timeline")}</caption>
           <thead><tr className="text-muted"><th scope="col" className="py-1 pr-2">{t("Event")}</th><th scope="col" className="pr-2">{t("Finished")}</th><th scope="col" className="pr-2">{t("Duration")}</th><th scope="col" className="pr-2">{t("Actor")}</th><th scope="col" className="pr-2">{t("Outcome")}</th><th scope="col">{t("Budget")}</th></tr></thead>
           <tbody>{data.events.map((event, index) => <tr key={`${event.step}-${index}`} className="border-t border-stroke">
@@ -126,7 +126,7 @@ export function RunTimeline({ runId, refreshKey, sample = false }: Readonly<{ ru
       </div>}
       {data.scheduler_ticks && data.scheduler_ticks.length > 0 && <details className="text-[11px]">
         <summary className="cursor-pointer font-semibold">{t("Recent scheduler ticks")}</summary>
-        <table className="mt-1 w-full text-left">
+        <table className="data-table mt-1">
           <thead><tr className="text-muted"><th scope="col" className="pr-2">{t("Started")}</th><th scope="col" className="pr-2">{t("Duration")}</th><th scope="col" className="pr-2">{t("Outcome")}</th><th scope="col">{t("Runs started")}</th></tr></thead>
           <tbody>{data.scheduler_ticks.map(tick => <tr key={tick.id} className="border-t border-stroke"><td className="pr-2">{formatIst(tick.started_at)}</td>
             <td className="pr-2 tabular-nums">{fmtMs(tick.duration_ms ?? null)}</td><td className="pr-2">{t(outcomeText(tick.outcome))}</td><td className="tabular-nums">{tick.runs_started}</td></tr>)}</tbody>
