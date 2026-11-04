@@ -33,6 +33,7 @@ interface OidcDocument {
   authorization_endpoint: string;
   token_endpoint: string;
   jwks_uri: string;
+  end_session_endpoint?: string;
 }
 interface AuthFlow { state: string; nonce: string; verifier: string }
 const ALL_ROLES: Role[] = ["incident_operator", "incident_checker", "incident_auditor", "department_operator", "platform_admin"];
@@ -72,7 +73,8 @@ export async function oidcDocument(config: AuthConfig): Promise<OidcDocument> {
   const doc: OidcDocument = await response.json();
   if (doc.issuer !== config.issuer || doc.jwks_uri !== config.jwksUrl ||
     !doc.authorization_endpoint?.startsWith("https://") ||
-    !doc.token_endpoint?.startsWith("https://")) {
+    !doc.token_endpoint?.startsWith("https://") ||
+    (doc.end_session_endpoint !== undefined && !doc.end_session_endpoint.startsWith("https://"))) {
     throw new Error("OIDC provider discovery mismatch");
   }
   return doc;

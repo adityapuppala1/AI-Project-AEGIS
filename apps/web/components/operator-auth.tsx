@@ -29,7 +29,10 @@ export function OperatorAuth() {
     try {
       const response = await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" });
       if (!response.ok) throw new Error("Could not sign out");
-      window.location.assign("/");
+      const body: { logoutUrl?: string } = await response.json().catch(() => ({}));
+      // The local session is already cleared above regardless; also end the provider's own SSO
+      // session when available, or a same-browser sign-in right after would skip the login prompt.
+      window.location.assign(body.logoutUrl || "/");
     } catch { setBusy(false); }
   }
   if (!session) return <span className="text-xs text-muted" aria-live="polite">Checking operator session...</span>;

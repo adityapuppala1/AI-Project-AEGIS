@@ -18,6 +18,47 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Sign-out did not end the provider SSO session — found and fixed, 4 November 2026 (Windows laptop)
+
+Owner reported "sign out is not working" after a successful real sign-in (exercise-maker, password
+changed, TOTP enrolled).
+
+- **Reproduced with a throwaway test account**, not the owner's real one: created `ops-selfcheck2`
+  (incident_operator role, self-generated one-time password, deleted afterward), drove it through a
+  real browser with Chrome DevTools automation.
+- **The sign-out button itself worked correctly:** `POST /api/auth/logout` returned 200, both AEGIS
+  session cookies were cleared, the UI correctly showed "Operator sign in" again. That was never broken.
+- **The actual gap:** `/api/auth/logout` only ever cleared AEGIS's own session cookie — it never told
+  Keycloak to end its browser SSO session. So immediately after "signing out," clicking "Operator sign
+  in" again silently re-authenticated with **no login prompt at all**, because Keycloak still saw an
+  active session. Confirmed live: clicking sign-in after sign-out landed straight back on `/approvals`
+  signed in, with no login form. From the owner's side this looks exactly like sign-out doing nothing.
+- **Fix (`apps/web/lib/auth-server.ts`, `app/api/auth/logout/route.ts`, `components/operator-auth.tsx`,
+  `ops/local-idp/realm.json`):** capture `end_session_endpoint` from OIDC discovery; the logout route
+  now returns a `logoutUrl` built from it (`client_id` + `post_logout_redirect_uri`, no id_token needed
+  to be stored anywhere — kept the existing minimal-token-footprint design); the client now navigates
+  there instead of to `/` after the local cookies clear. Added `post.logout.redirect.uris` to the
+  Keycloak client config (repo template) so the redirect target is accepted. Local sign-out stays the
+  primary, always-successful step — ending the provider session is layered on top, fail-open if OIDC
+  discovery is briefly unreachable (verified: a thrown discovery error still clears cookies and returns
+  200 with no `logoutUrl`, never blocking local sign-out).
+- **One known UX trade-off, by design:** since no `id_token_hint` is stored, Keycloak shows its own
+  "Do you want to log out?" confirmation page before completing RP-initiated logout (its documented
+  default when no hint is supplied). One extra click, but now explicit and correct instead of silently
+  doing nothing. A fully silent one-click logout would need storing the ID token (its own cookie,
+  within the ~4KB per-cookie limit the session cookie is already sized against) — not done, flagged for
+  the owner to decide if wanted.
+- **Verified end-to-end with a real browser, not just unit tests:** signed in as `ops-selfcheck2`,
+  clicked "Sign out" → redirected to Keycloak's confirm-logout page → clicked "Logout" → landed back on
+  `/` → clicked "Operator sign in" again → **a real username/password form appeared**, not a silent
+  re-auth. Deleted the throwaway account afterward.
+- **New test coverage:** `apps/web/scripts/tests/auth-logout-route.test.cjs` (5 cases: not-configured
+  503, cross-origin 403, logoutUrl built correctly when discovery succeeds, cookies still clear when no
+  `end_session_endpoint` is offered, cookies still clear when discovery throws). Full suite: 160 passed
+  (was 155), `npm run typecheck` clean.
+- **Owner's real accounts and sessions were not touched** by any of this diagnosis or fix — only the
+  throwaway `ops-selfcheck`/`ops-selfcheck2` test accounts were created and deleted.
+
 ## Local IdP login bug found and fixed — 4 November 2026 (Windows laptop)
 
 Owner reported "unable to login with any credentials" against the just-activated local IdP.
