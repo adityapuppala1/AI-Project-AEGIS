@@ -18,6 +18,37 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Local IdP activated for signed-in verification — 4 November 2026 (Windows laptop)
+
+Owner explicitly approved (two separate confirmations: general activation, then the specific certificate
+thumbprint before trusting it), superseding the 17 October "keep inactive" decision. Full detail in
+`docs/LOCAL_IDP_REVIEW.md` (header + Validation status, both updated). Summary:
+
+- Ran the documented activation sequence under `Invoke-AegisLocalOperation`: `prepare-local-idp.ps1
+  -GenerateLocalSecrets` (private files outside the repo, nothing printed) → started `local-idp` +
+  `local-idp-tls` → exported the root cert → **presented the exact thumbprint to the owner and got explicit
+  approval before importing it** → imported via .NET `X509Store` (the `Import-Certificate` cmdlet's UI
+  prompt is blocked in this non-interactive shell) → built the combined CA bundle preserving existing public
+  roots → restarted `api`/`web` with the full overlay (base + proactive + scheduler + local-idp).
+- **Verified live:** `Assert-AegisSingleRuntime -RequireRunning` passed throughout (no duplicate stack). OIDC
+  discovery resolves over trusted HTTPS. `/api/auth/session` now reports `{"authenticated":false,
+  "configured":true}` (previously locked/unconfigured). `/api/auth/login` redirects (307) to Keycloak's real
+  authorization endpoint with PKCE S256, state and nonce.
+- **Automated negative-path checks, all unauthenticated, all correct:** tampered callback state/code → 400;
+  cross-origin write with no session → 401 (session check precedes Origin check, which is stricter); a
+  forged bearer token on a protected route (`/api/proposals/{id}/audit`) → 401, identical to the no-token
+  case, confirming the BFF never trusts a client-supplied Authorization header; the one genuinely public
+  route (`/api/incidents/{id}/audit`, the documented Audit360 fixture export) correctly stayed public — an
+  initial test against it looked like a gap but was the wrong endpoint for the check.
+- **Not done — needs the owner in person, not an agent:** signing in as `exercise-maker`/`exercise-checker`/
+  `exercise-admin` (password change + TOTP enrollment is a human/authenticator-app step), the actual
+  maker→checker proposal rehearsal, and click-through of `/handover`, `/copilot`, `/learning`, `/drills`,
+  the pause switch and per-agency run scope while signed in. Credentials are in
+  `%LOCALAPPDATA%\AEGIS\local-idp\provider.env` on this machine only; not read or printed by the agent.
+- IdP services remain running; stop with `docker compose --project-name ai-project-aegis --profile local-idp
+  stop local-idp local-idp-tls` to return to the locked default gate without losing data (keeps named
+  volumes, per the reversal section in `docs/LOCAL_IDP_REVIEW.md`).
+
 ## Runtime verification pass on the agentic roadmap — 4 November 2026 (Windows laptop)
 
 Branch `feat/agentic-proactive-l3`, head `2e0ec5c` (commits `967024e`..`2e0ec5c`: per-agency proactive runs +

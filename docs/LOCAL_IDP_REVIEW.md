@@ -1,11 +1,23 @@
-# Local identity provider — review package, not activated
+# Local identity provider — activated for signed-in verification
 
-Owner decision, 17 October 2026: **keep inactive; finish other local tasks**.
-Do not activate this package or change certificate trust under that decision.
+Owner decision, 17 October 2026: keep inactive; finish other local tasks. **Superseded 4 November 2026:**
+the owner explicitly approved activation (general go-ahead, then the specific Caddy root certificate
+thumbprint `F5EF43FB4C3865C7205583CC56C31C3E67856331` before it was trusted) to verify the signed-in flows
+built for the agentic/proactive roadmap. This package is now **running** on the Windows laptop: `local-idp`
+and `local-idp-tls` containers are up, the realm imported, the root certificate is trusted in this Windows
+account's `CurrentUser\Root` store, and `api`/`web` were restarted with the real OIDC configuration. The
+BFF session route now reports `configured: true` and `/api/auth/login` redirects to a real Keycloak
+authorization endpoint (PKCE S256, state, nonce) instead of the locked default gate.
 
-Requested scope: prepare a local-only provider for owner review. No provider
-has been started, no users provisioned, no certificate trusted and no app OIDC
-configuration enabled by this package. Existing anonymous approvals stay locked.
+**Still pending, requires the owner's own hands:** signing in as `exercise-maker` and `exercise-checker`
+(separate browser profiles, each completing their own password change and TOTP enrollment), the actual
+maker→checker proposal rehearsal, and exercising the new signed-in pages (`/handover`, `/copilot`,
+`/learning`, `/drills`, the pause switch, per-agency run scope). An agent cannot complete a human login or
+TOTP enrollment. Automated negative-path checks already passed unauthenticated against the live provider:
+a tampered callback `state`/`code` is rejected (400), a cross-origin write with no session is rejected
+(401), a forged bearer token against a protected route is rejected (401, matching the no-token case —
+confirming the BFF ignores client-supplied Authorization headers and uses only its own server-side
+session), and the one deliberately public route (Audit360 fixture export) correctly stays public.
 
 ## Concrete configuration
 
@@ -117,6 +129,13 @@ actual Windows laptop (`python -m pytest -q tests/test_local_idp_review_config.p
 from services/api). The opt-in Compose configuration parsed on both machines
 with an empty non-credential review fixture. On Windows, PowerShell parsed the
 helper and its default read-only invocation completed successfully. Registry
-manifest digests were read on the laptop. These checks do not establish a
-running provider, successful realm import, login/MFA, or trusted TLS. Activation,
-certificate trust and the actual two-human rehearsal remain pending owner review.
+manifest digests were read on the laptop.
+
+**Updated 4 November 2026 — activation now done, rehearsal still pending.** The provider is running, the
+realm imported successfully (`exercise-maker`/`exercise-checker`/`exercise-admin` provisioned), TLS is
+served and trusted (owner-approved thumbprint `F5EF43FB4C3865C7205583CC56C31C3E67856331`), and `api`/`web`
+run with the real OIDC configuration — confirmed by the live discovery endpoint, the BFF session route
+reporting `configured: true`, and `/api/auth/login` redirecting to Keycloak with PKCE/state/nonce.
+Login, MFA enrollment and the actual two-human approval rehearsal still require the owner's own hands and
+remain pending; see the activation note at the top of this document for what is verified so far and what
+is not.
