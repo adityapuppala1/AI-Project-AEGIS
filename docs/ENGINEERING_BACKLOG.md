@@ -76,7 +76,7 @@ are historical. Production feeds, infrastructure and forecasting validation
 are future work, not requirements to silently enable for this local demo.
 
 
-**Current target:** CipherCop 2026 disaster-response exercise, Hyderabad urban flooding.
+**Current target:** Disaster-response exercise, Hyderabad urban flooding.
 
 ## Non-negotiable constraints
 - GitHub repository/account: `adityapuppala1/AI-Project-AEGIS` using `adityapuppala1` only.
@@ -228,4 +228,4 @@ not communications with agencies. Finish P0 gates, not more unconnected
 prototypes: restore/upgrade PostGIS, execute full tests, validate UI/IdP
 boundaries, accessibility, and owner-reviewed merge.
 
-See [original plan versus delivered state](CIPHERCOP_2026_RELEASE_AUDIT.md).
+See [original plan versus delivered state](RELEASE_AUDIT.md).

@@ -1,6 +1,6 @@
 # AEGIS — Adaptive Emergency Geospatial Intelligence System
 
-CipherCop 2026 · AI-powered disaster prediction, preparedness and accountable response.
+AI-powered disaster prediction, preparedness and accountable response.
 
 > **Local synthetic exercise system.** AEGIS sends no real warnings, dispatches no responders and
 > makes no validated forecasting claims. All metrics are synthetic unless a registered protocol says otherwise.
@@ -103,7 +103,7 @@ cd ..\..\apps\web; npm ci --no-audit --no-fund; npm run typecheck; npm run build
 acceptance record](docs/DEMO_REHEARSAL.md). Human accessibility/operator review
 and the deferred two-person IdP rehearsal remain open until recorded there.
 
-**Start here:** [Original-plan reconciliation and acceptance gates](docs/CIPHERCOP_2026_RELEASE_AUDIT.md) · [Guided exercise](http://localhost:3000/demo) (after local startup).
+**Start here:** [Original-plan reconciliation and acceptance gates](docs/RELEASE_AUDIT.md) · [Guided exercise](http://localhost:3000/demo) (after local startup).
 
 ```powershell
 # Run from the verified continuation checkout. Inspect git status before switching branches.

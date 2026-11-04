@@ -179,7 +179,7 @@ A provisioned real IdP is required to actually demonstrate independent
 operator/checker approval.
 
 See the authoritative
-[CipherCop Release Audit](CIPHERCOP_2026_RELEASE_AUDIT.md).
+[Release Audit](RELEASE_AUDIT.md).
 
 
 ## Current local continuation

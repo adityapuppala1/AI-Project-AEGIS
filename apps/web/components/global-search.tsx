@@ -10,7 +10,7 @@ import type { Incident } from "../lib/types";
 type CommandItem = { label: string; description: string; href: string; kind: "page" | "incident"; group?: "pages" | "cases" | "help" };
 const pages: CommandItem[] = [
   { label: "Command Center", description: "System overview and geospatial map", href: "/", kind: "page" },
-  { label: "Exercise Walkthrough", description: "Nine-stage integrated CipherCop simulation", href: "/demo", kind: "page" },
+  { label: "Exercise Walkthrough", description: "Nine-stage integrated simulation", href: "/demo", kind: "page" },
   { label: "Incident Registry", description: "Search, sort and filter exercise incidents", href: "/incidents", kind: "page" },
   { label: "Source Freshness", description: "Inspect delayed and missing synthetic data feeds", href: "/sources", kind: "page" },
   { label: "DataFusion Replay", description: "Review synthetic ingestion, duplicates and quarantine", href: "/ingestion", kind: "page" },

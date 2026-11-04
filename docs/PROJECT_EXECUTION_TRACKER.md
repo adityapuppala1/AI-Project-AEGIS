@@ -209,7 +209,7 @@ playbook evidence references, ReplayLab tabletop fresh/stale source script,
 PolicyStudio manifest, Audit360 JSON evidence export and guided scenario.
 **This is a development branch, not a merge to `main`.**
 
-The [release audit](CIPHERCOP_2026_RELEASE_AUDIT.md) tracks ten original
+The [release audit](RELEASE_AUDIT.md) tracks ten original
 modules and separates code coverage from real acceptance. Start/end commit
 timestamps for the candidate will be recorded after the PR is opened, using
 GitHub metadata, not assumed engineering hours. A full integrated test suite

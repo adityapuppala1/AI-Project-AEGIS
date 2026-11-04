@@ -65,4 +65,4 @@ No CCTV/video inference, official emergency feed, real flood forecast, field dis
 
 CI remains opt-in. This progress verification reads existing runs and does not spend runner minutes on another test run. Continue on the single consolidated candidate instead of creating another chain of micro-PRs. No main-branch merge or deployment is performed by this status update.
 
-See [original product vision](PRODUCT_VISION.md), [module reconciliation](CIPHERCOP_2026_RELEASE_AUDIT.md), and [release gates](INTEGRATION_RELEASE_GATES.md). The historical effort estimates in the release audit remain planning ranges, not measured labor or a guaranteed delivery date.
+See [original product vision](PRODUCT_VISION.md), [module reconciliation](RELEASE_AUDIT.md), and [release gates](INTEGRATION_RELEASE_GATES.md). The historical effort estimates in the release audit remain planning ranges, not measured labor or a guaranteed delivery date.

@@ -96,7 +96,7 @@ Invoke-AegisLocalOperation -Name "verify-windows.ps1" -Action {
   Check-Status "http://localhost:3000/agency-sync" @("200") "Fictional AgencySync page"
   Check-Status "http://localhost:3000/audit" @("200") "Audit360 exercise export page"
   Check-Status "http://localhost:3000/admin" @("200") "PolicyStudio read-only administration page"
-  Check-Status "http://localhost:3000/demo" @("200") "Guided CipherCop exercise"
+  Check-Status "http://localhost:3000/demo" @("200") "Guided exercise"
   Check-Status "http://localhost:3000/ingestion" @("200") "Ingestion Monitor page"
   Check-Status "http://localhost:3000/approvals" @("200") "Exercise Approvals page renders without unauthorized login"
   Check-Status "http://localhost:3000/help" @("200") "Help Center page"

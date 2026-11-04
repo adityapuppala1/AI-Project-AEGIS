@@ -1,4 +1,4 @@
-# CipherCop 2026 AEGIS — Consolidated Delivery Audit
+# AEGIS — Consolidated Delivery Audit
 
 **Audit opened:** 17 October 2026 · **Last reconciled:** 18 October 2026 · **Demo deadline:** 30 November–1 December 2026
 **Repository:** `adityapuppala1/AI-Project-AEGIS` · **Integration baseline:** `feat/ciphercop-integrated-demo-rc` · **Current local candidate:** `feat/aegis-local-demo-continuation`

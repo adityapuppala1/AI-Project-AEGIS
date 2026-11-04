@@ -1,6 +1,6 @@
 # AEGIS — Product vision
 
-**Hackathon:** CipherCop 2026 · Topic 2: AI-powered disaster response
+**Focus:** AI-powered disaster response
 
 **Mission:** Turn verified weather, geospatial and incident observations into explainable, auditable, multi-agency emergency decisions.
 

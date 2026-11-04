@@ -162,7 +162,7 @@ export function AppShell({ children, title, description, actions, breadcrumbs }:
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300"><ShieldCheck size={15}/> {t("Exercise environment")}</div>
             <p className="mt-2 text-xs leading-5 text-muted">{t("Synthetic exercise data. Optional NASA/USGS context is labelled separately. No real emergency alerts or responder dispatch.")}</p>
           </div>
-          <p className="mt-4 px-2 text-[11px] text-muted">AEGIS v0.2 · CipherCop 2026</p>
+          <p className="mt-4 px-2 text-[11px] text-muted">AEGIS v0.2</p>
         </div>
       </aside>
       <div className="min-w-0 flex-1">

@@ -349,7 +349,7 @@ certification, container OS vulnerability certification or production capacity.
 
 ## Codebase scan follow-up
 
-See [remaining original roadmap](CIPHERCOP_2026_RELEASE_AUDIT.md#remaining-from-the-broader-original-roadmap)
+See [remaining original roadmap](RELEASE_AUDIT.md#remaining-from-the-broader-original-roadmap)
 and the [manual rehearsal checklist](DEMO_REHEARSAL.md). The owner explicitly
 chose to keep the IdP inactive; do not repeatedly request activation or modify
 certificate trust. Native local verification now automatically uses the repo

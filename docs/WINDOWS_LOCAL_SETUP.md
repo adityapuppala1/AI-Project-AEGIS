@@ -381,7 +381,7 @@ These commands require installed local Python API dependencies and existing
 more expensive frontend production build locally. They do not replace the
 separate PostGIS/browser E2E tests. See [CI Cost Policy](CI_COST_POLICY.md).
 
-## Current consolidated CipherCop 2026 exercise candidate
+## Current consolidated exercise candidate
 
 For the original [Product Vision](PRODUCT_VISION.md) demo rather than an
 individual milestone, use only the latest integrated candidate branch:
@@ -414,4 +414,4 @@ local operator consent; `verify-windows.ps1` remains read-only.
 
 The approval interface stays locked without an approved OIDC provider.
 Never make up a signed-in checker or bypass role policy to impress judges.
-See [consolidated acceptance matrix](CIPHERCOP_2026_RELEASE_AUDIT.md).
+See [consolidated acceptance matrix](RELEASE_AUDIT.md).

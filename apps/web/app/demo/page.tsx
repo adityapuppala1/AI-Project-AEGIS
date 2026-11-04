@@ -71,7 +71,7 @@ export default async function ExerciseWalkthroughPage() {
       model.live_inference_enabled === false,
     dependencies,
   };
-  return <AppShell title="CipherCop Exercise Walkthrough"
+  return <AppShell title="Exercise Walkthrough"
     description="Follow one transparent, end-to-end urban-waterlogging scenario through evidence, uncertainty, human governance and fictional agency follow-up.">
     <DemoJourney snapshot={snapshot}/>
     <RiskExercisePanel/>
