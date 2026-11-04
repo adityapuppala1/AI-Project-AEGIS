@@ -1,0 +1,76 @@
+{
+  "version": "aegis.cap-templates.v1",
+  "classification": "synthetic_exercise",
+  "note": "Fixed CAP exercise templates. Telugu and Hindi variants are AI-drafted and stay 'pending' until a native reviewer signs them off in docs/NATIVE_LANGUAGE_REVIEW.csv. Placeholders accept only integers, closed-list codes and validated area codes.",
+  "languages": {"en": "en-IN", "te": "te-IN", "hi": "hi-IN"},
+  "placeholders": {
+    "integer": ["people", "facilities", "roads"],
+    "number": ["radius"],
+    "closed": ["hazard", "state", "basis", "area"]
+  },
+  "templates": {
+    "event": {
+      "en": "EXERCISE: {hazard} trigger {state}",
+      "te": "అభ్యాసం: {hazard} ట్రిగ్గర్ {state}",
+      "hi": "अभ्यास: {hazard} ट्रिगर {state}"
+    },
+    "sender_name": {
+      "en": "AEGIS proactive exercise desk",
+      "te": "AEGIS ముందస్తు అభ్యాస డెస్క్",
+      "hi": "AEGIS सक्रिय अभ्यास डेस्क"
+    },
+    "headline": {
+      "en": "EXERCISE - no public warning",
+      "te": "అభ్యాసం - ఇది ప్రజా హెచ్చరిక కాదు",
+      "hi": "अभ्यास - यह सार्वजनिक चेतावनी नहीं है"
+    },
+    "description": {
+      "en": "Exercise only. Synthetic rehearsal thresholds, not calibrated. Do not transmit or use for emergency operations. Needs accountable human review.",
+      "te": "అభ్యాసం మాత్రమే. కృత్రిమ అభ్యాస పరిమితులు, క్రమాంకనం చేయబడలేదు. ప్రసారం చేయవద్దు లేదా అత్యవసర కార్యకలాపాలకు ఉపయోగించవద్దు. బాధ్యతాయుత వ్యక్తి సమీక్ష అవసరం.",
+      "hi": "केवल अभ्यास। कृत्रिम अभ्यास सीमाएँ, अंशांकित नहीं। प्रसारित न करें और आपातकालीन संचालन के लिए उपयोग न करें। जवाबदेह व्यक्ति की समीक्षा आवश्यक है।"
+    },
+    "instruction": {
+      "en": "Review cited evidence locally. Do not forward, transmit, warn the public or dispatch.",
+      "te": "ఉదహరించిన ఆధారాలను స్థానికంగా సమీక్షించండి. ముందుకు పంపవద్దు, ప్రసారం చేయవద్దు, ప్రజలను హెచ్చరించవద్దు లేదా బృందాలను పంపవద్దు.",
+      "hi": "उद्धृत साक्ष्य की स्थानीय रूप से समीक्षा करें। आगे न भेजें, प्रसारित न करें, जनता को चेतावनी न दें और टीमें न भेजें।"
+    },
+    "instruction_impact": {
+      "en": "Exposure inside the exercise footprint: {people} people, {facilities} critical facilities, {roads} road segments ({basis} exposure). Rehearsal inputs, not a damage estimate.",
+      "te": "అభ్యాస పరిధిలో బహిర్గతం: {people} మంది ప్రజలు, {facilities} కీలక సౌకర్యాలు, {roads} రహదారి భాగాలు ({basis} బహిర్గత డేటా). ఇవి అభ్యాస ఇన్‌పుట్‌లు, నష్ట అంచనా కాదు.",
+      "hi": "अभ्यास क्षेत्र के भीतर जोखिम: {people} लोग, {facilities} महत्वपूर्ण सुविधाएँ, {roads} सड़क खंड ({basis} जोखिम डेटा)। ये अभ्यास इनपुट हैं, क्षति का अनुमान नहीं।"
+    },
+    "area": {
+      "en": "{area}: exercise footprint {radius} km; no validated hazard footprint",
+      "te": "{area}: అభ్యాస పరిధి {radius} కి.మీ.; ధృవీకరించిన ప్రమాద పరిధి లేదు",
+      "hi": "{area}: अभ्यास क्षेत्र {radius} किमी; कोई सत्यापित खतरा क्षेत्र नहीं"
+    }
+  },
+  "closed_lists": {
+    "hazard": {
+      "flood": {"en": "flood", "te": "వరద", "hi": "बाढ़"},
+      "heavy_rain": {"en": "heavy rain", "te": "భారీ వర్షం", "hi": "भारी वर्षा"},
+      "river_discharge": {"en": "river discharge", "te": "నదీ ప్రవాహం", "hi": "नदी प्रवाह"},
+      "fire": {"en": "active fire", "te": "క్రియాశీల అగ్ని", "hi": "सक्रिय आग"},
+      "landslide": {"en": "landslide", "te": "కొండచరియలు విరిగిపడటం", "hi": "भूस्खलन"},
+      "wind": {"en": "wind gusts", "te": "ఈదురు గాలులు", "hi": "तेज़ हवा के झोंके"},
+      "heat": {"en": "heat", "te": "వడగాలి", "hi": "लू"},
+      "flood_gauge": {"en": "flood gauge", "te": "వరద గేజ్", "hi": "बाढ़ गेज"},
+      "gdacs_alert": {"en": "GDACS alert", "te": "GDACS హెచ్చరిక", "hi": "GDACS चेतावनी"}
+    },
+    "state": {
+      "clear": {"en": "clear", "te": "సాధారణం", "hi": "सामान्य"},
+      "watch": {"en": "watch", "te": "పరిశీలన", "hi": "निगरानी"},
+      "candidate": {"en": "candidate", "te": "అభ్యర్థి", "hi": "उम्मीदवार"}
+    },
+    "basis": {
+      "synthetic": {"en": "synthetic", "te": "కృత్రిమ", "hi": "कृत्रिम"},
+      "licensed": {"en": "licensed", "te": "లైసెన్స్ పొందిన", "hi": "लाइसेंस प्राप्त"},
+      "mixed": {"en": "mixed synthetic and licensed", "te": "కృత్రిమ మరియు లైసెన్స్ పొందిన మిశ్రమ", "hi": "कृत्रिम और लाइसेंस प्राप्त मिश्रित"},
+      "none": {"en": "no", "te": "ఏ", "hi": "कोई"}
+    },
+    "area": {
+      "hyderabad_pilot_grid": {"en": "Hyderabad pilot grid point", "te": "హైదరాబాద్ పైలట్ గ్రిడ్ పాయింట్", "hi": "हैदराबाद पायलट ग्रिड बिंदु"},
+      "exercise_grid_point": {"en": "Exercise grid point", "te": "అభ్యాస గ్రిడ్ పాయింట్", "hi": "अभ्यास ग्रिड बिंदु"}
+    }
+  }
+}

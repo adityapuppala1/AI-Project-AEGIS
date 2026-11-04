@@ -5,6 +5,7 @@ app/fixtures/hazard_triggers.v1.json, so the cases track the fixture rather than
 These pin behaviour; they are not forecasting accuracy or a calibration result.
 """
 import base64
+import xml.etree.ElementTree as ET
 import json
 import math
 from datetime import datetime, timedelta, timezone
@@ -262,3 +263,61 @@ def test_golden_impact_cases(store, name, hazard, value, exposure, expected, bas
     assert block['status'] == 'evaluated' and block['data_basis'] == basis
     assert block['label'] == impact.LABELS[basis] and len(block['exposure_feature_ids']) == len(exposure)
     assert block['config_version'] == 'aegis.impact-triggers.v2'
+
+
+# --- A8 learning, A9 drills, A10 multilingual CAP ---------------------------------------------------
+from app import cap_templates, drills, learning, learning_store, proactive_cap  # noqa: E402
+
+# (scenario, expected decision per rule, or None when the proposal must abstain)
+LEARNING_CASES = [
+    ('known_2000_08_24_heavy_rain', None),
+    ('known_2020_10_13_heavy_rain', None),
+    ('synthetic_false_alarm_heavy_rain', {'heavy_rain:watch': 'raise_10pct_on_false_alarms',
+                                          'heavy_rain:candidate': 'raise_10pct_on_false_alarms'}),
+]
+
+
+@pytest.mark.parametrize('scenario_id,expected', LEARNING_CASES, ids=[c[0] for c in LEARNING_CASES])
+def test_learning_golden(scenario_id, expected):
+    learning_store.set_store(learning_store.MemoryStore())
+    try:
+        operator = Operator('golden-operator', AGENCY, frozenset({'incident_operator'}))
+        window = learning.replay_window(learning.ReplayWindow(source='synthetic', scenario_id=scenario_id), operator)
+        assert window['stats']['accuracy_claim'] is False and window['basis'] == 'synthetic_rehearsal'
+        if expected is None:
+            with pytest.raises(learning.LearningError) as error:
+                learning.propose(window, hazard_watch.effective_config())
+            assert error.value.code == 'stats_do_not_support_change'
+        else:
+            drafted = learning.propose(window, hazard_watch.effective_config())
+            assert {r['rule_id']: r['decision'] for r in drafted['rationale']['rules']} == expected
+    finally:
+        learning_store.set_store(None)
+
+
+# (scenario, minute of first watch, minute of first candidate) on the simulated clock.
+DRILL_CASES = [('known_2000_08_24_heavy_rain', 60, 120), ('known_2020_10_13_heavy_rain', 30, 90),
+               ('synthetic_false_alarm_heavy_rain', 45, None)]
+
+
+@pytest.mark.parametrize('scenario_id,watch,candidate', DRILL_CASES, ids=[c[0] for c in DRILL_CASES])
+def test_drill_golden(scenario_id, watch, candidate):
+    state = drills.new_drill(scenario_id, 'golden-operator', drill_id=str(UUID(int=7)), created_at='2026-01-01T00:00:00+00:00')
+    while state['status'] == 'running':
+        state = drills.advance_clock(state, state['sim_minute'], 15)[0]
+    assert (state['first_watch_minute'], state['first_candidate_minute']) == (watch, candidate)
+    assert state['exercise'] is True and state['operational_actions_enabled'] is False
+
+
+def test_cap_translation_golden_ignores_injection_and_stays_pending():
+    run = {'id': str(uuid4()), 'evidence_ids': [str(uuid4())], 'operational_actions_enabled': False,
+           'needs_accountable_human_review': True, 'judgment': {'playbook_option': {'choice': INJECTION}}}
+    trigger = {'id': str(uuid4()), 'hazard': 'heavy_rain', 'state': 'watch', 'trigger_id': 'heavy_rain:' + P0['id'],
+               'lat': P0['lat'], 'lon': P0['lon']}
+    root = ET.fromstring(proactive_cap.exercise_cap_xml(run, trigger))
+    ns = {'cap': proactive_cap.CAP_NS}
+    for info in root.findall('cap:info', ns)[1:]:
+        assert 'dispatch_now' not in ET.tostring(info, encoding='unicode')  # translations never carry model text
+    assert [s['review_status'] for s in cap_templates.review_statuses()] == ['source', 'pending', 'pending']
+    with pytest.raises(proactive_cap.CapRefused):
+        proactive_cap.exercise_cap_xml(run, {**trigger, 'state': INJECTION})

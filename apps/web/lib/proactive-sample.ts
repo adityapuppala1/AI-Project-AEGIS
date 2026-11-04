@@ -108,7 +108,7 @@ export function sampleRunAt(done: number, triggerEventId: string): ProactiveRun 
       citation_clean: { values: {}, probabilities: { clean: 0.93, unclean: 0.07 } },
       staleness_risk: { values: {}, probabilities: { low: 0.71, high: 0.29 } },
     } : null,
-    cap: n >= 4 ? { sha256: SAMPLE_CAP_SHA, generated_at: null } : null,
+    cap: n >= 4 ? { sha256: SAMPLE_CAP_SHA, generated_at: null, languages: [{ language: "en-IN", review_status: "source" }, { language: "te-IN", review_status: "pending" }, { language: "hi-IN", review_status: "pending" }] } : null,
     completed_steps: completed, next_step: n >= STEP_COUNT ? null : RUN_STEPS[n], steps: [...RUN_STEPS],
   };
 }

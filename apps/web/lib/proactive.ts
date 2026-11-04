@@ -74,7 +74,7 @@ export const SENTINEL_FLAGS: readonly SentinelFlagName[] = ["strengthened", "wea
 export interface SentinelFlag { flag: SentinelFlagName; evidence_ids: string[]; at: string | null; score: number | null; previous_score: number | null }
 export interface ProactiveRun {
   id: string; status: RunStatus; trigger_event_id: string; evidence_ids: string[]; variants: Variant[];
-  judgment: Judgment | null; cap: { sha256: string; generated_at: string | null } | null;
+  judgment: Judgment | null; cap: { sha256: string; generated_at: string | null; languages: CapLanguage[] } | null;
   completed_steps: RunStep[]; next_step: RunStep | null;
   /** "scheduler" when prepared by the scheduled watch loop; a human still takes the hand-off. */
   origin?: "scheduler" | "operator"; sentinel_flags?: SentinelFlag[]; steps?: RunStep[];
@@ -140,6 +140,16 @@ export function isStale(record: { stale?: boolean; observed_at?: string | null }
   const time = record.observed_at ? Date.parse(record.observed_at) : NaN;
   return Number.isNaN(time) ? true : nowMs - time > maxHours * 3_600_000;
 }
+/** A10: each CAP <info> language block and its native-language review status ("source" is English). */
+export const CAP_LANGUAGES = ["en-IN", "te-IN", "hi-IN"] as const;
+export const REVIEW_STATUSES = ["source", "pending", "approved"] as const;
+export interface CapLanguage { language: (typeof CAP_LANGUAGES)[number]; review_status: (typeof REVIEW_STATUSES)[number] }
+export function cleanCapLanguages(value: unknown): CapLanguage[] {
+  if (!Array.isArray(value)) return [];
+  return value.slice(0, 3).filter(isObject).filter(item => CAP_LANGUAGES.includes(item.language as CapLanguage["language"])
+    && REVIEW_STATUSES.includes(item.review_status as CapLanguage["review_status"])) as unknown as CapLanguage[];
+}
+
 export const capFilename = (runId: string) => `aegis-exercise-cap-${isUuid(runId) ? runId : "run"}.xml`;
 export const barWidth = (probability: number) => `${Math.round(Math.max(0, Math.min(1, probability)) * 100)}%`;
 export const pct = (value: number | null | undefined) => typeof value === "number" && Number.isFinite(value) ? `${Math.round(value * 100)}%` : "n/a";
@@ -364,7 +374,7 @@ export function cleanRun(value: unknown): ProactiveRun {
     return [{ id: safeCategory(item.id, "variant"), label: text(item.label, 80) ?? "Variant", threshold_delta: delta, resulting_state: item.resulting_state, score }];
   }) : [];
   const cap = isObject(value.cap) && typeof value.cap.sha256 === "string" && /^[0-9a-f]{64}$/i.test(value.cap.sha256)
-    ? { sha256: value.cap.sha256, generated_at: timestamp(value.cap.generated_at) } : null;
+    ? { sha256: value.cap.sha256, generated_at: timestamp(value.cap.generated_at), languages: cleanCapLanguages(value.cap.languages) } : null;
   // The API returns {step, completed_at, completed_by}; older payloads and samples use bare step names.
   const completed = Array.isArray(value.completed_steps) ? value.completed_steps.map(item => isObject(item) ? item.step : item).filter(isRunStep) : [];
   const flags = Array.isArray(value.sentinel_flags) ? value.sentinel_flags.slice(-50).flatMap((item): SentinelFlag[] => {

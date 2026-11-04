@@ -18,6 +18,22 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Proactive step 6 (A8 post-event learning, A9 drills, A10 multilingual CAP) - 4 November 2026 (Windows laptop, uncommitted)
+
+Branch `feat/agentic-proactive-l3`, base SHA `96462fb`, changes uncommitted. Windows laptop, local checks only;
+no Docker, dev server or build was started; no network calls.
+
+- Completed: migration 016 (learning windows, threshold proposals, trigger config versions, learning audit,
+  exercise drills + audit) wired into compose initdb/migrate and `migration_audit`; `app/learning.py`,
+  `app/learning_store.py`, `app/drills.py`, `app/cap_templates.py`; engine overlay `hazard_watch.effective_config()`;
+  te-IN/hi-IN CAP blocks; `/learning` and `/drills` pages and BFF; tests and golden cases; docs.
+- Results (verified, laptop): `services/api/.venv/Scripts/python -m pytest -q` 769 passed, 28 skipped;
+  `python -m app.model_lab --check` PASS; `apps/web npm run typecheck` clean; `node --test scripts/tests/*.test.cjs` 155 passed.
+- Pending: apply migration 016 to the running stack; opt-in PostGIS test `integration_tests/test_postgis_learning_drills.py`
+  (not run); browser checks of `/learning`, `/drills` and CAP language pills; real IdP two-human approval (IdP is
+  off, signed-in flows unit-tested only); native Telugu/Hindi review of the 25 CAP template rows; `npm run build`
+  not run in this step.
+
 ## Proactive step 5 (A5 pre-positioning planner, run observability) — 4 November 2026 (Windows laptop, uncommitted)
 
 Branch `feat/agentic-proactive-l3`, base `05bef11`. Roadmap A5 and the cross-cutting run-observability item.

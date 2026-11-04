@@ -155,9 +155,11 @@ def advance(state: dict, expected_step: str, actor: str, store, transport=None) 
                 xml = exercise_cap_xml(judged, trigger)
             except CapRefused:
                 raise RunError(409, "cap_refused") from None
-            state["cap"] = {"sha256": hashlib.sha256(xml).hexdigest(), "generated_at": _now()}
+            from app import cap_templates
+            languages = cap_templates.review_statuses()
+            state["cap"] = {"sha256": hashlib.sha256(xml).hexdigest(), "generated_at": _now(), "languages": languages}
             state["cap_xml"] = xml.decode()
-            detail = {"cap_sha256": state["cap"]["sha256"]}
+            detail = {"cap_sha256": state["cap"]["sha256"], "languages": languages}
     elif step == "plan_prepositioning":
         # Read-only recommendation; the result lives only in run state and its audit row.
         state["plan"] = prepositioning.plan(state, trigger, store)

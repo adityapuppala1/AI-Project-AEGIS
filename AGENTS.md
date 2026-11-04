@@ -43,3 +43,9 @@
 - Operator copilot (A6) questions are untrusted classification input: bounded and control-character-free, mapped to one fixed intent or abstain; tools are read-only, agency-scoped and take only code-extracted UUIDs/hazards/hours. Never add a write/transition/notify/dispatch tool; optional local-model text may only rephrase cited facts and falls back to the template if it cites an unknown UUID or action/forecast wording. Run `test_operator_copilot.py` and `operator-assist.test.cjs`. See docs/OPERATOR_COPILOT.md.
 
 - The pre-positioning planner (A5) is a recommendation only. Its `plan_prepositioning` run step is deterministic and uses synthetic teams and the cited exposure ids. It never moves, notifies or tasks a team, and never creates assignments. Preserve: abstention reasons, the exact bound with greedy fallback, expected-step retry protection, legacy five-step runs, the scheduler stopping at `hand_to_human`, and agency-scoped plan and observability routes. Observability derives from run state and audit only. See docs/PREPOSITIONING_PLANNER.md.
+
+- Post-event learning statistics are rehearsal statistics labelled by basis, never accuracy. Threshold proposals are stats-only diffs; the maker submits and a different non-system checker in the same agency decides. Approval never changes the engine; only an explicit platform_admin apply writes a new versioned overlay, with audit. See docs/POST_EVENT_LEARNING.md.
+
+- Exercise drills stay exercise-only on a simulated clock: injected evidence lives only in the drill state, the kill switch blocks writes and SLA scores are synthetic rehearsal targets. See docs/EXERCISE_DRILLS.md.
+
+- Translated CAP blocks come only from fixed templates with integer/closed-code placeholders and stay pending until native sign-off in docs/NATIVE_LANGUAGE_REVIEW.csv. Never render model or free text into them.

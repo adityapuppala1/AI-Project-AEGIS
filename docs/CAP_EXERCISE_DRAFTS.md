@@ -68,3 +68,25 @@ assets or runtime dependencies. lxml is test tooling in the Linux verification
 venv only; no API/web dependency was added. Full production rebuild, sampled
 browser/axe and HTTP/checksum checks ran on the laptop; see the current handoff
 for source SHAs, commands, latest contract follow-up and pending human gates.
+
+
+## Multilingual info blocks (roadmap A10) - 4 November 2026
+
+Status: implemented on `feat/agentic-proactive-l3` and unit-tested on the Windows laptop; not yet XSD-validated
+or browser-checked, and **every Telugu/Hindi string is pending native review**.
+
+- The proactive exercise CAP (`app/proactive_cap.py`) keeps its English `<info>` block unchanged and adds
+  `te-IN` and `hi-IN` `<info>` blocks (CAP 1.2 permits several), built with ElementTree as before. Codes
+  (category, urgency, severity, certainty, circle) are copied from the English block.
+- Text comes only from `app/fixtures/cap_templates.v1.json` (`app/cap_templates.py`). Placeholders accept
+  integers (people, facilities, roads), a bounded number (radius) and closed-list codes (hazard, state,
+  exposure basis, area). Area is a validated code derived from the trigger point id, never free text. Any other
+  value, including injection strings, raises `CapRefused`; the fixture loader rejects templates with other
+  placeholders, format specs or markup.
+- Each translated block carries `aegis.language_review_status` and `aegis.cap_template_version` parameters;
+  the alert `<note>` names pending languages. A language is `approved` only when every string has a row in
+  `docs/NATIVE_LANGUAGE_REVIEW.csv` whose translation matches exactly, is marked `y` and names a reviewer. If the
+  CSV is not reachable (the API container does not mount `docs/`) the status is `pending` (fail closed).
+- Run state `cap.languages` exposes the statuses; the run UI shows a "pending native review" pill per language.
+- Owner action: a native Telugu and Hindi reviewer fills the 25 template rows appended to
+  `NATIVE_LANGUAGE_REVIEW.csv`. A correction needs a template fixture change and re-review.

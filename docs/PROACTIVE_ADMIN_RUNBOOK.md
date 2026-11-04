@@ -252,7 +252,19 @@ no redirects, no proxy, size and time caps) and parse JSON only (no XML parser i
 
 See [PREPOSITIONING_PLANNER.md](PREPOSITIONING_PLANNER.md).
 
-## 12. What it will not do
+## 12. Post-event learning, drills and multilingual CAP (A8-A10)
+
+- Migration 016 (`db/migrations/016_learning_drills.sql`) is additive; apply it as in
+  [POST_EVENT_LEARNING.md](POST_EVENT_LEARNING.md#apply-migration-016-owner-laptop), then run `python -m app.migration_audit`.
+- Threshold proposals: the maker submits, a different checker decides; approval changes nothing. Only a
+  `platform_admin` apply (kill switch off) writes a new `trigger_config_versions` row. To roll back, apply a new
+  reviewed proposal; rows are never edited or deleted. `GET /v1/proactive/learning/config` shows the effective
+  version and its source.
+- Drills (`/drills`) are exercise-only, use a simulated clock and are blocked while paused.
+- CAP te-IN/hi-IN blocks stay `pending` until native sign-off in `docs/NATIVE_LANGUAGE_REVIEW.csv`.
+- Signed-in flows are unit-tested only while the local IdP is off.
+
+## 13. What it will not do
 
 No scraping, social media or webcams. No broadcast. No automatic case, proposal, approval or
 task. No accuracy claim: thresholds are synthetic rehearsal values until the registered

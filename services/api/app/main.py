@@ -85,6 +85,12 @@ from app.handover import router as handover_router
 from app.operator_copilot import router as operator_copilot_router
 app.include_router(handover_router)
 app.include_router(operator_copilot_router)
+# A8 post-event learning (maker-checker threshold proposals, explicit apply) and A9 exercise drills
+# (simulated clock, exercise-only state); both 404 unless AEGIS_PROACTIVE=1.
+from app.learning import router as learning_router
+from app.drills import router as drills_router
+app.include_router(learning_router)
+app.include_router(drills_router)
 
 @app.get("/v1/exercise/incidents/query")
 def search_exercise_incidents(

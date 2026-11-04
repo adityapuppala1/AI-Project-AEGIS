@@ -34,6 +34,14 @@ issuing authority stay the same.
 | A9 | **Exercise generator and coach** | Build tabletop drills from historical known events (`research/real-data/catalogue`), replay them on a clock, score operator timeliness against the synthetic SLA. Clearly labelled exercise. | 5–6 d |
 | A10 | **Multilingual CAP drafts** | Telugu/Hindi CAP `info` blocks from approved templates; native-language reviewer sign-off recorded (`NATIVE_LANGUAGE_REVIEW.csv`). | 3–4 d |
 
+Status 4 November 2026: **A8, A9 and A10 are implemented on `feat/agentic-proactive-l3`, pending runtime,
+browser and IdP verification and native-language review** (unit, golden, Node and typecheck gates pass;
+migration 016 not applied; opt-in PostGIS test not run). A8: per-rule rehearsal statistics with Wilson
+intervals, stats-only threshold diffs, maker-checker approval that never applies, explicit `platform_admin`
+apply to a versioned overlay ([POST_EVENT_LEARNING.md](POST_EVENT_LEARNING.md)). A9: drills on a simulated
+clock, exercise-only state, synthetic SLA v3 coach report ([EXERCISE_DRILLS.md](EXERCISE_DRILLS.md)). A10:
+te-IN/hi-IN CAP info blocks from fixed templates with review status ([CAP_EXERCISE_DRAFTS.md](CAP_EXERCISE_DRAFTS.md)).
+
 Status 4 November 2026: **A1 and A2 are implemented on `feat/agentic-proactive-l3`, pending
 runtime verification** on the Windows laptop (unit, golden, Node and typecheck gates pass;
 migration 014 not yet applied to the running stack; the opt-in PostGIS test was updated but not

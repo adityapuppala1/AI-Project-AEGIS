@@ -69,6 +69,45 @@ def load_config() -> dict:
     return json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
 
 
+OVERLAY_LEVELS = ("watch", "candidate")
+
+
+def overlay_config(base: dict, version: dict | None) -> dict:
+    """Fixture thresholds with one explicitly applied A8 overlay (016 trigger_config_versions).
+
+    Only numeric watch/candidate values of hazards already in the fixture can change; anything else makes the
+    overlay invalid and the fixture is used unchanged. The new version id becomes config_version, so the
+    scheduler dedupe key (which includes config_version) changes with it.
+    """
+    if not version:
+        return {**base, "config_source": "fixture"}
+    overrides = version.get("overrides")
+    if not isinstance(overrides, dict) or version.get("base_version") != base["version"]:
+        return {**base, "config_source": "overlay_invalid"}
+    hazards = {name: dict(spec) for name, spec in base["hazards"].items()}
+    for name, values in overrides.items():
+        if name not in hazards or not isinstance(values, dict) or set(values) - set(OVERLAY_LEVELS):
+            return {**base, "config_source": "overlay_invalid"}
+        merged = {**{k: hazards[name][k] for k in OVERLAY_LEVELS}, **values}
+        if not all(_finite(v) and v > 0 for v in merged.values()) or merged["watch"] >= merged["candidate"]:
+            return {**base, "config_source": "overlay_invalid"}
+        hazards[name].update(merged)
+    return {**base, "version": str(version["version_id"]), "base_version": base["version"], "hazards": hazards,
+            "config_source": "applied_overlay"}
+
+
+def effective_config() -> dict:
+    """What the engine evaluates with: the fixture plus the newest APPLIED overlay. An approved but unapplied
+    threshold proposal never reaches here. If 016 is absent or unreadable the fixture is used."""
+    base = load_config()
+    try:
+        from app import learning_store
+        latest = learning_store.get_store().latest_config_version()
+    except Exception:
+        return {**base, "config_source": "fixture"}
+    return overlay_config(base, latest)
+
+
 @lru_cache(maxsize=1)
 def load_feed_config() -> dict:
     """Thresholds for third-party alert feeds (A4). A separate file so v1 stays unchanged."""
@@ -426,9 +465,10 @@ def evaluate(evidence: list[dict], config: dict | None = None, scale: float = 1.
     return triggers
 
 
-def evaluate_all(evidence: list[dict], scale: float = 1.0) -> list[dict]:
-    """v1 hazard thresholds plus the A4 feed thresholds; each trigger keeps its own config_version."""
-    return evaluate(evidence, scale=scale) + evaluate(evidence, load_feed_config(), scale=scale)
+def evaluate_all(evidence: list[dict], scale: float = 1.0, config: dict | None = None) -> list[dict]:
+    """Effective hazard thresholds (fixture v1 plus any explicitly applied A8 overlay) and the A4 feed
+    thresholds; each trigger keeps its own config_version."""
+    return evaluate(evidence, config or effective_config(), scale=scale) + evaluate(evidence, load_feed_config(), scale=scale)
 
 
 # --- orchestration ------------------------------------------------------------------------------
@@ -482,7 +522,7 @@ def refresh_detailed() -> tuple[dict, list[dict]]:
     for row in collected:
         row["id"] = ids.get(row["sha256"], row["id"])
     now = datetime.now(timezone.utc)
-    triggers = [{**trigger, "id": str(uuid4()), "fired_at": now} for trigger in evaluate_all(collected)]
+    triggers = [{**trigger, "id": str(uuid4()), "fired_at": now} for trigger in evaluate_all(collected, config=effective_config())]
     impact.apply(triggers, store)  # A3: never raises; keeps hazard states when exposure is unavailable
     for trigger in triggers:
         store.insert_trigger(trigger)
@@ -495,7 +535,7 @@ def _iso(value):
 
 def watch_view() -> dict:
     store = proactive_store.get_store()
-    config = load_config()
+    config = effective_config()
     now = datetime.now(timezone.utc)
     evidence = []
     for row in store.list_evidence(MAX_EVIDENCE):
@@ -514,7 +554,7 @@ def watch_view() -> dict:
         paused = store.get_pause().get("paused") is True
     except Exception:
         paused = None  # switch unreadable (for example 013 not applied); writes fail closed separately
-    return {"generated_at": now.isoformat(), "config_version": config["version"],
+    return {"generated_at": now.isoformat(), "config_version": config["version"], "config_source": config["config_source"],
             "impact_config_version": impact.load_config()["version"], "disclaimer": DISCLAIMER,
             "paused": paused, "evidence": evidence, "triggers": triggers}
 
@@ -565,7 +605,7 @@ def post_watch_refresh(operator: Operator = Depends(get_operator)):
 
 @router.get("/triggers/config")
 def get_trigger_config():
-    return load_config()
+    return effective_config()
 
 
 @router.get("/triggers/impact-config")

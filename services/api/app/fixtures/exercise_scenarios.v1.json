@@ -1,0 +1,80 @@
+{
+  "version": "aegis.exercise-scenarios.v1",
+  "classification": "synthetic_exercise",
+  "note": "Exercise scenarios for A8 replay and A9 tabletop drills. Injected values are synthetic rehearsal values shaped around a catalogue date; they are not historical measurements, forecasts or warnings. Event references cite research/real-data/catalogue/known_events.csv rows, which are secondary-source and still need second-person review.",
+  "sla_targets": {
+    "policy": "aegis.exercise.department-sla.v1",
+    "derived_from": "proposal_simulation.TASK_SLA_MINUTES (synthetic SLA v3)",
+    "note": "Synthetic rehearsal targets, not contractual SLAs. Each is measured from its anchor on the drill's simulated clock.",
+    "actions": {
+      "acknowledge_watch": {"anchor": "first_watch", "sla_task": "control_room"},
+      "take_handoff": {"anchor": "first_candidate", "sla_task": "infrastructure"},
+      "submit": {"anchor": "take_handoff", "sla_task": "communications"},
+      "approve": {"anchor": "submit", "sla_task": "control_room"}
+    }
+  },
+  "scenarios": [
+    {
+      "id": "known_2000_08_24_heavy_rain",
+      "title": "Hyderabad heavy rain (catalogue date 24 Aug 2000)",
+      "source": "known_events",
+      "event_ref": "known_events:2000-08-24",
+      "hazard": "heavy_rain",
+      "point_id": "hyd_17.40_78.47",
+      "lat": 17.40, "lon": 78.47,
+      "end_minute": 360,
+      "injections": [
+        {"minute": 0, "value": 18.0},
+        {"minute": 60, "value": 41.0},
+        {"minute": 120, "value": 72.0},
+        {"minute": 180, "value": 118.0}
+      ],
+      "daily": {
+        "start": "2000-08-17",
+        "values": [0.0, 2.0, 5.0, 12.0, 30.0, 48.0, 90.0, 120.0, 40.0, 8.0, 0.0, 0.0, 36.0, 3.0],
+        "event_days": ["2000-08-24"]
+      }
+    },
+    {
+      "id": "known_2020_10_13_heavy_rain",
+      "title": "Hyderabad heavy rain (catalogue date 13 Oct 2020)",
+      "source": "known_events",
+      "event_ref": "known_events:2020-10-13",
+      "hazard": "heavy_rain",
+      "point_id": "hyd_17.40_78.47",
+      "lat": 17.40, "lon": 78.47,
+      "end_minute": 360,
+      "injections": [
+        {"minute": 0, "value": 22.0},
+        {"minute": 30, "value": 38.0},
+        {"minute": 90, "value": 66.0},
+        {"minute": 150, "value": 140.0}
+      ],
+      "daily": {
+        "start": "2020-10-06",
+        "values": [0.0, 0.0, 4.0, 10.0, 22.0, 40.0, 70.0, 150.0, 60.0, 12.0, 0.0, 70.0, 5.0, 0.0],
+        "event_days": ["2020-10-13"]
+      }
+    },
+    {
+      "id": "synthetic_false_alarm_heavy_rain",
+      "title": "Synthetic: watch that never becomes an event",
+      "source": "synthetic",
+      "event_ref": null,
+      "hazard": "heavy_rain",
+      "point_id": "hyd_17.40_78.47",
+      "lat": 17.40, "lon": 78.47,
+      "end_minute": 240,
+      "injections": [
+        {"minute": 0, "value": 10.0},
+        {"minute": 45, "value": 37.0},
+        {"minute": 120, "value": 20.0}
+      ],
+      "daily": {
+        "start": "2026-07-01",
+        "values": [0.0, 40.0, 70.0, 5.0, 0.0, 0.0, 38.0, 0.0, 0.0, 0.0],
+        "event_days": []
+      }
+    }
+  ]
+}

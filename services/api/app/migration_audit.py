@@ -27,6 +27,9 @@ EXPECTED_INDEXES = (
     "proactive_runs_dedupe_idx",  # 014: one scheduler run per identical trigger evaluation
     "proactive_scheduler_ticks_agency_idx",  # 014: scheduler tick log
     "exposure_features_geography_idx",  # 015: exposure layer for impact-based triggers
+    "threshold_proposals_agency_idx",  # 016: A8 threshold proposals (maker-checker)
+    "trigger_config_versions_applied_idx",  # 016: A8 explicitly applied trigger config versions
+    "exercise_drills_agency_idx",  # 016: A9 exercise drills
 )
 EXPECTED_TRIGGER = "aegis_check_independent_checker"
 

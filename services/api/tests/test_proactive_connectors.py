@@ -206,6 +206,13 @@ def test_compose_and_start_script_wiring():
     assert '015_exposure.sql:/exposure.sql' in base
     assert '-f /proactive-scheduler.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /exposure.sql' in base
     assert 'seed_exposure.sql:/seed-exposure.sql' in base and '-f /seed-exposure.sql' in base
+    # 016 learning + drills (A8/A9): initdb after the exposure seed, migrate chain after 015.
+    assert '016_learning_drills.sql:/docker-entrypoint-initdb.d/021-learning-drills.sql' in base
+    assert '016_learning_drills.sql:/learning-drills.sql' in base
+    assert '-f /exposure.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /learning-drills.sql' in base
+    learning_sql = (root / 'db/migrations/016_learning_drills.sql').read_text()
+    assert 'DROP TABLE' not in learning_sql.upper() and 'TRUNCATE' not in learning_sql.upper()
+    assert learning_sql.count('CREATE TABLE IF NOT EXISTS') == 6 and 'CHECK (checker_subject IS NULL OR checker_subject <> maker_subject)' in learning_sql
     seed = (root / 'db/seed_exposure.sql').read_text()
     assert seed.count("'population_cell'") >= 1 and 'synthetic' in seed and 'ON CONFLICT (id) DO NOTHING' in seed
     scheduler = (root / 'compose.proactive-scheduler.yaml').read_text()

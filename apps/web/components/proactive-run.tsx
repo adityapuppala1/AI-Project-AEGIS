@@ -219,6 +219,10 @@ export function ProactiveRunPanel({ triggerEventId, triggerKey = null, canOperat
             </div>
           </div>
           <p className="break-all text-[11px] text-muted">SHA-256 {run.cap.sha256}</p>
+          {run.cap.languages.length > 0 && <div className="flex flex-wrap gap-2" aria-label={t("CAP language blocks")}>
+            {run.cap.languages.map(item => <StatusPill key={item.language} tone={item.review_status === "pending" ? "warning" : item.review_status === "approved" ? "success" : "neutral"}>
+              {item.language}: {item.review_status === "pending" ? t("pending native review") : item.review_status === "approved" ? t("native review signed off") : t("source text")}</StatusPill>)}
+          </div>}
           <pre className="max-h-72 overflow-auto rounded-xl border border-stroke bg-elevated p-3 font-mono text-[11px] leading-5" tabIndex={0} aria-label={t("First 40 lines of the Exercise CAP draft")}><code>{capFull ? previewLines(capFull, 40) : t("Loading preview…")}</code></pre>
         </div>}
 
