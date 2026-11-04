@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
-import { AlertTriangle, Box, FlaskConical, Layers, Loader2, Radar, RefreshCw, ShieldAlert, Table2 } from "lucide-react";
+import { AlertTriangle, Box, FlaskConical, Layers, Loader2, OctagonPause, Radar, RefreshCw, ShieldAlert, Table2 } from "lucide-react";
 import { AppShell } from "./app-shell";
 import { HazardWatchMap } from "./hazard-watch-map";
 import { ProactiveRunPanel } from "./proactive-run";
@@ -174,13 +174,17 @@ export function HazardWatch() {
     </section>}
 
     {effectiveGate === "enabled" && watch && <>
+      {!sample && watch.paused === true && <div role="status" className="mb-5 flex items-start gap-3 rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-sm text-rose-800 dark:text-rose-200">
+        <OctagonPause className="mt-0.5 shrink-0" size={19} aria-hidden="true"/>
+        <p><strong>{t("Proactive automation is paused.")}</strong> {t("A platform administrator engaged the kill switch. New runs, run steps and evidence refresh are blocked; you can still read the watch, open existing drafts and cancel runs.")}</p>
+      </div>}
       <SummaryStrip watch={watch} now={now} sample={sample}/>
       <section aria-label={t("Watch heartbeat")} className="panel mb-5 flex flex-wrap items-center gap-3 p-4">
         <span className="inline-flex items-center gap-2 text-sm font-bold"><Radar size={16} className="text-accent" aria-hidden="true"/>{t("Hazard Watch")}</span>
         <span className="text-xs text-muted">{t("Updated")} {formatIst(watch.generated_at)} · {t("config")} {watch.config_version}</span>
         {sample && <SampleChip/>}
         <span className="ml-auto flex items-center gap-3">
-          <button type="button" className="control" onClick={refresh} disabled={sample || !canRefresh || refreshing} aria-describedby="refresh-reason">
+          <button type="button" className="control" onClick={refresh} disabled={sample || !canRefresh || refreshing || watch.paused === true} aria-describedby="refresh-reason">
             {refreshing ? <Loader2 size={16} className="animate-spin" aria-hidden="true"/> : <RefreshCw size={16} aria-hidden="true"/>}{t("Refresh evidence")}</button>
         </span>
         {(sample || !canRefresh) && <p id="refresh-reason" className="basis-full text-[11px] text-muted">{sample ? t("Refresh is switched off while previewing sample data.") : t("Refreshing needs an incident_operator or platform_admin sign-in. You can still read the watch.")}</p>}

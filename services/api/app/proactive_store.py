@@ -1,7 +1,9 @@
-"""Persistence for the opt-in proactive watch (db/migrations/012_proactive.sql).
+"""Persistence for the opt-in proactive watch (db/migrations/012_proactive.sql, 013_proactive_run_agency.sql).
 
 PgStore is the real store. MemoryStore is an offline double with the same contract used by
 unit tests; it is never selected by configuration. Evidence, triggers and audits are append-only.
+Run reads and writes are scoped by the operator's verified agency: a NULL (legacy) agency_id never
+matches, so pre-013 runs are invisible to every scoped route.
 """
 import json
 import os
@@ -159,25 +161,32 @@ class PgStore:
                            GROUP BY 1, 2, 3 ORDER BY 1, 2, 3""", (days,))
             return [dict(row) for row in cur.fetchall()]
 
-    def create_run(self, run_id, trigger_event_id, state, actor, audit_detail) -> None:
+    def create_run(self, run_id, trigger_event_id, state, actor, audit_detail, agency_id) -> None:
         from psycopg.types.json import Jsonb
         with self._connect() as conn, conn.cursor() as cur:
-            cur.execute("INSERT INTO proactive_runs (id, trigger_event_id, state, created_by) VALUES (%s,%s,%s,%s)",
-                        (run_id, str(trigger_event_id), Jsonb(state), actor))
+            cur.execute("INSERT INTO proactive_runs (id, trigger_event_id, state, created_by, agency_id) VALUES (%s,%s,%s,%s,%s)",
+                        (run_id, str(trigger_event_id), Jsonb(state), actor, str(agency_id)))
             cur.execute("INSERT INTO proactive_run_audit (id, run_id, step, actor, detail) VALUES (%s,%s,'start',%s,%s)",
                         (str(uuid4()), run_id, actor, Jsonb(audit_detail)))
 
-    def get_run(self, run_id, lock=False) -> dict | None:
+    def get_run(self, run_id, agency_id) -> dict | None:
         with self._connect() as conn, conn.cursor() as cur:
-            cur.execute("SELECT state FROM proactive_runs WHERE id=%s", (str(run_id),))
+            cur.execute("SELECT state FROM proactive_runs WHERE id=%s AND agency_id=%s", (str(run_id), str(agency_id)))
             row = cur.fetchone()
         return row["state"] if row else None
 
-    def update_run(self, run_id, mutate, actor) -> tuple[dict, bool]:
+    def list_runs(self, agency_id, limit=50) -> list[dict]:
+        with self._connect() as conn, conn.cursor() as cur:
+            cur.execute("SELECT state FROM proactive_runs WHERE agency_id=%s ORDER BY created_at DESC, id LIMIT %s",
+                        (str(agency_id), limit))
+            return [row["state"] for row in cur.fetchall()]
+
+    def update_run(self, run_id, mutate, actor, agency_id) -> tuple[dict, bool]:
         """Row-locked read-modify-write; `mutate(state) -> (state, changed, step, detail)` and the audit commit together."""
         from psycopg.types.json import Jsonb
         with self._connect() as conn, conn.cursor() as cur:
-            cur.execute("SELECT state FROM proactive_runs WHERE id=%s FOR UPDATE", (str(run_id),))
+            cur.execute("SELECT state FROM proactive_runs WHERE id=%s AND agency_id=%s FOR UPDATE",
+                        (str(run_id), str(agency_id)))
             row = cur.fetchone()
             if row is None:
                 raise KeyError("run_not_found")
@@ -193,6 +202,31 @@ class PgStore:
             cur.execute("SELECT step, actor, at, detail FROM proactive_run_audit WHERE run_id=%s ORDER BY at, id", (str(run_id),))
             return [{**row, "at": row["at"].isoformat()} for row in cur.fetchall()]
 
+    def get_pause(self) -> dict:
+        with self._connect() as conn, conn.cursor() as cur:
+            cur.execute("SELECT paused, reason, updated_at, updated_by FROM proactive_pause WHERE id")
+            row = cur.fetchone()
+        if row is None:
+            raise RuntimeError("pause_row_missing")
+        return dict(row)
+
+    def set_pause(self, paused, reason, actor) -> dict:
+        """Kill-switch change and its audit row commit together."""
+        with self._connect() as conn, conn.cursor() as cur:
+            cur.execute("""UPDATE proactive_pause SET paused=%s, reason=%s, updated_at=now(), updated_by=%s WHERE id
+                           RETURNING paused, reason, updated_at, updated_by""", (paused, reason, actor))
+            row = cur.fetchone()
+            if row is None:
+                raise RuntimeError("pause_row_missing")
+            cur.execute("INSERT INTO proactive_pause_audit (id, paused, reason, actor) VALUES (%s,%s,%s,%s)",
+                        (str(uuid4()), paused, reason, actor))
+        return dict(row)
+
+    def pause_audit(self, limit=20) -> list[dict]:
+        with self._connect() as conn, conn.cursor() as cur:
+            cur.execute("SELECT paused, reason, actor, at FROM proactive_pause_audit ORDER BY at DESC, id LIMIT %s", (limit,))
+            return [{**row, "at": row["at"].isoformat()} for row in cur.fetchall()]
+
 
 class MemoryStore:
     """Offline test double with PgStore semantics (optimistic versions, sha256 dedupe, append-only audit)."""
@@ -205,7 +239,10 @@ class MemoryStore:
         self.evidence: list = []
         self.triggers: list = []
         self.runs: dict = {}
+        self.run_agency: dict = {}
         self.run_audits: list = []
+        self.pause = {"paused": False, "reason": None, "updated_at": _now(), "updated_by": None}
+        self.pause_audits: list = []
 
     def list_configs(self) -> dict:
         tests = {}
@@ -294,17 +331,27 @@ class MemoryStore:
                 counts[key] = counts.get(key, 0) + 1
         return [{"day": d, "hazard": h, "state": s, "count": n} for (d, h, s), n in sorted(counts.items())]
 
-    def create_run(self, run_id, trigger_event_id, state, actor, audit_detail) -> None:
+    def create_run(self, run_id, trigger_event_id, state, actor, audit_detail, agency_id) -> None:
         self.runs[run_id] = deepcopy(state)
+        self.run_agency[run_id] = str(agency_id)
         self.run_audits.append({"run_id": run_id, "step": "start", "actor": actor, "at": _now().isoformat(),
                                 "detail": deepcopy(audit_detail)})
 
-    def get_run(self, run_id, lock=False):
-        return deepcopy(self.runs.get(str(run_id)))
+    def _visible(self, run_id, agency_id) -> bool:
+        # A missing (legacy NULL) agency never matches, mirroring `agency_id=%s` in SQL.
+        owner = self.run_agency.get(str(run_id))
+        return str(run_id) in self.runs and owner is not None and owner == str(agency_id)
 
-    def update_run(self, run_id, mutate, actor):
+    def get_run(self, run_id, agency_id):
+        return deepcopy(self.runs[str(run_id)]) if self._visible(run_id, agency_id) else None
+
+    def list_runs(self, agency_id, limit=50) -> list[dict]:
+        rows = [deepcopy(s) for rid, s in self.runs.items() if self._visible(rid, agency_id)]
+        return sorted(rows, key=lambda s: s.get("created_at") or "", reverse=True)[:limit]
+
+    def update_run(self, run_id, mutate, actor, agency_id):
         with self.lock:
-            if str(run_id) not in self.runs:
+            if not self._visible(run_id, agency_id):
                 raise KeyError("run_not_found")
             state, changed, step, detail = mutate(deepcopy(self.runs[str(run_id)]))
             if changed:
@@ -315,6 +362,20 @@ class MemoryStore:
 
     def run_audit(self, run_id) -> list[dict]:
         return [deepcopy(r) for r in self.run_audits if r["run_id"] == str(run_id)]
+
+    def get_pause(self) -> dict:
+        return deepcopy(self.pause)
+
+    def set_pause(self, paused, reason, actor) -> dict:
+        if not 10 <= len(reason) <= 500:
+            raise ValueError("invalid pause reason")
+        with self.lock:
+            self.pause = {"paused": paused, "reason": reason, "updated_at": _now(), "updated_by": actor}
+            self.pause_audits.append({"paused": paused, "reason": reason, "actor": actor, "at": _now().isoformat()})
+        return deepcopy(self.pause)
+
+    def pause_audit(self, limit=20) -> list[dict]:
+        return deepcopy(list(reversed(self.pause_audits))[:limit])
 
 
 _store = None

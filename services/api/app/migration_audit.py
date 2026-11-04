@@ -23,6 +23,7 @@ EXPECTED_INDEXES = (
     "exercise_agency_tasks_incident_state_idx",
     "exercise_agency_task_events_time_idx",
     "exercise_sources_comparison_group_idx",
+    "proactive_runs_agency_idx",  # 013: per-agency proactive run scope
 )
 EXPECTED_TRIGGER = "aegis_check_independent_checker"
 

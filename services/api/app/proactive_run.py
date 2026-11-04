@@ -183,7 +183,7 @@ def _call(fn, *args):
         raise HTTPException(status_code=503, detail="proactive_store_unavailable") from None
 
 
-def _start(trigger_event_id, actor):
+def _start(trigger_event_id, operator):
     store = proactive_store.get_store()
     trigger = store.get_trigger(trigger_event_id)
     if trigger is None:
@@ -191,44 +191,60 @@ def _start(trigger_event_id, actor):
     if trigger["state"] == "clear":
         raise RunError(409, "trigger_clear")
     run_id = str(uuid4())
-    state = new_state(run_id, trigger, actor)
-    store.create_run(run_id, trigger["id"], state, actor, {"trigger_event_id": trigger["id"]})
+    state = new_state(run_id, trigger, operator.subject)
+    # Agency comes only from the verified token; the request body cannot carry one (extra="forbid").
+    store.create_run(run_id, trigger["id"], state, operator.subject, {"trigger_event_id": trigger["id"]}, operator.agency_id)
     return state
 
 
+# Every run route is scoped to the operator's verified agency. A run in another agency, or a legacy
+# row with NULL agency_id, is reported as run_not_found (404) so existence never leaks across agencies.
+
 @router.post("/runs", status_code=201)
 def start_run(body: StartRun, operator: Operator = Depends(_operator)):
-    return view(_call(_start, body.trigger_event_id, operator.subject))
+    connectors.require_not_paused()
+    return view(_call(_start, body.trigger_event_id, operator))
+
+
+@router.get("/runs")
+def list_runs(operator: Operator = Depends(_operator)):
+    return {"runs": [view(s) for s in _call(proactive_store.get_store().list_runs, operator.agency_id, 50)]}
 
 
 @router.post("/runs/{run_id}/advance")
 def advance_run(run_id: UUID, body: AdvanceRun, operator: Operator = Depends(_operator)):
+    connectors.require_not_paused()
     store = proactive_store.get_store()
     state, _ = _call(store.update_run, run_id, lambda s: advance(s, body.expected_step, operator.subject, store),
-                     operator.subject)
+                     operator.subject, operator.agency_id)
     return view(state)
 
 
 @router.post("/runs/{run_id}/cancel")
 def cancel_run(run_id: UUID, body: CancelRun, operator: Operator = Depends(_operator)):
+    # Cancellation stays available while paused: stopping work is never blocked.
     store = proactive_store.get_store()
-    state, _ = _call(store.update_run, run_id, lambda s: cancel(s, body.rationale, operator.subject), operator.subject)
+    state, _ = _call(store.update_run, run_id, lambda s: cancel(s, body.rationale, operator.subject), operator.subject,
+                     operator.agency_id)
     return view(state)
+
+
+def _scoped(run_id: UUID, operator: Operator) -> dict:
+    state = _call(proactive_store.get_store().get_run, run_id, operator.agency_id)
+    if state is None:
+        raise HTTPException(status_code=404, detail="run_not_found")
+    return state
 
 
 @router.get("/runs/{run_id}")
 def get_run(run_id: UUID, operator: Operator = Depends(_operator)):
-    state = _call(proactive_store.get_store().get_run, run_id)
-    if state is None:
-        raise HTTPException(status_code=404, detail="run_not_found")
+    state = _scoped(run_id, operator)
     return {**view(state), "audit": _call(proactive_store.get_store().run_audit, run_id)}
 
 
 @router.get("/runs/{run_id}/cap.xml")
 def get_run_cap(run_id: UUID, operator: Operator = Depends(_operator)):
-    state = _call(proactive_store.get_store().get_run, run_id)
-    if state is None:
-        raise HTTPException(status_code=404, detail="run_not_found")
+    state = _scoped(run_id, operator)
     if not state.get("cap") or not state.get("cap_xml"):
         raise HTTPException(status_code=409, detail="cap_not_drafted")
     xml = state["cap_xml"].encode()

@@ -61,8 +61,41 @@ conflict, someone else changed it: reload and retry.
 6. Clear a secret → connector shows "not set" and its test fails cleanly.
 7. Try to enable *Authority notification* → refused.
 8. Confirm `/watch` still works signed out (read-only) and `/admin/connectors` does not.
+9. Engage the kill switch (section 5) → Refresh and *Start bounded run* are refused with
+   `proactive_paused`, `/watch` shows the paused banner, an existing run still opens and can be
+   cancelled → resume with a reason.
+10. Sign in as an operator of a second agency → a run started by the first agency is not listed
+    and its URL returns "not found".
 
-## 5. What it will not do
+## 5. Kill switch
+
+Requires migration `013_proactive_run_agency.sql` (applied by the Compose `migrate` service).
+
+- **Where:** the *Proactive kill switch* panel at the top of `/admin/connectors` (platform_admin
+  only). Any signed-in operator can read the state (`GET /api/proactive/pause`); only
+  platform_admin can change it (`PUT`, same-origin checked by the BFF).
+- **Effect while paused:** run start, run advance and watch refresh return HTTP 409 with code
+  `proactive_paused`, for every agency. Reads (`/watch`, history, run detail, CAP download),
+  cancellation and existing drafts are untouched. Hazard Watch shows a "paused" banner.
+- **Audit:** every change needs a 10–500 character reason and writes one append-only
+  `proactive_pause_audit` row (paused flag, reason, actor = verified token subject, time). The
+  panel shows the last 20 changes.
+- **Fail closed:** if the switch cannot be read (for example 013 not applied), the blocked
+  routes return 503 instead of assuming "not paused"; the watch shows no banner (`paused: null`).
+
+## 6. Agency scope of runs
+
+- A run records the creating operator's verified `aegis_agency_id` in `proactive_runs.agency_id`.
+  The agency is never taken from the browser or request body (extra fields are rejected).
+- Get, list, advance, cancel and CAP download only see runs of the operator's own agency. A run in
+  another agency returns **404 `run_not_found`**, not 403, so its existence does not leak.
+- Runs created before migration 013 have `agency_id` NULL and are **invisible to every scoped
+  route** (fail closed). They are not back-filled or deleted; their audit rows stay in the DB.
+  If one must be recovered, an owner-approved one-off `UPDATE` that sets the correct agency is
+  the only path; do not guess.
+- Evidence and triggers remain shared reference data across agencies (they hold no case data).
+
+## 7. What it will not do
 
 No scraping, social media or webcams. No broadcast. No automatic case, proposal, approval or
 task. No accuracy claim: thresholds are synthetic rehearsal values until the registered

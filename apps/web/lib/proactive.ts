@@ -31,8 +31,12 @@ export interface TriggerEvent {
 }
 export interface WatchPayload {
   generated_at: string | null; config_version: string; disclaimer: string;
+  /** Platform kill switch: true engaged, false running, null unreadable. Absent in sample data. */
+  paused?: boolean | null;
   evidence: EvidenceRecord[]; triggers: TriggerEvent[];
 }
+export interface PauseAuditRow { paused: boolean; reason: string; actor: string; at: string | null }
+export interface PauseState { paused: boolean; reason: string | null; updated_at: string | null; updated_by: string | null; audit?: PauseAuditRow[] }
 export interface HistoryDay { day: string; hazard: string; state: TriggerState; count: number }
 export interface HistoryPayload { days: number; rows: HistoryDay[] }
 export interface ConnectorField { name: string; label: string; secret: boolean; required: boolean; set: boolean; fingerprint: string | null }
@@ -207,7 +211,7 @@ export function cleanWatch(value: unknown): WatchPayload {
       fired_at: timestamp(item.fired_at), lat, lon, score: Math.max(0, Math.min(1, score)), threshold, evidence_ids: uuidList(item.evidence_ids), rationale: cleanBag(item.rationale) }];
   });
   return { generated_at: timestamp(value.generated_at), config_version: text(value.config_version, 60) ?? "unknown",
-    disclaimer: text(value.disclaimer, 400) ?? DISCLAIMER, evidence, triggers };
+    disclaimer: text(value.disclaimer, 400) ?? DISCLAIMER, paused: typeof value.paused === "boolean" ? value.paused : null, evidence, triggers };
 }
 
 export function cleanHistory(value: unknown): HistoryPayload {
@@ -326,3 +330,17 @@ export function connectorStatus(connector: Connector): ConnectorStatus {
 }
 /** Ready means enabled and the last saved test passed. Authority notification can never be enabled and is not counted. */
 export const isReady = (connector: Connector) => connector.id !== "authority_notification" && connector.enabled && connectorStatus(connector) === "passed";
+
+export function cleanPause(value: unknown): PauseState {
+  if (!isObject(value) || typeof value.paused !== "boolean") throw new Error("Invalid pause payload");
+  const out: PauseState = { paused: value.paused, reason: text(value.reason, 500), updated_at: timestamp(value.updated_at), updated_by: text(value.updated_by, 120) };
+  if (Array.isArray(value.audit)) {
+    out.audit = value.audit.slice(0, 20).flatMap((row): PauseAuditRow[] => isObject(row) && typeof row.paused === "boolean"
+      ? [{ paused: row.paused, reason: text(row.reason, 500) ?? "", actor: text(row.actor, 120) ?? "unknown", at: timestamp(row.at) }] : []);
+  }
+  return out;
+}
+export function cleanRunList(value: unknown): { runs: ProactiveRun[] } {
+  if (!isObject(value) || !Array.isArray(value.runs)) throw new Error("Invalid run list");
+  return { runs: value.runs.slice(0, 50).flatMap(item => { try { return [cleanRun(item)]; } catch { return []; } }) };
+}

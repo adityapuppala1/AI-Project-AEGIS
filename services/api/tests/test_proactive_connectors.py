@@ -193,6 +193,9 @@ def test_compose_and_start_script_wiring():
     base = (root / 'compose.yaml').read_text()
     assert '012_proactive.sql:/docker-entrypoint-initdb.d/016-proactive.sql' in base
     assert '012_proactive.sql:/proactive.sql' in base and '-f /proactive.sql' in base
+    assert '013_proactive_run_agency.sql:/docker-entrypoint-initdb.d/017-proactive-run-agency.sql' in base
+    assert '013_proactive_run_agency.sql:/proactive-run-agency.sql' in base
+    assert '-f /proactive.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /proactive-run-agency.sql' in base
     overlay = (root / 'compose.proactive.yaml').read_text()
     assert 'AEGIS_PROACTIVE: "1"' in overlay and 'AEGIS_CONNECTOR_KEY: "${AEGIS_CONNECTOR_KEY:?' in overlay
     assert 'compose.proactive.yaml' in (root / 'scripts/start-windows.ps1').read_text()

@@ -82,7 +82,11 @@ export function ProactiveRunPanel({ triggerEventId, canOperate, disabledReason, 
     try {
       const response = await fetch(path, { method: "POST", cache: "no-store", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       const data = await response.json().catch(() => ({})) as ProactiveRun & { error?: string; code?: string };
-      if (!response.ok) { setMessage(response.status === 409 ? t("The run changed or this step is not available. Reload the run state.") : data.error ?? t("Run request failed")); return null; }
+      if (!response.ok) {
+        setMessage(data.code === "proactive_paused" ? t("Proactive automation is paused by a platform administrator. Existing drafts stay readable and runs can still be cancelled.")
+          : response.status === 409 ? t("The run changed or this step is not available. Reload the run state.") : data.error ?? t("Run request failed"));
+        return null;
+      }
       return data;
     } catch { setMessage(t("Run request failed")); return null; } finally { setBusy(false); }
   }, [t]);

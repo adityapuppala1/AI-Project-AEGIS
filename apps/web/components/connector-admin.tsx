@@ -6,6 +6,7 @@ import {
   Loader2, Lock, Mountain, Plug, Power, PowerOff, Satellite, Save, ShieldCheck, Sparkles, Undo2, X, XCircle, type LucideIcon,
 } from "lucide-react";
 import { AppShell } from "./app-shell";
+import { ProactivePauseControl } from "./proactive-pause";
 import { useT } from "./language-provider";
 import { useOperatorSession } from "../lib/use-operator-session";
 import { ageParts, connectorStatus, isReady, missingRequired } from "../lib/proactive";
@@ -375,6 +376,7 @@ export function ConnectorAdmin() {
       {!preview && loading && !payload && <div role="status" aria-busy="true"><span className="sr-only">{t("Loading connectors…")}</span>
         <div aria-hidden="true" className="space-y-5"><div className="panel flex items-center gap-5 p-5"><div className="shimmer h-20 w-20 !rounded-full"/><div className="flex-1 space-y-3"><div className="shimmer h-4 w-1/2"/><div className="shimmer h-3 w-3/4"/></div></div>
           <div className="grid gap-5 xl:grid-cols-2">{[0, 1].map(i => <div key={i} className="panel p-5"><div className="shimmer h-5 w-1/3"/><div className="shimmer mt-4 h-10 w-full"/><div className="shimmer mt-3 h-10 w-full"/></div>)}</div></div></div>}
+      {!preview && isAdmin && <ProactivePauseControl/>}
       {view && <>
         <SetupHeader payload={view} preview={preview}/>
         <div className="grid items-start gap-5 xl:grid-cols-2">

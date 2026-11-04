@@ -405,3 +405,48 @@ def connector_audit(connector_id: str, operator: Operator = Depends(_admin)):
     _known(connector_id)
     return {"connector_id": connector_id, "audit": _store_call(proactive_store.get_store().list_audit, connector_id, 50)}
 
+
+
+# --- kill switch --------------------------------------------------------------------------------
+# One persisted row (013). Engaged, it stops new automation (run start, run advance, watch refresh)
+# with 409 proactive_paused; reads, cancellation and existing drafts are untouched. An unreadable
+# switch fails closed with 503 rather than assuming "not paused".
+
+def _iso(value):
+    return value.isoformat() if hasattr(value, "isoformat") else value
+
+
+def pause_view(row: dict) -> dict:
+    return {"paused": bool(row.get("paused")), "reason": row.get("reason"),
+            "updated_at": _iso(row.get("updated_at")), "updated_by": row.get("updated_by")}
+
+
+def require_not_paused() -> None:
+    row = _store_call(proactive_store.get_store().get_pause)
+    if row.get("paused") is not False:
+        raise HTTPException(status_code=409, detail="proactive_paused")
+
+
+class PauseUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    paused: bool = Field(strict=True)
+    reason: str = Field(min_length=10, max_length=500)
+
+
+@router.get("/pause")
+def get_pause(operator: Operator = Depends(get_operator)):
+    store = proactive_store.get_store()
+    view = pause_view(_store_call(store.get_pause))
+    if "platform_admin" in operator.roles:
+        view["audit"] = _store_call(store.pause_audit, 20)
+    return view
+
+
+@router.put("/pause")
+def put_pause(body: PauseUpdate, operator: Operator = Depends(_admin)):
+    reason = body.reason.strip()
+    if len(reason) < 10 or any(ord(c) < 32 for c in reason):
+        raise HTTPException(status_code=422, detail="invalid_reason")
+    store = proactive_store.get_store()
+    row = _store_call(store.set_pause, body.paused, reason, operator.subject)
+    return {**pause_view(row), "audit": _store_call(store.pause_audit, 20)}

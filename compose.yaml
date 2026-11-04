@@ -24,6 +24,7 @@ services:
       - ./db/seed_agency_sync.sql:/docker-entrypoint-initdb.d/014-agency-sync-seed.sql:ro
       - ./db/migrations/011_public_intake_quarantine.sql:/docker-entrypoint-initdb.d/015-public-intake.sql:ro
       - ./db/migrations/012_proactive.sql:/docker-entrypoint-initdb.d/016-proactive.sql:ro
+      - ./db/migrations/013_proactive_run_agency.sql:/docker-entrypoint-initdb.d/017-proactive-run-agency.sql:ro
       - ./db/seed.sql:/docker-entrypoint-initdb.d/010-seed.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U aegis -d aegis"]
@@ -50,10 +51,11 @@ services:
       - ./db/migrations/010_exercise_source_comparison.sql:/source-comparison.sql:ro
       - ./db/migrations/011_public_intake_quarantine.sql:/public-intake.sql:ro
       - ./db/migrations/012_proactive.sql:/proactive.sql:ro
+      - ./db/migrations/013_proactive_run_agency.sql:/proactive-run-agency.sql:ro
     depends_on:
       db:
         condition: service_healthy
-    command: ["sh", "-c", "psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /schema.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /migration.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /identity-scopes.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /incident-search.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /incident-intelligence.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /source-health.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /ingestion.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /geospatial.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /agency-sync.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /source-comparison.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /public-intake.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /proactive.sql"]
+    command: ["sh", "-c", "psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /schema.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /migration.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /identity-scopes.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /incident-search.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /incident-intelligence.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /source-health.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /ingestion.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /geospatial.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /agency-sync.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /source-comparison.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /public-intake.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /proactive.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /proactive-run-agency.sql"]
     restart: "no"
   seed:
     image: postgis/postgis:16-3.4

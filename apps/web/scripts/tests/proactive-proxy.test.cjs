@@ -147,3 +147,46 @@ test('CAP download streams XML as an attachment', async () => {
     assert.equal((await loadProxy(operator)(req('GET', '/x'), 'run_cap', id)).status, 502);
   });
 });
+
+test('kill switch: any operator may read, only platform_admin may change, Origin is enforced and body is allowlisted', async () => {
+  const state = { paused: true, reason: 'Exercise pause for review', updated_at: '2026-11-01T00:00:00Z', updated_by: 'admin-1', audit: [{ paused: true, reason: 'Exercise pause for review', actor: 'admin-1', at: '2026-11-01T00:00:00Z' }], extra: 'dropped' };
+  const body = { paused: true, reason: 'Exercise pause for review' };
+  await withFetch(json(state), async calls => {
+    for (const session of [operator, auditor, admin]) assert.equal((await loadProxy(session)(req('GET', '/x'), 'pause_get')).status, 200);
+    assert.equal((await loadProxy(null)(req('GET', '/x'), 'pause_get')).status, 401);
+    assert.equal((await loadProxy(operator)(req('PUT', '/x', body), 'pause_set')).status, 403);
+    assert.equal((await loadProxy(admin)(req('PUT', '/x', body, 'http://evil.example'), 'pause_set')).status, 403);
+    assert.equal((await loadProxy(admin)(req('PUT', '/x', { ...body, agency_id: id }), 'pause_set')).status, 400);
+    assert.equal((await loadProxy(admin)(req('PUT', '/x', { paused: 'yes', reason: body.reason }), 'pause_set')).status, 400);
+    assert.equal((await loadProxy(admin)(req('PUT', '/x', { paused: true, reason: 'short' }), 'pause_set')).status, 400);
+    assert.equal((await loadProxy(admin)(req('PUT', '/x', { paused: true, reason: 'line one\nline two' }), 'pause_set')).status, 400);
+    assert.equal((await loadProxy(admin)(req('POST', '/x', body), 'pause_set')).status, 405);
+    assert.equal(calls.length, 3);
+    const result = await loadProxy(admin)(req('PUT', '/x', { paused: true, reason: '  Exercise pause for review  ' }), 'pause_set');
+    assert.equal(result.status, 200);
+    const out = await result.json();
+    assert.equal(out.paused, true); assert.equal(out.extra, undefined); assert.equal(out.audit[0].actor, 'admin-1');
+    assert.equal(calls[3].options.method, 'PUT'); assert.ok(calls[3].url.endsWith('/v1/proactive/pause'));
+    assert.deepEqual(JSON.parse(calls[3].options.body), { paused: true, reason: 'Exercise pause for review' });
+  });
+});
+
+test('paused backend relays only the fixed proactive_paused code; run list is operator-only', async () => {
+  await withFetch(() => new Response(JSON.stringify({ detail: 'proactive_paused' }), { status: 409 }), async () => {
+    const result = await loadProxy(operator)(req('POST', '/x', { trigger_event_id: id }), 'run_create');
+    assert.equal(result.status, 409); assert.equal((await result.json()).code, 'proactive_paused');
+  });
+  await withFetch(json({ runs: [{ id, trigger_event_id: id, status: 'running' }, { id: 'bad' }] }), async calls => {
+    assert.equal((await loadProxy(admin)(req('GET', '/x'), 'run_list')).status, 403);
+    const result = await loadProxy(operator)(req('GET', '/x'), 'run_list');
+    assert.equal(result.status, 200); assert.equal((await result.json()).runs.length, 1);
+    assert.equal(calls.length, 1); assert.ok(calls[0].url.endsWith('/v1/proactive/runs'));
+  });
+});
+
+test('watch payload carries the kill switch flag as a strict boolean or null', () => {
+  const base = { generated_at: '2026-01-01T00:00:00Z', config_version: 'v1', disclaimer: 'x', evidence: [], triggers: [] };
+  assert.equal(lib.cleanWatch({ ...base, paused: true }).paused, true);
+  assert.equal(lib.cleanWatch({ ...base, paused: 'true' }).paused, null);
+  assert.equal(lib.cleanWatch(base).paused, null);
+});

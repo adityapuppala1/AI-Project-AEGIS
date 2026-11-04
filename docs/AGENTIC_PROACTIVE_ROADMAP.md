@@ -36,14 +36,30 @@ issuing authority stay the same.
 
 ## 3. Cross-cutting work needed before any of A1–A10 ship
 
+Status 4 November 2026: the harness, kill switch and run agency scope are **implemented on
+`feat/agentic-proactive-l3`, pending runtime verification** on the Windows laptop (unit, Node and
+typecheck gates pass; migration 013 not yet applied to the running stack; the opt-in PostGIS test
+was not run). Run observability is still pending.
+
 - **Agent evaluation harness:** golden cases per agent (expected option, expected abstention),
   run on every change; prompt-injection cases built from public-intake-style text.
+  *Implemented (pending runtime verification):* `services/api/tests/test_proactive_agent_golden.py`
+  pins trigger state per fixture threshold, abstention on missing/NaN/unusable values, no
+  `recommended` band on stale or missing evidence, a run that always stops at `hand_to_human`, and
+  injection text in evidence fields that never changes the chosen option.
 - **Run observability:** step graph, per-step latency, budget used, cancellation reason, all
-  through the existing audit, not a new store.
+  through the existing audit, not a new store. *Pending.*
 - **Kill switch:** one admin toggle that stops all scheduled agents and leaves drafts untouched.
+  *Implemented (pending runtime verification):* `proactive_pause` single-row table plus append-only
+  `proactive_pause_audit` (migration 013); `PUT /v1/proactive/pause` is platform_admin only with a
+  10–500 character reason; run start, run advance and watch refresh return 409 `proactive_paused`.
+  See [PROACTIVE_ADMIN_RUNBOOK.md](PROACTIVE_ADMIN_RUNBOOK.md#5-kill-switch).
 - **Per-agency scoping of proactive runs** (found as a design question in the 4 November security
   review): record the verified operator agency on each run and filter reads/transitions by it,
   unless the owner confirms the shared-desk model.
+  *Implemented (pending runtime verification):* `proactive_runs.agency_id` (migration 013) is set
+  from the verified `aegis_agency_id`; get, list, advance, cancel and CAP download filter by it and
+  return 404 across agencies. Legacy NULL rows are invisible to everyone (fail closed).
 
 ## 4. Suggested order
 

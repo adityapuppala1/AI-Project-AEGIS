@@ -4,14 +4,15 @@
 import { NextResponse } from "next/server";
 import { configuration, readSession, sameOrigin, type Role } from "./auth-server";
 import {
-  cleanAudit, cleanConnector, cleanConnectors, cleanHistory, cleanRefresh, cleanRun, cleanTestResult, cleanTriggersConfig, cleanWatch,
+  cleanAudit, cleanConnector, cleanConnectors, cleanHistory, cleanPause, cleanRefresh, cleanRun, cleanRunList, cleanTestResult, cleanTriggersConfig, cleanWatch,
   isConnectorId, isObject, isRunStep, isUuid,
 } from "./proactive";
 
 export type ProactiveRoute =
   | "connectors" | "connector_save" | "connector_test" | "connector_audit"
   | "watch" | "watch_history" | "watch_refresh" | "triggers_config"
-  | "run_create" | "run_get" | "run_advance" | "run_cancel" | "run_cap";
+  | "run_create" | "run_list" | "run_get" | "run_advance" | "run_cancel" | "run_cap"
+  | "pause_get" | "pause_set";
 
 const MAX_BODY = 8000;
 const RESERVED = new Set(["__proto__", "constructor", "prototype"]);
@@ -28,6 +29,9 @@ const hasRole = (roles: Role[], ...expected: Role[]) => roles.some(role => expec
 function rolesFor(route: ProactiveRoute): Role[] {
   if (route === "connectors" || route === "connector_save" || route === "connector_test" || route === "connector_audit") return ["platform_admin"];
   if (route === "watch_refresh") return ["incident_operator", "platform_admin"];
+  // Kill switch: any signed-in operator may read it; only platform_admin may change it.
+  if (route === "pause_get") return ["incident_operator", "incident_checker", "incident_auditor", "department_operator", "platform_admin"];
+  if (route === "pause_set") return ["platform_admin"];
   return ["incident_operator"];
 }
 
@@ -84,6 +88,13 @@ function buildRequest(route: ProactiveRoute, id: string | undefined, url: URL, d
     }
     case "watch_refresh": return { path: `${base}/watch/refresh`, method: "POST", body: "{}" };
     case "triggers_config": return { path: `${base}/triggers/config`, method: "GET" };
+    case "pause_get": return { path: `${base}/pause`, method: "GET" };
+    case "pause_set": {
+      if (!data || Object.keys(data).some(key => key !== "paused" && key !== "reason") || typeof data.paused !== "boolean") return bad("Paused must be true or false");
+      if (typeof data.reason !== "string" || data.reason.trim().length < 10 || data.reason.length > 500 || [...data.reason].some(c => c.charCodeAt(0) < 32)) return bad("A reason of 10-500 characters is required");
+      return { path: `${base}/pause`, method: "PUT", body: JSON.stringify({ paused: data.paused, reason: data.reason.trim() }) };
+    }
+    case "run_list": return { path: `${base}/runs`, method: "GET" };
     case "run_create": {
       if (!data || Object.keys(data).some(key => key !== "trigger_event_id") || !isUuid(data.trigger_event_id)) return bad("Valid trigger event required");
       return { path: `${base}/runs`, method: "POST", body: JSON.stringify({ trigger_event_id: data.trigger_event_id }) };
@@ -113,6 +124,8 @@ function clean(route: ProactiveRoute, payload: unknown): unknown {
     case "watch_history": return cleanHistory(payload);
     case "watch_refresh": return cleanRefresh(payload);
     case "triggers_config": return cleanTriggersConfig(payload);
+    case "pause_get": case "pause_set": return cleanPause(payload);
+    case "run_list": return cleanRunList(payload);
     default: return cleanRun(payload);
   }
 }
@@ -135,11 +148,11 @@ export async function proxyProactive(request: Request, route: ProactiveRoute, id
     if (isWrite && !sameOrigin(request, config)) return failure(403, "Invalid request origin");
     if (!hasRole(session.roles, ...rolesFor(route))) return failure(403, "Insufficient role");
   }
-  const expectedMethod = ({ connector_save: "PUT", connector_test: "POST", watch_refresh: "POST", run_create: "POST", run_advance: "POST", run_cancel: "POST" } as Partial<Record<ProactiveRoute, string>>)[route] ?? "GET";
+  const expectedMethod = ({ connector_save: "PUT", pause_set: "PUT", connector_test: "POST", watch_refresh: "POST", run_create: "POST", run_advance: "POST", run_cancel: "POST" } as Partial<Record<ProactiveRoute, string>>)[route] ?? "GET";
   if (request.method !== expectedMethod) return failure(405, "Method not allowed");
 
   let data: Record<string, unknown> | null = null;
-  const needsBody = route === "connector_save" || route === "run_create" || route === "run_advance" || route === "run_cancel";
+  const needsBody = route === "connector_save" || route === "pause_set" || route === "run_create" || route === "run_advance" || route === "run_cancel";
   if (needsBody) {
     const raw = await request.text();
     if (raw.length > MAX_BODY) return failure(413, "Payload too large");

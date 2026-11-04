@@ -18,6 +18,24 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Proactive cross-cutting step 1 — 4 November 2026 (Windows laptop, uncommitted)
+
+Branch `feat/agentic-proactive-l3`, base `2337e78`. Roadmap section 3: run agency scope, kill
+switch, agent golden cases.
+
+- **Completed (code + unit gates):** migration `013_proactive_run_agency.sql` (nullable
+  `proactive_runs.agency_id` + index; `proactive_pause` single row; append-only
+  `proactive_pause_audit`), wired into Compose init and the `migrate` service and into
+  `migration_audit.EXPECTED_INDEXES`. Runs are scoped by verified agency (404 across agencies,
+  legacy NULL rows invisible). platform_admin kill switch (`GET/PUT /v1/proactive/pause`, BFF
+  `/api/proactive/pause`) returns 409 `proactive_paused` for run start/advance and watch refresh.
+  Admin panel on `/admin/connectors`, paused banner on `/watch`, en/te/hi strings.
+- **Executed:** `services/api/.venv` `pytest -q` 570 passed / 23 skipped; `python -m app.model_lab
+  --check` PASS; `npm run typecheck` PASS; `node --test scripts/tests/*.test.cjs` 134 passed.
+- **Pending:** apply 013 to the running stack's existing volume (`docker compose run --rm migrate`,
+  no reset), runtime check, opt-in PostGIS `test_postgis_proactive.py`, `npm run build` under the
+  operation lease. Security preflight reports `not_ready` until 013 is applied (new index check).
+
 ## Security review, README and roadmap — 4 November 2026 (Windows laptop)
 
 Branch `feat/aegis-local-demo-continuation`, base `1d2fa69`.

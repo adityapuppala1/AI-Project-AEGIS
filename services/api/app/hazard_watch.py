@@ -350,8 +350,12 @@ def watch_view() -> dict:
                  "fired_at": _iso(t["fired_at"]), "lat": t["lat"], "lon": t["lon"], "score": t["score"],
                  "threshold": (t.get("rationale") or {}).get("threshold"), "evidence_ids": t["evidence_ids"],
                  "rationale": t.get("rationale") or {}} for t in store.list_triggers()]
+    try:
+        paused = store.get_pause().get("paused") is True
+    except Exception:
+        paused = None  # switch unreadable (for example 013 not applied); writes fail closed separately
     return {"generated_at": now.isoformat(), "config_version": config["version"], "disclaimer": DISCLAIMER,
-            "evidence": evidence, "triggers": triggers}
+            "paused": paused, "evidence": evidence, "triggers": triggers}
 
 
 # --- routes -------------------------------------------------------------------------------------
@@ -383,6 +387,7 @@ def get_watch_history(days: int = Query(default=7, ge=1, le=30)):
 @router.post("/watch/refresh")
 def post_watch_refresh(operator: Operator = Depends(get_operator)):
     require_role(operator, {"incident_operator", "platform_admin"})
+    connectors.require_not_paused()
     try:
         return refresh()
     except Exception:
