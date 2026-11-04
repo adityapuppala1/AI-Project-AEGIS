@@ -128,15 +128,27 @@ credentials in their own environment; they are not started. Rows 4 and 5 stay ex
 
 ## 9. GDACS — Global Disaster Alert and Coordination System (www.gdacs.org)
 
-- Not fetched on this run (no external requests were made while implementing A4). Rows 9–12 were written from the
-  assistant's prior knowledge and must be re-checked by the owner against the pages below before enabling.
-- Inference: GDACS is a cooperation framework of the United Nations and the European Commission (Joint Research
-  Centre); the event list API (`/gdacsapi/api/events/geteventlist/SEARCH`, GeoJSON) is publicly reachable without a key.
-- **UNCLEAR:** reuse conditions. Terms of use page to read: https://www.gdacs.org/About/termofuse.aspx. Until the owner
-  confirms them in writing, the connector stays disabled. Attribution used in evidence payloads:
-  "GDACS (UN / European Commission JRC)".
-- Conditions in code: fixed host, JSON only, no redirects, India bounding box, alert level only; shown as a third-party
-  reference, not an AEGIS assessment or official warning.
+- Fetched 4 November 2026: https://www.gdacs.org/About/termofuse.aspx. The page is a **liability disclaimer, not
+  a licence**. It does not state attribution requirements, commercial/non-commercial terms, redistribution
+  rights, or API/automated-access conditions. What it does say:
+  - Information is provided "as is" without warranty of any kind.
+  - Earthquake, tsunami and tropical-cyclone notifications are algorithm-generated and not reviewed by a human
+    expert before release.
+  - GDACS does not replace official local/national authority alerts.
+  - Notifications "should not be used for decision making without prior confirmation of their validity."
+  - No guarantee of completeness or timeliness; data may change without notice; unspecified downtime possible.
+  - GDACS stakeholders assume no liability for damage, injury or loss of life from use of the content.
+- **Still UNCLEAR after reading the page:** reuse/redistribution/attribution terms for the event-list API
+  specifically. GDACS is a cooperation framework of the United Nations and the European Commission (Joint
+  Research Centre); the event list API (`/gdacsapi/api/events/geteventlist/SEARCH`, GeoJSON) is publicly
+  reachable without a key, but that alone does not establish a reuse licence. The owner should contact GDACS
+  directly (the page's "contact us" link) before enabling the connector outside this local exercise, or confirm
+  acceptable use in writing. Attribution used in evidence payloads regardless: "GDACS (UN / European Commission
+  JRC)".
+- Conditions already in code, independent of the licence question: fixed host, JSON only, no redirects, India
+  bounding box, alert level only; shown as a third-party reference, not an AEGIS assessment or official warning;
+  the disclaimer's own "not for decision-making without confirmation" point is already honoured by the maker-
+  checker gate before anything derived from it reaches a draft.
 
 ## 10. Google Flood Forecasting API (floodforecasting.googleapis.com)
 
