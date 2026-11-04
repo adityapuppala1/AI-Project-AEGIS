@@ -141,10 +141,26 @@ credentials in their own environment; they are not started. Rows 4 and 5 stay ex
 - **Still UNCLEAR after reading the page:** reuse/redistribution/attribution terms for the event-list API
   specifically. GDACS is a cooperation framework of the United Nations and the European Commission (Joint
   Research Centre); the event list API (`/gdacsapi/api/events/geteventlist/SEARCH`, GeoJSON) is publicly
-  reachable without a key, but that alone does not establish a reuse licence. The owner should contact GDACS
-  directly (the page's "contact us" link) before enabling the connector outside this local exercise, or confirm
-  acceptable use in writing. Attribution used in evidence payloads regardless: "GDACS (UN / European Commission
-  JRC)".
+  reachable without a key, but that alone does not establish a reuse licence. Attribution used in evidence
+  payloads regardless: "GDACS (UN / European Commission JRC)".
+- **Fetched 4 November 2026, favourable but not GDACS-specific:** gdacs.org's footer "Copyright" link points
+  to the European Commission's legal notice (https://commission.europa.eu/legal-notice_en), which states the
+  Commission's default reuse policy (Decision 2011/833/EU, CELEX 32011D0833): EU-owned website content is
+  licensed **CC BY 4.0 by default** ("reuse is allowed, provided appropriate credit is given and changes are
+  indicated"), **unless the site states otherwise**. GDACS's own terms-of-use page (above) does not state
+  otherwise — it is a liability disclaimer, silent on reuse — so the EU default plausibly applies to GDACS's
+  JRC-owned content, but this has not been confirmed for GDACS specifically and GDACS is a joint UN/EC
+  framework, not purely an EC property, so the default may not cleanly apply. Do not treat this as a
+  confirmed licence.
+- **No API-specific terms or developer contact found.** Checked `feed_reference.aspx` (RSS/feed docs: no
+  licence terms) and the site's contact routes. `info@gdacs.org` is stated as cancelled "because of spam
+  reasons" — do not use it. The only contact route is the form at
+  https://www.gdacs.org/About/contactus.aspx (routes to the Info, Maps or Alert group; the page says it is
+  for technical/analytical questions only, so a licensing question may fall outside its stated scope — try
+  it anyway and note the reply, or treat the EU-default reasoning above as the basis for a decision if no
+  reply arrives).
+- **Owner action, ready to send:** a drafted inquiry for the GDACS contact form is in
+  `docs/GDACS_INQUIRY_DRAFT.md`. Send it from the owner's own identity; nothing here was sent.
 - Conditions already in code, independent of the licence question: fixed host, JSON only, no redirects, India
   bounding box, alert level only; shown as a third-party reference, not an AEGIS assessment or official warning;
   the disclaimer's own "not for decision-making without confirmation" point is already honoured by the maker-
@@ -152,11 +168,20 @@ credentials in their own environment; they are not started. Rows 4 and 5 stay ex
 
 ## 10. Google Flood Forecasting API (floodforecasting.googleapis.com)
 
-- Page to re-check: https://developers.google.com/flood-forecasting (not fetched on this run).
-- Inference: data published under **CC BY 4.0**; access needs waitlist approval and a Google Cloud API key; Google APIs
-  Terms of Service apply. Attribution used: "Google Flood Forecasting (CC BY 4.0)".
-- Conditions: owner applies for access; the key is stored only as an encrypted connector secret and sent in a request
-  header; model forecasts, not gauge observations; non-operational display only.
+- Fetched 4 November 2026: https://developers.google.com/flood-forecasting. Confirms: public API, **no charge**,
+  data licensed **CC BY 4.0** (exact attribution wording not specified beyond the licence itself). Attribution
+  used in AEGIS: "Google Flood Forecasting (CC BY 4.0)".
+- **Owner's exact next step:** fill the waitlist form —
+  https://docs.google.com/forms/d/e/1FAIpQLSfcKhe3CHsncM-_NQ66zLheEfXKnNbDPBtuIT7BSYCqYkmOaA/viewform —
+  with a Google account. After approval, Google emails next steps; the page says to reply with the Google
+  Cloud Project ID if already approved. Then: create/reuse a Google Cloud project, create an API key, open
+  the Flood Forecasting API library page and click Enable (access needs both the key and the API enabled).
+  The page links a Colab notebook to verify access once set up.
+- Conditions: the key is stored only as an encrypted connector secret (`connector_secrets.py`, AES-256-GCM)
+  and sent in the `X-Goog-Api-Key` request header only — never logged, returned or placed in a URL (tested);
+  model forecasts, not gauge observations; non-operational display only; coverage limited to the countries
+  Google lists on its separate support page (not yet checked for India-specific coverage — confirm after
+  approval, before enabling the connector).
 
 ## 11. OpenStreetMap data (ODbL 1.0) for the exposure importer
 
