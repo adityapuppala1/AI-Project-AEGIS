@@ -13,3 +13,7 @@ dist/
 
 # Generated from the pinned MapLibre package before web build/dev.
 apps/web/public/maplibre/
+
+# Local editor settings and generated graph output
+.vscode/
+graphify-out/

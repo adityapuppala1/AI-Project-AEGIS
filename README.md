@@ -2,6 +2,97 @@
 
 CipherCop 2026 · AI-powered disaster prediction, preparedness and accountable response.
 
+> **Local synthetic exercise system.** AEGIS sends no real warnings, dispatches no responders and
+> makes no validated forecasting claims. All metrics are synthetic unless a registered protocol says otherwise.
+
+## What it is
+
+AEGIS is a decision-support workbench for emergency operations centres. It gathers hazard evidence,
+correlates it with incidents on a map, drafts response proposals with cited evidence, and routes them
+through an **independent two-person (maker–checker) approval** before any exercise task or CAP
+warning draft is produced. Automation prepares and explains; humans decide; the authority issues.
+
+## Screenshots
+
+| Command Center | Incident workspace |
+|---|---|
+| ![Command Center](docs/screenshots/command-center.png) | ![Incident](docs/screenshots/incident.png) |
+| **Approvals workbench** | **Hazard Watch** |
+| ![Approvals](docs/screenshots/approvals.png) | ![Hazard Watch](docs/screenshots/hazard-watch.png) |
+
+## Architecture
+
+```
+ Browser (Next.js 15 / React, MapLibre, Tailwind)  ── en / te / hi, light / dark, 2D default + 3D locators
+        │  same-origin only
+        ▼
+ Next.js BFF route handlers ── OIDC login (PKCE, state, nonce) · encrypted HttpOnly session (A256GCM)
+        │  Origin-checked writes · field allowlists · bearer token from server-side session only
+        ▼
+ FastAPI service (Python) ── RS256 JWT verification · signed agency/role/department scope
+        │  maker–checker governance · row-locked transitions with atomic audit
+        │  assessment · spatial correlation · source health · replay · model lab · CAP export
+        │  opt-in: local copilot · Earth Watch · public intake (quarantine) · proactive watch
+        ▼
+ PostgreSQL + PostGIS ── immutable proposal snapshots · audit trail · exercise fixtures
+        ▲
+ Allowlisted HTTPS adapters (no redirects, fixed hosts): Open-Meteo, USGS, NASA FIRMS/EONET, …
+```
+
+More detail: [architecture decisions](docs/ARCHITECTURE.md) · [security and governance](docs/SECURITY_AND_GOVERNANCE.md).
+
+## Why it is designed this way
+
+| Decision | Reason |
+|---|---|
+| Human maker–checker on every consequential step | In disaster response a wrong warning costs trust and lives; accountability must sit with two named people, not a model. |
+| Backend-for-frontend with server-held tokens | Tokens never reach browser JavaScript, so XSS cannot steal them; every write is same-origin checked. |
+| Agency, role and department only from signed tokens | Browser-supplied scope can be forged; authority must come from the identity provider. |
+| Cited evidence and abstention over free-text AI | Operators need to verify every claim; unsupported questions abstain instead of guessing. |
+| Bounded, cancellable, draft-only agent runs | Automation gets a fixed step budget and stops before submission, so it can help without acting. |
+| Default-off overlays (`compose.*.yaml`) | New capabilities ship without changing the base stack; each one is opted into and reviewed. |
+| PostGIS and immutable snapshots | Spatial correlation needs real geometry; approvals must reference exactly what the checker saw. |
+| Local-first, no paid infrastructure | Runs on one laptop for demos and tabletop exercises with no cost or data leaving the machine. |
+
+## Install and run (Windows)
+
+**Prerequisites:** Windows 10/11, [Docker Desktop](https://www.docker.com/products/docker-desktop/) with WSL2,
+Git, PowerShell. For local code checks also Node.js 20+ and Python 3.12.
+
+```powershell
+git clone https://github.com/adityapuppala1/AI-Project-AEGIS.git
+cd AI-Project-AEGIS
+Copy-Item .env.example .env          # local-only values; never commit .env
+
+# Start Docker Desktop first, then:
+powershell -ExecutionPolicy Bypass -File .\scripts\start-windows.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\check-local-runtime.ps1 -RequireRunning
+powershell -ExecutionPolicy Bypass -File .\scripts\verify-windows.ps1
+```
+
+Open http://localhost:3000 (app), http://localhost:3000/demo (guided exercise) and
+http://localhost:8000/docs (API). Stop with `scripts\stop-windows.ps1`; the database volume is kept.
+
+Optional overlays (default off): `-LocalCopilot`, `-PublicEarth`, `-PublicIntake`, `-Proactive`
+(the last needs `AEGIS_CONNECTOR_KEY`, see `scripts/new-connector-key.ps1`). Sign-in for the approval
+workbench needs an OIDC identity provider; see [local IdP review](docs/LOCAL_IDP_REVIEW.md).
+Run one AEGIS stack at a time ([single-instance rules](docs/SINGLE_INSTANCE_LOCAL_RUNTIME.md)).
+Full setup and troubleshooting: [Windows local setup](docs/WINDOWS_LOCAL_SETUP.md).
+
+**Local checks**
+
+```powershell
+cd services/api; python -m venv .venv; .\.venv\Scripts\pip install -r requirements.txt
+.\.venv\Scripts\python -m pytest -q; .\.venv\Scripts\python -m app.model_lab --check
+cd ..\..\apps\web; npm ci --no-audit --no-fund; npm run typecheck; npm run build
+```
+
+## Roadmap
+
+[Agentic and proactive roadmap](docs/AGENTIC_PROACTIVE_ROADMAP.md) ·
+[proactive multi-hazard plan](docs/PROACTIVE_MULTI_HAZARD_PLAN.md) ·
+[engineering backlog](docs/ENGINEERING_BACKLOG.md).
+
 ## Status
 
 **Consolidated synthetic demo release candidate (in development).** The latest integrated branch is `feat/ciphercop-integrated-demo-rc`, combining the original GeoCommand, DataFusion, Incident Fusion, response guidance, ApprovalGuard, AgencySync, PolicyStudio, ReplayLab and Audit360 demo surfaces. **No real warnings, dispatch or validated flood forecasting.** The current release candidate still requires tests and owner approval; `main` is unchanged.

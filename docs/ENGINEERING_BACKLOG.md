@@ -8,6 +8,13 @@ only at that checkpoint; saved focus and a bounded explicit-step runner are now
 implemented and accepted locally. Exact source,
 commands and the retained startup failure/fix are in [the handoff](LOCAL_DEMO_HANDOFF.md).
 
+## Agentic and proactive roadmap — 4 November 2026 (proposal)
+
+Next-stage L1–L3 agent features (scheduled watch loop, evidence-change sentinel, impact-based
+triggers, pre-positioning planner, read-only copilot, handover brief, post-event learning) with an
+explicit "never act" L4 boundary. Not implemented; owner decisions pending. See
+[AGENTIC_PROACTIVE_ROADMAP.md](AGENTIC_PROACTIVE_ROADMAP.md).
+
 ## Earth Watch enhancement backlog — 2 November 2026
 
 Ordered packages E1–E8 (public USGS/NASA feeds, satellite imagery layer, "alive"

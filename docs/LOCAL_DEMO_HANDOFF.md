@@ -18,6 +18,23 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Security review, README and roadmap — 4 November 2026 (Windows laptop)
+
+Branch `feat/aegis-local-demo-continuation`, base `1d2fa69`.
+
+- **Completed:** read-only security review of auth/OIDC/session, workflow authz and maker-checker,
+  public intake/Earth Watch, proactive connectors/runs, compose/CI, and BFF write-route Origin checks.
+  No confirmed exploitable issue; no code changed. Open design question: proactive runs are not
+  agency-scoped (shared-desk) — owner decision.
+- **Executed:** `npm audit --omit=dev` 0 vulnerabilities; `pip-audit -r requirements.txt` none;
+  `services/api/.venv` `pytest -q` 530 passed / 22 skipped (host Python 3.14 lacks `psycopg`; use
+  the venv); `python -m app.model_lab --check` PASS; `npm run typecheck` PASS. `npm run build` not
+  re-run (docs-only change).
+- **Runtime:** `start-windows.ps1 -Proactive` → single-instance PASS; README screenshots captured from it.
+- **Docs:** README overview, architecture, design rationale, install steps and screenshots
+  (`docs/screenshots/`); [agentic roadmap](AGENTIC_PROACTIVE_ROADMAP.md) (proposal).
+- **Pending:** dynamic VAPT against the running stack, responsive UI checks, HTML report.
+
 ## Latest continuation status
 
 Latest laptop application checkpoint: `dae1a696f655b6c3f7a78aed9e513b1c30d0e12c`
