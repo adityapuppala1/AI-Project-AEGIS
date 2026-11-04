@@ -1,10 +1,16 @@
 # Agentic and proactive roadmap — next stage (4 November 2026)
 
-Status: **proposal, not implemented.** Extends `PROACTIVE_MULTI_HAZARD_PLAN.md`, whose P1–P3 and P5
-foundations (source adapters, trigger engine, bounded run, CAP exercise export) already exist behind
-`compose.proactive.yaml`. Everything below stays local, synthetic-labelled and default-off, and keeps
-the rules in `AGENTS.md`: no live warnings, dispatch or external messages; verified OIDC scope;
-independent two-person approval; immutable snapshots; audit.
+Status (updated 4 November 2026): **every item below (cross-cutting safeguards and A1–A10) is implemented**
+on `feat/agentic-proactive-l3`, applied to the running local stack, and passing unit tests, the full opt-in
+PostGIS integration suite, a standalone `npm run build`, and a signed-out browser pass. Extends
+`PROACTIVE_MULTI_HAZARD_PLAN.md`, whose P1–P3 and P5 foundations (source adapters, trigger engine, bounded
+run, CAP exercise export) already exist behind `compose.proactive.yaml`. Everything below stays local,
+synthetic-labelled and default-off, and keeps the rules in `AGENTS.md`: no live warnings, dispatch or
+external messages; verified OIDC scope; independent two-person approval; immutable snapshots; audit.
+**Still outstanding (all owner actions, not code):** the local IdP two-person approval rehearsal for every
+signed-in flow (pause switch, per-agency runs, handover, copilot, planner, learning, drills); Google Flood
+Forecasting waitlist key; GDACS terms confirmation; native Telugu/Hindi review of CAP and UI strings;
+naming threshold-proposal reviewers. See the runtime verification pass in `docs/LOCAL_DEMO_HANDOFF.md`.
 
 ## 1. Autonomy ladder (the boundary for every feature)
 

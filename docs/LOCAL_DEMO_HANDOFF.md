@@ -18,10 +18,50 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
-## Proactive step 6 (A8 post-event learning, A9 drills, A10 multilingual CAP) - 4 November 2026 (Windows laptop, uncommitted)
+## Runtime verification pass on the agentic roadmap — 4 November 2026 (Windows laptop)
 
-Branch `feat/agentic-proactive-l3`, base SHA `96462fb`, changes uncommitted. Windows laptop, local checks only;
-no Docker, dev server or build was started; no network calls.
+Branch `feat/agentic-proactive-l3`, head `2e0ec5c` (commits `967024e`..`2e0ec5c`: per-agency proactive runs +
+kill switch, scheduler + sentinel, impact triggers + exposure + GDACS/Google Flood adapters, handover brief +
+read-only copilot, pre-positioning planner + run observability, post-event learning + drills + multilingual
+CAP — the full roadmap feature set). This pass verifies all of it together against the real stack, which the
+per-feature entries below could not do while code was still uncommitted.
+
+- **Fixed:** `services/api/integration_tests/test_postgis_proactive.py` — the `database` fixture's test-connector
+  marker `'it_' + uuid4().hex[:8]` almost always contains a digit, violating `connector_config`'s
+  `^[a-z_]{3,40}$` check constraint; confirmed by a live failure, then changed to filter to alpha hex characters
+  only. Pre-existing bug, not introduced by this branch's features; a 2-line test-only fix.
+- **Migrations 013–016 applied to the real running database** (`ai-project-aegis` stack, existing `pgdata`
+  volume, no reset) via the registered `migrate` service: `migration_audit` reports `status: ready`.
+- **All 28 opt-in PostGIS integration tests pass** against a disposable verification database
+  (`aegis_verification_agentic_l3`, same Postgres instance, created/migrated/seeded/dropped via
+  `docker compose run --rm --no-deps`, never touching the demo database) — covers every new feature's real-DB
+  path plus the pre-existing suites (public intake, assistance run, context revalidation, department tasks,
+  saved focus, local demo chain).
+- **`npm run build`** (standalone, not just the Docker image build): clean; all 7 new pages
+  (`/learning`, `/drills`, `/handover`, `/copilot`, plus the earlier `/watch`, `/admin/connectors` additions)
+  compile into the route manifest with no errors.
+- **Browser pass** (Chrome DevTools, signed out — IdP stays off): `/learning`, `/drills`, `/handover`,
+  `/copilot`, `/watch` all render correctly with no identity provider — honest "sign-in required" or a clear
+  retry-able error, no broken layout, no stray console errors (one page's single console entry was the expected
+  503 from its client-side data fetch; `/favicon.ico` 404 is unrelated/benign). Mobile width (390×844) on
+  `/learning`: no horizontal scroll, nav collapses correctly. Light/dark and full click-through of signed-in
+  flows still need the local IdP, which the owner has deferred.
+- **Re-ran the full unit suite** after the test fix: `services/api/.venv` `pytest -q` — 770 passed, 25 skipped
+  (one less skip than the 28 reported in step 6, because the opt-in PostGIS tests now have a usable fixture and
+  are exercised separately above); `python -m app.model_lab --check` PASS; `npm run typecheck` clean;
+  `node --test scripts/tests/*.test.cjs` 155 passed.
+- **Committed and pushed:** `967024e`, `e4d3c13`, `b100783`, `05bef11`, `96462fb`, `2e0ec5c` — every roadmap
+  commit from this session is now on `origin/feat/agentic-proactive-l3`.
+- **Still pending, all owner-only:** Google Flood Forecasting waitlist key; GDACS terms confirmation; native
+  Telugu/Hindi review of CAP + UI strings; naming threshold-proposal reviewers; the local IdP two-person
+  approval rehearsal for every signed-in flow built this session (pause switch, per-agency runs, handover,
+  copilot, planner, learning, drills).
+
+## Proactive step 6 (A8 post-event learning, A9 drills, A10 multilingual CAP) - 4 November 2026 (Windows laptop, committed as 2e0ec5c)
+
+Branch `feat/agentic-proactive-l3`, base SHA `96462fb`, now committed as `2e0ec5c` and pushed. Windows laptop,
+local checks only at the time of this entry; migration 016 and runtime/browser checks are recorded in the
+verification-pass entry above.
 
 - Completed: migration 016 (learning windows, threshold proposals, trigger config versions, learning audit,
   exercise drills + audit) wired into compose initdb/migrate and `migration_audit`; `app/learning.py`,

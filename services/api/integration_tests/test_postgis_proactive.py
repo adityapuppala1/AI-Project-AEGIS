@@ -29,7 +29,9 @@ def database(monkeypatch):
         for _ in range(2):  # idempotent
             for name in MIGRATIONS:
                 conn.execute(migration_sql(name))
-        marker = 'it_' + uuid4().hex[:8]
+        # connector_id must match '^[a-z_]{3,40}$' (letters/underscore only); uuid4().hex contains
+        # digits 0-9, so filter to its a-f letters only (always enough in a 32-char hex digest).
+        marker = 'it_' + ''.join(c for c in uuid4().hex if c.isalpha())[:8]
         yield url, marker
         conn.execute('DELETE FROM connector_secrets WHERE connector_id = %s', (marker,))
         conn.execute('DELETE FROM connector_config WHERE connector_id = %s', (marker,))
