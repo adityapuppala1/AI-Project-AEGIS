@@ -11,8 +11,13 @@
   "accessTokenLifespan": 300,
   "ssoSessionIdleTimeout": 900,
   "otpPolicyType": "totp",
+  "otpPolicyAlgorithm": "HmacSHA1",
   "otpPolicyDigits": 6,
+  "otpPolicyInitialCounter": 0,
+  "otpPolicyLookAheadWindow": 1,
   "otpPolicyPeriod": 30,
+  "otpPolicyCodeReusable": false,
+  "otpSupportedApplications": ["totpAppFreeOTPName", "totpAppGoogleName", "totpAppMicrosoftAuthenticatorName"],
   "roles": {
     "client": {
       "aegis-local-web": [

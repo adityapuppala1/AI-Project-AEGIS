@@ -18,6 +18,39 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Local IdP login bug found and fixed — 4 November 2026 (Windows laptop)
+
+Owner reported "unable to login with any credentials" against the just-activated local IdP.
+
+- **First attempt looked like a mix-up, not a bug:** Keycloak logs showed every failed attempt was for
+  `aegis-local-bootstrap` (`error="user_not_found"` in realm `aegis-exercise`). That account only exists in
+  Keycloak's internal `master` realm (the Keycloak admin console login), not in the AEGIS app realm.
+  Confirmed via the admin API that `exercise-maker`/`exercise-checker`/`exercise-admin` all exist, enabled,
+  with `requiredActions: [CONFIGURE_TOTP, UPDATE_PASSWORD]` as expected on first login. Explained the
+  distinction and the correct accounts to the owner.
+- **Real bug found on retry:** owner reported errors again. Container logs showed a live
+  `java.lang.NullPointerException: ... OTPPolicy.getAlgorithm() is null` on every attempt, right at the
+  required-actions step. `ops/local-idp/realm.json` had `otpPolicyType`/`otpPolicyDigits`/`otpPolicyPeriod`
+  but was missing `otpPolicyAlgorithm`, which this Keycloak version needs populated (no safe default) for
+  both the TOTP-enrollment page and — confirmed separately — for building the realm's admin REST
+  representation at all (`GET /admin/realms/aegis-exercise` itself 500'd with the same NPE before the fix).
+- **Fix:** added `otpPolicyAlgorithm: HmacSHA1` plus `otpPolicyInitialCounter`, `otpPolicyLookAheadWindow`,
+  `otpPolicyCodeReusable`, `otpSupportedApplications` to `ops/local-idp/realm.json` (repo template) and to
+  the already-rendered private copy (`%LOCALAPPDATA%\AEGIS\local-idp\realm.json`), preserving the three
+  existing generated passwords so the owner's credentials file stayed valid — no need to regenerate secrets.
+- **Applied without touching AEGIS data:** stopped `local-idp`, removed only the isolated
+  `ai-project-aegis_local_idp_data` volume (Keycloak's own dev-mode store — confirmed separate from the
+  AEGIS application database per this doc's own design; held nothing yet since no login had completed past
+  required actions), restarted so `--import-realm` re-imported the corrected realm with the same users.
+- **Verified the fix, not just the config:** `GET /admin/realms/aegis-exercise` now succeeds
+  (`otpPolicyAlgorithm: HmacSHA1`). Beyond that, drove a real headless-browser login through the exact
+  crashing page: created a throwaway admin-API test user (`ops-selfcheck`, a self-generated one-time
+  password never reused, never the owner's real credentials), signed in via Chrome DevTools automation,
+  reached the Mobile Authenticator Setup / QR code page with **no error** — the exact screen that
+  previously crashed — then deleted the throwaway user and its temp password file.
+- **Owner's three app accounts and passwords are untouched and still valid** — same `provider.env`, no
+  regeneration needed. They can retry `exercise-maker`/`exercise-checker`/`exercise-admin` now.
+
 ## Local IdP activated for signed-in verification — 4 November 2026 (Windows laptop)
 
 Owner explicitly approved (two separate confirmations: general activation, then the specific certificate
