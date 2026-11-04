@@ -89,7 +89,7 @@ export const SAMPLE_CAP_TEXT = `<?xml version="1.0" encoding="UTF-8"?>
 `;
 
 const STEP_COUNT = RUN_STEPS.length;
-/** Pre-computed walkthrough: `done` steps are complete (0 to 5). Pure and offline. */
+/** Pre-computed walkthrough: `done` steps are complete (0 to 6). Pure and offline. */
 export function sampleRunAt(done: number, triggerEventId: string): ProactiveRun {
   const n = Math.max(0, Math.min(STEP_COUNT, done));
   const completed: RunStep[] = RUN_STEPS.slice(0, n);
@@ -109,7 +109,7 @@ export function sampleRunAt(done: number, triggerEventId: string): ProactiveRun 
       staleness_risk: { values: {}, probabilities: { low: 0.71, high: 0.29 } },
     } : null,
     cap: n >= 4 ? { sha256: SAMPLE_CAP_SHA, generated_at: null } : null,
-    completed_steps: completed, next_step: n >= STEP_COUNT ? null : RUN_STEPS[n],
+    completed_steps: completed, next_step: n >= STEP_COUNT ? null : RUN_STEPS[n], steps: [...RUN_STEPS],
   };
 }
 

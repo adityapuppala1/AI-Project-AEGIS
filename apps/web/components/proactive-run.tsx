@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Ban, Check, CheckCircle2, Copy, Download, FileText, Gavel, Loader2, Play, ShieldAlert, StepForward, UserCheck, type LucideIcon } from "lucide-react";
 import { useT } from "./language-provider";
 import { ExposureCounts, ImpactChip, SampleChip } from "./watch-parts";
+import { RunPlanPanel, RunTimeline } from "./proactive-plan";
 import { StatusPill, type Tone } from "./ui";
 import { formatIst } from "../lib/earth-watch";
 import { SAMPLE_CAP_TEXT, sampleRunAt } from "../lib/proactive-sample";
@@ -13,10 +14,10 @@ import {
 } from "../lib/proactive";
 
 const STEP_LABEL: Record<RunStep, string> = {
-  gather_evidence: "Gather evidence", simulate_variants: "Simulate variants", judge: "Judge", draft_cap: "Draft CAP", hand_to_human: "Hand to human",
+  gather_evidence: "Gather evidence", simulate_variants: "Simulate variants", judge: "Judge", draft_cap: "Draft CAP", plan_prepositioning: "Plan pre-positioning", hand_to_human: "Hand to human",
 };
 const STEP_CAPTION: Record<RunStep, string> = {
-  gather_evidence: "Cited records for this trigger", simulate_variants: "Threshold what-ifs", judge: "Pick among fixed options", draft_cap: "Exercise CAP file", hand_to_human: "Stops at a person",
+  gather_evidence: "Cited records for this trigger", simulate_variants: "Threshold what-ifs", judge: "Pick among fixed options", draft_cap: "Exercise CAP file", plan_prepositioning: "Recommendation only", hand_to_human: "Stops at a person",
 };
 const FLAG_LABEL: Record<SentinelFlagName, string> = { strengthened: "Evidence strengthened", weakened: "Evidence weakened", contradicted: "Evidence contradicts trigger", stale: "Evidence stale" };
 const FLAG_TONE: Record<SentinelFlagName, Tone> = { strengthened: "warning", weakened: "info", contradicted: "danger", stale: "neutral" };
@@ -39,15 +40,16 @@ function Bars({ title, question }: Readonly<{ title: string; question: Question 
 
 function Stepper({ run, active, busy }: Readonly<{ run: ProactiveRun; active: boolean; busy: boolean }>) {
   const t = useT();
+  const steps = run.steps ?? RUN_STEPS;
   const doneCount = run.completed_steps.length;
-  const progress = Math.max(0, Math.min(1, doneCount / (RUN_STEPS.length - 1)));
+  const progress = Math.max(0, Math.min(1, doneCount / (steps.length - 1)));
   const lineStyle = (axis: "x" | "y") => ({ transform: axis === "x" ? `scaleX(${progress})` : `scaleY(${progress})` });
-  return <ol className="relative grid gap-4 sm:grid-cols-5 sm:gap-2" aria-label={t("Run steps")}>
+  return <ol className={`relative grid gap-4 sm:gap-2 ${steps.length === 6 ? "sm:grid-cols-6" : "sm:grid-cols-5"}`} aria-label={t("Run steps")}>
     <span className="absolute bottom-4 left-4 top-4 w-0.5 bg-stroke sm:hidden" aria-hidden="true"/>
     <span className="line-grow absolute bottom-4 left-4 top-4 w-0.5 origin-top bg-emerald-500 sm:hidden" style={lineStyle("y")} aria-hidden="true"/>
     <span className="absolute left-[10%] right-[10%] top-4 hidden h-0.5 bg-stroke sm:block" aria-hidden="true"/>
     <span className="line-grow absolute left-[10%] right-[10%] top-4 hidden h-0.5 bg-emerald-500 sm:block" style={lineStyle("x")} aria-hidden="true"/>
-    {RUN_STEPS.map((step, index) => {
+    {steps.map((step, index) => {
       const done = run.completed_steps.includes(step);
       const current = run.next_step === step && active;
       const blocked = !done && run.status === "cancelled";
@@ -219,6 +221,9 @@ export function ProactiveRunPanel({ triggerEventId, triggerKey = null, canOperat
           <p className="break-all text-[11px] text-muted">SHA-256 {run.cap.sha256}</p>
           <pre className="max-h-72 overflow-auto rounded-xl border border-stroke bg-elevated p-3 font-mono text-[11px] leading-5" tabIndex={0} aria-label={t("First 40 lines of the Exercise CAP draft")}><code>{capFull ? previewLines(capFull, 40) : t("Loading preview…")}</code></pre>
         </div>}
+
+        <RunPlanPanel runId={run.id} refreshKey={`${run.completed_steps.length}-${run.status}`} sample={sample}/>
+        <RunTimeline runId={run.id} refreshKey={`${run.completed_steps.length}-${run.status}`} sample={sample}/>
 
         {active && <div className="flex flex-wrap items-center gap-3">
           <button type="button" className="control control-primary" onClick={advance} disabled={busy || !run.next_step}>

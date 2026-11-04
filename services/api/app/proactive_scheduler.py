@@ -10,7 +10,7 @@ The loop is one daemon thread inside the API process. Each tick:
   2. if the kill switch is engaged (or unreadable) records `skipped_paused` / `failed` and stops;
   3. refreshes evidence, runs the A2 sentinel for open runs, and for each newly fired candidate
      starts a draft-only bounded run as `system:scheduler`, advancing only gather_evidence,
-     simulate_variants, judge and draft_cap. It always stops with next_step = hand_to_human.
+     simulate_variants, judge, draft_cap and the non-submitting plan_prepositioning. It always stops with next_step = hand_to_human.
 
 A run is keyed by sha256(agency, trigger id, config version, cited evidence digests, impact config
 version/status, cited exposure feature ids) and the 014
@@ -38,7 +38,7 @@ DEFAULT_INTERVAL = 1800
 MIN_INTERVAL = 300
 FIRST_TICK_DELAY = 60
 MAX_RUNS_PER_TICK = 5
-AUTO_STEPS = ("gather_evidence", "simulate_variants", "judge", "draft_cap")  # never hand_to_human
+AUTO_STEPS = ("gather_evidence", "simulate_variants", "judge", "draft_cap", "plan_prepositioning")  # never hand_to_human
 ERROR_CODES = frozenset({"lock_unavailable", "pause_unreadable", "paused_mid_tick", "refresh_failed", "sentinel_failed",
                          "run_start_failed", "run_advance_failed", "run_cap_reached", "tick_failed"})
 log = logging.getLogger("aegis.proactive.scheduler")
@@ -267,6 +267,8 @@ def _iso(value):
 def tick_view(row: dict) -> dict:
     # agency_id is deliberately omitted: scope is applied by the query, never echoed.
     return {"id": row["id"], "started_at": _iso(row["started_at"]), "finished_at": _iso(row["finished_at"]),
+            "duration_ms": max(0, int(round((row["finished_at"] - row["started_at"]).total_seconds() * 1000)))
+            if hasattr(row.get("finished_at"), "isoformat") and hasattr(row.get("started_at"), "isoformat") else None,
             "outcome": row["outcome"], "runs_started": int(row["runs_started"]), "flags_recorded": int(row["flags_recorded"]),
             "errors": [code for code in (row.get("errors") or []) if code in ERROR_CODES]}
 

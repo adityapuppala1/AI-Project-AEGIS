@@ -242,7 +242,17 @@ no redirects, no proxy, size and time caps) and parse JSON only (no XML parser i
 - Feed events are third-party references, not AEGIS assessments; they pass through the same impact
   rules (25 km GDACS footprint, 8 km gauge footprint) and never create cases or warnings.
 
-## 11. What it will not do
+## 11. Pre-positioning plan and run observability (A5)
+
+- New runs have a sixth step, `plan_prepositioning`, between `draft_cap` and `hand_to_human`. The scheduler may run it, but it still stops before the hand-off. Runs created earlier keep five steps.
+- The plan is **a recommendation only: no team is moved or notified**. It never creates tasks, assignments or messages. Teams come from the synthetic fixture `services/api/app/fixtures/synthetic_teams.v1.json`; edit that file only for rehearsal and restart `api`. Travel times are estimated and synthetic (straight line x road factor at a fixed speed).
+- If the run has no cited exposure (migration 015 or the seed is not applied), or no team is eligible, the plan abstains with a fixed reason. This is expected and safe.
+- Check: `GET /v1/proactive/runs/{id}/plan` and `GET /v1/proactive/runs/{id}/observability`. Both are agency-scoped and return 404 across agencies. The run panel shows the plan table and a step graph with a table toggle.
+- There is no migration. Apply steps: restart `api` and rebuild `web` under the operation lease.
+
+See [PREPOSITIONING_PLANNER.md](PREPOSITIONING_PLANNER.md).
+
+## 12. What it will not do
 
 No scraping, social media or webcams. No broadcast. No automatic case, proposal, approval or
 task. No accuracy claim: thresholds are synthetic rehearsal values until the registered

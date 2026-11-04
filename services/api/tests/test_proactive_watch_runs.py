@@ -212,7 +212,7 @@ def test_full_run_review_ready_with_exercise_cap(proactive):
     detail = client.get(f"/v1/proactive/runs/{run['id']}").json()
     assert [a['step'] for a in detail['audit']] == ['start', *proactive_run.STEPS] and 'cap_xml' not in detail
     replay = client.post(f"/v1/proactive/runs/{run['id']}/advance", json={'expected_step': 'judge'})
-    assert replay.status_code == 200 and len(proactive.run_audit(run['id'])) == 6
+    assert replay.status_code == 200 and len(proactive.run_audit(run['id'])) == len(proactive_run.STEPS) + 1
 
 
 def test_expected_step_mismatch_and_cancel(proactive):

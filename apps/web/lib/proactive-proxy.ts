@@ -4,14 +4,14 @@
 import { NextResponse } from "next/server";
 import { configuration, readSession, sameOrigin, type Role } from "./auth-server";
 import {
-  cleanAudit, cleanConnector, cleanConnectors, cleanHistory, cleanPause, cleanRefresh, cleanRun, cleanRunList, cleanScheduler, cleanTestResult, cleanTriggersConfig, cleanWatch,
+  cleanAudit, cleanConnector, cleanConnectors, cleanHistory, cleanObservability, cleanPause, cleanPlan, cleanRefresh, cleanRun, cleanRunList, cleanScheduler, cleanTestResult, cleanTriggersConfig, cleanWatch,
   isConnectorId, isObject, isRunStep, isUuid,
 } from "./proactive";
 
 export type ProactiveRoute =
   | "connectors" | "connector_save" | "connector_test" | "connector_audit"
   | "watch" | "watch_history" | "watch_refresh" | "triggers_config"
-  | "run_create" | "run_list" | "run_get" | "run_advance" | "run_cancel" | "run_cap"
+  | "run_create" | "run_list" | "run_get" | "run_advance" | "run_cancel" | "run_cap" | "run_plan" | "run_observability"
   | "pause_get" | "pause_set" | "scheduler";
 
 const MAX_BODY = 8000;
@@ -102,8 +102,10 @@ function buildRequest(route: ProactiveRoute, id: string | undefined, url: URL, d
       if (!data || Object.keys(data).some(key => key !== "trigger_event_id") || !isUuid(data.trigger_event_id)) return bad("Valid trigger event required");
       return { path: `${base}/runs`, method: "POST", body: JSON.stringify({ trigger_event_id: data.trigger_event_id }) };
     }
-    case "run_get": case "run_cap": case "run_advance": case "run_cancel": {
+    case "run_get": case "run_cap": case "run_plan": case "run_observability": case "run_advance": case "run_cancel": {
       if (!isUuid(id)) return bad("Invalid run identifier");
+      if (route === "run_plan") return { path: `${base}/runs/${id}/plan`, method: "GET" };
+      if (route === "run_observability") return { path: `${base}/runs/${id}/observability`, method: "GET" };
       if (route === "run_get") return { path: `${base}/runs/${id}`, method: "GET" };
       if (route === "run_cap") return { path: `${base}/runs/${id}/cap.xml`, method: "GET" };
       if (route === "run_advance") {
@@ -130,6 +132,8 @@ function clean(route: ProactiveRoute, payload: unknown): unknown {
     case "pause_get": case "pause_set": return cleanPause(payload);
     case "scheduler": return cleanScheduler(payload);
     case "run_list": return cleanRunList(payload);
+    case "run_plan": return cleanPlan(payload);
+    case "run_observability": return cleanObservability(payload);
     default: return cleanRun(payload);
   }
 }

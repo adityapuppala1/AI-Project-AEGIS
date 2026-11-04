@@ -154,6 +154,10 @@ def test_bounded_run_golden(store, case, rows, overrides, option, band, cap):
     assert run['needs_accountable_human_review'] is True and run['operational_actions_enabled'] is False
     handoff = [a for a in store.run_audit(run['id']) if a['step'] == 'hand_to_human'][0]['detail']
     assert handoff == {'handed_to_human': True, 'submission_performed': False, 'notification_sent': False}
+    # A5: these golden triggers carry no exposure layer, so the planner abstains (blocked runs say why).
+    plan = run['plan']
+    assert plan['status'] == 'abstained' and plan['reason'] == ('run_blocked' if band == 'blocked' else 'no_exposure'), case
+    assert plan['options'] == [] and plan['tasks_created'] is False and plan['team_moved'] is False
 
 
 def test_step_vocabulary_has_no_submit_or_send():

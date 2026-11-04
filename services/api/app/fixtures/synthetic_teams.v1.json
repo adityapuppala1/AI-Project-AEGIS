@@ -1,0 +1,29 @@
+{
+  "version": "aegis.synthetic.teams.v1",
+  "classification": "synthetic_exercise",
+  "synthetic": true,
+  "note": "Invented response teams for the pre-positioning planner rehearsal (roadmap A5). Not real units, staffing, locations, capacity or rosters. Same shape idea as the web exercise board (apps/web/lib/team-availability.ts: label, kind, capacity), plus a fictional base location, capabilities and a daily UTC availability window.",
+  "travel_model": {
+    "method": "straight_line_road_factor",
+    "road_factor": 1.4,
+    "speed_kmh": 25,
+    "label": "estimated, synthetic"
+  },
+  "hazard_capabilities": {
+    "heavy_rain": ["flood_rescue", "evacuation", "medical"],
+    "river_discharge": ["flood_rescue", "evacuation"],
+    "flood_gauge": ["flood_rescue", "evacuation"],
+    "gdacs_alert": ["flood_rescue", "evacuation", "medical"],
+    "fire": ["fire_response", "evacuation", "medical"],
+    "landslide": ["search_rescue", "evacuation"],
+    "wind": ["search_rescue", "evacuation"],
+    "heat": ["medical", "evacuation"]
+  },
+  "teams": [
+    {"id": "syn-team-rescue-01", "label": "Synthetic rescue team 01", "kind": "rescue", "capabilities": ["flood_rescue", "search_rescue", "evacuation"], "capacity": 2, "base": {"lat": 17.385, "lon": 78.486}, "available_utc": ["00:00", "23:59"]},
+    {"id": "syn-team-rescue-02", "label": "Synthetic rescue team 02", "kind": "rescue", "capabilities": ["flood_rescue", "evacuation"], "capacity": 2, "base": {"lat": 17.440, "lon": 78.350}, "available_utc": ["00:00", "23:59"]},
+    {"id": "syn-team-health-01", "label": "Synthetic medical team 01", "kind": "health", "capabilities": ["medical", "evacuation"], "capacity": 3, "base": {"lat": 17.410, "lon": 78.440}, "available_utc": ["00:00", "23:59"]},
+    {"id": "syn-team-fire-01", "label": "Synthetic fire team 01", "kind": "rescue", "capabilities": ["fire_response", "search_rescue"], "capacity": 2, "base": {"lat": 17.360, "lon": 78.520}, "available_utc": ["00:00", "23:59"]},
+    {"id": "syn-team-municipal-01", "label": "Synthetic municipal works team 01", "kind": "municipal", "capabilities": ["evacuation"], "capacity": 1, "base": {"lat": 17.450, "lon": 78.500}, "available_utc": ["02:30", "14:30"]}
+  ]
+}

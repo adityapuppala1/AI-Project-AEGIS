@@ -15,9 +15,10 @@ import { ENTRIES_REGISTRY } from "./translations-extra/registry";
 import { ENTRIES_OPERATIONS } from "./translations-extra/operations";
 import { ENTRIES_REVIEW } from "./translations-extra/review";
 import { ENTRIES_ASSIST } from "./translations-extra/assist";
+import { ENTRIES_PLAN } from "./translations-extra/plan";
 
 const ENTRIES: readonly Entry[] = [
-  ...ENTRIES_COMMAND, ...ENTRIES_REGISTRY, ...ENTRIES_OPERATIONS, ...ENTRIES_REVIEW, ...ENTRIES_ASSIST,
+  ...ENTRIES_COMMAND, ...ENTRIES_REGISTRY, ...ENTRIES_OPERATIONS, ...ENTRIES_REVIEW, ...ENTRIES_ASSIST, ...ENTRIES_PLAN,
   // Chrome and navigation
   ["Skip to content", "కంటెంట్‌కు వెళ్లండి", "सामग्री पर जाएँ"],
   ["Language", "భాష", "भाषा"],

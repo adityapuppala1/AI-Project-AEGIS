@@ -42,14 +42,14 @@ test('sample history, connectors and audit pass their cleaners', () => {
   assert.equal(lib.cleanAudit(sample.buildSampleAudit(NOW)).length, sample.buildSampleAudit(NOW).length);
 });
 
-test('sample run walks the five steps and ends needs_review from the test double with a CAP', () => {
+test('sample run walks the six steps and ends needs_review from the test double with a CAP', () => {
   const trigger = '11111111-1111-4111-8111-111111111111';
   assert.equal(sample.sampleRunAt(0, trigger).next_step, 'gather_evidence');
   assert.equal(sample.sampleRunAt(1, trigger).judgment, null);
-  const final = lib.cleanRun(JSON.parse(JSON.stringify(sample.sampleRunAt(5, trigger))));
+  const final = lib.cleanRun(JSON.parse(JSON.stringify(sample.sampleRunAt(6, trigger))));
   assert.equal(final.status, 'review_ready');
   assert.equal(final.next_step, null);
-  assert.equal(final.completed_steps.length, 5);
+  assert.equal(final.completed_steps.length, 6);
   assert.equal(final.judgment.provider, 'test_double');
   assert.equal(final.judgment.decision_band, 'needs_review');
   assert.ok(Object.keys(final.judgment.playbook_option.probabilities).length >= 3);

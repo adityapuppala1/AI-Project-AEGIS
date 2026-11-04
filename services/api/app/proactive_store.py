@@ -295,6 +295,15 @@ class PgStore:
                            ORDER BY kind, id LIMIT %s""", (float(lon), float(lat), float(radius_km) * 1000.0, int(limit)))
             return [dict(row) for row in cur.fetchall()]
 
+    def exposure_points(self, ids: list[str]) -> list[dict]:
+        """Representative point (ST_PointOnSurface) of cited features, for the A5 planner. Read-only."""
+        if not ids:
+            return []
+        with self._connect() as conn, conn.cursor() as cur:
+            cur.execute("""SELECT id::text, kind, ST_Y(ST_PointOnSurface(geom)) AS lat, ST_X(ST_PointOnSurface(geom)) AS lon
+                           FROM exposure_features WHERE id = ANY(%s::uuid[]) ORDER BY id""", ([str(i) for i in ids][:500],))
+            return [dict(row) for row in cur.fetchall()]
+
 
 class MemoryStore:
     """Offline test double with PgStore semantics (optimistic versions, sha256 dedupe, append-only audit)."""
@@ -491,6 +500,11 @@ class MemoryStore:
             if 6371.0 * 2 * math.asin(math.sqrt(a)) <= radius_km:
                 out.append({k: row.get(k) for k in ("id", "kind", "count", "weight", "synthetic", "source", "licence")})
         return sorted(out, key=lambda r: (r["kind"], r["id"]))[:limit]
+
+    def exposure_points(self, ids) -> list[dict]:
+        wanted = {str(i) for i in ids}
+        rows = [{k: row.get(k) for k in ("id", "kind", "lat", "lon")} for row in self.exposure if str(row["id"]) in wanted]
+        return sorted(rows, key=lambda r: str(r["id"]))
 
 
 _store = None

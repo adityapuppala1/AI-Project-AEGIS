@@ -18,6 +18,40 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Proactive step 5 (A5 pre-positioning planner, run observability) — 4 November 2026 (Windows laptop, uncommitted)
+
+Branch `feat/agentic-proactive-l3`, base `05bef11`. Roadmap A5 and the cross-cutting run-observability item.
+
+- **Completed (code + unit gates):**
+  - API:
+    - `app/prepositioning.py`: a deterministic planner, with exact search up to `EXACT_BOUND=4096` and a greedy fallback (no OR-Tools).
+    - `app/fixtures/synthetic_teams.v1.json`: synthetic teams.
+    - `app/run_observability.py`.
+    - `proactive_store.exposure_points`: a read-only query.
+    - `proactive_run`: the new run step `plan_prepositioning`; new runs are v2 with 6 steps and budget 6, and legacy v1 runs keep 5 steps.
+    - `proactive_scheduler.AUTO_STEPS`: now includes the plan step and still stops at `hand_to_human`.
+    - Routes `GET /v1/proactive/runs/{id}/plan` and `/observability`.
+    - Scheduler ticks now carry `duration_ms`.
+  - Web:
+    - BFF routes `run_plan` and `run_observability`, with cleaners in `lib/proactive.ts`.
+    - `components/proactive-plan.tsx`: the plan panel plus a step graph with a table toggle.
+    - A six-step stepper.
+    - en/te/hi strings in `lib/translations-extra/plan.ts`.
+    - A fix to a pre-existing defect: `cleanRun` dropped the API's `{step, ...}` completed-step objects.
+  - Docs: `docs/PREPOSITIONING_PLANNER.md`, runbook section 11, roadmap status, and an AGENTS.md rule.
+  - No migration. No new dependency.
+- **Executed (Windows laptop):**
+  - `services/api/.venv` `pytest -q`: 730 passed / 25 skipped (`tests/test_prepositioning.py` is new; golden cases extended).
+  - `python -m app.model_lab --check`: PASS.
+  - `npm run typecheck`: PASS.
+  - `node --test scripts/tests/*.test.cjs`: 149 passed (5 new in `prepositioning-route.test.cjs`).
+  - No Docker, build, dev server or external host was used.
+- **Pending:**
+  - Restart `api` and rebuild `web` under the operation lease, then run `npm run build`.
+  - Browser check of the plan panel and the timeline, including reduced motion and te/hi.
+  - Runtime check with migration 015 and the seed applied, so the plan is `planned` rather than `no_exposure`.
+  - The opt-in PostGIS check of `exposure_points`.
+
 ## Proactive step 4 (A7 shift-handover brief, A6 read-only operator copilot) — 4 November 2026 (Windows laptop, uncommitted)
 
 Branch `feat/agentic-proactive-l3`, base `b100783`. Roadmap section 2, items A7 and A6.

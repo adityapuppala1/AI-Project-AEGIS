@@ -71,12 +71,18 @@ restarted and `web` has not been rebuilt). A7: `GET /v1/exercise/handover` plus 
 fixed read-only tool registry and deterministic intents ([OPERATOR_COPILOT.md](OPERATOR_COPILOT.md)).
 Neither adds a migration or a write path.
 
+A5 is **implemented (pending runtime/browser verification)**. It adds an optional, non-submitting run step,
+`plan_prepositioning`, between `draft_cap` and `hand_to_human`. The planner is a small deterministic
+solver (exact search up to a hard bound, with a greedy fallback; no OR-Tools). It uses the synthetic team
+fixture and the cited exposure features. Travel times are estimated and synthetic. The plan is a
+recommendation only and creates no task. See [PREPOSITIONING_PLANNER.md](PREPOSITIONING_PLANNER.md).
+
 ## 3. Cross-cutting work needed before any of A1–A10 ship
 
 Status 4 November 2026: the harness, kill switch and run agency scope are **implemented on
 `feat/agentic-proactive-l3`, pending runtime verification** on the Windows laptop (unit, Node and
 typecheck gates pass; migration 013 not yet applied to the running stack; the opt-in PostGIS test
-was not run). Run observability is still pending.
+was not run). Run observability is implemented as well (pending runtime/browser verification).
 
 - **Agent evaluation harness:** golden cases per agent (expected option, expected abstention),
   run on every change; prompt-injection cases built from public-intake-style text.
@@ -85,7 +91,10 @@ was not run). Run observability is still pending.
   `recommended` band on stale or missing evidence, a run that always stops at `hand_to_human`, and
   injection text in evidence fields that never changes the chosen option.
 - **Run observability:** step graph, per-step latency, budget used, cancellation reason, all
-  through the existing audit, not a new store. *Pending.*
+  through the existing audit, not a new store. *Implemented (pending runtime/browser verification):*
+  `GET /v1/proactive/runs/{id}/observability` derives events, nodes, budget, cancellation and sentinel
+  counts from run state and audit. Scheduler ticks report `duration_ms`. The run panel shows a step graph
+  with a table fallback. See [PREPOSITIONING_PLANNER.md](PREPOSITIONING_PLANNER.md#run-observability).
 - **Kill switch:** one admin toggle that stops all scheduled agents and leaves drafts untouched.
   *Implemented (pending runtime verification):* `proactive_pause` single-row table plus append-only
   `proactive_pause_audit` (migration 013); `PUT /v1/proactive/pause` is platform_admin only with a

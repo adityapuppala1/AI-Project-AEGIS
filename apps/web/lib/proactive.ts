@@ -10,7 +10,9 @@ export type Bag = Record<string, Scalar | Scalar[]>;
 
 export const CONNECTOR_IDS = ["open_meteo", "nasa_firms", "nasa_lhasa", "copernicus_cdse", "imd_warnings", "gdacs", "google_flood_forecasting", "typesafe_jev", "cap_handover", "authority_notification"] as const;
 export type ConnectorId = (typeof CONNECTOR_IDS)[number];
-export const RUN_STEPS = ["gather_evidence", "simulate_variants", "judge", "draft_cap", "hand_to_human"] as const;
+export const RUN_STEPS = ["gather_evidence", "simulate_variants", "judge", "draft_cap", "plan_prepositioning", "hand_to_human"] as const;
+/** Runs created before the A5 plan step keep their original five steps. */
+export const LEGACY_RUN_STEPS: readonly RunStep[] = ["gather_evidence", "simulate_variants", "judge", "draft_cap", "hand_to_human"];
 export type RunStep = (typeof RUN_STEPS)[number];
 export const TRIGGER_STATES: readonly TriggerState[] = ["clear", "watch", "candidate"];
 export const DISCLAIMER = "Decision support only. Exercise CAP draft; AEGIS never sends warnings. Synthetic thresholds, not calibrated.";
@@ -75,7 +77,7 @@ export interface ProactiveRun {
   judgment: Judgment | null; cap: { sha256: string; generated_at: string | null } | null;
   completed_steps: RunStep[]; next_step: RunStep | null;
   /** "scheduler" when prepared by the scheduled watch loop; a human still takes the hand-off. */
-  origin?: "scheduler" | "operator"; sentinel_flags?: SentinelFlag[];
+  origin?: "scheduler" | "operator"; sentinel_flags?: SentinelFlag[]; steps?: RunStep[];
   /** Area/hazard key ("heavy_rain:point") so a later trigger event can resume an open run. */
   trigger_id?: string | null;
   /** A3 impact counts copied into the evidence bundle at gather_evidence. */
@@ -87,7 +89,7 @@ export function openRunFor(runs: ProactiveRun[], triggerEventId: string, trigger
   return runs.find(run => run.status === "running" && (run.trigger_event_id === triggerEventId || (!!triggerKey && run.trigger_id === triggerKey))) ?? null;
 }
 export type TickOutcome = "completed" | "skipped_paused" | "skipped_locked" | "failed";
-export interface SchedulerTick { id: string; started_at: string | null; finished_at: string | null; outcome: TickOutcome; runs_started: number; flags_recorded: number; errors: string[] }
+export interface SchedulerTick { id: string; started_at: string | null; finished_at: string | null; duration_ms?: number | null; outcome: TickOutcome; runs_started: number; flags_recorded: number; errors: string[] }
 export interface SchedulerStatus { enabled: boolean; running: boolean; reason: string | null; interval_seconds: number; next_tick_at: string | null; last_tick: SchedulerTick | null; ticks: SchedulerTick[] }
 
 // ---------- pure helpers ----------
@@ -363,7 +365,8 @@ export function cleanRun(value: unknown): ProactiveRun {
   }) : [];
   const cap = isObject(value.cap) && typeof value.cap.sha256 === "string" && /^[0-9a-f]{64}$/i.test(value.cap.sha256)
     ? { sha256: value.cap.sha256, generated_at: timestamp(value.cap.generated_at) } : null;
-  const completed = Array.isArray(value.completed_steps) ? value.completed_steps.filter(isRunStep) : [];
+  // The API returns {step, completed_at, completed_by}; older payloads and samples use bare step names.
+  const completed = Array.isArray(value.completed_steps) ? value.completed_steps.map(item => isObject(item) ? item.step : item).filter(isRunStep) : [];
   const flags = Array.isArray(value.sentinel_flags) ? value.sentinel_flags.slice(-50).flatMap((item): SentinelFlag[] => {
     if (!isObject(item) || !(SENTINEL_FLAGS as readonly unknown[]).includes(item.flag)) return [];
     return [{ flag: item.flag as SentinelFlagName, evidence_ids: uuidList(item.evidence_ids, 20), at: timestamp(item.at),
@@ -372,6 +375,7 @@ export function cleanRun(value: unknown): ProactiveRun {
   return { id: value.id, status, trigger_event_id: value.trigger_event_id, evidence_ids: uuidList(value.evidence_ids), variants,
     judgment: cleanJudgment(value.judgment), cap, completed_steps: completed, next_step: isRunStep(value.next_step) ? value.next_step : null,
     origin: value.origin === "scheduler" ? "scheduler" : "operator", sentinel_flags: flags,
+    steps: Array.isArray(value.steps) && value.steps.length === RUN_STEPS.length && value.steps.every(isRunStep) ? [...RUN_STEPS] : [...LEGACY_RUN_STEPS],
     trigger_id: typeof value.trigger_id === "string" && TRIGGER_KEY.test(value.trigger_id) ? value.trigger_id : null,
     impact: cleanImpact(value.impact) };
 }
@@ -410,6 +414,7 @@ function cleanTick(item: unknown): SchedulerTick | null {
   if (!isObject(item) || !isUuid(item.id) || !(TICK_OUTCOMES as readonly unknown[]).includes(item.outcome)) return null;
   const count = (value: unknown) => Math.max(0, Math.round(finite(value) ?? 0));
   return { id: item.id, started_at: timestamp(item.started_at), finished_at: timestamp(item.finished_at), outcome: item.outcome as TickOutcome,
+    duration_ms: (() => { const v = finite(item.duration_ms); return v !== null && v >= 0 ? Math.round(v) : null; })(),
     runs_started: count(item.runs_started), flags_recorded: count(item.flags_recorded),
     errors: Array.isArray(item.errors) ? item.errors.slice(0, 12).map(code => safeCategory(code, "error")) : [] };
 }
@@ -421,4 +426,88 @@ export function cleanScheduler(value: unknown): SchedulerStatus {
   return { enabled: value.enabled, running: value.running === true, reason: value.reason === null || value.reason === undefined ? null : safeCategory(value.reason, "unknown"),
     interval_seconds: interval !== null && interval > 0 ? Math.round(interval) : 0, next_tick_at: timestamp(value.next_tick_at),
     last_tick: cleanTick(value.last_tick), ticks };
+}
+// ---------- A5 pre-positioning plan (recommendation only) ----------
+export const PLAN_LABEL = "Recommendation only — no team is moved or notified";
+export const PLAN_REASONS = ["run_blocked", "no_exposure", "no_critical_facilities", "no_staging_points", "no_available_teams", "exposure_unavailable", "teams_unavailable"] as const;
+export type PlanReason = (typeof PLAN_REASONS)[number];
+const TEAM_ID = /^syn-team-[a-z0-9-]{1,40}$/;
+const STAGING_KINDS = ["shelter", "school", "hospital"] as const;
+export interface PlanCover { feature_id: string; minutes: number }
+export interface PlanAssignment { team_id: string; team_label: string; capacity: number; staging_feature_id: string; staging_kind: (typeof STAGING_KINDS)[number]; preposition_minutes: number; covers: PlanCover[] }
+export interface PlanOption { rank: number; covered: number; critical_total: number; max_minutes: number; total_minutes: number; max_preposition_minutes: number; assignments: PlanAssignment[]; uncovered_feature_ids: string[] }
+export interface PrepositioningPlan {
+  status: "planned" | "abstained"; reason: PlanReason | null; label: string; search_method: "exact" | "greedy" | null; combinations: number | null;
+  road_factor: number | null; speed_kmh: number | null; options: PlanOption[]; cited_team_ids: string[]; cited_feature_ids: string[];
+  critical_feature_ids: string[]; teams_source: string; input_sha256: string | null;
+}
+const minutes = (value: unknown) => { const n = finite(value); return n !== null && n >= 0 && n < 100000 ? Math.round(n * 10) / 10 : null; };
+function cleanAssignment(item: unknown): PlanAssignment | null {
+  if (!isObject(item) || typeof item.team_id !== "string" || !TEAM_ID.test(item.team_id) || !isUuid(item.staging_feature_id)) return null;
+  const kind = (STAGING_KINDS as readonly unknown[]).includes(item.staging_kind) ? item.staging_kind as PlanAssignment["staging_kind"] : null;
+  const prep = minutes(item.preposition_minutes), cap = count(item.capacity);
+  if (!kind || prep === null || cap === null) return null;
+  const covers = Array.isArray(item.covers) ? item.covers.slice(0, 20).flatMap((c): PlanCover[] => {
+    const m = isObject(c) ? minutes(c.minutes) : null;
+    return isObject(c) && isUuid(c.feature_id) && m !== null ? [{ feature_id: c.feature_id, minutes: m }] : [];
+  }) : [];
+  return { team_id: item.team_id, team_label: text(item.team_label, 80) ?? item.team_id, capacity: cap, staging_feature_id: item.staging_feature_id, staging_kind: kind, preposition_minutes: prep, covers };
+}
+/** Plan payload: only ids, counts and synthetic minutes survive. It never carries task or message actions. */
+export function cleanPlan(value: unknown): PrepositioningPlan {
+  const plan = isObject(value) && isObject(value.plan) ? value.plan : null;
+  if (!plan || (plan.status !== "planned" && plan.status !== "abstained")) throw new Error("Invalid plan payload");
+  const options = plan.status === "planned" && Array.isArray(plan.options) ? plan.options.slice(0, 3).flatMap((o, index): PlanOption[] => {
+    if (!isObject(o)) return [];
+    const max = minutes(o.max_minutes), total = minutes(o.total_minutes), prep = minutes(o.max_preposition_minutes), covered = count(o.covered), all = count(o.critical_total);
+    if (max === null || total === null || prep === null || covered === null || all === null) return [];
+    const assignments = Array.isArray(o.assignments) ? o.assignments.slice(0, 6).map(cleanAssignment).filter((a): a is PlanAssignment => a !== null) : [];
+    return [{ rank: index + 1, covered, critical_total: all, max_minutes: max, total_minutes: total, max_preposition_minutes: prep, assignments, uncovered_feature_ids: uuidList(o.uncovered_feature_ids, 20) }];
+  }) : [];
+  const search = isObject(plan.search) ? plan.search : {};
+  const model = isObject(plan.travel_model) ? plan.travel_model : {};
+  return {
+    status: plan.status, reason: (PLAN_REASONS as readonly unknown[]).includes(plan.reason) ? plan.reason as PlanReason : null, label: PLAN_LABEL,
+    search_method: search.method === "exact" || search.method === "greedy" ? search.method : null, combinations: count(search.combinations),
+    road_factor: finite(model.road_factor), speed_kmh: finite(model.speed_kmh), options,
+    cited_team_ids: Array.isArray(plan.cited_team_ids) ? plan.cited_team_ids.filter((id): id is string => typeof id === "string" && TEAM_ID.test(id)).slice(0, 6) : [],
+    cited_feature_ids: uuidList(plan.cited_feature_ids, 40), critical_feature_ids: uuidList(plan.critical_feature_ids, 20),
+    teams_source: safeVersion(plan.teams_source), input_sha256: typeof plan.input_sha256 === "string" && /^[0-9a-f]{64}$/.test(plan.input_sha256) ? plan.input_sha256 : null,
+  };
+}
+
+// ---------- run observability ----------
+export type NodeStatus = "done" | "next" | "pending" | "blocked";
+export interface ObservabilityNode { step: RunStep; status: NodeStatus; actor_kind: "system" | "human" | null; outcome: string | null; duration_ms: number | null; finished_at: string | null }
+export interface ObservabilityEvent { step: string; kind: "start" | "step" | "cancel" | "sentinel_flag" | "other"; started_at: string | null; finished_at: string | null; duration_ms: number | null; wait_ms: number | null; actor_kind: "system" | "human"; outcome: string; budget_used: number; budget_remaining: number }
+export interface RunObservability {
+  status: RunStatus; origin: "scheduler" | "operator"; step_budget: number; budget_used: number; budget_remaining: number; total_step_ms: number;
+  nodes: ObservabilityNode[]; events: ObservabilityEvent[]; sentinel_flags: Record<SentinelFlagName, number>;
+  cancellation: { by_kind: "system" | "human"; reason: string } | null; scheduler_ticks: SchedulerTick[] | null;
+}
+const ms = (value: unknown) => { const n = finite(value); return n !== null && n >= 0 ? Math.round(n) : null; };
+const actorKind = (value: unknown): "system" | "human" => value === "system" ? "system" : "human";
+const NODE_STATUSES: readonly NodeStatus[] = ["done", "next", "pending", "blocked"];
+const EVENT_KINDS = ["start", "step", "cancel", "sentinel_flag", "other"] as const;
+/** Step graph for one run. Actor subjects are reduced to system/human; outcomes are fixed codes. */
+export function cleanObservability(value: unknown): RunObservability {
+  if (!isObject(value) || !Array.isArray(value.nodes) || !Array.isArray(value.events)) throw new Error("Invalid observability payload");
+  const nodes = value.nodes.slice(0, RUN_STEPS.length).flatMap((n): ObservabilityNode[] => {
+    if (!isObject(n) || !isRunStep(n.step) || !(NODE_STATUSES as readonly unknown[]).includes(n.status)) return [];
+    return [{ step: n.step, status: n.status as NodeStatus, actor_kind: n.actor_kind === null || n.actor_kind === undefined ? null : actorKind(n.actor_kind),
+      outcome: n.outcome === null || n.outcome === undefined ? null : safeCategory(n.outcome, "other"), duration_ms: ms(n.duration_ms), finished_at: timestamp(n.finished_at) }];
+  });
+  const events = value.events.slice(0, 200).flatMap((e): ObservabilityEvent[] => {
+    if (!isObject(e)) return [];
+    const kind = (EVENT_KINDS as readonly unknown[]).includes(e.kind) ? e.kind as ObservabilityEvent["kind"] : "other";
+    return [{ step: safeCategory(e.step, "other"), kind, started_at: timestamp(e.started_at), finished_at: timestamp(e.finished_at), duration_ms: ms(e.duration_ms),
+      wait_ms: ms(e.wait_ms), actor_kind: actorKind(e.actor_kind), outcome: safeCategory(e.outcome, "other"), budget_used: count(e.budget_used) ?? 0, budget_remaining: count(e.budget_remaining) ?? 0 }];
+  });
+  const flags = Object.fromEntries(SENTINEL_FLAGS.map(name => [name, isObject(value.sentinel_flags) ? count(value.sentinel_flags[name]) ?? 0 : 0])) as Record<SentinelFlagName, number>;
+  const cancellation = isObject(value.cancellation) ? { by_kind: actorKind(value.cancellation.by_kind), reason: text(value.cancellation.reason, 300) ?? "" } : null;
+  const ticks = Array.isArray(value.scheduler_ticks) ? value.scheduler_ticks.slice(0, 10).map(cleanTick).filter((t): t is SchedulerTick => t !== null) : null;
+  return { status: value.status === "cancelled" ? "cancelled" : value.status === "review_ready" ? "review_ready" : "running",
+    origin: value.origin === "scheduler" ? "scheduler" : "operator", step_budget: count(value.step_budget) ?? nodes.length,
+    budget_used: count(value.budget_used) ?? 0, budget_remaining: count(value.budget_remaining) ?? 0, total_step_ms: ms(value.total_step_ms) ?? 0,
+    nodes, events, sentinel_flags: flags, cancellation, scheduler_ticks: ticks };
 }

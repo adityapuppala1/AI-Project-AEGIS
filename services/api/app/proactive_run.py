@@ -1,21 +1,26 @@
-"""Bounded proactive run: gather_evidence -> simulate_variants -> judge -> draft_cap -> hand_to_human.
+"""Bounded proactive run: gather_evidence -> simulate_variants -> judge -> draft_cap -> plan_prepositioning -> hand_to_human.
+
+plan_prepositioning (A5) is a non-submitting recommendation step: it never creates tasks, moves or notifies
+teams. Runs created before it existed (state version v1, no "steps" list) keep their original five steps.
 
 Expected-step protection, cancellation with rationale and one audit row per step. review_ready
 only hands the cited material to an accountable human; nothing is submitted, approved or sent.
 """
 import hashlib
+import time
 from datetime import datetime, timezone
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel, ConfigDict, Field
 
-from app import connectors, hazard_watch, impact, jev_client, proactive_store
+from app import connectors, hazard_watch, impact, jev_client, prepositioning, proactive_store
 from app.proactive_cap import CapRefused, exercise_cap_xml
 from app.security import Operator, get_operator, require_role
 
-VERSION = "aegis.proactive.run.v1"
-STEPS = ("gather_evidence", "simulate_variants", "judge", "draft_cap", "hand_to_human")
+VERSION = "aegis.proactive.run.v2"
+STEPS = ("gather_evidence", "simulate_variants", "judge", "draft_cap", "plan_prepositioning", "hand_to_human")
+LEGACY_STEPS = ("gather_evidence", "simulate_variants", "judge", "draft_cap", "hand_to_human")
 VARIANTS = (("threshold_minus_20", "Thresholds -20%", -0.2, False), ("threshold_baseline", "Thresholds as configured", 0.0, False),
             ("threshold_plus_20", "Thresholds +20%", 0.2, False), ("newest_evidence_only", "Newest evidence only", 0.0, True))
 
@@ -41,12 +46,19 @@ def decision_band(judgment: dict) -> str:
     return "needs_review"
 
 
+def run_steps(state: dict) -> tuple[str, ...]:
+    """The fixed step sequence of this run. Only the two known sequences are accepted."""
+    steps = tuple(state.get("steps") or LEGACY_STEPS)
+    return steps if steps in (STEPS, LEGACY_STEPS) else ()
+
+
 def new_state(run_id: str, trigger: dict, actor: str) -> dict:
     now = _now()
     return {"version": VERSION, "id": run_id, "status": "running", "trigger_event_id": trigger["id"],
             "trigger_id": trigger.get("trigger_id"),
             "created_by": actor, "created_at": now, "updated_at": now, "evidence_ids": [], "impact": None, "variants": [],
-            "judgment": None, "cap": None, "completed_steps": [], "next_step": STEPS[0],
+            "judgment": None, "cap": None, "plan": None, "completed_steps": [], "next_step": STEPS[0],
+            "steps": list(STEPS), "step_budget": len(STEPS),
             "needs_accountable_human_review": True, "operational_actions_enabled": False}
 
 
@@ -96,9 +108,10 @@ def advance(state: dict, expected_step: str, actor: str, store, transport=None) 
     completed = list(state.get("completed_steps") or [])
     if state.get("status") == "review_ready" or expected_step in {c["step"] for c in completed}:
         return state, False, expected_step, {}
-    if len(completed) >= len(STEPS) or state.get("next_step") != STEPS[len(completed)]:
+    steps = run_steps(state)
+    if not steps or len(completed) >= len(steps) or state.get("next_step") != steps[len(completed)]:
         raise RunError(409, "run_state_invalid")
-    step = STEPS[len(completed)]
+    step = steps[len(completed)]
     if expected_step != step:
         raise RunError(409, "step_stale_or_out_of_order")
     if step == "hand_to_human" and actor.startswith("system:"):
@@ -108,6 +121,7 @@ def advance(state: dict, expected_step: str, actor: str, store, transport=None) 
     if trigger is None:
         raise RunError(409, "trigger_missing")
     state = dict(state)
+    started_at, clock = _now(), time.perf_counter()
     if step == "gather_evidence":
         rows = _evidence(store, trigger)
         state["evidence_ids"] = [r["id"] for r in rows]
@@ -144,14 +158,19 @@ def advance(state: dict, expected_step: str, actor: str, store, transport=None) 
             state["cap"] = {"sha256": hashlib.sha256(xml).hexdigest(), "generated_at": _now()}
             state["cap_xml"] = xml.decode()
             detail = {"cap_sha256": state["cap"]["sha256"]}
+    elif step == "plan_prepositioning":
+        # Read-only recommendation; the result lives only in run state and its audit row.
+        state["plan"] = prepositioning.plan(state, trigger, store)
+        detail = prepositioning.audit_detail(state["plan"])
     else:
         detail = {"handed_to_human": True, "submission_performed": False, "notification_sent": False}
-    completed.append({"step": step, "completed_at": _now(), "completed_by": actor})
+    completed.append({"step": step, "started_at": started_at, "completed_at": _now(), "completed_by": actor,
+                      "duration_ms": int(round((time.perf_counter() - clock) * 1000))})
     state.update(completed_steps=completed, updated_at=_now())
-    if len(completed) == len(STEPS):
+    if len(completed) == len(steps):
         state.update(status="review_ready", next_step=None)
     else:
-        state["next_step"] = STEPS[len(completed)]
+        state["next_step"] = steps[len(completed)]
     return state, True, step, detail
 
 
@@ -275,3 +294,25 @@ def get_run_cap(run_id: UUID, operator: Operator = Depends(_operator)):
     return Response(content=xml, media_type="application/xml",
                     headers={"X-Content-SHA256": hashlib.sha256(xml).hexdigest(),
                              "Content-Disposition": f'attachment; filename="aegis-exercise-{run_id}.xml"'})
+
+
+@router.get("/runs/{run_id}/plan")
+def get_run_plan(run_id: UUID, operator: Operator = Depends(_operator)):
+    """A5 plan for one run in the operator's agency. Recommendation only; nothing is moved or notified."""
+    state = _scoped(run_id, operator)
+    if not state.get("plan"):
+        raise HTTPException(status_code=409, detail="plan_not_ready")
+    return {"run_id": str(run_id), "plan": state["plan"]}
+
+
+@router.get("/runs/{run_id}/observability")
+def get_run_observability(run_id: UUID, operator: Operator = Depends(_operator)):
+    from app import run_observability
+    state = _scoped(run_id, operator)
+    store = proactive_store.get_store()
+    audit = _call(store.run_audit, run_id)
+    try:
+        ticks = store.list_ticks(operator.agency_id, 10)
+    except Exception:
+        ticks = None
+    return run_observability.build(state, audit, ticks)
