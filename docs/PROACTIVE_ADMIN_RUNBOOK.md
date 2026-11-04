@@ -95,7 +95,82 @@ Requires migration `013_proactive_run_agency.sql` (applied by the Compose `migra
   the only path; do not guess.
 - Evidence and triggers remain shared reference data across agencies (they hold no case data).
 
-## 7. What it will not do
+## 7. Scheduled watch loop (A1, autonomy L3: prepare and route, never act)
+
+Requires migration `014_proactive_scheduler.sql` (applied by the Compose `migrate` service) and
+the proactive overlay. Default **off**; base Compose and `compose.proactive.yaml` never enable it.
+
+- **Where it runs:** one daemon thread inside the API process, started by the app lifespan only
+  when `AEGIS_PROACTIVE=1`, `AEGIS_PROACTIVE_SCHEDULER=1` and `AEGIS_PROACTIVE_SCHEDULER_AGENCY_ID`
+  is a UUID. A separate one-shot-loop service was not chosen: it would need its own image, DB
+  credentials and lifecycle under the single-instance rule, while the in-process loop reuses the
+  API's store, connector allowlist, kill switch and run code unchanged. Multi-worker safety comes
+  from the database, not from the process layout (see "Concurrency").
+- **Refusal:** if the agency is unset or not a UUID the loop does not start and logs one fixed
+  reason (`scheduler_agency_missing`, `scheduler_agency_invalid`, `scheduler_requires_proactive`).
+  The agency comes only from this trusted environment variable, never from a request.
+- **Interval:** `AEGIS_PROACTIVE_SCHEDULER_INTERVAL` seconds, default 1800, minimum 300 (lower or
+  invalid values are raised to 300 / reset to 1800). The first tick runs 60 s after API start.
+- **Each tick:** take the advisory lock → if the kill switch is engaged record `skipped_paused`
+  and stop (an unreadable switch records `failed` / `pause_unreadable`: fail closed) → refresh
+  evidence → run the sentinel (section 8) → for each new `candidate` trigger with no open run for
+  the same area/hazard, start a run as `system:scheduler` and advance only `gather_evidence`,
+  `simulate_variants`, `judge`, `draft_cap`. The run stays `running` with next step
+  `hand_to_human`. At most 5 runs per tick (`run_cap_reached`). The pause is re-checked before
+  every step (`paused_mid_tick`).
+- **Judge cost:** the `judge` step uses the Typesafe Jev connector exactly like a manual run. If Jev
+  is enabled, each prepared run spends from its monthly token budget; with Jev disabled the
+  deterministic test double answers. Keep Jev disabled if automatic spend is not wanted.
+- **Concurrency:** each tick holds `pg_try_advisory_lock(7311402014)` on a dedicated connection;
+  a second worker or replica records `skipped_locked`. Scheduler runs carry
+  `dedupe_key = sha256(agency, trigger_id, config_version, cited evidence sha256s)`; the partial
+  unique index `proactive_runs_dedupe_idx` makes a second run for the same evaluation impossible.
+- **Never acts:** `system:` subjects are rejected as OIDC token subjects (401), as proposal maker
+  or checker (`governance.submit/review`) and for the `hand_to_human` step
+  (`system_actor_cannot_hand_off`). Nothing is submitted, approved, sent or notified. A signed-in
+  `incident_operator` opens the trigger on Hazard Watch, the panel resumes the open run ("Prepared
+  by the scheduler") and that person takes the hand-off.
+- **Tick log:** one append-only `proactive_scheduler_ticks` row per tick: outcome (`completed`,
+  `skipped_paused`, `skipped_locked`, `failed`), runs started, flags recorded and fixed error codes
+  only. `GET /v1/proactive/scheduler` (BFF `GET /api/proactive/scheduler`; incident_operator,
+  checker, auditor, platform_admin) returns on/off, interval, last and next tick and the last 10
+  ticks of the caller's own agency (platform_admin: all agencies; agency ids are never echoed).
+  Hazard Watch shows a "Scheduler: on/off, last tick, next tick" strip. `next_tick_at` and
+  `running` describe the API worker that answered.
+
+**Enable on the running stack** (one AEGIS operation at a time; no volume reset):
+
+```powershell
+scripts/check-local-runtime.ps1 -RequireRunning
+docker compose --project-name ai-project-aegis run --rm migrate   # applies 014 idempotently
+$env:AEGIS_PROACTIVE_SCHEDULER_AGENCY_ID = "<agency uuid of the operators who will review>"
+$env:AEGIS_PROACTIVE_SCHEDULER_INTERVAL = "300"                  # optional, for verification
+powershell -ExecutionPolicy Bypass -File scripts/start-windows.ps1 -NoBuild -ProactiveScheduler
+```
+
+**Verify:** `docker compose logs api` has no `scheduler_agency_*` line; after ~60 s
+`/api/proactive/scheduler` shows a `completed` (or `skipped_paused`) tick; engage the kill switch
+and confirm the next tick is `skipped_paused`; a candidate trigger yields one run whose next step
+is `hand_to_human`; a second tick on unchanged evidence starts no second run;
+`python -m app.migration_audit` reports `ready`. **Disable:** restart with `-Proactive` (without
+`-ProactiveScheduler`) or engage the kill switch.
+
+## 8. Evidence-change sentinel (A2)
+
+- Runs after every evidence refresh: the manual `POST /v1/proactive/watch/refresh` (for the
+  caller's agency) and each scheduler tick (for the scheduler agency).
+- For every open run (`status = running`) it compares the run's trigger with the newly evaluated
+  trigger for the same area/hazard and appends at most one flag: `strengthened` (score up),
+  `weakened` (score or state down), `contradicted` (the trigger would no longer fire) or `stale`
+  (no new evaluation and the newest cited evidence is older than 24 h). Each flag cites up to 20
+  evidence ids and a timestamp. An identical consecutive flag is not repeated.
+- Flags are appended through the row-locked run update with actor `system:sentinel`, so each one
+  has a `sentinel_flag` audit row. The run state keeps the newest 50; the audit keeps all.
+- It never edits drafts, variants, judgments or CAP content, never advances or cancels a run and
+  never sends anything. A sentinel failure never fails the refresh (`sentinel_failed` code). The
+  run panel lists the flags; a flag is an observation for the reviewer, not a forecast.
+
+## 9. What it will not do
 
 No scraping, social media or webcams. No broadcast. No automatic case, proposal, approval or
 task. No accuracy claim: thresholds are synthetic rehearsal values until the registered

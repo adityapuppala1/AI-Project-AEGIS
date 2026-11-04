@@ -75,6 +75,11 @@ from app.proactive_run import router as proactive_run_router
 app.include_router(proactive_connectors_router)
 app.include_router(proactive_watch_router)
 app.include_router(proactive_run_router)
+# Opt-in L3 scheduled watch loop; refuses to start unless AEGIS_PROACTIVE_SCHEDULER=1 with a valid agency.
+from app import proactive_scheduler
+from app.proactive_scheduler import router as proactive_scheduler_router
+app.include_router(proactive_scheduler_router)
+proactive_scheduler.install(app)
 
 @app.get("/v1/exercise/incidents/query")
 def search_exercise_incidents(

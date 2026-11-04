@@ -44,6 +44,7 @@ def decision_band(judgment: dict) -> str:
 def new_state(run_id: str, trigger: dict, actor: str) -> dict:
     now = _now()
     return {"version": VERSION, "id": run_id, "status": "running", "trigger_event_id": trigger["id"],
+            "trigger_id": trigger.get("trigger_id"),
             "created_by": actor, "created_at": now, "updated_at": now, "evidence_ids": [], "variants": [],
             "judgment": None, "cap": None, "completed_steps": [], "next_step": STEPS[0],
             "needs_accountable_human_review": True, "operational_actions_enabled": False}
@@ -82,6 +83,9 @@ def advance(state: dict, expected_step: str, actor: str, store, transport=None) 
     step = STEPS[len(completed)]
     if expected_step != step:
         raise RunError(409, "step_stale_or_out_of_order")
+    if step == "hand_to_human" and actor.startswith("system:"):
+        # Only an accountable human takes the hand-off; the scheduler always stops before it.
+        raise RunError(409, "system_actor_cannot_hand_off")
     trigger = store.get_trigger(state["trigger_event_id"])
     if trigger is None:
         raise RunError(409, "trigger_missing")

@@ -18,6 +18,27 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Proactive step 2 (A1 scheduler, A2 sentinel) — 4 November 2026 (Windows laptop, uncommitted)
+
+Branch `feat/agentic-proactive-l3`, base `967024e`. Roadmap section 2, items A1 and A2.
+
+- **Completed (code + unit gates):** migration `014_proactive_scheduler.sql` (`proactive_runs.dedupe_key`
+  + partial unique index `proactive_runs_dedupe_idx`; append-only `proactive_scheduler_ticks`), wired
+  into Compose init (`018-proactive-scheduler.sql`) and the `migrate` chain and into
+  `migration_audit.EXPECTED_INDEXES`. `app/proactive_scheduler.py` (in-process loop, default off,
+  overlay `compose.proactive-scheduler.yaml`, `start-windows.ps1 -ProactiveScheduler`, advisory lock
+  per tick, pause skip, draft-only runs stopping before `hand_to_human`, `GET /v1/proactive/scheduler`
+  + BFF `/api/proactive/scheduler`). `app/proactive_sentinel.py` (flags appended with audit after
+  manual and scheduled refresh). `system:` subjects rejected by OIDC decode, governance maker/checker
+  and the hand-off step. Hazard Watch scheduler strip, run-panel flags and resume of open runs, en/te/hi.
+- **Executed (Windows laptop):** `services/api/.venv` `pytest -q` 611 passed / 24 skipped;
+  `python -m app.model_lab --check` PASS; `npm run typecheck` PASS; `node --test scripts/tests/*.test.cjs`
+  136 passed.
+- **Pending:** apply 014 to the existing volume (`docker compose run --rm migrate`, no reset), runtime
+  enable/verify per `docs/PROACTIVE_ADMIN_RUNBOOK.md` section 7, opt-in PostGIS
+  `test_postgis_proactive.py` (now includes 014), `npm run build` under the operation lease. Security
+  preflight reports `not_ready` until 014 is applied (two new index checks).
+
 ## Proactive cross-cutting step 1 — 4 November 2026 (Windows laptop, uncommitted)
 
 Branch `feat/agentic-proactive-l3`, base `2337e78`. Roadmap section 3: run agency scope, kill

@@ -1,0 +1,13 @@
+# Optional L3 scheduled watch loop (prepare and route, never act). Layer on top of
+# compose.proactive.yaml; base Compose and the plain proactive overlay stay scheduler-off.
+# The loop runs inside the API process, takes a PostgreSQL advisory lock per tick and stops every
+# run before hand_to_human. It never submits, approves, sends or notifies.
+# Start: scripts/start-windows.ps1 -NoBuild -ProactiveScheduler. See docs/PROACTIVE_ADMIN_RUNBOOK.md.
+services:
+  api:
+    environment:
+      AEGIS_PROACTIVE_SCHEDULER: "1"
+      # Trusted operator-set agency UUID that owns scheduler-prepared runs; unset refuses to start.
+      AEGIS_PROACTIVE_SCHEDULER_AGENCY_ID: "${AEGIS_PROACTIVE_SCHEDULER_AGENCY_ID:?set AEGIS_PROACTIVE_SCHEDULER_AGENCY_ID (agency UUID)}"
+      # Seconds between ticks; values below 300 are raised to 300. Default 1800.
+      AEGIS_PROACTIVE_SCHEDULER_INTERVAL: "${AEGIS_PROACTIVE_SCHEDULER_INTERVAL:-1800}"

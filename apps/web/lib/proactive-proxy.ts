@@ -4,7 +4,7 @@
 import { NextResponse } from "next/server";
 import { configuration, readSession, sameOrigin, type Role } from "./auth-server";
 import {
-  cleanAudit, cleanConnector, cleanConnectors, cleanHistory, cleanPause, cleanRefresh, cleanRun, cleanRunList, cleanTestResult, cleanTriggersConfig, cleanWatch,
+  cleanAudit, cleanConnector, cleanConnectors, cleanHistory, cleanPause, cleanRefresh, cleanRun, cleanRunList, cleanScheduler, cleanTestResult, cleanTriggersConfig, cleanWatch,
   isConnectorId, isObject, isRunStep, isUuid,
 } from "./proactive";
 
@@ -12,7 +12,7 @@ export type ProactiveRoute =
   | "connectors" | "connector_save" | "connector_test" | "connector_audit"
   | "watch" | "watch_history" | "watch_refresh" | "triggers_config"
   | "run_create" | "run_list" | "run_get" | "run_advance" | "run_cancel" | "run_cap"
-  | "pause_get" | "pause_set";
+  | "pause_get" | "pause_set" | "scheduler";
 
 const MAX_BODY = 8000;
 const RESERVED = new Set(["__proto__", "constructor", "prototype"]);
@@ -32,6 +32,8 @@ function rolesFor(route: ProactiveRoute): Role[] {
   // Kill switch: any signed-in operator may read it; only platform_admin may change it.
   if (route === "pause_get") return ["incident_operator", "incident_checker", "incident_auditor", "department_operator", "platform_admin"];
   if (route === "pause_set") return ["platform_admin"];
+  // Scheduler status: scoped read for signed-in operators; the API filters ticks by verified agency.
+  if (route === "scheduler") return ["incident_operator", "incident_checker", "incident_auditor", "platform_admin"];
   return ["incident_operator"];
 }
 
@@ -89,6 +91,7 @@ function buildRequest(route: ProactiveRoute, id: string | undefined, url: URL, d
     case "watch_refresh": return { path: `${base}/watch/refresh`, method: "POST", body: "{}" };
     case "triggers_config": return { path: `${base}/triggers/config`, method: "GET" };
     case "pause_get": return { path: `${base}/pause`, method: "GET" };
+    case "scheduler": return { path: `${base}/scheduler?limit=10`, method: "GET" };
     case "pause_set": {
       if (!data || Object.keys(data).some(key => key !== "paused" && key !== "reason") || typeof data.paused !== "boolean") return bad("Paused must be true or false");
       if (typeof data.reason !== "string" || data.reason.trim().length < 10 || data.reason.length > 500 || [...data.reason].some(c => c.charCodeAt(0) < 32)) return bad("A reason of 10-500 characters is required");
@@ -125,6 +128,7 @@ function clean(route: ProactiveRoute, payload: unknown): unknown {
     case "watch_refresh": return cleanRefresh(payload);
     case "triggers_config": return cleanTriggersConfig(payload);
     case "pause_get": case "pause_set": return cleanPause(payload);
+    case "scheduler": return cleanScheduler(payload);
     case "run_list": return cleanRunList(payload);
     default: return cleanRun(payload);
   }

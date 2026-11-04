@@ -24,6 +24,8 @@ EXPECTED_INDEXES = (
     "exercise_agency_task_events_time_idx",
     "exercise_sources_comparison_group_idx",
     "proactive_runs_agency_idx",  # 013: per-agency proactive run scope
+    "proactive_runs_dedupe_idx",  # 014: one scheduler run per identical trigger evaluation
+    "proactive_scheduler_ticks_agency_idx",  # 014: scheduler tick log
 )
 EXPECTED_TRIGGER = "aegis_check_independent_checker"
 

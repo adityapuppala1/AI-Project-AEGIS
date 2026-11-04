@@ -5,6 +5,7 @@ import { AlertTriangle, Box, FlaskConical, Layers, Loader2, OctagonPause, Radar,
 import { AppShell } from "./app-shell";
 import { HazardWatchMap } from "./hazard-watch-map";
 import { ProactiveRunPanel } from "./proactive-run";
+import { ProactiveSchedulerStatus } from "./proactive-scheduler-status";
 import { FallbackMap, FilterBar, QueueList, SampleChip, SetupChecklist, SummaryStrip, TriggerDetail, WatchSkeleton } from "./watch-parts";
 import { useT } from "./language-provider";
 import { useOperatorSession } from "../lib/use-operator-session";
@@ -188,6 +189,7 @@ export function HazardWatch() {
             {refreshing ? <Loader2 size={16} className="animate-spin" aria-hidden="true"/> : <RefreshCw size={16} aria-hidden="true"/>}{t("Refresh evidence")}</button>
         </span>
         {(sample || !canRefresh) && <p id="refresh-reason" className="basis-full text-[11px] text-muted">{sample ? t("Refresh is switched off while previewing sample data.") : t("Refreshing needs an incident_operator or platform_admin sign-in. You can still read the watch.")}</p>}
+        {!sample && <ProactiveSchedulerStatus refreshToken={refreshResult}/>}
         <div className="basis-full text-xs" aria-live="polite" role="status">
           {refreshError && <p className="text-rose-700 dark:text-rose-300">{refreshError}</p>}
           {refreshResult && <p>{t("Refresh result")}: {Object.entries(refreshResult.fetched).map(([id, v]) => `${id}: ${typeof v === "number" ? `${v} ${t("records")}` : v}`).join(" · ")} · {refreshResult.evidence_added} {t("new evidence")} · {t("clear")} {refreshResult.triggers.clear} / {t("watch")} {refreshResult.triggers.watch} / {t("candidate")} {refreshResult.triggers.candidate}</p>}
@@ -233,7 +235,7 @@ export function HazardWatch() {
         {selected && <div className="min-w-0 space-y-5 xl:col-start-1" onKeyDown={onDetailKey}>
           <TriggerDetail trigger={selected} evidenceById={evidenceById} now={now} sample={sample} run={run} headingRef={headingRef} onClose={closeDetail} drawer={drawer} onDrawer={() => setDrawer(value => !value)}/>
           <div className="grid gap-5 lg:grid-cols-2">
-            <ProactiveRunPanel triggerEventId={selected.id} canOperate={sample || canRun} onRun={setRun} sample={sample}
+            <ProactiveRunPanel triggerEventId={selected.id} triggerKey={selected.trigger_id} canOperate={sample || canRun} onRun={setRun} sample={sample}
               disabledReason={t("Starting a run needs an incident_operator sign-in. Reading the watch does not.")}/>
             <Timeline history={history} hazard={selected.hazard} sample={sample}/>
           </div>

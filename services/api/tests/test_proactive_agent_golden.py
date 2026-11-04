@@ -191,3 +191,31 @@ def test_injection_reaches_jev_only_as_state_data():
                           'severity_band': {'score': 3, 'confidence': 1.0, 'probabilities': {}}}}
     with pytest.raises(jev_client.JevError):
         jev_client.parse_response(answer)
+
+
+# --- evidence-change sentinel (A2) ---------------------------------------------------------------
+# (case id, original value, new value or None for "no new evaluation", original retrieved hours, expected flag)
+SENTINEL_CASES = [
+    ('rises_further', CAND, CAND * 2, 0, 'strengthened'),
+    ('drops_to_watch', CAND, WATCH, 0, 'weakened'),
+    ('drops_within_candidate', CAND * 2, CAND * 1.5, 0, 'weakened'),
+    ('falls_below_watch', CAND, WATCH / 2, 0, 'contradicted'),
+    ('unchanged', CAND, CAND, 0, None),
+    ('no_new_evidence_fresh', CAND, None, 0, None),
+    ('no_new_evidence_old', CAND, None, 30, 'stale'),
+]
+
+
+@pytest.mark.parametrize('case,old,new,hours,flag', SENTINEL_CASES, ids=[c[0] for c in SENTINEL_CASES])
+def test_sentinel_golden(store, case, old, new, hours, flag):
+    from app import proactive_sentinel
+    original = seed(store, [ev('heavy_rain', old, retrieved_hours=hours), ev('heavy_rain', 5, days=1, retrieved_hours=hours)])
+    current = None
+    if new is not None:
+        current = {**hazard_watch.evaluate([ev('heavy_rain', new), ev('heavy_rain', 5, days=1)], CONFIG)[0], 'id': str(uuid4())}
+    evidence = store.list_evidence(500, ids=original['evidence_ids'])
+    result = proactive_sentinel.classify(original, current, evidence, NOW)
+    assert (result[0] if result else None) == flag, case
+    if result:
+        assert result[1], case  # every flag cites evidence ids
+        assert result[0] in proactive_sentinel.FLAGS

@@ -36,10 +36,15 @@ class Proposal:
     decision_reason: str | None = None
 
 
+def _is_system(subject: str) -> bool:
+    # In-process automation (system:scheduler, system:sentinel) is never a maker or checker.
+    return subject.strip().lower().startswith("system:")
+
+
 def submit(proposal: Proposal, actor_subject: str) -> Proposal:
     if proposal.status is not Status.DRAFT:
         raise DecisionError("Only draft proposals can be submitted")
-    if actor_subject != proposal.maker_subject:
+    if actor_subject != proposal.maker_subject or _is_system(actor_subject):
         raise DecisionError("Only the proposal maker can submit it")
     return Proposal(
         proposal_id=proposal.proposal_id,
@@ -53,7 +58,7 @@ def submit(proposal: Proposal, actor_subject: str) -> Proposal:
 def review(proposal: Proposal, checker_subject: str, approve: bool, reason: str) -> Proposal:
     if proposal.status is not Status.SUBMITTED:
         raise DecisionError("Only submitted proposals can be reviewed")
-    if not checker_subject.strip() or checker_subject == proposal.maker_subject:
+    if not checker_subject.strip() or checker_subject == proposal.maker_subject or _is_system(checker_subject):
         raise DecisionError("A separate identified checker must review this proposal")
     if not reason.strip():
         raise DecisionError("Reviewer must provide a decision rationale")

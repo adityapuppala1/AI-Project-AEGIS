@@ -10,7 +10,7 @@ import pytest
 from app import proactive_store
 
 pytestmark = pytest.mark.skipif(not os.getenv('AEGIS_TEST_DATABASE_URL'), reason='Opt-in local PostGIS required')
-MIGRATIONS = ('012_proactive.sql', '013_proactive_run_agency.sql')
+MIGRATIONS = ('012_proactive.sql', '013_proactive_run_agency.sql', '014_proactive_scheduler.sql')
 
 
 def migration_sql(name: str) -> str:
@@ -104,3 +104,32 @@ def test_pause_switch_and_append_only_audit(database):
             conn.execute("INSERT INTO proactive_pause (id, paused) VALUES (false, true)")
     finally:
         store.set_pause(bool(before['paused']), 'integration restore ' + marker, 'admin-' + marker)
+
+def test_scheduler_dedupe_ticks_and_advisory_lock(database):
+    url, marker = database
+    store = proactive_store.PgStore()
+    trigger = {'id': str(uuid4()), 'trigger_id': 'heavy_rain:' + marker, 'config_version': 'v1', 'hazard': 'heavy_rain',
+               'state': 'candidate', 'fired_at': datetime.now(timezone.utc), 'lat': 17.4, 'lon': 78.47, 'score': 70.0,
+               'evidence_ids': [], 'rationale': {}}
+    store.insert_trigger(trigger)
+    agency, key = uuid4(), uuid4().hex * 2
+    first, second = str(uuid4()), str(uuid4())
+    assert store.create_run(first, trigger['id'], {'id': first}, 'system:scheduler', {}, agency, dedupe_key=key) is True
+    assert store.create_run(second, trigger['id'], {'id': second}, 'system:scheduler', {}, agency, dedupe_key=key) is False
+    assert store.get_run(second, agency) is None and [a['step'] for a in store.run_audit(first)] == ['start']
+    # Operator runs keep NULL dedupe_key and are never constrained by it.
+    assert store.create_run(str(uuid4()), trigger['id'], {}, 'op', {}, agency) is True
+    with store.tick_lock() as held, store.tick_lock() as other:
+        assert held is True and other is False
+    with store.tick_lock() as again:
+        assert again is True
+    now = datetime.now(timezone.utc)
+    tick = {'id': str(uuid4()), 'agency_id': agency, 'started_at': now, 'finished_at': now, 'outcome': 'completed',
+            'runs_started': 1, 'flags_recorded': 0, 'errors': ['refresh_failed'], 'actor': 'system:scheduler'}
+    store.insert_tick(tick)
+    assert store.list_ticks(agency, 5)[0]['errors'] == ['refresh_failed'] and store.list_ticks(uuid4(), 5) == []
+    with psycopg.connect(url) as conn, pytest.raises(psycopg.errors.RaiseException):
+        conn.execute("UPDATE proactive_scheduler_ticks SET runs_started = 2 WHERE id = %s", (tick['id'],))
+    with psycopg.connect(url) as conn, pytest.raises(psycopg.errors.CheckViolation):
+        conn.execute("""INSERT INTO proactive_scheduler_ticks (id, agency_id, started_at, outcome, errors)
+                        VALUES (%s, %s, now(), 'completed', ARRAY['Traceback: boom'])""", (str(uuid4()), str(agency)))

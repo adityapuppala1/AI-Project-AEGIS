@@ -24,6 +24,7 @@ class Operator:
     department_id: str | None = None
 
 
+SYSTEM_SUBJECT_PREFIX = "system:"
 ALLOWED_ROLES = frozenset({"incident_operator", "incident_checker", "incident_auditor", "department_operator", "platform_admin"})
 
 
@@ -72,6 +73,10 @@ def decode_operator_token(token: str) -> Operator:
     raw_roles = claims.get("aegis_roles")
     raw_agency = claims.get("aegis_agency_id")
     if not isinstance(subject, str) or not (1 <= len(subject) <= 256):
+        raise HTTPException(status_code=401, detail="Invalid identity subject")
+    if subject.lower().startswith(SYSTEM_SUBJECT_PREFIX):
+        # Reserved for in-process automation (system:scheduler, system:sentinel). A token carrying
+        # such a subject can never act as maker, checker or any other operator.
         raise HTTPException(status_code=401, detail="Invalid identity subject")
     if not isinstance(raw_roles, list) or not raw_roles or any(not isinstance(role, str) for role in raw_roles):
         raise HTTPException(status_code=403, detail="No authorized agency role")

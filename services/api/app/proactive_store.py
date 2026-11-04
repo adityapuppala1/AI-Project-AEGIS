@@ -1,4 +1,5 @@
-"""Persistence for the opt-in proactive watch (db/migrations/012_proactive.sql, 013_proactive_run_agency.sql).
+"""Persistence for the opt-in proactive watch (db/migrations/012_proactive.sql, 013_proactive_run_agency.sql,
+014_proactive_scheduler.sql).
 
 PgStore is the real store. MemoryStore is an offline double with the same contract used by
 unit tests; it is never selected by configuration. Evidence, triggers and audits are append-only.
@@ -8,9 +9,13 @@ matches, so pre-013 runs are invisible to every scoped route.
 import json
 import os
 import threading
+from contextlib import contextmanager
 from copy import deepcopy
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
+
+# Fixed pg advisory lock id for the scheduler tick (014). Only this module uses it.
+SCHEDULER_LOCK_KEY = 7_311_402_014
 
 
 class VersionConflict(RuntimeError):
@@ -161,13 +166,22 @@ class PgStore:
                            GROUP BY 1, 2, 3 ORDER BY 1, 2, 3""", (days,))
             return [dict(row) for row in cur.fetchall()]
 
-    def create_run(self, run_id, trigger_event_id, state, actor, audit_detail, agency_id) -> None:
+    def create_run(self, run_id, trigger_event_id, state, actor, audit_detail, agency_id, dedupe_key=None) -> bool:
+        """False (and no audit row) when a scheduler run with the same dedupe_key already exists (014)."""
         from psycopg.types.json import Jsonb
         with self._connect() as conn, conn.cursor() as cur:
-            cur.execute("INSERT INTO proactive_runs (id, trigger_event_id, state, created_by, agency_id) VALUES (%s,%s,%s,%s,%s)",
-                        (run_id, str(trigger_event_id), Jsonb(state), actor, str(agency_id)))
+            if dedupe_key is None:
+                cur.execute("INSERT INTO proactive_runs (id, trigger_event_id, state, created_by, agency_id) VALUES (%s,%s,%s,%s,%s)",
+                            (run_id, str(trigger_event_id), Jsonb(state), actor, str(agency_id)))
+            else:
+                cur.execute("""INSERT INTO proactive_runs (id, trigger_event_id, state, created_by, agency_id, dedupe_key)
+                               VALUES (%s,%s,%s,%s,%s,%s) ON CONFLICT (dedupe_key) WHERE dedupe_key IS NOT NULL DO NOTHING
+                               RETURNING id""", (run_id, str(trigger_event_id), Jsonb(state), actor, str(agency_id), dedupe_key))
+                if cur.fetchone() is None:
+                    return False
             cur.execute("INSERT INTO proactive_run_audit (id, run_id, step, actor, detail) VALUES (%s,%s,'start',%s,%s)",
                         (str(uuid4()), run_id, actor, Jsonb(audit_detail)))
+        return True
 
     def get_run(self, run_id, agency_id) -> dict | None:
         with self._connect() as conn, conn.cursor() as cur:
@@ -227,6 +241,45 @@ class PgStore:
             cur.execute("SELECT paused, reason, actor, at FROM proactive_pause_audit ORDER BY at DESC, id LIMIT %s", (limit,))
             return [{**row, "at": row["at"].isoformat()} for row in cur.fetchall()]
 
+    @contextmanager
+    def tick_lock(self):
+        """Session advisory lock held on a dedicated connection for the whole tick; yields False if taken.
+
+        Closing the connection releases the lock even if the process dies mid-tick.
+        """
+        conn = self._connect()
+        try:
+            with conn.cursor() as cur:
+                cur.execute("SELECT pg_try_advisory_lock(%s) AS ok", (SCHEDULER_LOCK_KEY,))
+                acquired = bool(cur.fetchone()["ok"])
+            conn.commit()
+            try:
+                yield acquired
+            finally:
+                if acquired:
+                    with conn.cursor() as cur:
+                        cur.execute("SELECT pg_advisory_unlock(%s)", (SCHEDULER_LOCK_KEY,))
+                    conn.commit()
+        finally:
+            conn.close()
+
+    def insert_tick(self, row: dict) -> None:
+        with self._connect() as conn, conn.cursor() as cur:
+            cur.execute("""INSERT INTO proactive_scheduler_ticks (id, agency_id, started_at, finished_at, outcome,
+                           runs_started, flags_recorded, errors, actor) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                        (row["id"], str(row["agency_id"]), row["started_at"], row["finished_at"], row["outcome"],
+                         row["runs_started"], row["flags_recorded"], list(row["errors"]), row["actor"]))
+
+    def list_ticks(self, agency_id, limit=20) -> list[dict]:
+        sql = """SELECT id::text, agency_id::text, started_at, finished_at, outcome, runs_started, flags_recorded, errors, actor
+                 FROM proactive_scheduler_ticks"""
+        with self._connect() as conn, conn.cursor() as cur:
+            if agency_id is None:
+                cur.execute(sql + " ORDER BY started_at DESC, id LIMIT %s", (limit,))
+            else:
+                cur.execute(sql + " WHERE agency_id=%s ORDER BY started_at DESC, id LIMIT %s", (str(agency_id), limit))
+            return [dict(row) for row in cur.fetchall()]
+
 
 class MemoryStore:
     """Offline test double with PgStore semantics (optimistic versions, sha256 dedupe, append-only audit)."""
@@ -243,6 +296,9 @@ class MemoryStore:
         self.run_audits: list = []
         self.pause = {"paused": False, "reason": None, "updated_at": _now(), "updated_by": None}
         self.pause_audits: list = []
+        self.run_dedupe: dict = {}
+        self.ticks: list = []
+        self.tick_mutex = threading.Lock()
 
     def list_configs(self) -> dict:
         tests = {}
@@ -331,11 +387,17 @@ class MemoryStore:
                 counts[key] = counts.get(key, 0) + 1
         return [{"day": d, "hazard": h, "state": s, "count": n} for (d, h, s), n in sorted(counts.items())]
 
-    def create_run(self, run_id, trigger_event_id, state, actor, audit_detail, agency_id) -> None:
-        self.runs[run_id] = deepcopy(state)
-        self.run_agency[run_id] = str(agency_id)
-        self.run_audits.append({"run_id": run_id, "step": "start", "actor": actor, "at": _now().isoformat(),
-                                "detail": deepcopy(audit_detail)})
+    def create_run(self, run_id, trigger_event_id, state, actor, audit_detail, agency_id, dedupe_key=None) -> bool:
+        with self.lock:
+            if dedupe_key is not None:
+                if dedupe_key in self.run_dedupe:
+                    return False  # mirrors the 014 partial unique index
+                self.run_dedupe[dedupe_key] = run_id
+            self.runs[run_id] = deepcopy(state)
+            self.run_agency[run_id] = str(agency_id)
+            self.run_audits.append({"run_id": run_id, "step": "start", "actor": actor, "at": _now().isoformat(),
+                                    "detail": deepcopy(audit_detail)})
+        return True
 
     def _visible(self, run_id, agency_id) -> bool:
         # A missing (legacy NULL) agency never matches, mirroring `agency_id=%s` in SQL.
@@ -376,6 +438,25 @@ class MemoryStore:
 
     def pause_audit(self, limit=20) -> list[dict]:
         return deepcopy(list(reversed(self.pause_audits))[:limit])
+
+    @contextmanager
+    def tick_lock(self):
+        acquired = self.tick_mutex.acquire(blocking=False)
+        try:
+            yield acquired
+        finally:
+            if acquired:
+                self.tick_mutex.release()
+
+    def insert_tick(self, row) -> None:
+        if row["outcome"] not in {"completed", "skipped_paused", "skipped_locked", "failed"}:
+            raise ValueError("invalid tick outcome")
+        self.ticks.append(deepcopy(row))
+
+    def list_ticks(self, agency_id, limit=20) -> list[dict]:
+        rows = [r for r in self.ticks if agency_id is None or str(r["agency_id"]) == str(agency_id)]
+        rows = sorted(rows, key=lambda r: r["started_at"], reverse=True)[:limit]
+        return [{**deepcopy(r), "agency_id": str(r["agency_id"])} for r in rows]
 
 
 _store = None

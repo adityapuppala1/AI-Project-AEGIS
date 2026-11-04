@@ -190,3 +190,40 @@ test('watch payload carries the kill switch flag as a strict boolean or null', (
   assert.equal(lib.cleanWatch({ ...base, paused: 'true' }).paused, null);
   assert.equal(lib.cleanWatch(base).paused, null);
 });
+
+test('scheduler status: scoped read for operator roles only, GET only, cleaned to fixed codes', async () => {
+  const tick = { id, started_at: '2026-11-01T00:00:00Z', finished_at: '2026-11-01T00:00:05Z', outcome: 'completed', runs_started: 1, flags_recorded: 2,
+    errors: ['refresh_failed', 'Traceback (most recent call last)'], agency_id: '11111111-1111-4111-8111-111111111111' };
+  const body = { enabled: true, running: true, reason: null, interval_seconds: 1800, next_tick_at: '2026-11-01T00:30:00Z', last_tick: tick,
+    ticks: [tick, { ...tick, id: 'bad' }, { ...tick, outcome: 'sent_warning' }], secret: 'x' };
+  const checker = { accessToken: 'unit-only-token', roles: ['incident_checker'] };
+  const department = { accessToken: 'unit-only-token', roles: ['department_operator'] };
+  await withFetch(json(body), async calls => {
+    assert.equal((await loadProxy(null)(req('GET', '/x'), 'scheduler')).status, 401);
+    assert.equal((await loadProxy(department)(req('GET', '/x'), 'scheduler')).status, 403);
+    assert.equal((await loadProxy(operator)(req('POST', '/x', {}), 'scheduler')).status, 405);
+    assert.equal(calls.length, 0);
+    for (const session of [operator, checker, auditor, admin]) assert.equal((await loadProxy(session)(req('GET', '/x?limit=999'), 'scheduler')).status, 200);
+    const out = await (await loadProxy(operator)(req('GET', '/x'), 'scheduler')).json();
+    assert.ok(calls.every(c => new URL(c.url).pathname === '/v1/proactive/scheduler' && new URL(c.url).search === '?limit=10'));
+    assert.equal(calls[0].options.headers.Authorization, 'Bearer unit-only-token');
+    assert.equal(out.ticks.length, 1); assert.equal(out.secret, undefined);
+    assert.equal(out.last_tick.agency_id, undefined);
+    assert.deepEqual(out.last_tick.errors, ['refresh_failed', 'error']);
+    assert.equal(out.running, true); assert.equal(out.interval_seconds, 1800);
+  });
+});
+
+test('run cleaner keeps sentinel flags and origin but never trusts unknown flags', () => {
+  const run = lib.cleanRun({ id, trigger_event_id: id, status: 'running', origin: 'scheduler', trigger_id: 'heavy_rain:hyd_17.30_78.35',
+    sentinel_flags: [{ flag: 'contradicted', evidence_ids: [id, 'nope'], at: '2026-11-01T00:00:00Z', score: 1, previous_score: 120 },
+      { flag: 'approve_now', evidence_ids: [] }] });
+  assert.equal(run.origin, 'scheduler'); assert.equal(run.trigger_id, 'heavy_rain:hyd_17.30_78.35');
+  assert.deepEqual(run.sentinel_flags.map(f => f.flag), ['contradicted']);
+  assert.deepEqual(run.sentinel_flags[0].evidence_ids, [id]);
+  assert.equal(lib.cleanRun({ id, trigger_event_id: id, trigger_id: '<script>' }).trigger_id, null);
+  assert.equal(lib.cleanRun({ id, trigger_event_id: id, origin: 'admin' }).origin, 'operator');
+  const open = lib.openRunFor([{ ...run, status: 'cancelled' }, run], '99999999-9999-4999-8999-999999999999', 'heavy_rain:hyd_17.30_78.35');
+  assert.equal(open, run);
+  assert.equal(lib.openRunFor([run], '99999999-9999-4999-8999-999999999999', null), null);
+});

@@ -196,6 +196,13 @@ def test_compose_and_start_script_wiring():
     assert '013_proactive_run_agency.sql:/docker-entrypoint-initdb.d/017-proactive-run-agency.sql' in base
     assert '013_proactive_run_agency.sql:/proactive-run-agency.sql' in base
     assert '-f /proactive.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /proactive-run-agency.sql' in base
+    assert '014_proactive_scheduler.sql:/docker-entrypoint-initdb.d/018-proactive-scheduler.sql' in base
+    assert '014_proactive_scheduler.sql:/proactive-scheduler.sql' in base
+    assert '-f /proactive-run-agency.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /proactive-scheduler.sql' in base
+    scheduler = (root / 'compose.proactive-scheduler.yaml').read_text()
+    assert 'AEGIS_PROACTIVE_SCHEDULER: "1"' in scheduler and '${AEGIS_PROACTIVE_SCHEDULER_AGENCY_ID:?' in scheduler
+    assert 'AEGIS_PROACTIVE_SCHEDULER' not in base and 'AEGIS_PROACTIVE_SCHEDULER' not in (root / 'compose.proactive.yaml').read_text()
+    assert 'compose.proactive-scheduler.yaml' in (root / 'scripts/start-windows.ps1').read_text()
     overlay = (root / 'compose.proactive.yaml').read_text()
     assert 'AEGIS_PROACTIVE: "1"' in overlay and 'AEGIS_CONNECTOR_KEY: "${AEGIS_CONNECTOR_KEY:?' in overlay
     assert 'compose.proactive.yaml' in (root / 'scripts/start-windows.ps1').read_text()

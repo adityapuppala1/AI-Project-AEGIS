@@ -290,6 +290,11 @@ def _counts(triggers) -> dict:
 
 def refresh() -> dict:
     """Pull every ENABLED hazard connector; failures become fixed codes and never raise."""
+    return refresh_detailed()[0]
+
+
+def refresh_detailed() -> tuple[dict, list[dict]]:
+    """refresh() plus the trigger events it stored (for the sentinel and the scheduler)."""
     store = proactive_store.get_store()
     configs = store.list_configs()["configs"]
     fetched, collected = {}, []
@@ -325,10 +330,10 @@ def refresh() -> dict:
     for row in collected:
         row["id"] = ids.get(row["sha256"], row["id"])
     now = datetime.now(timezone.utc)
-    triggers = evaluate(collected)
+    triggers = [{**trigger, "id": str(uuid4()), "fired_at": now} for trigger in evaluate(collected)]
     for trigger in triggers:
-        store.insert_trigger({**trigger, "id": str(uuid4()), "fired_at": now})
-    return {"fetched": fetched, "evidence_added": added, "triggers": _counts(triggers)}
+        store.insert_trigger(trigger)
+    return {"fetched": fetched, "evidence_added": added, "triggers": _counts(triggers)}, triggers
 
 
 def _iso(value):
@@ -389,9 +394,17 @@ def post_watch_refresh(operator: Operator = Depends(get_operator)):
     require_role(operator, {"incident_operator", "platform_admin"})
     connectors.require_not_paused()
     try:
-        return refresh()
+        summary, triggers = refresh_detailed()
     except Exception:
         raise _unavailable() from None
+    # A2 sentinel: flag this agency's open runs against the new evidence. It only appends flags;
+    # a sentinel failure never fails the refresh and is reported as a fixed code.
+    from app import proactive_sentinel
+    try:
+        summary["sentinel_flags"] = proactive_sentinel.apply(proactive_store.get_store(), operator.agency_id, triggers)
+    except Exception:
+        summary["sentinel_flags"] = "sentinel_failed"
+    return summary
 
 
 @router.get("/triggers/config")

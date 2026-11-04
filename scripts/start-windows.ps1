@@ -1,4 +1,4 @@
-param([switch]$NoBuild, [switch]$LocalCopilot, [switch]$PublicEarth, [switch]$PublicIntake, [switch]$Proactive)
+param([switch]$NoBuild, [switch]$LocalCopilot, [switch]$PublicEarth, [switch]$PublicIntake, [switch]$Proactive, [switch]$ProactiveScheduler)
 $ErrorActionPreference = "Stop"
 . (Join-Path $PSScriptRoot "local-runtime-common.ps1")
 Invoke-AegisLocalOperation -Name "start-windows.ps1" -Action {
@@ -15,7 +15,9 @@ Invoke-AegisLocalOperation -Name "start-windows.ps1" -Action {
   # Opt-in quarantine-only public report intake (no contact details, never creates cases).
   if ($PublicIntake) { $startCommand += ' -f compose.public-intake.yaml' }
   # Opt-in proactive multi-hazard watch (exercise only; no send path). Requires AEGIS_CONNECTOR_KEY.
-  if ($Proactive) { $startCommand += ' -f compose.proactive.yaml' }
+  if ($Proactive -or $ProactiveScheduler) { $startCommand += ' -f compose.proactive.yaml' }
+  # Opt-in L3 scheduled watch loop (prepare and route only). Requires AEGIS_PROACTIVE_SCHEDULER_AGENCY_ID.
+  if ($ProactiveScheduler) { $startCommand += ' -f compose.proactive-scheduler.yaml' }
   $startCommand += ' up -d'
   if (-not $NoBuild) { $startCommand += ' --build' }
   cmd.exe /d /c "$startCommand 2>&1"

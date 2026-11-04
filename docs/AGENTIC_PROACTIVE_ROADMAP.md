@@ -34,6 +34,20 @@ issuing authority stay the same.
 | A9 | **Exercise generator and coach** | Build tabletop drills from historical known events (`research/real-data/catalogue`), replay them on a clock, score operator timeliness against the synthetic SLA. Clearly labelled exercise. | 5–6 d |
 | A10 | **Multilingual CAP drafts** | Telugu/Hindi CAP `info` blocks from approved templates; native-language reviewer sign-off recorded (`NATIVE_LANGUAGE_REVIEW.csv`). | 3–4 d |
 
+Status 4 November 2026: **A1 and A2 are implemented on `feat/agentic-proactive-l3`, pending
+runtime verification** on the Windows laptop (unit, golden, Node and typecheck gates pass;
+migration 014 not yet applied to the running stack; the opt-in PostGIS test was updated but not
+run). A1: in-process scheduler thread, default off (`compose.proactive-scheduler.yaml`,
+`start-windows.ps1 -ProactiveScheduler`), per-tick PostgreSQL advisory lock, `dedupe_key` unique
+index, kill-switch skip, draft-only runs that stop before `hand_to_human`, tick log and
+`GET /v1/proactive/scheduler`. A2: sentinel flags (`strengthened`, `weakened`, `contradicted`,
+`stale`) appended with citations after every refresh, never editing drafts. A1 deviates from the
+row above in one respect: the loop is serialised by a database advisory lock rather than the
+laptop's single-instance lease, because the lease is a host-side PowerShell guard that the API
+container cannot hold. See [PROACTIVE_ADMIN_RUNBOOK.md](PROACTIVE_ADMIN_RUNBOOK.md#7-scheduled-watch-loop-a1-autonomy-l3-prepare-and-route-never-act).
+A2 covers proactive runs only; re-validating open *proposals* stays with the existing proposal
+context revalidation and was not changed.
+
 ## 3. Cross-cutting work needed before any of A1–A10 ship
 
 Status 4 November 2026: the harness, kill switch and run agency scope are **implemented on

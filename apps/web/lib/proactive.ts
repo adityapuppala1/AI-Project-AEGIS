@@ -57,11 +57,27 @@ export interface Judgment {
   severity_band: Question & { score: number | null; confidence: number | null };
   citation_clean: Question; staleness_risk: Question;
 }
+export type SentinelFlagName = "strengthened" | "weakened" | "contradicted" | "stale";
+export const SENTINEL_FLAGS: readonly SentinelFlagName[] = ["strengthened", "weakened", "contradicted", "stale"];
+/** Evidence-change observation appended by the sentinel. It never edits the draft or CAP. */
+export interface SentinelFlag { flag: SentinelFlagName; evidence_ids: string[]; at: string | null; score: number | null; previous_score: number | null }
 export interface ProactiveRun {
   id: string; status: RunStatus; trigger_event_id: string; evidence_ids: string[]; variants: Variant[];
   judgment: Judgment | null; cap: { sha256: string; generated_at: string | null } | null;
   completed_steps: RunStep[]; next_step: RunStep | null;
+  /** "scheduler" when prepared by the scheduled watch loop; a human still takes the hand-off. */
+  origin?: "scheduler" | "operator"; sentinel_flags?: SentinelFlag[];
+  /** Area/hazard key ("heavy_rain:point") so a later trigger event can resume an open run. */
+  trigger_id?: string | null;
 }
+const TRIGGER_KEY = /^[a-z_]{2,40}:[A-Za-z0-9_.-]{1,60}$/;
+/** The open run to resume for a selected trigger: same event, or the same area/hazard key. */
+export function openRunFor(runs: ProactiveRun[], triggerEventId: string, triggerKey?: string | null): ProactiveRun | null {
+  return runs.find(run => run.status === "running" && (run.trigger_event_id === triggerEventId || (!!triggerKey && run.trigger_id === triggerKey))) ?? null;
+}
+export type TickOutcome = "completed" | "skipped_paused" | "skipped_locked" | "failed";
+export interface SchedulerTick { id: string; started_at: string | null; finished_at: string | null; outcome: TickOutcome; runs_started: number; flags_recorded: number; errors: string[] }
+export interface SchedulerStatus { enabled: boolean; running: boolean; reason: string | null; interval_seconds: number; next_tick_at: string | null; last_tick: SchedulerTick | null; ticks: SchedulerTick[] }
 
 // ---------- pure helpers ----------
 export const BAND_LABEL: Record<DecisionBand, string> = { recommended: "Recommended", needs_review: "Needs review", blocked: "Blocked" };
@@ -311,8 +327,15 @@ export function cleanRun(value: unknown): ProactiveRun {
   const cap = isObject(value.cap) && typeof value.cap.sha256 === "string" && /^[0-9a-f]{64}$/i.test(value.cap.sha256)
     ? { sha256: value.cap.sha256, generated_at: timestamp(value.cap.generated_at) } : null;
   const completed = Array.isArray(value.completed_steps) ? value.completed_steps.filter(isRunStep) : [];
+  const flags = Array.isArray(value.sentinel_flags) ? value.sentinel_flags.slice(-50).flatMap((item): SentinelFlag[] => {
+    if (!isObject(item) || !(SENTINEL_FLAGS as readonly unknown[]).includes(item.flag)) return [];
+    return [{ flag: item.flag as SentinelFlagName, evidence_ids: uuidList(item.evidence_ids, 20), at: timestamp(item.at),
+      score: finite(item.score), previous_score: finite(item.previous_score) }];
+  }) : [];
   return { id: value.id, status, trigger_event_id: value.trigger_event_id, evidence_ids: uuidList(value.evidence_ids), variants,
-    judgment: cleanJudgment(value.judgment), cap, completed_steps: completed, next_step: isRunStep(value.next_step) ? value.next_step : null };
+    judgment: cleanJudgment(value.judgment), cap, completed_steps: completed, next_step: isRunStep(value.next_step) ? value.next_step : null,
+    origin: value.origin === "scheduler" ? "scheduler" : "operator", sentinel_flags: flags,
+    trigger_id: typeof value.trigger_id === "string" && TRIGGER_KEY.test(value.trigger_id) ? value.trigger_id : null };
 }
 
 // ---------- connector status (admin page) ----------
@@ -343,4 +366,21 @@ export function cleanPause(value: unknown): PauseState {
 export function cleanRunList(value: unknown): { runs: ProactiveRun[] } {
   if (!isObject(value) || !Array.isArray(value.runs)) throw new Error("Invalid run list");
   return { runs: value.runs.slice(0, 50).flatMap(item => { try { return [cleanRun(item)]; } catch { return []; } }) };
+}
+const TICK_OUTCOMES: readonly TickOutcome[] = ["completed", "skipped_paused", "skipped_locked", "failed"];
+function cleanTick(item: unknown): SchedulerTick | null {
+  if (!isObject(item) || !isUuid(item.id) || !(TICK_OUTCOMES as readonly unknown[]).includes(item.outcome)) return null;
+  const count = (value: unknown) => Math.max(0, Math.round(finite(value) ?? 0));
+  return { id: item.id, started_at: timestamp(item.started_at), finished_at: timestamp(item.finished_at), outcome: item.outcome as TickOutcome,
+    runs_started: count(item.runs_started), flags_recorded: count(item.flags_recorded),
+    errors: Array.isArray(item.errors) ? item.errors.slice(0, 12).map(code => safeCategory(code, "error")) : [] };
+}
+/** Scheduler status for operators. Only fixed codes and counts survive; agency scope is never echoed. */
+export function cleanScheduler(value: unknown): SchedulerStatus {
+  if (!isObject(value) || typeof value.enabled !== "boolean") throw new Error("Invalid scheduler payload");
+  const ticks = Array.isArray(value.ticks) ? value.ticks.slice(0, 50).map(cleanTick).filter((t): t is SchedulerTick => t !== null) : [];
+  const interval = finite(value.interval_seconds);
+  return { enabled: value.enabled, running: value.running === true, reason: value.reason === null || value.reason === undefined ? null : safeCategory(value.reason, "unknown"),
+    interval_seconds: interval !== null && interval > 0 ? Math.round(interval) : 0, next_tick_at: timestamp(value.next_tick_at),
+    last_tick: cleanTick(value.last_tick), ticks };
 }

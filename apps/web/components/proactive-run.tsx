@@ -4,10 +4,12 @@ import { useCallback, useEffect, useState } from "react";
 import { Ban, Check, CheckCircle2, Copy, Download, FileText, Gavel, Loader2, Play, ShieldAlert, StepForward, UserCheck, type LucideIcon } from "lucide-react";
 import { useT } from "./language-provider";
 import { SampleChip } from "./watch-parts";
+import { StatusPill, type Tone } from "./ui";
+import { formatIst } from "../lib/earth-watch";
 import { SAMPLE_CAP_TEXT, sampleRunAt } from "../lib/proactive-sample";
 import {
-  BAND_LABEL, BAND_POLICY, BAND_STYLE, RUN_STEPS, barWidth, capFilename, pct, previewLines,
-  type DecisionBand, type ProactiveRun, type Question, type RunStep,
+  BAND_LABEL, BAND_POLICY, BAND_STYLE, RUN_STEPS, barWidth, capFilename, openRunFor, pct, previewLines,
+  type DecisionBand, type ProactiveRun, type Question, type RunStep, type SentinelFlagName,
 } from "../lib/proactive";
 
 const STEP_LABEL: Record<RunStep, string> = {
@@ -16,6 +18,8 @@ const STEP_LABEL: Record<RunStep, string> = {
 const STEP_CAPTION: Record<RunStep, string> = {
   gather_evidence: "Cited records for this trigger", simulate_variants: "Threshold what-ifs", judge: "Pick among fixed options", draft_cap: "Exercise CAP file", hand_to_human: "Stops at a person",
 };
+const FLAG_LABEL: Record<SentinelFlagName, string> = { strengthened: "Evidence strengthened", weakened: "Evidence weakened", contradicted: "Evidence contradicts trigger", stale: "Evidence stale" };
+const FLAG_TONE: Record<SentinelFlagName, Tone> = { strengthened: "warning", weakened: "info", contradicted: "danger", stale: "neutral" };
 const BAND_ICON: Record<DecisionBand, LucideIcon> = { recommended: CheckCircle2, needs_review: UserCheck, blocked: Ban };
 const humanise = (name: string) => name.replace(/_/g, " ");
 
@@ -62,7 +66,7 @@ function Stepper({ run, active, busy }: Readonly<{ run: ProactiveRun; active: bo
   </ol>;
 }
 
-export function ProactiveRunPanel({ triggerEventId, canOperate, disabledReason, onRun, sample = false }: Readonly<{ triggerEventId: string; canOperate: boolean; disabledReason: string; onRun?: (run: ProactiveRun | null) => void; sample?: boolean }>) {
+export function ProactiveRunPanel({ triggerEventId, triggerKey = null, canOperate, disabledReason, onRun, sample = false }: Readonly<{ triggerEventId: string; triggerKey?: string | null; canOperate: boolean; disabledReason: string; onRun?: (run: ProactiveRun | null) => void; sample?: boolean }>) {
   const t = useT();
   const [run, setRun] = useState<ProactiveRun | null>(null);
   const [busy, setBusy] = useState(false);
@@ -76,6 +80,18 @@ export function ProactiveRunPanel({ triggerEventId, canOperate, disabledReason, 
   useEffect(() => { setRun(null); setMessage(""); setCancelling(false); setRationale(""); setCapFull(null); setCopied(false); }, [triggerEventId, sample]);
 
   useEffect(() => { onRun?.(run); }, [run]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Resume an open run for this trigger (for example one prepared by the scheduler). Read-only lookup;
+  // a person still advances it. Nothing is started automatically.
+  useEffect(() => {
+    if (sample || !canOperate) return;
+    const controller = new AbortController();
+    fetch("/api/proactive/runs", { cache: "no-store", signal: controller.signal })
+      .then(response => response.ok ? response.json() as Promise<{ runs: ProactiveRun[] }> : Promise.reject(new Error("runs")))
+      .then(data => { const open = openRunFor(data.runs, triggerEventId, triggerKey); if (open) setRun(current => current ?? open); })
+      .catch(() => undefined);
+    return () => controller.abort();
+  }, [triggerEventId, triggerKey, sample, canOperate]);
 
   const post = useCallback(async (path: string, body: object): Promise<ProactiveRun | null> => {
     setBusy(true); setMessage("");
@@ -150,6 +166,17 @@ export function ProactiveRunPanel({ triggerEventId, canOperate, disabledReason, 
           {run.status === "review_ready" ? t("Stopped at a human. An accountable person must review the draft; AEGIS sends nothing.") : t("Exercise only. This run stops at a human and AEGIS sends nothing.")}</p>
         <Stepper run={run} active={active} busy={busy}/>
         <p className="text-xs text-muted" role="status" aria-live="polite">{t("Run status")}: <strong>{run.status === "running" ? t("running") : run.status === "review_ready" ? t("review ready") : t("cancelled")}</strong>{run.next_step ? ` · ${t("Next step")}: ${t(STEP_LABEL[run.next_step])}` : ""}</p>
+
+        {run.origin === "scheduler" && <p className="text-[11px] text-muted">{t("Prepared by the scheduler. Only a signed-in person can take the hand-off.")}</p>}
+        {(run.sentinel_flags?.length ?? 0) > 0 && <div className="space-y-2" role="group" aria-label={t("Evidence change flags")}>
+          <h4 className="text-xs font-bold">{t("Evidence change flags")}</h4>
+          <ul className="space-y-1">{[...(run.sentinel_flags ?? [])].reverse().slice(0, 10).map((flag, index) =>
+            <li key={`${flag.at ?? ""}-${index}`} className="flex flex-wrap items-center gap-2 text-[11px]">
+              <StatusPill tone={FLAG_TONE[flag.flag]}>{t(FLAG_LABEL[flag.flag])}</StatusPill>
+              <span className="text-muted">{formatIst(flag.at)} · {flag.evidence_ids.length} {t("cited records")}</span>
+            </li>)}</ul>
+          <p className="text-[11px] text-muted">{t("Flags compare newer evidence with this run. They never change the draft or CAP; review them before the hand-off.")}</p>
+        </div>}
 
         {run.variants.length > 0 && <div className="reveal-in overflow-x-auto">
           <table className="w-full text-left text-xs">
