@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { ClipboardList, CheckCircle2, Clock, Inbox } from "lucide-react";
 import { AppShell } from "../../components/app-shell";
 import { useT } from "../../components/language-provider";
+import { SignInRequired } from "../../components/sign-in-required";
+import { useOperatorSession } from "../../lib/use-operator-session";
 import { EmptyState, ErrorState, SkeletonRows, StatStrip, StatTile, StatusPill, type Tone } from "../../components/ui";
 const STATE_TONE: Record<string, Tone> = { prepared: "info", acknowledged: "warning", closed: "success" };
 interface TaskRow { proposal_id: string; incident_id: string; task: {
@@ -17,6 +19,8 @@ export default function DepartmentTasks() {
   const [message, setMessage] = useState("Loading verified department inbox…");
   const [busy, setBusy] = useState(true);
   const [notes, setNotes] = useState<Record<string, string>>({});
+  const session = useOperatorSession();
+  const signedOut = session !== null && !session.authenticated;
   async function refresh() {
     setBusy(true);
     setFailed(false);
@@ -32,7 +36,12 @@ export default function DepartmentTasks() {
     } catch (error) { setFailed(true); setMessage(error instanceof Error ? error.message : "Department inbox unavailable"); }
     finally { setBusy(false); }
   }
-  useEffect(() => { void refresh(); }, []);
+  // The inbox is operator-only: wait for the session instead of requesting it signed out (a logged 401).
+  useEffect(() => {
+    if (!session) return;
+    if (!session.authenticated) { setBusy(false); return; }
+    void refresh();
+  }, [session]); // eslint-disable-line react-hooks/exhaustive-deps
   async function advance(row: TaskRow) {
     setBusy(true);
     try {
@@ -46,10 +55,11 @@ export default function DepartmentTasks() {
     finally { setBusy(false); }
   }
   return <AppShell title="Department inbox" description="Your department’s approved synthetic rehearsal tasks. Acknowledgements never contact real responders.">
-    <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+    {signedOut && session && <SignInRequired session={session}/>}
+    {!signedOut && <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
       <p role="status" className="text-sm text-muted">{message}</p>
       <button className="control" disabled={busy} onClick={() => void refresh()}>Refresh inbox</button>
-    </div>
+    </div>}
     {rows.length > 0 && <StatStrip label={t("Department task summary")}>
       <StatTile label={t("Tasks")} value={rows.length} icon={ClipboardList} tone="info"/>
       <StatTile label={t("Prepared")} value={rows.filter(r => r.task.state === "prepared").length} icon={Inbox} tone="info"/>
@@ -58,7 +68,7 @@ export default function DepartmentTasks() {
     </StatStrip>}
     {busy && rows.length === 0 && !failed && <SkeletonRows rows={3}/>}
     {failed && <ErrorState message={message} onRetry={() => void refresh()}/>}
-    {!busy && !failed && rows.length === 0 && <EmptyState icon={Inbox} title={t("No approved tasks for your department")} body={t("An empty inbox does not mean no work exists. Tasks appear only after an independent checker approves a proposal.")}/>}
+    {!signedOut && !busy && !failed && rows.length === 0 && <EmptyState icon={Inbox} title={t("No approved tasks for your department")} body={t("An empty inbox does not mean no work exists. Tasks appear only after an independent checker approves a proposal.")}/>}
     {department && <p className="mb-4 text-sm font-semibold">Verified department: {department.replaceAll("_", " ")}</p>}
     <div className="grid gap-4 xl:grid-cols-2">{rows.map(row => <article key={`${row.proposal_id}:${row.task.id}`} className="rounded-xl border border-stroke bg-surface p-5">
       <h2 className="font-semibold">{row.task.summary}</h2>

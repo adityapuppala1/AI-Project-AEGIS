@@ -6,6 +6,7 @@ import { useT } from "./language-provider";
 import { StatusPill, type Tone } from "./ui";
 import { formatIst } from "../lib/earth-watch";
 import type { SchedulerStatus, TickOutcome } from "../lib/proactive";
+import { useOperatorSession } from "../lib/use-operator-session";
 
 const OUTCOME_LABEL: Record<TickOutcome, string> = {
   completed: "Tick completed", skipped_paused: "Skipped: paused", skipped_locked: "Skipped: another worker ran it", failed: "Tick failed",
@@ -17,15 +18,19 @@ export function ProactiveSchedulerStatus({ refreshToken = null }: Readonly<{ ref
   const t = useT();
   const [status, setStatus] = useState<SchedulerStatus | null>(null);
   const [failed, setFailed] = useState(false);
+  const session = useOperatorSession();
+  // The status route is operator-only; asking while signed out just logs a 401 on a public page.
+  const signedIn = session?.authenticated === true;
 
   useEffect(() => {
+    if (!signedIn) return;
     const controller = new AbortController();
     fetch("/api/proactive/scheduler", { cache: "no-store", signal: controller.signal })
       .then(response => response.ok ? response.json() as Promise<SchedulerStatus> : Promise.reject(new Error("scheduler")))
       .then(data => { setStatus(data); setFailed(false); })
       .catch(() => { if (!controller.signal.aborted) { setStatus(null); setFailed(true); } });
     return () => controller.abort();
-  }, [refreshToken]); // re-read after each manual refresh
+  }, [refreshToken, signedIn]); // re-read after each manual refresh and once the session is known
 
   if (failed) return null; // signed out, wrong role or service unavailable: the watch itself is unaffected
   if (!status) return null;

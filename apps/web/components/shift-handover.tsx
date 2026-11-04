@@ -6,6 +6,8 @@ import { AppShell } from "./app-shell";
 import { useT } from "./language-provider";
 import { EmptyState, ErrorState, Panel, SegmentedControl, SkeletonRows, StatusPill } from "./ui";
 import { handoverFileName, handoverMarkdown, type Handover } from "../lib/operator-assist";
+import { useOperatorSession } from "../lib/use-operator-session";
+import { SignInRequired } from "./sign-in-required";
 
 const WINDOWS = ["4", "8", "12", "24", "72"] as const;
 type Window = (typeof WINDOWS)[number];
@@ -31,6 +33,8 @@ export function ShiftHandover() {
   const [brief, setBrief] = useState<Handover | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const session = useOperatorSession();
+  const signedOut = session !== null && !session.authenticated;
 
   const load = useCallback((signal?: AbortSignal) => {
     setLoading(true); setError(null);
@@ -44,22 +48,28 @@ export function ShiftHandover() {
       .finally(() => { if (!signal?.aborted) setLoading(false); });
   }, [hours]);
 
-  useEffect(() => { const controller = new AbortController(); load(controller.signal); return () => controller.abort(); }, [load]);
+  // Wait for the session: the brief is operator-only, so a signed-out request would only log a 401.
+  useEffect(() => {
+    if (!session) return;
+    if (!session.authenticated) { setLoading(false); return; }
+    const controller = new AbortController(); load(controller.signal); return () => controller.abort();
+  }, [load, session]);
 
   const actions = <div className="flex flex-wrap items-center gap-2 print:hidden">
-    <button type="button" className="control" onClick={() => load()} disabled={loading}><RefreshCw size={16}/>{t("Refresh")}</button>
+    <button type="button" className="control" onClick={() => load()} disabled={loading || signedOut}><RefreshCw size={16}/>{t("Refresh")}</button>
     <button type="button" className="control" disabled={!brief} onClick={() => brief && save(handoverMarkdown(brief), handoverFileName(brief.generated_at, "md"), "text/markdown;charset=utf-8")}><FileDown size={16}/>{t("Download Markdown")}</button>
     <button type="button" className="control" disabled={!brief} onClick={() => brief && save(JSON.stringify(brief, null, 2), handoverFileName(brief.generated_at, "json"), "application/json")}><FileDown size={16}/>{t("Download JSON")}</button>
     <button type="button" className="control" disabled={!brief} onClick={() => window.print()}><Printer size={16}/>{t("Print")}</button>
   </div>;
 
-  return <AppShell title="Shift Handover" description="A cited, read-only brief of what changed for your agency since the last shift. Exercise only; it cannot act." actions={actions}>
-    <div className="mb-4 flex flex-wrap items-center gap-3 print:hidden">
+  return <AppShell title="Shift Handover" description="A cited, read-only brief of what changed for your agency since the last shift. Exercise only; it cannot act." actions={signedOut ? undefined : actions}>
+    {signedOut && session && <SignInRequired session={session}/>}
+    {!signedOut && <div className="mb-4 flex flex-wrap items-center gap-3 print:hidden">
       <SegmentedControl label={t("Handover window")} value={hours} onChange={value => setHours(value)}
         options={WINDOWS.map(value => ({ value, label: `${value} h` }))}/>
       <StatusPill tone="sample">{t("Synthetic exercise data")}</StatusPill>
       <StatusPill tone="info">{t("Read-only: nothing is sent or saved")}</StatusPill>
-    </div>
+    </div>}
     {loading && !brief && <SkeletonRows rows={6} label={t("Loading handover brief")}/>}
     {error && <ErrorState message={t(error)} onRetry={() => load()}/>}
     {brief && <div className="space-y-4">

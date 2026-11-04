@@ -23,15 +23,15 @@ export function IngestionStatusSummary() {
     return () => controller.abort();
   }, []);
   return <section className="panel mt-5 flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5" aria-label="DataFusion replay summary">
-    <div className="flex items-start gap-3">
+    <div className="flex min-w-0 items-start gap-3">
       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent"><GitMerge size={20}/></span>
-      <div><h2 className="text-sm font-bold">DataFusion Ingestion <span className="ml-1 font-normal text-muted">· Synthetic replay</span></h2>
+      <div className="min-w-0"><h2 className="text-sm font-bold">DataFusion Ingestion <span className="ml-1 font-normal text-muted">· Synthetic replay</span></h2>
         <p className="mt-1 text-xs text-muted">
           {failed ? "Ingestion status unavailable" :
           status ? `${status.accepted_events} accepted event IDs · ${status.quarantine_records} quarantined record fingerprints` :
           "Checking local exercise replay ledger..."}
         </p>
-        <p className="mt-1 flex items-center gap-1 text-[11px] text-muted"><ShieldCheck size={13}/> No live observation intake or operational actions
+        <p className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[11px] text-muted"><ShieldCheck size={13} className="shrink-0"/> No live observation intake or operational actions
           {status && <StatusPill tone={status.quarantine_records > 0 ? "warning" : "success"}>{status.quarantine_records > 0 ? t("Quarantine holds records") : t("Nothing quarantined")}</StatusPill>}
           {status && <DataFreshness observedAt={status.generated_at} staleAfterHours={1}/>}</p>
       </div>

@@ -6,6 +6,7 @@ import { AppShell } from "./app-shell";
 import { useT } from "./language-provider";
 import { EmptyState, ErrorState, Panel, SkeletonRows, StatusPill } from "./ui";
 import { useOperatorSession } from "../lib/use-operator-session";
+import { SignInRequired } from "./sign-in-required";
 import { DRILL_ACTIONS, cleanDrill, cleanReport, cleanScenarios, simClock, type Drill, type DrillAction, type DrillReport, type Scenario } from "../lib/learning";
 
 const ACTION_LABEL: Record<DrillAction, string> = {
@@ -88,8 +89,7 @@ export function ExerciseDrills() {
       <StatusPill tone="info">{t("Simulated clock: nothing follows wall time or is sent")}</StatusPill>
       <StatusPill tone="warning">{t("Synthetic SLA targets, not contractual SLAs")}</StatusPill>
     </div>
-    {session && !session.authenticated && <EmptyState title={t("Secure operator sign-in required")}
-      body={t("The local identity provider is off in this checkout. Signed-in drill flows are verified by unit tests only.")}/>}
+    {session && !session.authenticated && <SignInRequired session={session}/>}
     {loading && session?.authenticated !== false && <SkeletonRows rows={4} label={t("Loading drills")}/>}
     {error && <ErrorState message={t(error)} onRetry={() => void load()}/>}
     {session?.authenticated && !loading && !error && <div className="space-y-4">

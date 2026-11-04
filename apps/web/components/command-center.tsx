@@ -87,7 +87,7 @@ export function CommandCenter() {
         <div className="flex flex-wrap items-center justify-between gap-2 border-t border-stroke px-5 py-3 text-xs text-muted"><span>Map tiles require internet access. Incident data is synthetic.</span><span>Click a marker to inspect</span></div>
       </section>
       <section className="panel flex min-w-0 flex-col" aria-label="Incident queue">
-        <div className="panel-heading"><div><h2 className="text-base font-bold">{t("Incident Queue")}</h2><p className="mt-1 text-xs text-muted">Exercise cases from the operational database</p></div><Link href="/incidents" className="inline-flex items-center gap-1 text-xs font-semibold text-accent">All cases <ArrowRight size={14}/></Link></div>
+        <div className="panel-heading"><div><h2 className="text-base font-bold">{t("Incident Queue")}</h2><p className="mt-1 text-xs text-muted">Exercise cases from the operational database</p></div><Link href="/incidents" className="inline-flex min-h-9 items-center gap-1 text-xs font-semibold text-accent hover:underline">All cases <ArrowRight size={14} aria-hidden="true"/></Link></div>
         <div className="px-5 pt-4"><label className="sr-only" htmlFor="incident-search">Search incidents</label><input id="incident-search" className="field" placeholder="Search hazard or status..." value={query} onChange={event => setQuery(event.target.value)}/></div>
         <div className="max-h-[310px] flex-1 overflow-y-auto p-3">
           {loading ? <SkeletonRows rows={4} label={t("Loading exercise incidents...")}/> : filtered.length === 0 ? <EmptyState title={t("No matching incidents")} body={t("An empty queue does not mean the area is safe; clear the search or check source freshness.")}/> : filtered.map((item, index) =>

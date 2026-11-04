@@ -6,6 +6,7 @@ import { AppShell } from "./app-shell";
 import { useT } from "./language-provider";
 import { EmptyState, ErrorState, Panel, SkeletonRows, StatusPill } from "./ui";
 import { useOperatorSession } from "../lib/use-operator-session";
+import { SignInRequired } from "./sign-in-required";
 import {
   cleanConfig, cleanProposal, cleanScenarios, cleanWindow, pctLabel,
   type ConfigView, type LearningWindow, type Proposal, type Scenario,
@@ -81,8 +82,7 @@ export function PostEventLearning() {
       <StatusPill tone="info">{t("Rehearsal statistics, not forecasting accuracy")}</StatusPill>
       <StatusPill tone="warning">{t("Approval never changes the engine")}</StatusPill>
     </div>
-    {session && !session.authenticated && <EmptyState title={t("Secure operator sign-in required")}
-      body={t("The local identity provider is off in this checkout. Signed-in learning flows are verified by unit tests only.")}/>}
+    {session && !session.authenticated && <SignInRequired session={session}/>}
     {loading && session?.authenticated !== false && <SkeletonRows rows={5} label={t("Loading learning records")}/>}
     {error && <ErrorState message={t(error)} onRetry={() => void load()}/>}
     {session?.authenticated && !loading && !error && <div className="space-y-4">

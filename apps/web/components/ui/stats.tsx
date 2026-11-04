@@ -23,12 +23,13 @@ export function StatTile({ label, value, icon: Icon, tone = "info", meter, href,
   const percent = meter === undefined ? null : Math.round(clamp01(meter) * 100);
   const body = <>
     <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wide text-muted">{Icon && <Icon size={14} aria-hidden="true" />}{label}</div>
-    <div className="mt-2 text-2xl font-bold leading-none">{typeof value === "number" ? <CountUpNumber value={value} /> : value}</div>
+    {/* mt-auto pins the value to the tile bottom so numbers line up across a row when labels wrap unevenly. */}
+    <div className="mt-auto pt-2 text-2xl font-bold leading-none">{typeof value === "number" ? <CountUpNumber value={value} /> : value}</div>
     {hint && <div className="mt-1.5 text-xs text-muted">{hint}</div>}
     {percent !== null && <div role="meter" aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent} aria-valuetext={`${percent}%`} className="mt-3 h-1.5 rounded-full bg-elevated">
       <div className={`bar-grow h-1.5 rounded-full ${TONE_BAR_CLASS[tone]}`} style={{ width: `${percent}%` }} /></div>}
   </>;
-  const classes = `panel metric-card reveal-in block p-4 ${className}`;
+  const classes = `panel metric-card reveal-in flex flex-col p-4 ${className}`;
   const style = { "--i": index } as React.CSSProperties;
   return href
     ? <Link href={href} className={`${classes} hover:border-accent/40`} style={style} aria-label={typeof value === "number" || typeof value === "string" ? `${label}: ${value}. ${t("Open")}` : undefined}>{body}</Link>

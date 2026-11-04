@@ -171,12 +171,12 @@ export function AppShell({ children, title, description, actions, breadcrumbs }:
       </aside>
       <div className="min-w-0 flex-1">
         <div className="command-topbar sticky top-0 z-20 flex h-16 items-center justify-between border-b border-stroke bg-surface/90 px-4 backdrop-blur-xl sm:px-8">
-          <div className="flex items-center gap-3">
-            <button ref={openMenuRef} className="control h-10 w-10 !px-0 lg:hidden" aria-label="Open navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen(true)}><Menu size={19}/></button>
+          <div className="flex min-w-0 items-center gap-3">
+            <button ref={openMenuRef} className="control h-10 w-10 shrink-0 !px-0 lg:hidden" aria-label="Open navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen(true)}><Menu size={19}/></button>
             <p className="hidden text-xs font-semibold uppercase tracking-[.16em] text-muted sm:block">{section ? <><span>{t(section.group)}</span> <span aria-hidden="true">/</span> <span className="text-ink">{t(section.label)}</span></> : t("Public safety / Hyderabad")}</p>
-            <p className="text-xs font-semibold text-muted sm:hidden">{section ? t(section.label) : "AEGIS / Exercise"}</p>
+            <p className="hidden min-w-0 truncate text-xs font-semibold text-muted min-[400px]:block sm:hidden">{section ? t(section.label) : "AEGIS / Exercise"}</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
             <span className="hidden items-center gap-2 rounded-full border border-amber-400/25 bg-amber-400/10 px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300 sm:inline-flex">
               <span className="status-dot bg-amber-400"/> {t("Simulation mode")}
             </span>

@@ -18,6 +18,50 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## UI/UX audit of every page, with fixes — 4 November 2026 (Windows laptop)
+
+Scope: all 23 routes, phone and desktop widths, light and dark themes, signed out (the signed-in views were
+checked in the rehearsal entry below). Treated as an audit-and-fix of the existing design system
+(`docs/UI_DESIGN_SYSTEM.md`), not a redesign. Method: a same-origin popup sweep (the app sends anti-framing
+headers, so iframes cannot be used) measuring horizontal overflow, touch-target size, heading structure and
+accessible names; true 320px device emulation for the narrowest case; Lighthouse accessibility/best-practices
+on every page in light theme (and several in dark); screenshots reviewed by eye.
+
+**What the audit found and fixed:**
+- **Mobile overflow on 21 of 23 pages.** The top bar's right-hand cluster (language, search, theme, and an
+  "Operator sign in" button with a text label) did not fit a phone and had no shrink behaviour. Fixed: the
+  sign-in control is icon-only below `sm` (accessible name kept), tighter gaps on phones, and the section
+  title (which duplicates the page heading and had been squeezed to "S.") now hides below 400px.
+- **Two pages overflowed even at 320px:** the home page's DataFusion card (a non-wrapping row holding a long
+  status pill) and `/response-teams` (a grid with no explicit single column, plus a pill and a label with no
+  break opportunity between them). Both fixed and re-verified at a true 320px viewport.
+- **Console errors on public pages.** Hazard Watch, Shift Handover and the Department Inbox each requested
+  operator-only data while signed out, logging a 401 on every visit (Hazard Watch scored 96 on Best
+  Practices because of it). They now wait for the session and fetch only when signed in.
+- **Stale and misleading copy.** `/learning` and `/drills` said "The local identity provider is off in this
+  checkout" even though it was running. One shared `SignInRequired` component now says what to do next and
+  tells "sign-in is not set up" apart from "you are not signed in", with a sign-in link; it replaced the
+  inline copies and is also used by the Copilot, Handover and Department Inbox. Signed-out pages no longer
+  show a row of disabled action buttons above a message that already explains why.
+- **Touch targets.** Raised the incident-title links, Copilot example chips, "Review source freshness",
+  "All cases", "Data guidance" and the two demo sliders to at least 32px (WCAG 2.5.8 requires 24px).
+- **Identifiers truncated to uselessness.** Team names ("Fictional infras…" — every team starts with
+  "Fictional"), source names, and the trigger-age line now wrap instead of truncating.
+- **Uneven KPI tiles.** In two-column layouts the big numbers sat at different heights depending on label
+  length; tiles now pin the value to the bottom so numbers align across a row.
+
+**Result:** 0 of 46 page/width combinations with horizontal overflow, targets under 24px or a wrong heading
+count. Lighthouse Accessibility, Best Practices and SEO are 100 on every page audited in light theme on
+mobile (all 23 routes), and on the dark-theme pages checked earlier. Web tests 167 pass (160 plus 7 new
+source-level guards in `scripts/tests/signed-out-pages.test.cjs` covering the request guards, the shared
+prompt, the stale-copy rule and the top-bar fit); `npm run typecheck` clean.
+
+**Not covered / honest limits:** signed-in views were not re-audited for layout (only the rehearsal's
+functional pass); Telugu and Hindi rendering was not visually reviewed at narrow widths (strings are
+machine-written, five new ones were added to `NATIVE_LANGUAGE_REVIEW.csv`); real devices were not used, only
+Chrome device emulation; the popup sweep's narrowest width is 390px (320px was checked by emulation page by
+page, before the final batch of small changes, which the 390px sweep then covered).
+
 ## Full end-to-end signed-in rehearsal via real browser automation — 4 November 2026 (Windows laptop)
 
 With the IdP activated and the two bugs above fixed, closed the session's biggest remaining gap: every

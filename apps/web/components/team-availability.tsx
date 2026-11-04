@@ -102,18 +102,20 @@ export function TeamAvailability() {
       body={t("No team load can be shown. An empty board does not mean any team is free or staffed.")}/></div>}
     {board && teams.length > 0 && shown.length === 0 && <div className="panel"><EmptyState icon={UsersRound} title={t("No teams match this status")}
       body={t("Choose another status to see the other fictional teams.")}/></div>}
-    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-label="Fictional team load">
+    <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-label="Fictional team load">
       {shown.map((team, index) => {
         const Icon = ICONS[team.kind];
         const total = Math.max(1, team.prepared + team.acknowledged + team.closed);
-        return <article key={team.label} className="panel reveal-in p-5" style={{ "--i": index } as React.CSSProperties}>
+        return <article key={team.label} className="panel reveal-in min-w-0 p-5" style={{ "--i": index } as React.CSSProperties}>
           <div className="flex items-start gap-4">
             <Gauge team={team} animate={animate}/>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2"><span className="rounded-lg bg-accent/10 p-1.5 text-accent"><Icon size={16} aria-hidden="true"/></span>
-                <h2 className="truncate text-sm font-bold">{team.label}</h2></div>
-              <StatusPill className="mt-2" tone={STATUS_TONE[team.status]}>{t(STATUS[team.status].label)}</StatusPill>
-              {team.overdue > 0 && <span className="ml-2 inline-flex items-center gap-1 text-[11px] font-semibold text-rose-700 dark:text-rose-300"><AlertTriangle size={12}/>{team.overdue} past demo due</span>}
+                <h2 className="min-w-0 break-words text-sm font-bold leading-snug">{team.label}</h2></div>
+              <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1">
+                <StatusPill tone={STATUS_TONE[team.status]}>{t(STATUS[team.status].label)}</StatusPill>
+                {team.overdue > 0 && <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-700 dark:text-rose-300"><AlertTriangle size={12}/>{team.overdue} past demo due</span>}
+              </div>
             </div>
           </div>
           <div className="mt-4 flex h-2 overflow-hidden rounded-full bg-elevated" role="img"

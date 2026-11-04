@@ -59,11 +59,11 @@ export function RiskExercisePanel() {
     <div className="grid gap-5 p-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(230px,.8fr)]">
       <form onSubmit={calculate} className="space-y-5">
         <label className="block text-xs font-semibold">Fictional rainfall intensity · {rainfall} mm/hour
-          <input type="range" min={0} max={200} step={1} value={rainfall} className="mt-3 block w-full accent-teal-500"
+          <input type="range" min={0} max={200} step={1} value={rainfall} className="mt-3 block h-8 w-full cursor-pointer accent-teal-500"
             onChange={event => {setRainfall(Number(event.target.value));setResult(null);}}/>
         </label>
         <label className="block text-xs font-semibold">Synthetic water index · {water} / 100
-          <input type="range" min={0} max={100} step={1} value={water} className="mt-3 block w-full accent-teal-500"
+          <input type="range" min={0} max={100} step={1} value={water} className="mt-3 block h-8 w-full cursor-pointer accent-teal-500"
             onChange={event => {setWater(Number(event.target.value));setResult(null);}}/>
         </label>
         <label className="block text-xs font-semibold" htmlFor="synthetic-drainage">Fictional drainage condition

@@ -135,7 +135,7 @@ export function SpatialAnalysis({ incidentId }: { incidentId: string }) {
         </ol>
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-muted">
           <span>Computed {timeLabel(data.as_of)} · No validated risk model</span>
-          <Link href="/sources" className="inline-flex items-center gap-1 font-semibold text-accent">Review source freshness <ArrowRight size={14}/></Link>
+          <Link href="/sources" className="inline-flex min-h-9 items-center gap-1 font-semibold text-accent hover:underline">Review source freshness <ArrowRight size={14} aria-hidden="true"/></Link>
         </div>
       </div>
     </>}

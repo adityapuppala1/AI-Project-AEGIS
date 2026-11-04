@@ -201,7 +201,7 @@ export function QueueList({ items, selectedId, onSelect, now, filtered }: Readon
         <span className="flex items-center gap-3">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg" style={{ background: style.color + "22", color: style.color }}><Icon size={18} aria-hidden="true"/></span>
           <span className="min-w-0 flex-1"><strong className="block truncate text-sm">{t(style.label)} · {locationLabel(item)}</strong>
-            <span className="block truncate text-[11px] text-muted">{item.trigger_id} · <AgeText iso={item.fired_at} now={now}/></span></span>
+            <span className="block break-words text-[11px] text-muted">{item.trigger_id} · <AgeText iso={item.fired_at} now={now}/></span></span>
           <StateChip state={item.state}/>
         </span>
         {item.impact && <span className="mt-2 flex flex-wrap items-center gap-2 pl-12"><ImpactChip impact={item.impact}/><ExposureCounts impact={item.impact} compact/></span>}

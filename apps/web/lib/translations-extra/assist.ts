@@ -58,4 +58,10 @@ export const ENTRIES_ASSIST: readonly (readonly [string, string, string])[] = [
   ["Show pending approvals", "పెండింగ్ ఆమోదాలను చూపించు", "लंबित अनुमोदन दिखाएं"],
   ["What is the status of proactive runs?", "ముందస్తు రన్‌ల స్థితి ఏమిటి?", "सक्रिय रन की स्थिति क्या है?"],
   ["What changed since last shift handover?", "గత షిఫ్ట్ హ్యాండోవర్ నుండి ఏమి మారింది?", "पिछले शिफ्ट हैंडओवर के बाद से क्या बदला?"],
+  // Shared sign-in prompt (SignInRequired). Machine-written; pending native review like the rest of this file.
+  ["Sign in to continue", "కొనసాగడానికి సైన్ ఇన్ చేయండి", "जारी रखने के लिए साइन इन करें"],
+  ["This page shows records for your agency. Sign in with your operator account to see them.", "ఈ పేజీ మీ ఏజెన్సీ రికార్డులను చూపిస్తుంది. వాటిని చూడటానికి మీ ఆపరేటర్ ఖాతాతో సైన్ ఇన్ చేయండి.", "यह पेज आपकी एजेंसी के रिकॉर्ड दिखाता है। उन्हें देखने के लिए अपने ऑपरेटर खाते से साइन इन करें।"],
+  ["Operator sign-in is not set up", "ఆపరేటర్ సైన్-ఇన్ ఇంకా సెటప్ చేయలేదు", "ऑपरेटर साइन-इन अभी सेट नहीं है"],
+  ["Ask a platform administrator to set up the identity provider. Until then this page cannot show records.", "ఐడెంటిటీ ప్రొవైడర్‌ను సెటప్ చేయమని ప్లాట్‌ఫారమ్ అడ్మినిస్ట్రేటర్‌ను అడగండి. అప్పటివరకు ఈ పేజీ రికార్డులను చూపలేదు.", "प्लेटफ़ॉर्म एडमिनिस्ट्रेटर से आइडेंटिटी प्रदाता सेट करने को कहें। तब तक यह पेज रिकॉर्ड नहीं दिखा सकता।"],
+  ["Operator sign in", "ఆపరేటర్ సైన్-ఇన్", "ऑपरेटर साइन-इन"],
 ];

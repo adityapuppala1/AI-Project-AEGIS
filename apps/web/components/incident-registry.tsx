@@ -150,7 +150,8 @@ export function IncidentRegistry() {
   ];
   const sizeOptions = SIZES.map(size => ({ value: String(size), label: String(size) }));
   const coords = (item: Incident) => `${item.lat?.toFixed(4) ?? "—"}, ${item.lon?.toFixed(4) ?? "—"}`;
-  const linkClass = "rounded-xs text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent";
+  // inline-flex + min-h-9 gives the title link a thumb-sized target (WCAG 2.5.8 needs at least 24px).
+  const linkClass = "inline-flex min-h-9 items-center rounded-xs text-accent hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent";
 
   return <AppShell title="Incident Registry" description="Explore synthetic incident records with server-side searching, sorting, filters and pagination.">
     <StatStrip label={t("Registry summary")}>

@@ -176,7 +176,7 @@ export function SourceObservatory() {
         <div className="panel-heading">
           <div><h2 className="flex items-center gap-2 text-base font-bold"><RadioTower size={18} className="text-accent"/> Exercise Source Registry</h2>
             <p className="mt-1 text-xs text-muted">Select a simulated feed to review its latest readings.</p></div>
-          <Link href="/help" className="inline-flex items-center gap-1 text-xs font-semibold text-accent">Data guidance <ArrowRight size={14}/></Link>
+          <Link href="/help" className="inline-flex min-h-9 items-center gap-1 text-xs font-semibold text-accent hover:underline">Data guidance <ArrowRight size={14} aria-hidden="true"/></Link>
         </div>
         <div className="flex flex-wrap items-center gap-3 border-b border-stroke p-4">
           <SearchField label={t("Search synthetic sources")} value={query} onChange={setQuery} placeholder={t("Search sources or status...")} className="min-w-[190px] flex-1"/>
@@ -196,7 +196,7 @@ export function SourceObservatory() {
             aria-pressed={selectedId === source.id}
             className={`flex w-full flex-wrap items-center gap-3 p-4 text-left transition-colors hover:bg-elevated/60 sm:p-5 ${selectedId === source.id ? "bg-accent/5" : ""}`}>
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent"><Gauge size={20} aria-hidden="true"/></span>
-            <span className="min-w-0 flex-1"><strong className="block truncate text-sm">{source.name}</strong>
+            <span className="min-w-0 flex-1"><strong className="block break-words text-sm leading-snug">{source.name}</strong>
               <span className="mt-1 block text-xs text-muted">{KIND_LABELS[source.source_kind]}</span>
               <DataFreshness className="mt-1" observedAt={source.latest?.observed_at} ingestedAt={source.latest?.ingested_at ?? null} staleAfterHours={Math.max(1, (source.expected_interval_seconds * 3) / 3600)} stale={source.health.status === "stale"}/>
               <span aria-hidden="true" className="mt-2 block h-1.5 w-full max-w-[220px] rounded-full bg-elevated">
