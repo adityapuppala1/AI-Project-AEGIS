@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import {
   Activity, BookOpenCheck, ChevronRight, Command, LayoutDashboard,
-  ChevronDown, Menu, Moon, Settings2, ShieldCheck, Sun, X, ClipboardCheck, LifeBuoy, RadioTower, Workflow, BrainCircuit, Route, UsersRound, Archive, Globe2, Gauge, Inbox, Radar, Plug,
+  ChevronDown, Menu, Moon, Settings2, ShieldCheck, Sun, X, ClipboardCheck, LifeBuoy, RadioTower, Workflow, BrainCircuit, Route, UsersRound, Archive, Globe2, Gauge, Inbox, Radar, Plug, ClipboardList, MessagesSquare,
 } from "lucide-react";
 
 import { OperatorAuth } from "./operator-auth";
@@ -34,6 +34,8 @@ const navigation = [
     { href: "/department-tasks", label: "Department Inbox", icon: ClipboardCheck },
     { href: "/response-teams", label: "Team Availability", icon: Gauge },
     { href: "/agency-sync", label: "AgencySync Tasks", icon: UsersRound },
+    { href: "/handover", label: "Shift Handover", icon: ClipboardList },
+    { href: "/copilot", label: "Operator Copilot", icon: MessagesSquare },
   ]},
   { label: "Govern", items: [
     { href: "/audit", label: "Audit360 Export", icon: Archive },

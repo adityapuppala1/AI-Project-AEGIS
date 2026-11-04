@@ -64,6 +64,13 @@ secret sent in a header), thresholds in `feed_triggers.v1.json`. Owner actions: 
 obtain the Google waitlist key, choose real exposure extracts, review the synthetic impact
 thresholds. See [PROACTIVE_ADMIN_RUNBOOK.md](PROACTIVE_ADMIN_RUNBOOK.md#9-impact-based-triggers-and-the-exposure-layer-a3).
 
+Status 4 November 2026 (step 4): **A7 and A6 are implemented on `feat/agentic-proactive-l3`,
+pending runtime verification** (unit, Node and typecheck gates pass; the API container has not been
+restarted and `web` has not been rebuilt). A7: `GET /v1/exercise/handover` plus the `/handover` page
+([SHIFT_HANDOVER.md](SHIFT_HANDOVER.md)). A6: `POST /v1/copilot/ask` plus the `/copilot` page, with a
+fixed read-only tool registry and deterministic intents ([OPERATOR_COPILOT.md](OPERATOR_COPILOT.md)).
+Neither adds a migration or a write path.
+
 ## 3. Cross-cutting work needed before any of A1–A10 ship
 
 Status 4 November 2026: the harness, kill switch and run agency scope are **implemented on

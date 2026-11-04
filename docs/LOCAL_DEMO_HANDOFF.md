@@ -18,6 +18,29 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Proactive step 4 (A7 shift-handover brief, A6 read-only operator copilot) — 4 November 2026 (Windows laptop, uncommitted)
+
+Branch `feat/agentic-proactive-l3`, base `b100783`. Roadmap section 2, items A7 and A6.
+
+- **Completed (code + unit gates):**
+  - API: `app/handover.py` (`GET /v1/exercise/handover?hours=1-72`) and `app/operator_copilot.py`
+    (`POST /v1/copilot/ask`), both wired in `app/main.py`. Each is agency-scoped by the verified
+    token, read-only and template-only.
+  - The copilot uses 8 fixed intents (or abstains) and a 6-tool read-only registry. An optional
+    local-model rephrase is validated against the cited UUIDs.
+  - Web: BFF `lib/assist-proxy.ts` with routes `app/api/handover`, `app/api/copilot` (Origin-checked
+    POST) and `lib/operator-assist.ts`. Pages `/handover` and `/copilot` have nav entries and en/te/hi
+    labels (`lib/translations-extra/assist.ts`).
+  - Docs: `docs/SHIFT_HANDOVER.md`, `docs/OPERATOR_COPILOT.md` and AGENTS.md rules.
+  - No migration and no new Python or Node dependency.
+- **Executed (Windows laptop):** `services/api/.venv` `pytest -q` 707 passed / 25 skipped (42 new in
+  `tests/test_operator_copilot.py`). `python -m app.model_lab --check` PASS. `npm run typecheck` PASS.
+  `node --test scripts/tests/*.test.cjs` 144 passed (6 new in `operator-assist.test.cjs`). No Docker,
+  build, dev server or external host was used.
+- **Pending:** restart `api` and rebuild `web` under the operation lease, `npm run build`, and a
+  browser check of `/handover` and `/copilot` with a signed local operator. The handover approvals/SLA
+  sections and copilot incident tools have been exercised only with doubles, not against PostgreSQL.
+
 ## Proactive step 3 (A3 impact triggers, A4 GDACS + Google Flood Forecasting) — 4 November 2026 (Windows laptop, uncommitted)
 
 Branch `feat/agentic-proactive-l3`, base `e4d3c13`. Roadmap section 2, items A3 and A4.

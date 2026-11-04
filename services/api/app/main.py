@@ -80,6 +80,11 @@ from app import proactive_scheduler
 from app.proactive_scheduler import router as proactive_scheduler_router
 app.include_router(proactive_scheduler_router)
 proactive_scheduler.install(app)
+# A7 shift-handover brief and A6 read-only operator copilot (agency-scoped reads only, no write path).
+from app.handover import router as handover_router
+from app.operator_copilot import router as operator_copilot_router
+app.include_router(handover_router)
+app.include_router(operator_copilot_router)
 
 @app.get("/v1/exercise/incidents/query")
 def search_exercise_incidents(
