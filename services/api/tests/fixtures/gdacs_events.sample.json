@@ -1,0 +1,45 @@
+{
+  "_fixture_note": "Hand-authored offline fixture in the shape of the GDACS geteventlist GeoJSON response. Not a live capture; event ids, names and values are invented for tests.",
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {"type": "Point", "coordinates": [78.47, 17.40]},
+      "properties": {
+        "eventtype": "FL", "eventid": 1102001, "episodeid": 3, "alertlevel": "Orange", "alertscore": 2,
+        "name": "Flood in India (fixture)", "country": "India", "iso3": "IND",
+        "fromdate": "2026-11-01T00:00:00", "todate": "2026-11-03T00:00:00",
+        "url": {"report": "https://www.gdacs.org/report.aspx?eventid=1102001&eventtype=FL"}
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {"type": "Point", "coordinates": [80.95, 15.70]},
+      "properties": {
+        "eventtype": "TC", "eventid": 1001002, "episodeid": 7, "alertlevel": "Red", "alertscore": 3,
+        "name": "Cyclone FIXTURE-1", "country": "India", "fromdate": "2026-11-02T06:00:00", "todate": "2026-11-03T06:00:00"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {"type": "Point", "coordinates": [139.70, 35.60]},
+      "properties": {"eventtype": "EQ", "eventid": 1500003, "alertlevel": "Green", "name": "Outside India", "fromdate": "2026-11-02T00:00:00"}
+    },
+    {
+      "type": "Feature",
+      "geometry": {"type": "Point", "coordinates": [77.20, 28.60]},
+      "properties": {"eventtype": "XX", "eventid": 1, "alertlevel": "Red", "fromdate": "2026-11-02T00:00:00"}
+    },
+    {
+      "type": "Feature",
+      "geometry": {"type": "Point", "coordinates": ["78.4", 17.4]},
+      "properties": {"eventtype": "FL", "eventid": 2, "alertlevel": "Red", "fromdate": "2026-11-02T00:00:00"}
+    },
+    {
+      "type": "Feature",
+      "geometry": {"type": "Point", "coordinates": [78.40, 17.40]},
+      "properties": {"eventtype": "WF", "eventid": "12; DROP TABLE", "alertlevel": "Red", "fromdate": "2026-11-02T00:00:00"}
+    },
+    "not-a-feature"
+  ]
+}

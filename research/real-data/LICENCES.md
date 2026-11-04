@@ -21,6 +21,10 @@ The owner should confirm that the project stays non-commercial; several verdicts
 | 6 | USGS earthquake feeds | Earth Watch only (not flood data) | **PERMITTED-WITH-CONDITIONS** |
 | 7 | NASA EONET v3 and GIBS | Earth Watch only | **PERMITTED-WITH-CONDITIONS** |
 | 8 | OpenStreetMap standard tiles | Live map in the web app | **PERMITTED for live online viewing only; EXCLUDED for any offline or pre-cached use** |
+| 9 | GDACS event feed (proactive connector `gdacs`, A4) | Third-party multi-hazard event alerts for Hazard Watch | **TERMS TO CONFIRM BY OWNER** (connector default disabled) |
+| 10 | Google Flood Forecasting API (`google_flood_forecasting`, A4) | Gauge flood status near Hyderabad | **PERMITTED-WITH-CONDITIONS** (CC BY 4.0; waitlist key pending) |
+| 11 | OpenStreetMap data extract (exposure importer, A3) | Hospitals, schools, shelters, roads in `exposure_features` | **PERMITTED-WITH-CONDITIONS** (ODbL 1.0; user-supplied local extract) |
+| 12 | WorldPop population grid (exposure importer, A3) | Population cells in `exposure_features` | **PERMITTED-WITH-CONDITIONS** (CC BY 4.0; user-supplied local file) |
 
 Phase 1 pilot sources approved to start: **row 1 only.** Rows 2 and 3 need the owner to create accounts and keep
 credentials in their own environment; they are not started. Rows 4 and 5 stay excluded.
@@ -122,9 +126,45 @@ credentials in their own environment; they are not started. Rows 4 and 5 stay ex
   when tiles fail. For a venue without internet, do **not** pre-cache OSM tiles; use the list and marker fallback,
   or move to a self-hosted or offline-permitted tile source (separate decision and work).
 
+## 9. GDACS — Global Disaster Alert and Coordination System (www.gdacs.org)
+
+- Not fetched on this run (no external requests were made while implementing A4). Rows 9–12 were written from the
+  assistant's prior knowledge and must be re-checked by the owner against the pages below before enabling.
+- Inference: GDACS is a cooperation framework of the United Nations and the European Commission (Joint Research
+  Centre); the event list API (`/gdacsapi/api/events/geteventlist/SEARCH`, GeoJSON) is publicly reachable without a key.
+- **UNCLEAR:** reuse conditions. Terms of use page to read: https://www.gdacs.org/About/termofuse.aspx. Until the owner
+  confirms them in writing, the connector stays disabled. Attribution used in evidence payloads:
+  "GDACS (UN / European Commission JRC)".
+- Conditions in code: fixed host, JSON only, no redirects, India bounding box, alert level only; shown as a third-party
+  reference, not an AEGIS assessment or official warning.
+
+## 10. Google Flood Forecasting API (floodforecasting.googleapis.com)
+
+- Page to re-check: https://developers.google.com/flood-forecasting (not fetched on this run).
+- Inference: data published under **CC BY 4.0**; access needs waitlist approval and a Google Cloud API key; Google APIs
+  Terms of Service apply. Attribution used: "Google Flood Forecasting (CC BY 4.0)".
+- Conditions: owner applies for access; the key is stored only as an encrypted connector secret and sent in a request
+  header; model forecasts, not gauge observations; non-operational display only.
+
+## 11. OpenStreetMap data (ODbL 1.0) for the exposure importer
+
+- Licence: Open Database License 1.0, https://www.openstreetmap.org/copyright. Attribution "© OpenStreetMap
+  contributors". Each imported row stores licence `ODbL-1.0` and that attribution.
+- Conditions: the owner supplies a local extract (for example a Geofabrik or Overpass export made by the owner); the
+  assistant downloads nothing. Derived databases shared publicly would trigger ODbL share-alike; AEGIS keeps the table
+  local and does not redistribute it. Distinct from row 8 (tile servers).
+
+## 12. WorldPop population grids (CC BY 4.0) for the exposure importer
+
+- Licence: CC BY 4.0 (https://www.worldpop.org/). Attribution "WorldPop (www.worldpop.org), CC BY 4.0" stored per row;
+  cite the specific dataset DOI in any report.
+- Conditions: owner-supplied local file; GeoTIFF converted to XYZ on the owner's machine; counts are modelled estimates
+  and are used only as rehearsal exposure, never as casualty estimates.
+
 ## Open items for the owner
 
 1. Confirm the project stays non-commercial (rows 1, 3, 6, 7 depend on it).
 2. Decide whether to create Copernicus and Earthdata accounts (rows 2, 3); credentials stay in the local environment.
 3. Decide whether to ask IMD and India-WRIS for written terms (rows 4, 5); until then they are excluded.
 4. Decide the tile approach for an offline demo (row 8).
+5. Confirm GDACS terms (row 9), apply for the Google Flood Forecasting key (row 10) and choose the OSM extract and WorldPop dataset (rows 11, 12).

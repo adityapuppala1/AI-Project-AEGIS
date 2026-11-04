@@ -3,14 +3,14 @@
 import Link from "next/link";
 import { useEffect, useRef, useState, type KeyboardEvent, type RefObject } from "react";
 import {
-  AlertTriangle, CheckCircle2, Circle, Clock, Database, Droplets, Eye, FileSearch, Flame, FlaskConical, Mountain, Plug, RefreshCw, ShieldAlert,
+  AlertTriangle, Building2, CheckCircle2, Circle, Clock, Database, Droplets, Eye, FileSearch, Flame, FlaskConical, Mountain, Plug, RefreshCw, ShieldAlert, Users,
   Thermometer, Waves, Wind, Satellite, X, type LucideIcon,
 } from "lucide-react";
 import { useT } from "./language-provider";
 import { formatIst } from "../lib/earth-watch";
 import {
-  STATE_COLOR, ageParts, hazardStyle, isStale, thresholdMarks,
-  type EvidenceRecord, type HazardStyle, type ProactiveRun, type TriggerEvent, type TriggerState, type WatchPayload,
+  STATE_COLOR, ageParts, hazardStyle, impactLabel, isStale, thresholdMarks,
+  type EvidenceRecord, type HazardStyle, type ImpactSummary, type ProactiveRun, type TriggerEvent, type TriggerState, type WatchPayload,
 } from "../lib/proactive";
 
 export const ICONS: Record<HazardStyle["icon"], LucideIcon> = { waves: Waves, flame: Flame, mountain: Mountain, wind: Wind, thermometer: Thermometer, droplets: Droplets, satellite: Satellite, alert: AlertTriangle };
@@ -61,6 +61,48 @@ export function CountUp({ value }: Readonly<{ value: number }>) {
 export function StateChip({ state }: Readonly<{ state: TriggerState }>) {
   const t = useT(); const Icon = STATE_ICON[state];
   return <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase ring-1 ${STATE_CHIP[state]}`}><Icon size={12} aria-hidden="true"/>{t(state)}</span>;
+}
+
+// ---------- A3 impact (exposure inside the exercise footprint) ----------
+const IMPACT_CHIP = {
+  synthetic: "bg-amber-500/10 text-amber-800 ring-amber-500/40 dark:text-amber-200",
+  real: "bg-sky-500/10 text-sky-800 ring-sky-500/30 dark:text-sky-200",
+  none: "bg-slate-500/10 text-slate-700 ring-slate-500/30 dark:text-slate-300",
+};
+const formatCount = (value: number | null) => value === null ? "n/a" : value.toLocaleString("en-IN");
+
+/** Label chip: "impact-based (synthetic exposure)" or hazard-only. Synthetic exposure is always flagged. */
+export function ImpactChip({ impact }: Readonly<{ impact: ImpactSummary | null | undefined }>) {
+  const t = useT();
+  const evaluated = impact?.status === "evaluated";
+  const tone = !evaluated ? IMPACT_CHIP.none : impact?.data_basis === "synthetic" || impact?.data_basis === "mixed" ? IMPACT_CHIP.synthetic : IMPACT_CHIP.real;
+  return <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1 ${tone}`}>
+    {evaluated && impact?.data_basis !== "licensed" ? <FlaskConical size={11} aria-hidden="true"/> : <Building2 size={11} aria-hidden="true"/>}{t(impactLabel(impact))}</span>;
+}
+
+/** Compact exposure counts for queue cards and the run panel. */
+export function ExposureCounts({ impact, compact = false }: Readonly<{ impact: ImpactSummary | null | undefined; compact?: boolean }>) {
+  const t = useT();
+  if (!impact || impact.status !== "evaluated") return compact ? null : <p className="text-xs text-muted">{t("No exposure layer was evaluated; the state is the hazard state only.")}</p>;
+  return <span className={`inline-flex flex-wrap items-center gap-x-3 gap-y-1 ${compact ? "text-[11px]" : "text-xs"} text-muted`}>
+    <span className="inline-flex items-center gap-1"><Users size={12} aria-hidden="true"/><span className="tabular-nums font-semibold text-ink">{formatCount(impact.people_exposed)}</span> {t("people exposed")}</span>
+    <span className="inline-flex items-center gap-1"><Building2 size={12} aria-hidden="true"/><span className="tabular-nums font-semibold text-ink">{formatCount(impact.critical_facilities)}</span> {t("critical facilities")}</span>
+    {!compact && <span><span className="tabular-nums font-semibold text-ink">{formatCount(impact.road_segments)}</span> {t("road segments")}</span>}
+    {!compact && impact.footprint_radius_km !== null && <span>{t("within")} {impact.footprint_radius_km} km</span>}
+  </span>;
+}
+
+export function ImpactPanel({ impact }: Readonly<{ impact: ImpactSummary | null | undefined }>) {
+  const t = useT();
+  return <div><p className="flex flex-wrap items-center gap-2 font-bold">{t("Impact")} <ImpactChip impact={impact}/></p>
+    <div className="mt-1 space-y-1">
+      <ExposureCounts impact={impact}/>
+      {impact?.status === "evaluated" && <>
+        {impact.hazard_state && impact.state && impact.hazard_state !== impact.state && <p className="text-xs">{t("Hazard state")} <strong>{t(impact.hazard_state)}</strong> → {t("impact state")} <strong>{t(impact.state)}</strong></p>}
+        <p className="text-[11px] text-muted">{impact.exposure_feature_ids.length} {t("cited exposure features")} · {impact.config_version}</p>
+        <p className="text-[11px] text-muted">{t("Exposure counts are rehearsal inputs, not a damage, casualty or inundation estimate.")}</p>
+      </>}
+    </div></div>;
 }
 
 // ---------- loading ----------
@@ -162,6 +204,7 @@ export function QueueList({ items, selectedId, onSelect, now, filtered }: Readon
             <span className="block truncate text-[11px] text-muted">{item.trigger_id} · <AgeText iso={item.fired_at} now={now}/></span></span>
           <StateChip state={item.state}/>
         </span>
+        {item.impact && <span className="mt-2 flex flex-wrap items-center gap-2 pl-12"><ImpactChip impact={item.impact}/><ExposureCounts impact={item.impact} compact/></span>}
         <span className="mt-2 flex items-center gap-2 pl-12 text-[11px] text-muted">
           <span className="h-1.5 flex-1 rounded-full bg-elevated" aria-hidden="true"><span className="bar-grow block h-1.5 rounded-full" style={{ width: `${Math.round(item.score * 100)}%`, background: STATE_COLOR[item.state] }}/></span>
           <span>{t("score")} <span className="tabular-nums font-semibold text-ink">{item.score.toFixed(2)}</span></span>
@@ -313,6 +356,7 @@ export function TriggerDetail({ trigger, evidenceById, now, sample, run, heading
               {horizon !== null && horizon > 0 && <span>{t("horizon")} {horizon} {t("hr")}</span>}</p>
             <Gauge value={forecast} marks={marks} unit={forecastUnit}/>
           </div>}
+          <ImpactPanel impact={trigger.impact}/>
           <div><p className="font-bold">{t("Threshold")}</p>
             {trigger.threshold === null ? <p className="text-muted">{t("not supplied")}</p>
               : typeof trigger.threshold === "object" && !Array.isArray(trigger.threshold)

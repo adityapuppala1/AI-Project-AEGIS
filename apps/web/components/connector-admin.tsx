@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Activity, AlertTriangle, Ban, CheckCircle2, ChevronDown, CircleDashed, CircleHelp, Cloud, Eraser, ExternalLink, Eye, EyeOff, FileOutput, FlaskConical, Flame, Gavel, History, KeyRound,
-  Loader2, Lock, Mountain, Plug, Power, PowerOff, Satellite, Save, ShieldCheck, Sparkles, Undo2, X, XCircle, type LucideIcon,
+  Globe2, Loader2, Lock, Mountain, Plug, Power, PowerOff, Satellite, Save, ShieldCheck, Sparkles, Undo2, Waves, X, XCircle, type LucideIcon,
 } from "lucide-react";
 import { AppShell } from "./app-shell";
 import { ProactivePauseControl } from "./proactive-pause";
@@ -30,6 +30,8 @@ const META: Record<string, Meta> = {
   nasa_lhasa: { icon: Mountain, can: "Read NASA landslide susceptibility status.", cannot: "Predict that a landslide will happen.", where: "No key needed.", url: "https://gpm.nasa.gov/landslides/", urlLabel: "NASA LHASA" },
   copernicus_cdse: { icon: Satellite, can: "Request an access token for Sentinel-1 flood-extent reference.", cannot: "Download imagery or show flood extent here.", where: "Create a free Copernicus Data Space account, then an OAuth client.", url: "https://dataspace.copernicus.eu/", urlLabel: "Copernicus Data Space" },
   imd_warnings: { icon: Gavel, can: "Read official IMD warnings once the terms are confirmed.", cannot: "Run before the terms are accepted.", where: "No key. Confirm the IMD terms of use before ticking the box.", url: "https://mausam.imd.gov.in/", urlLabel: "IMD" },
+  gdacs: { icon: Globe2, can: "Read public GDACS disaster event alerts inside the India bounding box.", cannot: "Replace official warnings or reach other hosts.", where: "No key needed. Confirm the GDACS terms of use first.", url: "https://www.gdacs.org/", urlLabel: "GDACS" },
+  google_flood_forecasting: { icon: Waves, can: "Read Google flood gauge forecasts near the Hyderabad grid.", cannot: "Run before a platform admin saves an approved API key.", where: "An API key from the Google Flood Forecasting waitlist (approval pending).", url: "https://developers.google.com/flood-forecasting", urlLabel: "Google Flood Forecasting" },
   typesafe_jev: { icon: Sparkles, can: "Judge among fixed playbook options using cited evidence.", cannot: "Write proposals, approve or send anything.", where: "An API key from your TypeSafe account (paid)." },
   cap_handover: { icon: FileOutput, can: "Export an Exercise CAP file that a person downloads.", cannot: "Transmit the file anywhere.", where: "Nothing to enter." },
   authority_notification: { icon: Ban, can: "Show that hand-over is a human step.", cannot: "Ever be enabled. AEGIS sends no notifications.", where: "Nothing to enter." },

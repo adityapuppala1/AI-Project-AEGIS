@@ -26,6 +26,8 @@ services:
       - ./db/migrations/012_proactive.sql:/docker-entrypoint-initdb.d/016-proactive.sql:ro
       - ./db/migrations/013_proactive_run_agency.sql:/docker-entrypoint-initdb.d/017-proactive-run-agency.sql:ro
       - ./db/migrations/014_proactive_scheduler.sql:/docker-entrypoint-initdb.d/018-proactive-scheduler.sql:ro
+      - ./db/migrations/015_exposure.sql:/docker-entrypoint-initdb.d/019-exposure.sql:ro
+      - ./db/seed_exposure.sql:/docker-entrypoint-initdb.d/020-exposure-seed.sql:ro
       - ./db/seed.sql:/docker-entrypoint-initdb.d/010-seed.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U aegis -d aegis"]
@@ -54,10 +56,11 @@ services:
       - ./db/migrations/012_proactive.sql:/proactive.sql:ro
       - ./db/migrations/013_proactive_run_agency.sql:/proactive-run-agency.sql:ro
       - ./db/migrations/014_proactive_scheduler.sql:/proactive-scheduler.sql:ro
+      - ./db/migrations/015_exposure.sql:/exposure.sql:ro
     depends_on:
       db:
         condition: service_healthy
-    command: ["sh", "-c", "psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /schema.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /migration.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /identity-scopes.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /incident-search.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /incident-intelligence.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /source-health.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /ingestion.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /geospatial.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /agency-sync.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /source-comparison.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /public-intake.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /proactive.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /proactive-run-agency.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /proactive-scheduler.sql"]
+    command: ["sh", "-c", "psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /schema.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /migration.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /identity-scopes.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /incident-search.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /incident-intelligence.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /source-health.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /ingestion.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /geospatial.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /agency-sync.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /source-comparison.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /public-intake.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /proactive.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /proactive-run-agency.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /proactive-scheduler.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /exposure.sql"]
     restart: "no"
   seed:
     image: postgis/postgis:16-3.4
@@ -69,10 +72,11 @@ services:
       - ./db/seed_sources.sql:/seed-sources.sql:ro
       - ./db/seed_geospatial.sql:/seed-geospatial.sql:ro
       - ./db/seed_agency_sync.sql:/seed-agency-sync.sql:ro
+      - ./db/seed_exposure.sql:/seed-exposure.sql:ro
     depends_on:
       migrate:
         condition: service_completed_successfully
-    command: ["sh", "-c", "psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /seed.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /seed-intelligence.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /seed-sources.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /seed-geospatial.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /seed-agency-sync.sql"]
+    command: ["sh", "-c", "psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /seed.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /seed-intelligence.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /seed-sources.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /seed-geospatial.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /seed-agency-sync.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /seed-exposure.sql"]
     restart: "no"
   api:
     build: ./services/api

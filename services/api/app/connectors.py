@@ -28,6 +28,8 @@ INDIA_BBOX = "68,6,98,38"
 LHASA_URL = "https://maps.nccs.nasa.gov/server/rest/services/global_landslide_nowcast/nowcast_current/MapServer"
 CDSE_TOKEN_URL = "https://identity.dataspace.copernicus.eu/auth/realms/CDSE/protocol/openid-connect/token"
 IMD_URL = "https://mausam.imd.gov.in/"
+GDACS_TERMS_URL = "https://www.gdacs.org/About/termofuse.aspx"
+GDACS_EVENT_TYPES = "FL;TC;EQ;WF;DR;VO"
 
 
 def proactive_enabled() -> bool:
@@ -106,6 +108,21 @@ REGISTRY = {
         "licence": "IMD content terms must be reviewed and accepted by the owner before any request is made.",
         "hosts": ("mausam.imd.gov.in",), "fields": (),
         "settings": {"terms_accepted": (False, _bool), "base_url": (IMD_URL, _fixed(IMD_URL))},
+    },
+    "gdacs": {
+        "name": "GDACS global disaster alerts (event feed)", "category": "multi-hazard events",
+        "licence": ("GDACS public event feed (UN / European Commission JRC); attribution required. Terms of use to be "
+                    "confirmed by owner: " + GDACS_TERMS_URL + ". A GDACS alert is a third-party reference, not an AEGIS assessment."),
+        "hosts": ("www.gdacs.org",), "fields": (),
+        "settings": {"area": (INDIA_BBOX, _fixed(INDIA_BBOX)), "event_types": (GDACS_EVENT_TYPES, _fixed(GDACS_EVENT_TYPES)),
+                     "days": (3, _int_range(1, 7))},
+    },
+    "google_flood_forecasting": {
+        "name": "Google Flood Forecasting API (waitlist)", "category": "river flood forecasts",
+        "licence": ("Google Flood Forecasting data CC BY 4.0 (attribute Google Flood Forecasting). API access needs waitlist "
+                    "approval and an API key; Google API terms apply (https://developers.google.com/flood-forecasting)."),
+        "hosts": ("floodforecasting.googleapis.com",), "fields": (_field("api_key", "API key", True, True),),
+        "settings": {"region_code": ("IN", _fixed("IN")), "radius_km": (150, _fixed(150))},
     },
     "typesafe_jev": {
         "name": "Typesafe Jev decision judgments", "category": "decision judgments",
@@ -267,6 +284,25 @@ def _test_imd(settings):
     return _result(status == 200, status, "reachable" if status == 200 else "upstream_status")
 
 
+def _test_gdacs(settings):
+    from app.hazard_watch import gdacs_url
+    status, _ = bounded_request(gdacs_url({**settings, "days": 1}), REGISTRY["gdacs"]["hosts"],
+                                headers={"Accept": "application/json"}, truncate=True)
+    ok = status in (200, 204)
+    return _result(ok, status, "reachable" if ok else "upstream_status")
+
+
+def _test_google_flood(settings):
+    key = read_secret("google_flood_forecasting", "api_key")
+    if not key:
+        return _result(False, None, "secret_missing")
+    from app.hazard_watch import GOOGLE_FLOOD_URL
+    body = b'{"regionCode":"' + settings["region_code"].encode() + b'"}'
+    status, _ = bounded_request(GOOGLE_FLOOD_URL, REGISTRY["google_flood_forecasting"]["hosts"], method="POST", data=body,
+                                headers={"Content-Type": "application/json", "X-Goog-Api-Key": key}, truncate=True)
+    return _result(status == 200, status, "reachable" if status == 200 else "upstream_status")
+
+
 def _test_typesafe(settings):
     key = read_secret("typesafe_jev", "api_key")
     if not key:
@@ -286,7 +322,8 @@ def _test_authority(settings):
 
 
 TESTS = {"open_meteo": _test_open_meteo, "nasa_firms": _test_nasa_firms, "nasa_lhasa": _test_nasa_lhasa,
-         "copernicus_cdse": _test_copernicus, "imd_warnings": _test_imd, "typesafe_jev": _test_typesafe,
+         "copernicus_cdse": _test_copernicus, "imd_warnings": _test_imd, "gdacs": _test_gdacs,
+         "google_flood_forecasting": _test_google_flood, "typesafe_jev": _test_typesafe,
          "cap_handover": _test_cap, "authority_notification": _test_authority}
 
 

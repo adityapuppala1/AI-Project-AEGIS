@@ -2,7 +2,9 @@
 
 Evidence and trigger events are information only. They never create or enrich cases, proposals,
 tasks, approvals or warnings; a human links a candidate to a case. Thresholds are synthetic
-rehearsal values, not calibrated (app/fixtures/hazard_triggers.v1.json).
+rehearsal values, not calibrated (app/fixtures/hazard_triggers.v1.json, feed_triggers.v1.json).
+A3 impact rules (app/impact.py, impact_triggers.v2.json) then combine each hazard state with the
+exposure inside a fixed footprint; without exposure data the hazard state is kept (hazard-only).
 """
 import csv
 import hashlib
@@ -10,7 +12,8 @@ import importlib.util
 import io
 import json
 import math
-from datetime import datetime, timezone
+import re
+from datetime import datetime, timedelta, timezone
 from functools import lru_cache
 from pathlib import Path
 from statistics import median
@@ -19,10 +22,11 @@ from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-from app import connectors, proactive_store
+from app import connectors, impact, proactive_store
 from app.security import Operator, get_operator, require_role
 
 CONFIG_PATH = Path(__file__).parent / "fixtures" / "hazard_triggers.v1.json"
+FEED_CONFIG_PATH = Path(__file__).parent / "fixtures" / "feed_triggers.v1.json"
 FETCH_MAX_BYTES = 4_000_000
 MAX_EVIDENCE = 500
 STALE_SECONDS = 86400
@@ -63,6 +67,12 @@ OPEN_METEO_DAILY = {"precipitation_sum": ("heavy_rain", "mm"), "wind_gusts_10m_m
 @lru_cache(maxsize=1)
 def load_config() -> dict:
     return json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
+
+
+@lru_cache(maxsize=1)
+def load_feed_config() -> dict:
+    """Thresholds for third-party alert feeds (A4). A separate file so v1 stays unchanged."""
+    return json.loads(FEED_CONFIG_PATH.read_text(encoding="utf-8"))
 
 
 class AdapterError(RuntimeError):
@@ -220,8 +230,145 @@ def _not_implemented(settings: dict) -> list[dict]:
     raise AdapterError("not_implemented_in_demo")
 
 
+# --- A4 feeds: GDACS event list and Google Flood Forecasting (JSON only; no XML parsing) ---------
+
+GDACS_URL = "https://www.gdacs.org/gdacsapi/api/events/geteventlist/SEARCH"
+GOOGLE_FLOOD_URL = "https://floodforecasting.googleapis.com/v1/floodStatus:searchLatestFloodStatusByArea"
+GDACS_EVENT_TYPES = {"FL": "flood", "TC": "tropical_cyclone", "EQ": "earthquake", "WF": "wildfire", "DR": "drought",
+                     "VO": "volcano"}
+GDACS_ALERT = {"green": 1, "orange": 2, "red": 3}
+GOOGLE_SEVERITY = {"NO_FLOODING": 0, "ABOVE_NORMAL": 1, "SEVERE": 2, "EXTREME": 3}
+GOOGLE_TRENDS = {"RISE", "FALL", "NO_CHANGE", "TREND_UNSPECIFIED"}
+MAX_FEED_ITEMS = 500
+_SAFE_ID = re.compile(r"^[A-Za-z0-9_.-]{1,60}$")
+
+
+def _clean_text(value, limit=80) -> str:
+    """Printable, bounded display text from an upstream field; never interpreted."""
+    if not isinstance(value, str):
+        return ""
+    return "".join(c for c in value if c.isprintable())[:limit]
+
+
+def _timestamp(value):
+    if not isinstance(value, str) or not 10 <= len(value) <= 40:
+        return None
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc)
+
+
+def _in_bbox(lat, lon, bbox=connectors.INDIA_BBOX) -> bool:
+    west, south, east, north = (float(v) for v in bbox.split(","))
+    return west <= lon <= east and south <= lat <= north
+
+
+def _gdacs_row(feature):
+    if not isinstance(feature, dict):
+        return None
+    props, geometry = feature.get("properties"), feature.get("geometry")
+    if not isinstance(props, dict) or not isinstance(geometry, dict) or geometry.get("type") != "Point":
+        return None
+    coords = geometry.get("coordinates")
+    if not isinstance(coords, list) or len(coords) < 2 or not all(_finite(c) for c in coords[:2]):
+        return None
+    lon, lat = float(coords[0]), float(coords[1])
+    event_type, event_id = props.get("eventtype"), str(props.get("eventid", ""))
+    alert = str(props.get("alertlevel", "")).lower()
+    observed = _timestamp(props.get("todate")) or _timestamp(props.get("fromdate"))
+    if (event_type not in GDACS_EVENT_TYPES or not event_id.isdigit() or len(event_id) > 12 or alert not in GDACS_ALERT
+            or observed is None or not _in_bbox(lat, lon)):
+        return None
+    episode = str(props.get("episodeid", ""))
+    return _row("gdacs", "gdacs_alert", observed, lat, lon, GDACS_ALERT[alert], "gdacs_alert_level",
+                {"point_id": f"gdacs_{event_type}_{event_id}", "event_type": GDACS_EVENT_TYPES[event_type],
+                 "event_id": event_id, "episode_id": episode if episode.isdigit() and len(episode) <= 12 else None,
+                 "alert_level": alert, "name": _clean_text(props.get("name")),
+                 "country": _clean_text(props.get("country"), 60), "attribution": "GDACS (UN / European Commission JRC)"},
+                GDACS_URL)
+
+
+def parse_gdacs(data) -> list[dict]:
+    """GDACS geteventlist GeoJSON FeatureCollection. Malformed features are skipped; a malformed
+    collection raises invalid_response. Only events inside the India bounding box are kept."""
+    if not isinstance(data, dict) or not isinstance(data.get("features"), list):
+        raise AdapterError("invalid_response")
+    return [row for row in (_gdacs_row(f) for f in data["features"][:MAX_FEED_ITEMS]) if row is not None]
+
+
+def gdacs_url(settings: dict, now: datetime | None = None) -> str:
+    now = now or datetime.now(timezone.utc)
+    start = (now - timedelta(days=int(settings.get("days", 3)))).strftime("%Y-%m-%d")
+    return GDACS_URL + "?" + urlencode({"eventlist": settings.get("event_types", "FL;TC;EQ;WF;DR;VO"), "fromDate": start,
+                                        "toDate": now.strftime("%Y-%m-%d"), "alertlevel": "Green;Orange;Red"})
+
+
+def _json(body: bytes):
+    try:
+        return json.loads(body)
+    except ValueError:
+        raise AdapterError("invalid_response") from None
+
+
+def fetch_gdacs(settings: dict) -> list[dict]:
+    status, body = connectors.bounded_request(gdacs_url(settings), connectors.REGISTRY["gdacs"]["hosts"],
+                                              headers={"Accept": "application/json"}, max_bytes=FETCH_MAX_BYTES)
+    if status == 204:
+        return []  # GDACS answers 204 when no event matches the window
+    if status != 200:
+        raise AdapterError(f"upstream_status_{status}")
+    return parse_gdacs(_json(body))
+
+
+def _google_row(item, radius_km):
+    if not isinstance(item, dict):
+        return None
+    gauge, location, severity = item.get("gaugeId"), item.get("gaugeLocation"), item.get("severity")
+    if not isinstance(gauge, str) or not _SAFE_ID.match(gauge) or not isinstance(location, dict) or severity not in GOOGLE_SEVERITY:
+        return None
+    lat, lon = location.get("latitude"), location.get("longitude")
+    observed = _timestamp(item.get("issuedTime"))
+    if not (_finite(lat) and _finite(lon)) or observed is None or not (-90 <= lat <= 90 and -180 <= lon <= 180):
+        return None
+    if not any(_km(lat, lon, p["lat"], p["lon"]) <= radius_km for p in RAIN_POINTS):
+        return None
+    trend, source = item.get("forecastTrend"), item.get("source")
+    return _row("google_flood_forecasting", "flood_gauge", observed, lat, lon, GOOGLE_SEVERITY[severity],
+                "flood_status_severity",
+                {"point_id": gauge, "severity": severity, "quality_verified": item.get("qualityVerified") is True,
+                 "trend": trend if trend in GOOGLE_TRENDS else None,
+                 "source": source if isinstance(source, str) and _SAFE_ID.match(source) else None,
+                 "attribution": "Google Flood Forecasting (CC BY 4.0)"},
+                GOOGLE_FLOOD_URL)
+
+
+def parse_google_flood(data, radius_km: float = 150.0) -> list[dict]:
+    """searchLatestFloodStatusByArea response. Keeps gauges within radius_km of the pilot grid."""
+    if not isinstance(data, dict) or not isinstance(data.get("floodStatuses", []), list):
+        raise AdapterError("invalid_response")
+    items = data.get("floodStatuses", [])[:MAX_FEED_ITEMS]
+    return [row for row in (_google_row(i, radius_km) for i in items) if row is not None]
+
+
+def fetch_google_flood(settings: dict) -> list[dict]:
+    key = connectors.read_secret("google_flood_forecasting", "api_key")
+    if not key:
+        raise AdapterError("secret_missing")
+    # The key travels only in a request header (never the URL), so it cannot reach access logs or error codes.
+    body = json.dumps({"regionCode": settings.get("region_code", "IN")}).encode()
+    status, payload = connectors.bounded_request(GOOGLE_FLOOD_URL, connectors.REGISTRY["google_flood_forecasting"]["hosts"],
+                                                 method="POST", data=body, max_bytes=FETCH_MAX_BYTES,
+                                                 headers={"Content-Type": "application/json", "X-Goog-Api-Key": key})
+    if status != 200:
+        raise AdapterError(f"upstream_status_{status}")
+    return parse_google_flood(_json(payload), float(settings.get("radius_km", 150)))
+
+
 ADAPTERS = {"open_meteo": fetch_open_meteo, "nasa_firms": fetch_nasa_firms, "nasa_lhasa": fetch_nasa_lhasa,
-            "copernicus_cdse": _not_implemented, "imd_warnings": _not_implemented}
+            "copernicus_cdse": _not_implemented, "imd_warnings": _not_implemented, "gdacs": fetch_gdacs,
+            "google_flood_forecasting": fetch_google_flood}
 
 
 # --- trigger evaluation ------------------------------------------------------------------------
@@ -279,6 +426,11 @@ def evaluate(evidence: list[dict], config: dict | None = None, scale: float = 1.
     return triggers
 
 
+def evaluate_all(evidence: list[dict], scale: float = 1.0) -> list[dict]:
+    """v1 hazard thresholds plus the A4 feed thresholds; each trigger keeps its own config_version."""
+    return evaluate(evidence, scale=scale) + evaluate(evidence, load_feed_config(), scale=scale)
+
+
 # --- orchestration ------------------------------------------------------------------------------
 
 def _counts(triggers) -> dict:
@@ -330,7 +482,8 @@ def refresh_detailed() -> tuple[dict, list[dict]]:
     for row in collected:
         row["id"] = ids.get(row["sha256"], row["id"])
     now = datetime.now(timezone.utc)
-    triggers = [{**trigger, "id": str(uuid4()), "fired_at": now} for trigger in evaluate(collected)]
+    triggers = [{**trigger, "id": str(uuid4()), "fired_at": now} for trigger in evaluate_all(collected)]
+    impact.apply(triggers, store)  # A3: never raises; keeps hazard states when exposure is unavailable
     for trigger in triggers:
         store.insert_trigger(trigger)
     return {"fetched": fetched, "evidence_added": added, "triggers": _counts(triggers)}, triggers
@@ -354,12 +507,15 @@ def watch_view() -> dict:
     triggers = [{"id": t["id"], "trigger_id": t["trigger_id"], "hazard": t["hazard"], "state": t["state"],
                  "fired_at": _iso(t["fired_at"]), "lat": t["lat"], "lon": t["lon"], "score": t["score"],
                  "threshold": (t.get("rationale") or {}).get("threshold"), "evidence_ids": t["evidence_ids"],
-                 "rationale": t.get("rationale") or {}} for t in store.list_triggers()]
+                 "impact": (t.get("rationale") or {}).get("impact"),
+                 "rationale": {k: v for k, v in (t.get("rationale") or {}).items() if k != "impact"}}
+                for t in store.list_triggers()]
     try:
         paused = store.get_pause().get("paused") is True
     except Exception:
         paused = None  # switch unreadable (for example 013 not applied); writes fail closed separately
-    return {"generated_at": now.isoformat(), "config_version": config["version"], "disclaimer": DISCLAIMER,
+    return {"generated_at": now.isoformat(), "config_version": config["version"],
+            "impact_config_version": impact.load_config()["version"], "disclaimer": DISCLAIMER,
             "paused": paused, "evidence": evidence, "triggers": triggers}
 
 
@@ -410,3 +566,8 @@ def post_watch_refresh(operator: Operator = Depends(get_operator)):
 @router.get("/triggers/config")
 def get_trigger_config():
     return load_config()
+
+
+@router.get("/triggers/impact-config")
+def get_impact_config():
+    return {"impact": impact.load_config(), "feeds": load_feed_config()}

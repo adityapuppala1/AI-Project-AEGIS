@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Ban, Check, CheckCircle2, Copy, Download, FileText, Gavel, Loader2, Play, ShieldAlert, StepForward, UserCheck, type LucideIcon } from "lucide-react";
 import { useT } from "./language-provider";
-import { SampleChip } from "./watch-parts";
+import { ExposureCounts, ImpactChip, SampleChip } from "./watch-parts";
 import { StatusPill, type Tone } from "./ui";
 import { formatIst } from "../lib/earth-watch";
 import { SAMPLE_CAP_TEXT, sampleRunAt } from "../lib/proactive-sample";
@@ -167,6 +167,7 @@ export function ProactiveRunPanel({ triggerEventId, triggerKey = null, canOperat
         <Stepper run={run} active={active} busy={busy}/>
         <p className="text-xs text-muted" role="status" aria-live="polite">{t("Run status")}: <strong>{run.status === "running" ? t("running") : run.status === "review_ready" ? t("review ready") : t("cancelled")}</strong>{run.next_step ? ` · ${t("Next step")}: ${t(STEP_LABEL[run.next_step])}` : ""}</p>
 
+        {run.impact && <div className="flex flex-wrap items-center gap-2" role="group" aria-label={t("Impact")}><ImpactChip impact={run.impact}/><ExposureCounts impact={run.impact} compact/></div>}
         {run.origin === "scheduler" && <p className="text-[11px] text-muted">{t("Prepared by the scheduler. Only a signed-in person can take the hand-off.")}</p>}
         {(run.sentinel_flags?.length ?? 0) > 0 && <div className="space-y-2" role="group" aria-label={t("Evidence change flags")}>
           <h4 className="text-xs font-bold">{t("Evidence change flags")}</h4>

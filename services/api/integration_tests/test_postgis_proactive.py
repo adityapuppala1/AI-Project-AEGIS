@@ -10,7 +10,7 @@ import pytest
 from app import proactive_store
 
 pytestmark = pytest.mark.skipif(not os.getenv('AEGIS_TEST_DATABASE_URL'), reason='Opt-in local PostGIS required')
-MIGRATIONS = ('012_proactive.sql', '013_proactive_run_agency.sql', '014_proactive_scheduler.sql')
+MIGRATIONS = ('012_proactive.sql', '013_proactive_run_agency.sql', '014_proactive_scheduler.sql', '015_exposure.sql')
 
 
 def migration_sql(name: str) -> str:
@@ -133,3 +133,43 @@ def test_scheduler_dedupe_ticks_and_advisory_lock(database):
     with psycopg.connect(url) as conn, pytest.raises(psycopg.errors.CheckViolation):
         conn.execute("""INSERT INTO proactive_scheduler_ticks (id, agency_id, started_at, outcome, errors)
                         VALUES (%s, %s, now(), 'completed', ARRAY['Traceback: boom'])""", (str(uuid4()), str(agency)))
+
+
+def seed_sql(name: str) -> str:
+    candidates = [Path('/db') / name, *(parent / 'db' / name for parent in Path(__file__).resolve().parents)]
+    for path in candidates:
+        if path.is_file():
+            return path.read_text()
+    raise FileNotFoundError(name)
+
+
+def test_exposure_layer_seed_is_idempotent_and_spatially_queried(database):
+    """015 + synthetic seed: idempotent, ST_DWithin footprint counts, licence/attribution constraints."""
+    url, marker = database
+    with psycopg.connect(url, autocommit=True) as conn:
+        for _ in range(2):
+            conn.execute(seed_sql('seed_exposure.sql'))
+        count = conn.execute("SELECT COUNT(*) FROM exposure_features WHERE import_batch='synthetic-seed-v1'").fetchone()[0]
+        assert count == 13
+        assert conn.execute("SELECT bool_and(synthetic) FROM exposure_features WHERE import_batch='synthetic-seed-v1'").fetchone()[0]
+        with pytest.raises(psycopg.errors.CheckViolation):  # real rows must carry attribution
+            conn.execute("""INSERT INTO exposure_features (id, kind, geom, source, licence, synthetic, provenance_sha256, import_batch)
+                            VALUES (%s,'school',ST_SetSRID(ST_MakePoint(78.4,17.4),4326),'osm','ODbL-1.0',false,%s,'it')""",
+                         (str(uuid4()), 'a' * 64))
+        with pytest.raises(psycopg.errors.CheckViolation):
+            conn.execute("""INSERT INTO exposure_features (id, kind, geom, source, licence, synthetic, provenance_sha256, import_batch)
+                            VALUES (%s,'stadium',ST_SetSRID(ST_MakePoint(78.4,17.4),4326),'x','x',true,%s,'it')""",
+                         (str(uuid4()), 'b' * 64))
+    store = proactive_store.PgStore()
+    assert store.exposure_layer_count() >= 13
+    near = store.exposure_within(17.40, 78.47, 5)
+    kinds = {row['kind'] for row in near}
+    assert {'hospital', 'school', 'shelter', 'road_segment', 'population_cell'} <= kinds
+    assert store.exposure_within(17.50, 78.35, 5) == []
+    from app import impact
+    summary = impact.summarize(near, 5)
+    assert summary['data_basis'] == 'synthetic' and summary['people_exposed'] >= 35000
+    with psycopg.connect(url) as conn:
+        plan = '\n'.join(r[0] for r in conn.execute(
+            "EXPLAIN SELECT id FROM exposure_features WHERE ST_DWithin(geom::geography, ST_SetSRID(ST_MakePoint(78.47,17.40),4326)::geography, 5000)").fetchall())
+    assert 'exposure_features' in plan

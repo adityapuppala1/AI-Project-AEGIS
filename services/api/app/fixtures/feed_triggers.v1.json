@@ -1,0 +1,18 @@
+{
+  "version": "aegis.feed-triggers.v1",
+  "classification": "synthetic_exercise",
+  "note": "Synthetic rehearsal mapping of third-party alert levels to watch/candidate, not calibrated. A GDACS alert or Google flood status is a third-party reference, not an AEGIS assessment, official warning or accuracy claim.",
+  "states": ["clear", "watch", "candidate"],
+  "hazards": {
+    "gdacs_alert": {
+      "label": "GDACS event", "connector": "gdacs", "variable": "gdacs_alert_level",
+      "unit": "alert level (1 green, 2 orange, 3 red)", "comparison": "value", "watch": 2, "candidate": 3,
+      "rationale": "GDACS automatic alert level for an event inside the India bounding box; orange is a watch, red a candidate."
+    },
+    "flood_gauge": {
+      "label": "Flood gauge forecast", "connector": "google_flood_forecasting", "variable": "flood_status_severity",
+      "unit": "severity (0 no flooding, 1 above normal, 2 severe, 3 extreme)", "comparison": "value", "watch": 1, "candidate": 2,
+      "rationale": "Google Flood Forecasting latest gauge status near the Hyderabad pilot grid; model forecast, not a gauge observation."
+    }
+  }
+}

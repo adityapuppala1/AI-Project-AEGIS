@@ -219,3 +219,42 @@ def test_sentinel_golden(store, case, old, new, hours, flag):
     if result:
         assert result[1], case  # every flag cites evidence ids
         assert result[0] in proactive_sentinel.FLAGS
+
+
+# --- A3 impact-based golden cases (impact_triggers.v2.json; synthetic exposure only) ------------------
+
+from app import impact  # noqa: E402
+
+IMPACT = impact.load_config()
+
+
+def _exposure(kind, count=1, synthetic=True):
+    return {'id': str(uuid4()), 'kind': kind, 'lat': P0['lat'], 'lon': P0['lon'], 'count': count, 'weight': 1.0,
+            'synthetic': synthetic, 'source': 'golden', 'licence': 'synthetic' if synthetic else 'ODbL-1.0'}
+
+
+IMPACT_CASES = [
+    # (name, hazard, value, exposure, expected impact state, expected basis)
+    ('rain_candidate_dense', 'heavy_rain', level('heavy_rain', 'candidate'),
+     [('population_cell', IMPACT['hazards']['heavy_rain']['candidate']['any_of']['people_exposed'])], 'candidate', 'synthetic'),
+    ('rain_candidate_sparse', 'heavy_rain', level('heavy_rain', 'candidate'),
+     [('population_cell', IMPACT['hazards']['heavy_rain']['watch']['any_of']['people_exposed'])], 'watch', 'synthetic'),
+    ('rain_candidate_one_school', 'heavy_rain', level('heavy_rain', 'candidate'), [('school', 1)], 'watch', 'synthetic'),
+    ('rain_watch_hospital', 'heavy_rain', level('heavy_rain', 'watch'), [('hospital', 1)], 'watch', 'synthetic'),
+    ('rain_below_watch_dense', 'heavy_rain', level('heavy_rain', 'watch') - 0.1, [('population_cell', 10**6)], 'clear', 'synthetic'),
+    ('heat_watch_roads_only', 'heat', level('heat', 'watch'), [('road_segment', 1)], 'clear', 'synthetic'),
+    ('landslide_watch_road', 'landslide', level('landslide', 'watch'), [('road_segment', 1)], 'watch', 'synthetic'),
+    ('wind_candidate_licensed', 'wind', level('wind', 'candidate'), [('population_cell', 60000, False)], 'candidate', 'licensed'),
+]
+
+
+@pytest.mark.parametrize('name,hazard,value,exposure,expected,basis', IMPACT_CASES, ids=[c[0] for c in IMPACT_CASES])
+def test_golden_impact_cases(store, name, hazard, value, exposure, expected, basis):
+    store.add_exposure([_exposure(*item) for item in exposure])
+    [trigger] = [t for t in hazard_watch.evaluate_all([ev(hazard, value)]) if t['hazard'] == hazard]
+    impact.apply([trigger], store)
+    block = trigger['rationale']['impact']
+    assert trigger['state'] == expected, name
+    assert block['status'] == 'evaluated' and block['data_basis'] == basis
+    assert block['label'] == impact.LABELS[basis] and len(block['exposure_feature_ids']) == len(exposure)
+    assert block['config_version'] == 'aegis.impact-triggers.v2'

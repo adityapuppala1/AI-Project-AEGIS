@@ -1,0 +1,52 @@
+{
+  "version": "aegis.impact-triggers.v2",
+  "classification": "synthetic_exercise",
+  "hazard_config_versions": ["aegis.hazard-triggers.v1", "aegis.feed-triggers.v1"],
+  "note": "Synthetic rehearsal impact thresholds, not calibrated. Impact state combines the hazard state with exposure counted inside a fixed circular exercise footprint; it is not a damage, casualty or inundation estimate, a forecast or a warning.",
+  "states": ["clear", "watch", "candidate"],
+  "critical_kinds": ["hospital", "school", "shelter"],
+  "exposure_kinds": ["hospital", "school", "shelter", "road_segment", "population_cell"],
+  "rule_semantics": "For candidate, then watch: the hazard state must be at least min_hazard_state AND at least one any_of measure must be >= its value. Otherwise clear. When the exposure layer is empty or unreadable the hazard state is kept and the trigger is labelled hazard-only.",
+  "hazards": {
+    "heavy_rain": {
+      "footprint_radius_km": 5,
+      "watch": {"min_hazard_state": "watch", "any_of": {"people_exposed": 5000, "critical_facilities": 1}},
+      "candidate": {"min_hazard_state": "candidate", "any_of": {"people_exposed": 20000, "critical_facilities": 3}}
+    },
+    "river_discharge": {
+      "footprint_radius_km": 4,
+      "watch": {"min_hazard_state": "watch", "any_of": {"people_exposed": 2000, "critical_facilities": 1}},
+      "candidate": {"min_hazard_state": "candidate", "any_of": {"people_exposed": 10000, "critical_facilities": 2}}
+    },
+    "fire": {
+      "footprint_radius_km": 10,
+      "watch": {"min_hazard_state": "watch", "any_of": {"people_exposed": 1000, "critical_facilities": 1}},
+      "candidate": {"min_hazard_state": "candidate", "any_of": {"people_exposed": 5000, "critical_facilities": 2}}
+    },
+    "landslide": {
+      "footprint_radius_km": 2,
+      "watch": {"min_hazard_state": "watch", "any_of": {"people_exposed": 500, "critical_facilities": 1, "road_segments": 1}},
+      "candidate": {"min_hazard_state": "candidate", "any_of": {"people_exposed": 2000, "critical_facilities": 1}}
+    },
+    "wind": {
+      "footprint_radius_km": 10,
+      "watch": {"min_hazard_state": "watch", "any_of": {"people_exposed": 10000, "critical_facilities": 2}},
+      "candidate": {"min_hazard_state": "candidate", "any_of": {"people_exposed": 50000, "critical_facilities": 5}}
+    },
+    "heat": {
+      "footprint_radius_km": 10,
+      "watch": {"min_hazard_state": "watch", "any_of": {"people_exposed": 20000}},
+      "candidate": {"min_hazard_state": "candidate", "any_of": {"people_exposed": 100000, "critical_facilities": 5}}
+    },
+    "gdacs_alert": {
+      "footprint_radius_km": 25,
+      "watch": {"min_hazard_state": "watch", "any_of": {"people_exposed": 10000, "critical_facilities": 1}},
+      "candidate": {"min_hazard_state": "candidate", "any_of": {"people_exposed": 50000, "critical_facilities": 3}}
+    },
+    "flood_gauge": {
+      "footprint_radius_km": 8,
+      "watch": {"min_hazard_state": "watch", "any_of": {"people_exposed": 5000, "critical_facilities": 1}},
+      "candidate": {"min_hazard_state": "candidate", "any_of": {"people_exposed": 20000, "critical_facilities": 2}}
+    }
+  }
+}

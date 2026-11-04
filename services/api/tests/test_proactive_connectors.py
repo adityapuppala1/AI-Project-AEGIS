@@ -57,7 +57,8 @@ def test_missing_or_malformed_key_fails_closed(monkeypatch, value):
 
 def test_registry_invariants():
     assert set(connectors.REGISTRY) == {'open_meteo', 'nasa_firms', 'nasa_lhasa', 'copernicus_cdse', 'imd_warnings',
-                                        'typesafe_jev', 'cap_handover', 'authority_notification'}
+                                        'gdacs', 'google_flood_forecasting', 'typesafe_jev', 'cap_handover',
+                                        'authority_notification'}
     assert set(connectors.TESTS) == set(connectors.REGISTRY)
     assert 'platform_admin' in ALLOWED_ROLES
     for spec in connectors.REGISTRY.values():
@@ -199,6 +200,14 @@ def test_compose_and_start_script_wiring():
     assert '014_proactive_scheduler.sql:/docker-entrypoint-initdb.d/018-proactive-scheduler.sql' in base
     assert '014_proactive_scheduler.sql:/proactive-scheduler.sql' in base
     assert '-f /proactive-run-agency.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /proactive-scheduler.sql' in base
+    # 015 exposure layer (A3): initdb after 014, migrate chain after 014, synthetic seed after the migration.
+    assert '015_exposure.sql:/docker-entrypoint-initdb.d/019-exposure.sql' in base
+    assert 'seed_exposure.sql:/docker-entrypoint-initdb.d/020-exposure-seed.sql' in base
+    assert '015_exposure.sql:/exposure.sql' in base
+    assert '-f /proactive-scheduler.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /exposure.sql' in base
+    assert 'seed_exposure.sql:/seed-exposure.sql' in base and '-f /seed-exposure.sql' in base
+    seed = (root / 'db/seed_exposure.sql').read_text()
+    assert seed.count("'population_cell'") >= 1 and 'synthetic' in seed and 'ON CONFLICT (id) DO NOTHING' in seed
     scheduler = (root / 'compose.proactive-scheduler.yaml').read_text()
     assert 'AEGIS_PROACTIVE_SCHEDULER: "1"' in scheduler and '${AEGIS_PROACTIVE_SCHEDULER_AGENCY_ID:?' in scheduler
     assert 'AEGIS_PROACTIVE_SCHEDULER' not in base and 'AEGIS_PROACTIVE_SCHEDULER' not in (root / 'compose.proactive.yaml').read_text()

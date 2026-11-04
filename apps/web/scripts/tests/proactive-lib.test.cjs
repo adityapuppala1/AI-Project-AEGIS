@@ -93,3 +93,33 @@ test('dayBuckets and cleanHistory', () => {
   const buckets = lib.dayBuckets(rows.rows, 7, Date.parse('2026-01-10T12:00:00Z'));
   assert.equal(buckets.length, 7); assert.equal(buckets[6].watch, 2);
 });
+
+test('A3 impact block is cleaned defensively and labelled synthetic vs licensed', () => {
+  const good = { status: 'evaluated', config_version: 'aegis.impact-triggers.v2', state: 'candidate', hazard_state: 'candidate',
+    data_basis: 'synthetic', people_exposed: 35000, critical_facilities: 4, road_segments: 1, footprint_radius_km: 5,
+    exposure_feature_ids: [A, 'not-a-uuid', B] };
+  const clean = lib.cleanImpact(good);
+  assert.equal(clean.people_exposed, 35000);
+  assert.deepEqual(clean.exposure_feature_ids, [A, B]);
+  assert.equal(lib.impactLabel(clean), 'impact-based (synthetic exposure)');
+  assert.equal(lib.impactLabel({ ...clean, data_basis: 'licensed' }), 'impact-based (licensed exposure)');
+  assert.equal(lib.impactLabel(lib.cleanImpact({ status: 'exposure_layer_empty' })), 'hazard-only (no exposure layer)');
+  assert.equal(lib.impactLabel(null), 'hazard-only (no exposure layer)');
+  assert.equal(lib.cleanImpact({ status: 'approved' }), null);
+  assert.equal(lib.cleanImpact('x'), null);
+  const hostile = lib.cleanImpact({ ...good, people_exposed: -1, critical_facilities: 1.5, data_basis: '<b>', config_version: '<script>', footprint_radius_km: 1e9 });
+  assert.equal(hostile.people_exposed, null); assert.equal(hostile.critical_facilities, null);
+  assert.equal(hostile.data_basis, null); assert.equal(hostile.config_version, 'unknown'); assert.equal(hostile.footprint_radius_km, null);
+});
+
+test('watch and run payloads carry the cleaned impact block; new connectors are known', () => {
+  const impact = { status: 'evaluated', config_version: 'aegis.impact-triggers.v2', data_basis: 'synthetic', people_exposed: 7, critical_facilities: 0, road_segments: 0, exposure_feature_ids: [A] };
+  const watch = lib.cleanWatch({ evidence: [], triggers: [{ id: A, trigger_id: 'heavy_rain:hyd', hazard: 'heavy_rain', state: 'watch', lat: 17.4, lon: 78.47, score: 0.5, evidence_ids: [], rationale: {}, impact }] });
+  assert.equal(watch.triggers[0].impact.people_exposed, 7);
+  const run = lib.cleanRun({ id: A, trigger_event_id: B, status: 'running', impact });
+  assert.equal(run.impact.data_basis, 'synthetic');
+  assert.equal(lib.cleanRun({ id: A, trigger_event_id: B }).impact, null);
+  assert.ok(lib.isConnectorId('gdacs') && lib.isConnectorId('google_flood_forecasting'));
+  assert.equal(lib.hazardStyle('gdacs_alert').label, 'GDACS event');
+  assert.equal(lib.hazardStyle('flood_gauge').label, 'Flood gauge forecast');
+});

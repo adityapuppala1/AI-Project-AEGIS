@@ -48,6 +48,22 @@ container cannot hold. See [PROACTIVE_ADMIN_RUNBOOK.md](PROACTIVE_ADMIN_RUNBOOK.
 A2 covers proactive runs only; re-validating open *proposals* stays with the existing proposal
 context revalidation and was not changed.
 
+Status 4 November 2026 (step 3): **A3 and A4 are implemented on `feat/agentic-proactive-l3`,
+pending runtime verification and owner keys/terms** (unit, golden, Node and typecheck gates pass;
+migration 015 and the synthetic exposure seed not yet applied to the running stack; the opt-in
+PostGIS test was extended but not run). A3: `015_exposure.sql` (`exposure_features`, PostGIS
+geography index), synthetic Hyderabad seed `db/seed_exposure.sql`, offline importer
+`python -m app.exposure_import` for user-supplied OSM GeoJSON (ODbL) and WorldPop XYZ/CSV (CC BY 4.0;
+GeoTIFF converted with `gdal_translate` first), deterministic impact rules
+`impact_triggers.v2.json` combining hazard state with people exposed / critical facilities / road
+segments inside a fixed footprint, cited exposure feature ids in the trigger, run evidence bundle
+and Exercise CAP text; scheduler dedupe includes the impact config version. Without exposure data
+the v1 hazard state is kept and labelled hazard-only. A4: `gdacs` and `google_flood_forecasting`
+connectors (default disabled, fixed hosts, no redirects, JSON only, Google key as a connector
+secret sent in a header), thresholds in `feed_triggers.v1.json`. Owner actions: confirm GDACS terms,
+obtain the Google waitlist key, choose real exposure extracts, review the synthetic impact
+thresholds. See [PROACTIVE_ADMIN_RUNBOOK.md](PROACTIVE_ADMIN_RUNBOOK.md#9-impact-based-triggers-and-the-exposure-layer-a3).
+
 ## 3. Cross-cutting work needed before any of A1–A10 ship
 
 Status 4 November 2026: the harness, kill switch and run agency scope are **implemented on

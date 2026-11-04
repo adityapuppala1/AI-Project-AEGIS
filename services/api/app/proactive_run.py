@@ -10,7 +10,7 @@ from uuid import UUID, uuid4
 from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel, ConfigDict, Field
 
-from app import connectors, hazard_watch, jev_client, proactive_store
+from app import connectors, hazard_watch, impact, jev_client, proactive_store
 from app.proactive_cap import CapRefused, exercise_cap_xml
 from app.security import Operator, get_operator, require_role
 
@@ -45,9 +45,25 @@ def new_state(run_id: str, trigger: dict, actor: str) -> dict:
     now = _now()
     return {"version": VERSION, "id": run_id, "status": "running", "trigger_event_id": trigger["id"],
             "trigger_id": trigger.get("trigger_id"),
-            "created_by": actor, "created_at": now, "updated_at": now, "evidence_ids": [], "variants": [],
+            "created_by": actor, "created_at": now, "updated_at": now, "evidence_ids": [], "impact": None, "variants": [],
             "judgment": None, "cap": None, "completed_steps": [], "next_step": STEPS[0],
             "needs_accountable_human_review": True, "operational_actions_enabled": False}
+
+
+IMPACT_KEYS = ("config_version", "status", "state", "hazard_state", "matched_measure", "label", "data_basis",
+               "people_exposed", "critical_facilities", "road_segments", "by_kind", "feature_count",
+               "synthetic_count", "licensed_count", "licences", "footprint_radius_km", "exposure_feature_ids")
+IMPACT_AUDIT_KEYS = ("config_version", "status", "state", "data_basis", "people_exposed", "critical_facilities",
+                     "road_segments", "feature_count")
+
+
+def impact_bundle(trigger: dict) -> dict | None:
+    """The impact part of the run's evidence bundle: counts and cited exposure feature ids, copied
+    from the trigger event (deterministic, computed at refresh time)."""
+    block = (trigger.get("rationale") or {}).get("impact")
+    if not isinstance(block, dict):
+        return None
+    return {k: block[k] for k in IMPACT_KEYS if k in block}
 
 
 def _evidence(store, trigger) -> list[dict]:
@@ -66,9 +82,11 @@ def simulate(trigger: dict, evidence: list[dict]) -> list[dict]:
         if newest and evidence:
             latest = max(r["observed_at"] for r in evidence)
             rows = [r for r in evidence if r["observed_at"] == latest]
-        match = next((t for t in hazard_watch.evaluate(rows, scale=1 + delta) if t["trigger_id"] == trigger["trigger_id"]), None)
+        match = next((t for t in hazard_watch.evaluate_all(rows, scale=1 + delta) if t["trigger_id"] == trigger["trigger_id"]), None)
+        # A3: the trigger's stored exposure counts and rules are re-applied to each variant's hazard state.
+        resulting = impact.reclassify(match["state"], (trigger.get("rationale") or {}).get("impact")) if match else "clear"
         variants.append({"id": variant_id, "label": label, "threshold_delta": delta,
-                         "resulting_state": match["state"] if match else "clear", "score": match["score"] if match else None})
+                         "resulting_state": resulting, "score": match["score"] if match else None})
     return variants
 
 
@@ -93,7 +111,9 @@ def advance(state: dict, expected_step: str, actor: str, store, transport=None) 
     if step == "gather_evidence":
         rows = _evidence(store, trigger)
         state["evidence_ids"] = [r["id"] for r in rows]
-        detail = {"evidence_count": len(rows), "stale_count": sum(1 for r in rows if r["stale"])}
+        state["impact"] = impact_bundle(trigger)
+        detail = {"evidence_count": len(rows), "stale_count": sum(1 for r in rows if r["stale"]),
+                  "impact": {k: state["impact"].get(k) for k in IMPACT_AUDIT_KEYS} if state["impact"] else None}
     elif step == "simulate_variants":
         state["variants"] = simulate(trigger, _evidence(store, trigger))
         detail = {"variants": [{"id": v["id"], "resulting_state": v["resulting_state"]} for v in state["variants"]]}

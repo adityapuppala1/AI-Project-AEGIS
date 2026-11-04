@@ -18,6 +18,33 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Proactive step 3 (A3 impact triggers, A4 GDACS + Google Flood Forecasting) — 4 November 2026 (Windows laptop, uncommitted)
+
+Branch `feat/agentic-proactive-l3`, base `e4d3c13`. Roadmap section 2, items A3 and A4.
+
+- **Completed (code + unit gates):** migration `015_exposure.sql` (`exposure_features`; unique
+  `exposure_features_provenance_idx`, GIST `exposure_features_geography_idx` registered in
+  `migration_audit.EXPECTED_INDEXES`) wired into Compose init (`019-exposure.sql`) and the `migrate`
+  chain; synthetic seed `db/seed_exposure.sql` (init `020-exposure-seed.sql`, `seed` chain).
+  `app/impact.py` + `fixtures/impact_triggers.v2.json` (v1 hazard config unchanged), applied after
+  every refresh, carried into the run evidence bundle, variants and Exercise CAP area/instruction;
+  scheduler dedupe key includes impact version/status and cited exposure ids. Offline importer
+  `app/exposure_import.py` (not run). Connectors `gdacs` and `google_flood_forecasting` with
+  adapters, test procedures and `fixtures/feed_triggers.v1.json`; hand-authored offline fixtures in
+  `services/api/tests/fixtures/`. Hazard Watch cards, trigger detail and run panel show exposure
+  counts and the "impact-based (synthetic exposure)" label (en/te/hi); admin page lists both
+  connectors. No new Python or Node dependency.
+- **Executed (Windows laptop):** `services/api/.venv` `pytest -q` 665 passed / 25 skipped;
+  `python -m app.model_lab --check` PASS; `npm run typecheck` PASS; `node --test scripts/tests/*.test.cjs`
+  138 passed. No Docker, build, dev server or external host was used.
+- **Pending:** apply 015 and the exposure seed to the existing volume without a reset
+  (`docker compose run --rm migrate` then `docker compose run --rm seed`, under the operation lease),
+  restart `api`, rebuild `web` for the UI changes, opt-in PostGIS `test_postgis_proactive.py`
+  (now includes 015 and the seed), `npm run build`. Security preflight reports `not_ready` until
+  015 is applied (one new index check).
+- **Blocked on owner:** GDACS terms confirmation, Google Flood Forecasting waitlist key, choice of
+  real OSM/WorldPop extracts, review of the synthetic impact thresholds.
+
 ## Proactive step 2 (A1 scheduler, A2 sentinel) — 4 November 2026 (Windows laptop, uncommitted)
 
 Branch `feat/agentic-proactive-l3`, base `967024e`. Roadmap section 2, items A1 and A2.

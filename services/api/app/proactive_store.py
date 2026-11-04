@@ -1,5 +1,5 @@
 """Persistence for the opt-in proactive watch (db/migrations/012_proactive.sql, 013_proactive_run_agency.sql,
-014_proactive_scheduler.sql).
+014_proactive_scheduler.sql, 015_exposure.sql).
 
 PgStore is the real store. MemoryStore is an offline double with the same contract used by
 unit tests; it is never selected by configuration. Evidence, triggers and audits are append-only.
@@ -7,6 +7,7 @@ Run reads and writes are scoped by the operator's verified agency: a NULL (legac
 matches, so pre-013 runs are invisible to every scoped route.
 """
 import json
+import math
 import os
 import threading
 from contextlib import contextmanager
@@ -280,6 +281,20 @@ class PgStore:
                 cur.execute(sql + " WHERE agency_id=%s ORDER BY started_at DESC, id LIMIT %s", (str(agency_id), limit))
             return [dict(row) for row in cur.fetchall()]
 
+    # --- exposure layer (015). Read-only here; rows come from the seed or the offline importer. ---
+
+    def exposure_layer_count(self) -> int:
+        with self._connect() as conn, conn.cursor() as cur:
+            cur.execute("SELECT COUNT(*)::bigint AS n FROM exposure_features")
+            return int(cur.fetchone()["n"])
+
+    def exposure_within(self, lat, lon, radius_km, limit=5000) -> list[dict]:
+        with self._connect() as conn, conn.cursor() as cur:
+            cur.execute("""SELECT id::text, kind, count, weight, synthetic, source, licence FROM exposure_features
+                           WHERE ST_DWithin(geom::geography, ST_SetSRID(ST_MakePoint(%s,%s),4326)::geography, %s)
+                           ORDER BY kind, id LIMIT %s""", (float(lon), float(lat), float(radius_km) * 1000.0, int(limit)))
+            return [dict(row) for row in cur.fetchall()]
+
 
 class MemoryStore:
     """Offline test double with PgStore semantics (optimistic versions, sha256 dedupe, append-only audit)."""
@@ -299,6 +314,7 @@ class MemoryStore:
         self.run_dedupe: dict = {}
         self.ticks: list = []
         self.tick_mutex = threading.Lock()
+        self.exposure: list = []
 
     def list_configs(self) -> dict:
         tests = {}
@@ -457,6 +473,24 @@ class MemoryStore:
         rows = [r for r in self.ticks if agency_id is None or str(r["agency_id"]) == str(agency_id)]
         rows = sorted(rows, key=lambda r: r["started_at"], reverse=True)[:limit]
         return [{**deepcopy(r), "agency_id": str(r["agency_id"])} for r in rows]
+
+    def add_exposure(self, features) -> None:
+        """Test helper: features carry a representative lat/lon instead of a PostGIS geometry."""
+        self.exposure.extend(deepcopy(list(features)))
+
+    def exposure_layer_count(self) -> int:
+        return len(self.exposure)
+
+    def exposure_within(self, lat, lon, radius_km, limit=5000) -> list[dict]:
+        p1 = math.radians(lat)
+        out = []
+        for row in self.exposure:
+            p2 = math.radians(row["lat"])
+            a = (math.sin((p2 - p1) / 2) ** 2
+                 + math.cos(p1) * math.cos(p2) * math.sin(math.radians(row["lon"] - lon) / 2) ** 2)
+            if 6371.0 * 2 * math.asin(math.sqrt(a)) <= radius_km:
+                out.append({k: row.get(k) for k in ("id", "kind", "count", "weight", "synthetic", "source", "licence")})
+        return sorted(out, key=lambda r: (r["kind"], r["id"]))[:limit]
 
 
 _store = None

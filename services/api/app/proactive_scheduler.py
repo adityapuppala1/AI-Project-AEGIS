@@ -12,7 +12,8 @@ The loop is one daemon thread inside the API process. Each tick:
      starts a draft-only bounded run as `system:scheduler`, advancing only gather_evidence,
      simulate_variants, judge and draft_cap. It always stops with next_step = hand_to_human.
 
-A run is keyed by sha256(agency, trigger id, config version, cited evidence digests) and the 014
+A run is keyed by sha256(agency, trigger id, config version, cited evidence digests, impact config
+version/status, cited exposure feature ids) and the 014
 partial unique index makes a second run for the same evaluation impossible, even across workers.
 Nothing here submits, approves, sends or notifies; `system:` subjects are rejected as makers,
 checkers and token subjects everywhere (security.py, governance.py, proactive_run.advance).
@@ -29,7 +30,7 @@ from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-from app import connectors, hazard_watch, proactive_run, proactive_sentinel, proactive_store
+from app import connectors, hazard_watch, impact, proactive_run, proactive_sentinel, proactive_store
 from app.security import Operator, get_operator, require_role
 
 SUBJECT = "system:scheduler"
@@ -79,8 +80,10 @@ def refusal_reason() -> str | None:
 
 
 def dedupe_key(agency_id, trigger: dict, evidence_digests: list[str]) -> str:
-    material = json.dumps([str(agency_id), trigger["trigger_id"], trigger["config_version"], sorted(evidence_digests)],
-                          separators=(",", ":"))
+    # A3: the impact config version/status and the cited exposure features are part of the evaluation,
+    # so a new impact config (or new exposure data) is a new evaluation and may prepare a new run.
+    material = json.dumps([str(agency_id), trigger["trigger_id"], trigger["config_version"], sorted(evidence_digests),
+                           impact.version_tag(trigger), impact.cited_features(trigger)], separators=(",", ":"))
     return hashlib.sha256(material.encode()).hexdigest()
 
 

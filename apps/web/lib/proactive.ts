@@ -8,7 +8,7 @@ export type RunStatus = "running" | "review_ready" | "cancelled";
 export type Scalar = string | number | boolean | null;
 export type Bag = Record<string, Scalar | Scalar[]>;
 
-export const CONNECTOR_IDS = ["open_meteo", "nasa_firms", "nasa_lhasa", "copernicus_cdse", "imd_warnings", "typesafe_jev", "cap_handover", "authority_notification"] as const;
+export const CONNECTOR_IDS = ["open_meteo", "nasa_firms", "nasa_lhasa", "copernicus_cdse", "imd_warnings", "gdacs", "google_flood_forecasting", "typesafe_jev", "cap_handover", "authority_notification"] as const;
 export type ConnectorId = (typeof CONNECTOR_IDS)[number];
 export const RUN_STEPS = ["gather_evidence", "simulate_variants", "judge", "draft_cap", "hand_to_human"] as const;
 export type RunStep = (typeof RUN_STEPS)[number];
@@ -25,9 +25,18 @@ export interface EvidenceRecord {
   id: string; connector_id: string; hazard: string; observed_at: string | null;
   lat: number; lon: number; value: number | null; unit: string; stale: boolean; retrieved_at: string | null;
 }
+export type ImpactStatus = "evaluated" | "exposure_layer_empty" | "exposure_unavailable" | "hazard_not_configured";
+export type ExposureBasis = "synthetic" | "licensed" | "mixed" | "none";
+/** A3 impact block: hazard state x exposure counted inside a fixed exercise footprint. Not a damage estimate. */
+export interface ImpactSummary {
+  status: ImpactStatus; config_version: string; state: TriggerState | null; hazard_state: TriggerState | null;
+  data_basis: ExposureBasis | null; people_exposed: number | null; critical_facilities: number | null; road_segments: number | null;
+  footprint_radius_km: number | null; exposure_feature_ids: string[];
+}
 export interface TriggerEvent {
   id: string; trigger_id: string; hazard: string; state: TriggerState; fired_at: string | null;
   lat: number; lon: number; score: number; threshold: Scalar | Bag | null; evidence_ids: string[]; rationale: Bag;
+  impact?: ImpactSummary | null;
 }
 export interface WatchPayload {
   generated_at: string | null; config_version: string; disclaimer: string;
@@ -69,6 +78,8 @@ export interface ProactiveRun {
   origin?: "scheduler" | "operator"; sentinel_flags?: SentinelFlag[];
   /** Area/hazard key ("heavy_rain:point") so a later trigger event can resume an open run. */
   trigger_id?: string | null;
+  /** A3 impact counts copied into the evidence bundle at gather_evidence. */
+  impact?: ImpactSummary | null;
 }
 const TRIGGER_KEY = /^[a-z_]{2,40}:[A-Za-z0-9_.-]{1,60}$/;
 /** The open run to resume for a selected trigger: same event, or the same area/hazard key. */
@@ -111,6 +122,9 @@ const HAZARD_STYLE: Record<string, HazardStyle> = {
   heavy_rain: { label: "Heavy rain", color: "#3b82f6", icon: "droplets" },
   wind: { label: "Wind", color: "#8b5cf6", icon: "wind" },
   flood_extent: { label: "Flood extent", color: "#0284c7", icon: "satellite" },
+  river_discharge: { label: "River discharge", color: "#0ea5e9", icon: "waves" },
+  gdacs_alert: { label: "GDACS event", color: "#a855f7", icon: "alert" },
+  flood_gauge: { label: "Flood gauge forecast", color: "#0369a1", icon: "waves" },
 };
 const FALLBACK_STYLE: HazardStyle = { label: "Other", color: "#64748b", icon: "alert" };
 /** hasOwnProperty-safe: "__proto__", "constructor" and friends fall back to the neutral style. */
@@ -205,6 +219,29 @@ const numberMap = (value: unknown, max = 12): Record<string, number> => {
 };
 const uuidList = (value: unknown, max = 200) => Array.isArray(value) ? value.filter(isUuid).slice(0, max) : [];
 
+const IMPACT_STATUSES: readonly ImpactStatus[] = ["evaluated", "exposure_layer_empty", "exposure_unavailable", "hazard_not_configured"];
+const BASES: readonly ExposureBasis[] = ["synthetic", "licensed", "mixed", "none"];
+const count = (value: unknown) => { const n = finite(value); return n !== null && n >= 0 && Number.isInteger(n) ? n : null; };
+/** Defensive impact cleaner: closed sets for status/basis, non-negative integer counts, UUID citations only. */
+export function cleanImpact(value: unknown): ImpactSummary | null {
+  if (!isObject(value) || !(IMPACT_STATUSES as readonly unknown[]).includes(value.status)) return null;
+  const radius = finite(value.footprint_radius_km);
+  return { status: value.status as ImpactStatus, config_version: safeVersion(value.config_version),
+    state: isState(value.state) ? value.state : null, hazard_state: isState(value.hazard_state) ? value.hazard_state : null,
+    data_basis: (BASES as readonly unknown[]).includes(value.data_basis) ? value.data_basis as ExposureBasis : null,
+    people_exposed: count(value.people_exposed), critical_facilities: count(value.critical_facilities), road_segments: count(value.road_segments),
+    footprint_radius_km: radius !== null && radius > 0 && radius <= 100 ? radius : null, exposure_feature_ids: uuidList(value.exposure_feature_ids, 50) };
+}
+const safeVersion = (value: unknown) => { const raw = text(value, 60); return raw && /^[a-z0-9.-]{1,60}$/.test(raw) ? raw : "unknown"; };
+/** The UI label: impact-based with the exposure basis, or hazard-only when no exposure was evaluated. */
+export function impactLabel(impact: ImpactSummary | null | undefined): string {
+  if (!impact || impact.status !== "evaluated") return "hazard-only (no exposure layer)";
+  if (impact.data_basis === "synthetic") return "impact-based (synthetic exposure)";
+  if (impact.data_basis === "licensed") return "impact-based (licensed exposure)";
+  if (impact.data_basis === "mixed") return "impact-based (mixed exposure)";
+  return "impact-based (no exposure in footprint)";
+}
+
 export function cleanWatch(value: unknown): WatchPayload {
   if (!isObject(value) || !Array.isArray(value.evidence) || !Array.isArray(value.triggers)) throw new Error("Invalid watch payload");
   const seen = new Set<string>();
@@ -224,7 +261,7 @@ export function cleanWatch(value: unknown): WatchPayload {
     seenTrigger.add(item.id);
     const threshold = isObject(item.threshold) ? cleanBag(item.threshold) : scalar(item.threshold) ?? null;
     return [{ id: item.id, trigger_id: safeCategory(item.trigger_id, "unknown"), hazard: safeCategory(item.hazard), state: item.state,
-      fired_at: timestamp(item.fired_at), lat, lon, score: Math.max(0, Math.min(1, score)), threshold, evidence_ids: uuidList(item.evidence_ids), rationale: cleanBag(item.rationale) }];
+      fired_at: timestamp(item.fired_at), lat, lon, score: Math.max(0, Math.min(1, score)), threshold, evidence_ids: uuidList(item.evidence_ids), rationale: cleanBag(item.rationale), impact: cleanImpact(item.impact) }];
   });
   return { generated_at: timestamp(value.generated_at), config_version: text(value.config_version, 60) ?? "unknown",
     disclaimer: text(value.disclaimer, 400) ?? DISCLAIMER, paused: typeof value.paused === "boolean" ? value.paused : null, evidence, triggers };
@@ -335,7 +372,8 @@ export function cleanRun(value: unknown): ProactiveRun {
   return { id: value.id, status, trigger_event_id: value.trigger_event_id, evidence_ids: uuidList(value.evidence_ids), variants,
     judgment: cleanJudgment(value.judgment), cap, completed_steps: completed, next_step: isRunStep(value.next_step) ? value.next_step : null,
     origin: value.origin === "scheduler" ? "scheduler" : "operator", sentinel_flags: flags,
-    trigger_id: typeof value.trigger_id === "string" && TRIGGER_KEY.test(value.trigger_id) ? value.trigger_id : null };
+    trigger_id: typeof value.trigger_id === "string" && TRIGGER_KEY.test(value.trigger_id) ? value.trigger_id : null,
+    impact: cleanImpact(value.impact) };
 }
 
 // ---------- connector status (admin page) ----------

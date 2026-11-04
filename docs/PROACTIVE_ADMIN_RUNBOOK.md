@@ -170,7 +170,79 @@ is `hand_to_human`; a second tick on unchanged evidence starts no second run;
   never sends anything. A sentinel failure never fails the refresh (`sentinel_failed` code). The
   run panel lists the flags; a flag is an observation for the reviewer, not a forecast.
 
-## 9. What it will not do
+## 9. Impact-based triggers and the exposure layer (A3)
+
+Requires migration `015_exposure.sql` (Compose init `019-exposure.sql`, `migrate` chain
+`-f /exposure.sql`) and, for the demo data, the synthetic seed `db/seed_exposure.sql` (init
+`020-exposure-seed.sql`, `seed` chain `-f /seed-exposure.sql`). Both are additive and idempotent.
+
+- **What changes:** after each refresh the hazard state of every trigger is combined with the
+  exposure counted inside a fixed circular exercise footprint (`app/impact.py`, versioned rules
+  `app/fixtures/impact_triggers.v2.json`, `aegis.impact-triggers.v2`). For `candidate`, then
+  `watch`: the hazard state must be at least the rule's `min_hazard_state` **and** one of
+  `people_exposed`, `critical_facilities` (hospital, school, shelter) or `road_segments` must reach
+  its threshold (inclusive). Otherwise the impact state is `clear`. Deterministic code, no model.
+- **Fallback:** if `exposure_features` is empty or unreadable (015 not applied) the hazard state is
+  kept and the trigger is labelled **hazard-only** (`exposure_layer_empty` / `exposure_unavailable`).
+  v1 hazard thresholds (`hazard_triggers.v1.json`) are unchanged; `GET /v1/proactive/triggers/config`
+  still returns v1, and `GET /v1/proactive/triggers/impact-config` returns the v2 rules and feed thresholds.
+- **Citations:** the trigger rationale carries `impact` with the counts, the cited exposure feature
+  ids (up to 50), `data_basis` (`synthetic`, `licensed`, `mixed`, `none`) and the label shown on
+  Hazard Watch cards and the run panel, e.g. **impact-based (synthetic exposure)**. The run's
+  `gather_evidence` step copies this block into the run state and its audit row; the Exercise CAP
+  area description and instruction use fixed templates with the integer counts and basis and add
+  `aegis.exposure_feature_id` parameters. Counts are rehearsal inputs, not damage, casualty or
+  inundation estimates.
+- **Scheduler:** the dedupe key now also includes the impact config version/status and the cited
+  exposure feature ids, so a new impact config or new exposure data counts as a new evaluation.
+- **Synthetic seed:** 13 fictional features around the Hyderabad pilot grid (central point and
+  Musi reach have exposure, the downstream point a little, the other grid points none). All rows
+  are `synthetic = true`; names, positions and population counts are invented.
+- **Real data (owner action, offline importer, not run by the assistant):** place extracts on the
+  laptop, then inside the API container or `services/api/.venv`:
+
+  ```powershell
+  # OSM GeoJSON extract (ODbL 1.0; attribution "(c) OpenStreetMap contributors")
+  python -m app.exposure_import osm --file C:\data\hyderabad-osm.geojson --batch osm-2026-11 --bbox 78.2,17.2,78.7,17.6 --dry-run
+  python -m app.exposure_import osm --file C:\data\hyderabad-osm.geojson --batch osm-2026-11 --bbox 78.2,17.2,78.7,17.6
+  # WorldPop grid (CC BY 4.0). Convert the GeoTIFF first; the importer has no raster dependency:
+  #   gdal_translate -of XYZ ind_ppp_2020_constrained.tif hyd.xyz
+  python -m app.exposure_import worldpop --file C:\data\hyd.xyz --batch worldpop-2020 --cell-deg 0.0008333 --bbox 78.2,17.2,78.7,17.6
+  ```
+
+  Hospitals/clinics, schools/colleges, shelters/assembly points and motorway–tertiary roads are
+  kept; everything else is skipped and reported. Each row records source, source ref, licence,
+  attribution, `synthetic = false`, a provenance sha256 and the batch; re-imports are idempotent.
+  `DATABASE_URL` must point at the local stack. Keep the extracts local and do not redistribute
+  them; show the attribution wherever counts are presented. Real and synthetic rows can coexist
+  (`data_basis = mixed`); to rehearse with real data only, the owner may delete the
+  `synthetic-seed-v1` batch rows by hand — never reset the volume.
+
+## 10. GDACS and Google Flood Forecasting connectors (A4)
+
+Both are default **disabled**, use the same allowlisted `bounded_request` (HTTPS only, fixed host,
+no redirects, no proxy, size and time caps) and parse JSON only (no XML parser is added).
+
+- **GDACS** (`gdacs`, host `www.gdacs.org`): public event list
+  `/gdacsapi/api/events/geteventlist/SEARCH` for FL/TC/EQ/WF/DR/VO over the last 1–7 days (`days`
+  setting); events outside the India bounding box are dropped. Alert levels map to evidence values
+  green 1, orange 2, red 3; `aegis.feed-triggers.v1` treats orange as `watch` and red as `candidate`
+  (synthetic mapping). No key. **Terms of use: to confirm by owner** before enabling
+  (https://www.gdacs.org/About/termofuse.aspx); attribution "GDACS (UN / European Commission JRC)".
+- **Google Flood Forecasting** (`google_flood_forecasting`, host `floodforecasting.googleapis.com`):
+  `POST /v1/floodStatus:searchLatestFloodStatusByArea` with `regionCode = IN`; gauges within 150 km
+  of the pilot grid are kept. Severity maps NO_FLOODING 0, ABOVE_NORMAL 1, SEVERE 2, EXTREME 3;
+  `watch` from 1, `candidate` from 2. **Waitlist approval pending:** the connector cannot be enabled
+  until a platform_admin saves an API key (`required_secret_missing:api_key`). The key is stored
+  encrypted, sent only in the `X-Goog-Api-Key` header (never in a URL), and never logged or
+  returned — only its 8-hex fingerprint is shown. Data CC BY 4.0, attribute Google Flood Forecasting.
+- **Testing:** the admin page lists both connectors from the registry. *Test* sends one bounded
+  request (GDACS: 1-day window; Google: one status search) and keeps only status and latency.
+  Unit tests use hand-authored offline fixtures (`services/api/tests/fixtures/`), not live captures.
+- Feed events are third-party references, not AEGIS assessments; they pass through the same impact
+  rules (25 km GDACS footprint, 8 km gauge footprint) and never create cases or warnings.
+
+## 11. What it will not do
 
 No scraping, social media or webcams. No broadcast. No automatic case, proposal, approval or
 task. No accuracy claim: thresholds are synthetic rehearsal values until the registered

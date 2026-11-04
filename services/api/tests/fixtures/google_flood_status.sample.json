@@ -1,0 +1,30 @@
+{
+  "_fixture_note": "Hand-authored offline fixture in the shape of the Google Flood Forecasting floodStatus:searchLatestFloodStatusByArea response. Not a live capture; gauge ids and values are invented for tests.",
+  "floodStatuses": [
+    {
+      "gaugeId": "hybas_fixture_0001", "qualityVerified": true, "gaugeLocation": {"latitude": 17.37, "longitude": 78.48},
+      "issuedTime": "2026-11-03T04:00:00Z", "severity": "SEVERE", "forecastTrend": "RISE", "source": "HYBAS"
+    },
+    {
+      "gaugeId": "hybas_fixture_0002", "qualityVerified": false, "gaugeLocation": {"latitude": 17.30, "longitude": 78.62},
+      "issuedTime": "2026-11-03T04:00:00Z", "severity": "ABOVE_NORMAL", "forecastTrend": "NO_CHANGE", "source": "HYBAS"
+    },
+    {
+      "gaugeId": "hybas_fixture_far", "qualityVerified": true, "gaugeLocation": {"latitude": 26.10, "longitude": 91.70},
+      "issuedTime": "2026-11-03T04:00:00Z", "severity": "EXTREME", "forecastTrend": "RISE"
+    },
+    {
+      "gaugeId": "bad id with spaces", "gaugeLocation": {"latitude": 17.4, "longitude": 78.4},
+      "issuedTime": "2026-11-03T04:00:00Z", "severity": "SEVERE"
+    },
+    {
+      "gaugeId": "hybas_fixture_unknown", "gaugeLocation": {"latitude": 17.4, "longitude": 78.4},
+      "issuedTime": "2026-11-03T04:00:00Z", "severity": "UNKNOWN"
+    },
+    {
+      "gaugeId": "hybas_fixture_nan", "gaugeLocation": {"latitude": "17.4", "longitude": 78.4},
+      "issuedTime": "2026-11-03T04:00:00Z", "severity": "SEVERE"
+    }
+  ],
+  "nextPageToken": ""
+}
