@@ -49,3 +49,7 @@
 - Exercise drills stay exercise-only on a simulated clock: injected evidence lives only in the drill state, the kill switch blocks writes and SLA scores are synthetic rehearsal targets. See docs/EXERCISE_DRILLS.md.
 
 - Translated CAP blocks come only from fixed templates with integer/closed-code placeholders and stay pending until native sign-off in docs/NATIVE_LANGUAGE_REVIEW.csv. Never render model or free text into them.
+
+- Sign-in gate: `apps/web/middleware.ts` keeps every page and API route except `/`, `/welcome`, `/sign-in` and `/api/auth/*` behind a valid session, and serves seeded exercise records only to their owning agency. Never add a public page or route without updating `lib/session-gate.ts` and its tests. Route-level role and agency checks stay in place.
+
+- Statistical forecast (TimesFM 2.5) is optional, display-only and off unless `compose.timesfm.yaml` / `-StatisticalForecast` is used. It must never write, never feed proposals or alerts, and its hold-out figures are never called accuracy. Do not use TimesFM 3.0 weights (non-production licence). See docs/STATISTICAL_FORECAST.md.

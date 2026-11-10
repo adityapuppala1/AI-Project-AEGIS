@@ -18,6 +18,40 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Round 7: sign-in gate, redesign, merged menu, optional TimesFM forecast — 10 November 2026 (Windows laptop)
+
+Branch `feat/landing-ux-security-hardening`. Compose services left **running** with overlays local-idp +
+public-earth + proactive + **timesfm** (API image now includes CPU PyTorch; `AEGIS_TIMESFM_CACHE` pointed at the
+host Hugging Face cache). Volumes untouched.
+
+**Completed and verified by execution on the Windows laptop:**
+- Sign-in gate in `apps/web/middleware.ts` + `lib/session-gate.ts`: only `/`, `/welcome`, `/sign-in` and
+  `/api/auth/*` are open. Checked signed out: pages redirect to `/sign-in`, API routes (including the relay) answer
+  401. `/` shows the landing page signed out and the Command Center signed in. Seeded exercise records are served
+  only to the owning agency (`AEGIS_FIXTURE_AGENCY_ID`, default the demo agency).
+- Four demo accounts created in the local identity provider at the owner's request: `demo-maker`, `demo-checker`,
+  `demo-auditor`, `demo-admin`. Passwords are in the owner's private file
+  `%LOCALAPPDATA%/AEGIS/local-idp/demo-credentials.txt` (not in the repository). All four sign in. No
+  department-operator account: that role does not exist in the local realm. The three older `exercise-*` accounts
+  were not touched.
+- Redesigned landing page, sign-in page and app shell (page filter, collapsible icon rail, phone drawer), built by a
+  separate agent and reviewed from screenshots.
+- Menu reduced from 25 entries to 20: related pages share one entry and appear as tabs (Source Freshness +
+  DataFusion Replay; Hazard Watch + Earth Watch; AgencySync Tasks + Team Availability; Administration + Connectors +
+  Go-Live Setup). All addresses still work and all pages stay in Ctrl+K search.
+- Alert Journey relay requests now carry the session (they used to omit credentials, which the gate would reject).
+- Optional TimesFM 2.5 statistical forecast: see `docs/STATISTICAL_FORECAST.md`.
+- Checks: `npm run typecheck` OK; web tests and API tests as recorded in the final message of the session;
+  signed-in layout audit of every page as four roles on laptop and phone sizes: no overflow or clipped controls.
+
+**Not done / pending:**
+- The API container's own port (127.0.0.1:8000) still answers read requests for exercise fixtures without a token.
+  It is reachable from this laptop only. Closing it means passing the operator token on every read route.
+- Role-specific pages log expected 403 answers in the browser console (for example Department Inbox for a maker).
+- Deeper merges (one shared map helper, one feed-status hook, Copilot + Handover) were not done.
+- Narrated videos in `docs/media` predate the gate and the redesign; they show the earlier screens.
+- Signed-in security testing (cross-agency attempts) was not done: only one agency exists in the local realm.
+
 ## Round 6: landing page, relay hardening, security assessment, narrated videos — 10 November 2026 (Windows laptop)
 
 Branch `feat/landing-ux-security-hardening` (created from `feat/agentic-proactive-l3` at `9924a37`, which was pushed
