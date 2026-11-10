@@ -6,7 +6,10 @@ export async function GET(request: NextRequest) {
   const config = configuration();
   if (!config) return NextResponse.json({ error: "Identity provider unavailable" }, { status: 503 });
   const errorResult = (status: number) => {
-    const response = NextResponse.json({ error: "Sign-in could not be verified. Try again." }, { status });
+    // Send the person back to the sign-in page with a plain message instead of leaving them on a JSON error.
+    void status;
+    const response = NextResponse.redirect(config.origin + "/sign-in?error=verify", 303);
+    response.headers.set("Cache-Control", "no-store");
     response.cookies.set(cookieName(config, "flow"), "", cookieOptions(config, 0));
     return response;
   };

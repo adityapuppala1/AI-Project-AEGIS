@@ -22,6 +22,7 @@ export async function GET() {
     const flow = await encryptData(config, { state, nonce, verifier }, 600);
     const response = NextResponse.redirect(authorize);
     response.cookies.set(cookieName(config, "flow"), flow, cookieOptions(config, 600));
+    response.headers.set("Cache-Control", "no-store");
     return response;
   } catch {
     return NextResponse.json({ error: "Secure sign-in cannot be started" }, { status: 503 });

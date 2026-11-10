@@ -45,5 +45,5 @@ export function OperatorAuth() {
   </div>;
   if (!session.configured) return <span className="hidden text-xs text-amber-700 dark:text-amber-300 md:inline" title={t("Operator access requires a configured trusted identity provider")}>{t("SSO not configured")}</span>;
   // Icon-only below sm so the top bar fits a phone; the link keeps its full accessible name.
-  return <a className="control h-10 w-10 !px-0 text-xs sm:h-9 sm:w-auto sm:!px-3" href="/api/auth/login" aria-label="Operator sign in" title="Operator sign in"><LogIn size={15} aria-hidden="true"/><span className="hidden sm:inline">Operator sign in</span></a>;
+  return <a className="control h-10 w-10 !px-0 text-xs sm:h-9 sm:w-auto sm:!px-3" href="/sign-in" aria-label="Operator sign in" title="Operator sign in"><LogIn size={15} aria-hidden="true"/><span className="hidden sm:inline">Operator sign in</span></a>;
 }

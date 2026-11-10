@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "./globals.css";
 import { ThemeProvider } from "../components/theme-provider";
@@ -9,11 +10,13 @@ export const metadata: Metadata = {
   description: "AEGIS exercise-only disaster intelligence and multi-agency command center",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  // Per-request nonce from middleware.ts. Reading it also makes every page render per request, which the nonce needs.
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen bg-canvas font-sans text-ink antialiased">
-        <ThemeProvider><LanguageProvider>{children}</LanguageProvider></ThemeProvider>
+        <ThemeProvider nonce={nonce}><LanguageProvider>{children}</LanguageProvider></ThemeProvider>
       </body>
     </html>
   );
