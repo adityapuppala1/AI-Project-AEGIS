@@ -28,6 +28,11 @@ const ENTRIES: readonly Entry[] = [
   ["SSO not configured", "SSO కాన్ఫిగర్ చేయలేదు", "SSO कॉन्फ़िगर नहीं है"],
   ["Operator access requires a configured trusted identity provider", "ఆపరేటర్ యాక్సెస్‌కు కాన్ఫిగర్ చేసిన విశ్వసనీయ ఐడెంటిటీ ప్రొవైడర్ అవసరం", "ऑपरेटर पहुँच के लिए कॉन्फ़िगर किया गया विश्वसनीय आइडेंटिटी प्रदाता आवश्यक है"],
   ["Emergency intelligence", "అత్యవసర సమాచార విశ్లేషణ", "आपातकालीन सूचना विश्लेषण"],
+  // Side navigation controls (machine-drafted, not yet reviewed by native speakers)
+  ["Find a page", "పేజీని కనుగొనండి", "पृष्ठ खोजें"],
+  ["No pages match", "సరిపోలే పేజీలు లేవు", "कोई पृष्ठ मेल नहीं खाता"],
+  ["Collapse sidebar", "సైడ్‌బార్‌ను కుదించండి", "साइडबार छोटा करें"],
+  ["Expand sidebar", "సైడ్‌బార్‌ను విస్తరించండి", "साइडबार बड़ा करें"],
   ["Overview", "అవలోకనం", "अवलोकन"],
   ["Observe", "పరిశీలన", "निरीक्षण"],
   ["Coordinate", "సమన్వయం", "समन्वय"],
