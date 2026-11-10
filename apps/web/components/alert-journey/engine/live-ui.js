@@ -18,7 +18,7 @@ export default function install(g) {
   function ic(n, sz) { return '<svg class="ic" width="' + (sz || 16) + '" height="' + (sz || 16) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + (ICON[n] || ICON.info) + '"/></svg>'; }
   U.ic = ic; U.$ = $; U.$$ = $$;
   U.el = function (tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; };
-  U.esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+  U.esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
   var PRESETS = [['Hyderabad', 17.385, 78.4867, 'AEGIS pilot city'], ['Chennai', 13.0827, 80.2707, 'coast · cyclones'], ['Mumbai', 19.076, 72.8777, 'coast · monsoon'], ['Kolkata', 22.5726, 88.3639, 'delta · cyclones'], ['Visakhapatnam', 17.6868, 83.2185, 'coast'], ['Bhubaneswar', 20.2961, 85.8245, 'cyclone landfalls'], ['Guwahati', 26.1445, 91.7362, 'Brahmaputra floods'], ['Kochi', 9.9312, 76.2673, 'coast · floods'], ['Shimla', 31.1048, 77.1734, 'snow'], ['Leh', 34.1526, 77.5771, 'snow · cold'], ['Port Blair', 11.6234, 92.7265, 'tsunami 2004'], ['Delhi', 28.6139, 77.209, 'heat · smog']];
   U.PRESETS = PRESETS;
 

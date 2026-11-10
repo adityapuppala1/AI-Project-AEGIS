@@ -7,9 +7,11 @@ const ZONED_DATE = /(Z|[+-]\d{2}:\d{2})$/i;
 
 export async function POST(request: NextRequest) {
   try {
+    if (Number(request.headers.get("content-length") ?? "0") > 1024) return NextResponse.json({ error: "Oversized exercise input" }, { status: 413 });
     const raw = await request.text();
     if (raw.length > 1024) return NextResponse.json({ error: "Oversized exercise input" }, { status: 413 });
-    const input: unknown = JSON.parse(raw);
+    let input: unknown;
+    try { input = JSON.parse(raw); } catch { return NextResponse.json({ error: "Invalid exercise input" }, { status: 400 }); }
     if (!input || typeof input !== "object" || Array.isArray(input)) {
       return NextResponse.json({ error: "Invalid exercise input" }, { status: 400 });
     }

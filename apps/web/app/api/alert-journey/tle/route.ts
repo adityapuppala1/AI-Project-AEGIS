@@ -78,8 +78,10 @@ export async function GET(request: Request) {
     const body = await upstream.text();
     // Three-line element sets only: a name line, then lines starting "1 " and "2 ".
     if (body.length > MAX_BYTES || !/^1 \d{5}/m.test(body) || !/^2 \d{5}/m.test(body)) throw new Error("Unexpected orbit data");
-    cache.set(group, { at: now, body });
-    return new NextResponse(body, { headers: headers("fresh") });
+    // Name lines are shown in the page: keep letters, digits and plain punctuation only.
+    const clean = body.split(/\r?\n/).map(line => /^[12] /.test(line) ? line : line.replace(/[^A-Za-z0-9 ()\[\]._+\/-]/g, "").slice(0, 40)).join("\n");
+    cache.set(group, { at: now, body: clean });
+    return new NextResponse(clean, { headers: headers("fresh") });
   } catch {
     lastFailure.set(group, now);
     if (hit) return new NextResponse(hit.body, { headers: headers("stale") });

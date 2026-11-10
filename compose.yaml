@@ -95,6 +95,11 @@ services:
     ports:
       - "127.0.0.1:8000:8000"
     mem_limit: 512m
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    pids_limit: 512
   web:
     build: ./apps/web
     environment:
@@ -111,5 +116,10 @@ services:
     ports:
       - "127.0.0.1:3000:3000"
     mem_limit: 1g
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    pids_limit: 512
 volumes:
   pgdata:

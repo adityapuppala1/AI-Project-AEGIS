@@ -177,7 +177,7 @@ test('orbit relay: rejects unexpected upstream content and backs off instead of 
 
 // ---- general relay: the browser talks only to AEGIS; AEGIS fetches the reviewed source ----
 const enc = encodeURIComponent;
-async function relayAny(target, { method = 'GET', body, enabled = true, upstreamBody = '{"ok":true}', type = 'application/json', status = 200, route } = {}) {
+async function relayAny(target, { method = 'GET', body, enabled = true, upstreamBody = '{"ok":true}', type = 'application/json', status = 200, route, headers = { origin: 'http://localhost:3000' } } = {}) {
   route = route ?? loadTs('app/api/alert-journey/relay/route.ts', { 'next/server': { NextResponse } });
   const before = global.fetch, calls = [];
   global.fetch = async (url, options) => {
@@ -186,7 +186,7 @@ async function relayAny(target, { method = 'GET', body, enabled = true, upstream
     return new Response(upstreamBody, { status, headers: { 'content-type': type } });
   };
   try {
-    const request = new Request('http://localhost:3000/api/alert-journey/relay?u=' + enc(target), { method, body });
+    const request = new Request('http://localhost:3000/api/alert-journey/relay?u=' + enc(target), { method, body, headers });
     return { response: await (method === 'POST' ? route.POST(request) : route.GET(request)), calls, route, upstream: calls.filter(call => !call.url.includes('/earth-watch/status')) };
   } finally { global.fetch = before; }
 }
@@ -233,9 +233,37 @@ test('relay rejects unexpected content types and oversized or malformed map quer
   const noData = await relayAny('https://overpass-api.de/api/interpreter', { method: 'POST', body: 'query=x' });
   assert.equal(noData.response.status, 400);
   const tooBig = await relayAny('https://overpass-api.de/api/interpreter', { method: 'POST', body: 'data=' + 'x'.repeat(9000) });
-  assert.equal(tooBig.response.status, 400);
+  assert.equal(tooBig.response.status, 413);
+  assert.equal(tooBig.upstream.length, 0, 'an oversized query is never forwarded');
   const busy = await relayAny('https://overpass-api.de/api/interpreter', { method: 'POST', body: 'data=[out:json];node(1);out;', status: 502 });
   assert.equal(busy.response.status, 502);
+});
+
+test('relay cannot be driven from another website, and tile addresses cannot be varied to dodge the cache', async () => {
+  const tile = 'https://tile.openstreetmap.org/15/1/1.png';
+  const crossSite = await relayAny(tile, { headers: { 'sec-fetch-site': 'cross-site' }, upstreamBody: 'x', type: 'image/png' });
+  assert.equal(crossSite.response.status, 403); assert.equal(crossSite.upstream.length, 0);
+  const otherOrigin = await relayAny(tile, { headers: { origin: 'https://evil.test' }, upstreamBody: 'x', type: 'image/png' });
+  assert.equal(otherOrigin.response.status, 403);
+  const blindPost = await relayAny('https://overpass-api.de/api/interpreter', { method: 'POST', body: 'data=[out:json];node(1);out;', headers: {} });
+  assert.equal(blindPost.response.status, 403, 'a POST must say which site it came from');
+  const sameSite = await relayAny(tile, { headers: { 'sec-fetch-site': 'same-origin' }, upstreamBody: 'x', type: 'image/png' });
+  assert.equal(sameSite.response.status, 200);
+  for (const bad of [tile + '?cachebust=1', 'https://tile.openstreetmap.org/15/1/1.png/extra', 'https://tile.openstreetmap.org/a/b/c.png',
+    'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/9/1/1.png?x=1', 'https://s3.amazonaws.com/elevation-tiles-prod/other/9/1/1.png', 'https://tiles.maps.eox.at/wmts/1.0.0/x/1/1/1.jpg?x=1']) {
+    const { response, calls } = await relayAny(bad, { upstreamBody: 'x', type: 'image/png' });
+    assert.equal(response.status, 404, bad); assert.equal(calls.length, 0, bad);
+  }
+  const lookalike = await relayAny(tile, { upstreamBody: 'x', type: 'image/pngx' });
+  assert.equal(lookalike.response.status, 502, 'near-miss content types are refused');
+});
+
+test('relay rate limit ignores a caller-supplied address unless a trusted proxy is configured', () => {
+  const source = read('app/api/alert-journey/relay/route.ts');
+  assert.ok(source.includes('process.env.AEGIS_TRUSTED_PROXY === "1"'));
+  assert.ok(source.includes('MAX_FETCHES_PER_HOST_MINUTE') && source.includes('MAX_IN_FLIGHT'));
+  assert.ok(!source.includes('hits.clear()'), 'counters are evicted oldest-first, never wiped');
+  assert.ok(!source.includes('request.text()') && !source.includes('upstream.arrayBuffer()'), 'bodies are read with a size cap');
 });
 
 test('the client sends every third-party request through the relay', () => {

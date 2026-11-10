@@ -1,11 +1,15 @@
 """AEGIS exercise-only API foundation; no live alerts or dispatch."""
+import os
 from datetime import datetime, timezone
 from uuid import UUID
 from typing import Literal
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field, ConfigDict
 
-app = FastAPI(title="AEGIS Exercise API", version="0.1.0")
+# Interactive API documentation is off unless explicitly switched on for local development (AEGIS_API_DOCS=1).
+_DOCS_ON = os.environ.get("AEGIS_API_DOCS") == "1"
+app = FastAPI(title="AEGIS Exercise API", version="0.1.0", docs_url="/docs" if _DOCS_ON else None,
+              redoc_url=None, openapi_url="/openapi.json" if _DOCS_ON else None)
 
 class Observation(BaseModel):
     source_id: str = Field(min_length=1, max_length=100)

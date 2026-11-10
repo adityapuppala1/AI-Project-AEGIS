@@ -340,7 +340,9 @@ def ask(operator: Operator, question: str) -> dict:
         return _response(intent, "abstained", "missing_or_multiple_reference", [], [], None, "not_used", None, started)
     name, params = planned
     tool = TOOLS[name]
-    assert tool.read_only and set(params) <= set(tool.params)
+    # A real check, not an assert: asserts disappear when Python runs with -O.
+    if not tool.read_only or not set(params) <= set(tool.params):
+        raise RuntimeError("copilot tool contract violated")
     result = tool.fn(operator, **params)
     if result is None:
         return _response(intent, "abstained", "not_found_in_scope", [name], [], None, "not_used", None, started)
