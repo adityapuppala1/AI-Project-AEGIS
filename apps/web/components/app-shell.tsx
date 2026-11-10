@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import {
   Activity, BookOpenCheck, ChevronRight, Command, LayoutDashboard,
-  ChevronDown, Menu, Moon, Settings2, ShieldCheck, Sun, X, ClipboardCheck, LifeBuoy, RadioTower, Workflow, BrainCircuit, Route, UsersRound, Archive, Globe2, Gauge, Inbox, Radar, Plug, ClipboardList, MessagesSquare, GraduationCap, BarChart3,
+  ChevronDown, Menu, Moon, Settings2, ShieldCheck, Sun, X, ClipboardCheck, LifeBuoy, RadioTower, Workflow, BrainCircuit, Route, UsersRound, Archive, Globe2, Gauge, Inbox, Radar, Plug, ClipboardList, MessagesSquare, GraduationCap, BarChart3, Satellite, Rocket,
 } from "lucide-react";
 
 import { OperatorAuth } from "./operator-auth";
@@ -19,6 +19,7 @@ const navigation = [
   { label: "Overview", items: [
     { href: "/", label: "Command Center", icon: LayoutDashboard },
     { href: "/demo", label: "Exercise Walkthrough", icon: Route },
+    { href: "/alert-journey", label: "Alert Journey", icon: Satellite },
   ]},
   { label: "Observe", items: [
     { href: "/incidents", label: "Incident Registry", icon: Activity },
@@ -45,6 +46,7 @@ const navigation = [
     { href: "/help", label: "Help & Learning", icon: LifeBuoy },
     { href: "/admin", label: "Administration", icon: Settings2 },
     { href: "/admin/connectors", label: "Connectors", icon: Plug },
+    { href: "/admin/go-live", label: "Go-Live Setup", icon: Rocket },
   ]},
 ];
 

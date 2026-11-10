@@ -34,6 +34,8 @@ const ENTRIES: readonly Entry[] = [
   ["Govern", "పాలన", "शासन"],
   ["Command Center", "కమాండ్ సెంటర్", "कमांड सेंटर"],
   ["Exercise Walkthrough", "అభ్యాస వాక్‌థ్రూ", "अभ्यास वॉकथ्रू"],
+  ["Alert Journey", "హెచ్చరిక ప్రయాణం", "चेतावनी यात्रा"],
+  ["Go-Live Setup", "గో-లైవ్ సెటప్", "गो-लाइव सेटअप"],
   ["Incident Registry", "సంఘటనల రిజిస్టర్", "घटना रजिस्टर"],
   ["Source Freshness", "మూలాల తాజాదనం", "स्रोत ताज़गी"],
   ["Earth Watch", "భూమి పరిశీలన", "पृथ्वी निगरानी"],
