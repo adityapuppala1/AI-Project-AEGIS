@@ -18,6 +18,97 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Round 5: sign-in page, nonce CSP, relayed maps, Home button, demo video — 10 November 2026 (Windows laptop)
+
+Branch `feat/agentic-proactive-l3`, base `3061aec`, **uncommitted**. Compose services left **running** (web, api, db,
+local-idp, local-idp-tls; overlays local-idp + public-earth + proactive), volumes untouched.
+
+**Completed and verified by execution on the Windows laptop (not a Linux runner):**
+- `/sign-in` page (`app/sign-in/page.tsx`, `components/sign-in-experience.tsx`): 3D backdrop, no password field, starts
+  the OIDC flow only; the top-right "Operator sign in" link goes there; a failed hand-back returns to
+  `/sign-in?error=verify`.
+- Page CSP is now per-request nonce based (`middleware.ts`, `lib/csp.ts`); `connect-src 'self'`, `img-src 'self' data:
+  blob:`; API responses `default-src 'none'`.
+- All three map components load tiles through `/api/alert-journey/relay` (`lib/tile-relay.ts`). OpenStreetMap base
+  tiles are relayed without the public-feeds switch; every other source still needs `-PublicEarth`.
+- Orbit relay falls back to SatNOGS DB when CelesTrak refuses (LICENCES row 22, terms to confirm).
+- Home button in the Alert Journey top bar, both modes.
+- Checks: `npm run typecheck` OK; `node --test scripts/tests/*.test.cjs` 189 pass, 0 fail; web image rebuilt under
+  the lease (`Invoke-AegisLocalOperation`); headless Chromium crawl of 26 routes: all HTTP 200, zero CSP violations,
+  no page errors, no third-party host contacted by the browser, map tiles 200 through the relay, 274 satellites in
+  live mode; axe WCAG 2.1 A/AA scan of `/`, `/sign-in`, `/admin/go-live` and both Alert Journey modes: 0 violations
+  after three fixes (`#tip`, `#txlog`, `#kpis`).
+- Demo video `docs/media/alert-journey-demo.mp4` (3 min 9 s, 1280×720, 13 MB, captions, no audio), recorded from the
+  running app on the laptop GPU: exercise story with the three human gates, Live Earth (Hyderabad), Home button,
+  Command Center, sign-in page, Go-Live Setup.
+
+**Not done / pending:**
+- Signed-in flow not re-run after the CSP and callback changes (the assistant did not use the owner's local account
+  passwords). Run one sign-in and sign-out by hand to confirm.
+- The orbit run was served from the relay cache; the SatNOGS fallback path is covered by code review and typecheck
+  only, not by a live fallback response.
+- `python -m pytest`, `app.model_lab --check` and `npm run build` outside Docker were not re-run this round (no API
+  change; the Docker build ran `next build`).
+- Manual screen-reader/keyboard audit, other browsers, native review of Telugu/Hindi text, all owner actions in
+  `docs/GOVT_DEPLOYMENT_READINESS.md`.
+- Nothing committed or pushed.
+
+## Alert Journey explainer (interactive 3D mock-up) — 10 November 2026 (Windows laptop)
+
+Branch `feat/agentic-proactive-l3`, base `3061aec`, **uncommitted** (new untracked `apps/web/public/explainer/` and
+`docs/COMMS_EXPLAINER.md`). A static, synthetic, scrubbable 96-hour cyclone-flood walk-through: space watch, AI prediction
+with abstentions, maker≠checker gate, hand-over to NDMA/SACHET, cell broadcast, tower failure, satellite fallback, team
+staging (Plan A vs B), emergency mode. Details, files, query parameters and boundaries: `docs/COMMS_EXPLAINER.md`.
+
+- **Completed and executed:** all modules pass `node --check`; terrain/flood maths tested in Node; headless Chromium
+  (SwiftShader, `file://`, no AEGIS service started) rendered every view and a stress sweep over 69 entities and the whole
+  timeline with zero console errors.
+- **Unchanged rules:** no live send, dispatch or message; CAP preview stays Draft with Unknown severity and no area; teams
+  are agency-tasked; open-data claims follow `research/real-data/LICENCES.md`; operator names are illustrative only.
+- **Pending / not verified:** real-GPU performance, Firefox/Safari/mobile, axe audit, in-repo automated tests, native-speaker
+  review of the Hindi/Telugu sample text. three.js r128 is vendored (MIT) so no dependency change was made.
+- **Live Earth added (same day, uncommitted):** `apps/web/public/explainer/live-earth.html` is an opt-in, read-only page that
+  calls free public APIs (Open-Meteo, NASA GIBS and EONET, USGS, CelesTrak, OpenStreetMap, AWS Terrain Tiles, optional
+  Overpass) to show the real Earth, real satellites, real weather, return-period statistics, a terrain-based flood
+  scenario and a mock alert drill on a real map. Licence rows 13–19 added to `research/real-data/LICENCES.md`; details in
+  `docs/COMMS_EXPLAINER.md`. Executed: Node model/data tests and headless-Chromium runs with the real network (no page
+  errors). Not verified: other browsers/GPUs, accessibility. Findings: OSM has no mapped masts in central Hyderabad (page
+  says so); Overpass is often at capacity; Open-Meteo rate-limits per coordinate (terrain now uses tiles). No AEGIS service
+  was started; nothing from this page reaches PostgreSQL, proposals, CAP or alerts.
+- **Moved into the app as one page (same day, uncommitted):** route `/alert-journey` (`?mode=live` for Live Earth), React shell in
+  `apps/web/components/alert-journey/`, nav entry and translation added, `three@0.128.0` and `satellite.js@4.1.4` pinned in
+  `package.json`; `apps/web/public/explainer/` removed. Executed under the lease with no services running: typecheck, build,
+  169 Node tests pass, headless run against the built app (both modes, switch, exit/dispose) with no page errors. CelesTrak
+  rate-limited this laptop (HTTP 403, temporary) after repeated test runs. See the top of `docs/COMMS_EXPLAINER.md`.
+- **Round 2 and runtime state (10 Nov 2026, evening, uncommitted):** added `/admin/go-live` (read-only go-live checklist),
+  `/api/alert-journey/tle` (cached orbit relay), Sentinel-2 ground view, ensemble confidence, transmissions log, motion
+  control; live mode is now gated by the `-PublicEarth` switch plus viewer consent (decision delegated by the owner).
+  **AEGIS is RUNNING**: started under the lease with `docker compose --project-name ai-project-aegis --env-file .env
+  --env-file %LOCALAPPDATA%\AEGIS\local-idp\app.env -f compose.yaml -f compose.local-idp.yaml -f compose.public-earth.yaml
+  -f compose.proactive.yaml --profile local-idp up -d --build` (existing volumes reused, nothing reset; Docker Desktop was
+  started first). Stop with `scripts/stop-windows.ps1`. Executed: typecheck, 169 Node tests, headless check against
+  `localhost:3000` (no page errors). Not verified: signed-in flows on the new pages, other browsers, accessibility.
+- **Round 3, hardening and performance (11 Nov 2026, uncommitted; AEGIS RUNNING with the same Compose command):**
+  Content-Security-Policy and extra security headers in `apps/web/next.config.ts` (browser limited to this site plus nine
+  reviewed public-data origins); feed-supplied links restricted to `https:`; exercise mode no longer calls threejs.org
+  (NASA Blue Marble only when `-PublicEarth` is on); CelesTrak removed from the browser allow-list (server relay only).
+  Performance governor in both modes (adaptive render resolution, 30 fps power saver, 1 fps when the tab is hidden).
+  New: elevation-contour layer, compass and scale bar, keyboard camera controls. New test file
+  `apps/web/scripts/tests/alert-journey.test.cjs` (12 tests). New `docs/GOVT_DEPLOYMENT_READINESS.md` and a government
+  section on `/admin/go-live`. Executed: typecheck; `node --test scripts/tests/*.test.cjs` 181 pass; headless run over
+  all 24 routes plus live mode with **zero CSP violations** and no page errors. Still failing: orbit relay 502 because
+  CelesTrak answers HTTP 403 to this laptop's address (block from the 10 Nov test runs has not lifted).
+  Not verified: signed-in flows, real GPU frame rates, other browsers, accessibility; no security audit has been done.
+- **Round 4, relay and UX (11 Nov 2026, uncommitted; AEGIS RUNNING):** new `/api/alert-journey/relay` (GET, and POST for
+  Overpass only): fixed host/path allow-list, redirects refused, content-type and size checks, shared in-memory cache,
+  per-address rate limit, one upstream retry, closed unless `-PublicEarth`. All Alert Journey requests (data, tiles,
+  imagery, the exercise globe) now go through it; the headless run recorded **no third-party host contacted by the
+  browser**. UX: five-step guide bar in live mode, loading state, collapsible layer groups, orbit empty state, one combined
+  "explore mode" notice, `aria-selected` on tabs. Executed: typecheck; 186 Node tests pass (17 in
+  `alert-journey.test.cjs`); headless check with zero CSP violations and no page errors. Observed once: NASA EONET
+  answered an error through the relay and the Earth panel showed no events until the next load (retry added afterwards).
+  Still open: CelesTrak 403 for this address; Earth Watch and Command Center maps still call OSM/GIBS from the browser.
+
 ## Live signed-in run of Post-event Learning and Exercise Drills — found and fixed a blocking bug — 4 November 2026 (Windows laptop)
 
 Branch `feat/agentic-proactive-l3`, base `1bea25d` (fixes uncommitted until the commit that adds this entry). First time

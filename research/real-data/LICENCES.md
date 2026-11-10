@@ -25,9 +25,54 @@ The owner should confirm that the project stays non-commercial; several verdicts
 | 10 | Google Flood Forecasting API (`google_flood_forecasting`, A4) | Gauge flood status near Hyderabad | **PERMITTED-WITH-CONDITIONS** (CC BY 4.0; waitlist key pending) |
 | 11 | OpenStreetMap data extract (exposure importer, A3) | Hospitals, schools, shelters, roads in `exposure_features` | **PERMITTED-WITH-CONDITIONS** (ODbL 1.0; user-supplied local extract) |
 | 12 | WorldPop population grid (exposure importer, A3) | Population cells in `exposure_features` | **PERMITTED-WITH-CONDITIONS** (CC BY 4.0; user-supplied local file) |
+| 13 | Open-Meteo Flood, Archive (ERA5), Climate (CMIP6), Marine, Geocoding, Elevation-point APIs (Live Earth page) | Place weather, river-flood statistics, rainfall extremes, climate trends | **PERMITTED-WITH-CONDITIONS** (same terms as row 1: non-commercial, attribution) |
+| 14 | AWS Terrain Tiles (`elevation-tiles-prod`, Terrarium PNG) (Live Earth page) | Real terrain for the 3D place scene | **PERMITTED-WITH-CONDITIONS** (attribution; allow-listed to that bucket path only) |
+| 15 | NASA GIBS WMS layers beyond row 7: MODIS true colour, VIIRS Black Marble, IMERG rain, MODIS NDSI snow, MUR SST, Blue Marble | Earth imagery and overlays (Live Earth page) | **PERMITTED-WITH-CONDITIONS** (as row 7) |
+| 16 | USGS FDSN event query by id (Live Earth page) | Replay of real tsunami-generating earthquakes | **PERMITTED-WITH-CONDITIONS** (as row 6) |
+| 17 | CelesTrak GP/TLE (Live Earth page) | Real satellite orbits | **PERMITTED-WITH-CONDITIONS** (FAQ: data refresh only every 2 h; do not poll more often) |
+| 18 | Overpass API public instances (OpenStreetMap data) (Live Earth page) | Optional buildings, facilities, mapped masts, one user-triggered query | **PERMITTED-WITH-CONDITIONS** (ODbL 1.0; endpoint states it is for browser-based, human-operated tools; often at capacity) |
+| 20 | Sentinel-2 cloudless 2020 tiles by EOX (`tiles.maps.eox.at`) (Alert Journey live mode) | Real satellite ground view for region and city scenes | **PERMITTED-WITH-CONDITIONS — TERMS TO CONFIRM** (inference: CC BY-NC-SA 4.0 for 2018+ mosaics, non-commercial, attribution; the s2maps.eu terms page is script-rendered and could not be read on 2026-11-10) |
+| 21 | Open-Meteo Ensemble API (`ensemble-api.open-meteo.com`, GFS 31 members) (Alert Journey live mode) | Forecast-confidence band and share of members with heavy rain | **PERMITTED-WITH-CONDITIONS** (as row 1) |
+| 22 | SatNOGS DB orbital elements (`db.satnogs.org/api/tle/`) (Alert Journey live mode, server relay fallback only) | Satellite positions when CelesTrak refuses the server; one download per 6 hours, cached in memory | **PERMITTED-WITH-CONDITIONS — TERMS TO CONFIRM** (inference: SatNOGS DB data is CC BY-SA 4.0, attribution shown in Sources; the terms page was not read by the owner; no key) |
+| 19 | NOT USED: Google Maps / Earth, IMD, India-WRIS / CWC, GDACS, Esri imagery, OpenCelliD, NASA FIRMS, Copernicus CDS | — | **EXCLUDED / OWNER ACTION NEEDED** (paid, terms not cleared, or key/account required) |
 
 Phase 1 pilot sources approved to start: **row 1 only.** Rows 2 and 3 need the owner to create accounts and keep
 credentials in their own environment; they are not started. Rows 4 and 5 stay excluded.
+
+## Live Earth page (rows 13–19) — added 10 November 2026
+
+The owner asked for real free public APIs to be called in the explainer. the in-app page `/alert-journey?mode=live` (`apps/web/components/alert-journey/`) does
+this under the same discipline as Earth Watch: **opt-in (off until the user consents), read-only, fixed HTTPS allow-list,
+no keys, nothing written to PostgreSQL or any server, labelled "public reference, not an AEGIS assessment"**, and it never
+feeds proposals, CAP drafts or alerts. Hosts called: api / flood-api / archive-api / climate-api / marine-api /
+geocoding-api `.open-meteo.com`, `earthquake.usgs.gov`, `eonet.gsfc.nasa.gov`, `gibs.earthdata.nasa.gov`,
+`tile.openstreetmap.org`, `celestrak.org`, `overpass-api.de` (+ `overpass.kumi.systems` fallback) and
+`s3.amazonaws.com/elevation-tiles-prod/` only.
+
+- **Fact (curl, 2026-11-10):** every host above returned HTTP 200 with `Access-Control-Allow-Origin: *` for a normal
+  browser request (Overpass was at capacity at times: HTTP 502; an earlier 406 came from a generic `curl` client, which is
+  why the page only calls it from the user's browser).
+- **Fact:** Open-Meteo counts every coordinate as one call, so 1,296 elevation points in a burst returned HTTP 429. The page
+  therefore reads terrain from AWS Terrain Tiles (one PNG tile holds 65,536 samples) and uses the Open-Meteo elevation API
+  only for single points (tsunami epicentre check). Calls are cached (memory + localStorage) and limited per host.
+- **Fact (AWS Terrain Tiles, `tilezen/joerd/docs/attribution.md`):** attribution required; sources include USGS SRTM and
+  GMTED2010 (US public data) and NOAA ETOPO1. The page shows: "Terrain data: SRTM and GMTED2010 courtesy of the U.S.
+  Geological Survey; ETOPO1 U.S. NOAA; AWS Terrain Tiles (Tilezen)".
+- **Fact (CelesTrak FAQ, updated 2026-03-26):** new GP data is checked only once every 2 hours; abusive polling gets
+  temporary HTTP 403 blocks. The page requests at most 5 element sets per fresh browser and caches them for 6 hours.
+- **Fact (Overpass):** the public endpoint says it is "intended for browser-based and human-operated tools". The page calls
+  it once per button press with backoff and one mirror, never in a loop.
+- **Inference:** the USGS `tsunami` flag is `0` even for the 2004 M9.1 event, so tsunami potential is screened from
+  magnitude, depth and an offshore epicentre check, not from that flag; results say they are not a warning.
+- **OSM masts:** OpenStreetMap's mapped mobile masts are patchy (none inside the central-Hyderabad test square). The page
+  says so and uses clearly labelled illustrative tower sites for the mock drill when none are mapped. Real tower coverage
+  would need an operator or OpenCelliD data (free key, owner to register; not started).
+- **Not used:** Google Maps/Earth (tiles need a billed key and forbid scraping; the project forbids paid infrastructure),
+  IMD and India-WRIS (row 4/5 exclusions stand), GDACS (row 9), Esri imagery (terms not read), OpenCelliD, NASA FIRMS
+  and Copernicus CDS (keys/accounts).
+- Required on-screen credits (shown in the page footer and Sources panel): Open-Meteo.com (CC BY 4.0); NASA GIBS
+  acknowledgement text from row 7; "Earthquake data compiled by the U.S. Geological Survey"; NASA EONET; CelesTrak;
+  "© OpenStreetMap contributors"; the terrain credit above.
 
 ## 1. Open-Meteo (archive-api.open-meteo.com, flood-api.open-meteo.com)
 
