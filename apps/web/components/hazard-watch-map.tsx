@@ -1,5 +1,6 @@
 "use client";
 
+import { relayTileRequest } from "../lib/tile-relay";
 import { useEffect, useRef, useState } from "react";
 import type { GeoJSONSource, Map as MapLibreMap } from "maplibre-gl";
 import { COLUMN_HEIGHT_M, STATE_COLOR, type EvidenceRecord, type TriggerEvent } from "../lib/proactive";
@@ -35,6 +36,8 @@ export function HazardWatchMap({ triggers, evidence, selectedId, pitched, onSele
         if (disposed || !container.current) return;
         maplibregl.setWorkerUrl("/maplibre/maplibre-gl-worker.mjs?v=6.14.0");
         map = new maplibregl.Map({
+          // Tiles go through the AEGIS relay: tile servers never see the operator, and the page CSP stays "this site only".
+          transformRequest: relayTileRequest,
           container: container.current, center: [78.48, 17.4], zoom: 7.4, minZoom: 3, maxZoom: 13, maxPitch: 70,
           attributionControl: { compact: true },
           style: {
