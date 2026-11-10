@@ -5,6 +5,9 @@ COPY requirements.txt .
 RUN --mount=type=secret,id=proxy_ca \
     if [ -f /run/secrets/proxy_ca ]; then export PIP_CERT=/run/secrets/proxy_ca; fi; \
     pip install --no-cache-dir -r requirements.txt
+# Optional statistical forecast (compose.timesfm.yaml): CPU-only PyTorch and TimesFM, about 1 GB. Off by default.
+ARG INSTALL_TIMESFM=0
+RUN --mount=type=secret,id=proxy_ca     if [ "$INSTALL_TIMESFM" = "1" ]; then       if [ -f /run/secrets/proxy_ca ]; then export PIP_CERT=/run/secrets/proxy_ca; fi;       pip install --no-cache-dir torch==2.15.0 --index-url https://download.pytorch.org/whl/cpu &&       pip install --no-cache-dir "timesfm[torch]==3.0.2";     fi
 COPY app ./app
 # The deterministic replay JSON fixture ships inside app/fixtures.
 # Run as an unprivileged user: the API reads its code and writes nothing to the image.

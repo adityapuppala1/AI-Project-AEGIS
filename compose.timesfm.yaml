@@ -1,0 +1,23 @@
+# Optional statistical forecast with TimesFM 2.5 (display-only, off in base Compose).
+# Adds about 1.6 GB: CPU-only PyTorch and the timesfm package in the API image, plus model weights that are mounted
+# read-only from a folder on the host (the API container never downloads anything).
+#
+# One-time, on the host:  pip install "huggingface_hub" ; hf download google/timesfm-2.5-200m-pytorch
+# Then set AEGIS_TIMESFM_CACHE to the Hugging Face cache folder (the one that contains "hub"),
+# for example C:\Users\<you>\.cache\huggingface, and start with:  scripts/start-windows.ps1 -StatisticalForecast
+# Code and 2.5 weights are Apache-2.0. Do not swap in TimesFM 3.0 weights: their licence forbids production use.
+# See docs/STATISTICAL_FORECAST.md.
+services:
+  api:
+    build:
+      context: ./services/api
+      args:
+        INSTALL_TIMESFM: "1"
+    environment:
+      AEGIS_TIMESFM: "1"
+      HF_HOME: /models
+      HF_HUB_OFFLINE: "1"
+      TRANSFORMERS_OFFLINE: "1"
+    volumes:
+      - "${AEGIS_TIMESFM_CACHE:?set AEGIS_TIMESFM_CACHE to the Hugging Face cache folder holding the TimesFM 2.5 weights}:/models:ro"
+    mem_limit: 3g

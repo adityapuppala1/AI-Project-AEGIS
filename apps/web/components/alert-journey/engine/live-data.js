@@ -66,7 +66,7 @@ export default function install(g) {
       for (a = 0; a <= tries; a++) {
         var ctl = new AbortController(), to = setTimeout(function () { ctl.abort(); }, o.timeout || 25000);
         try {
-          var r = await fetch(via(url), { signal: ctl.signal, method: o.method || 'GET', body: o.body, headers: o.headers, credentials: 'omit', referrerPolicy: 'strict-origin-when-cross-origin' });
+          var r = await fetch(via(url), { signal: ctl.signal, method: o.method || 'GET', body: o.body, headers: o.headers, credentials: 'same-origin', referrerPolicy: 'strict-origin-when-cross-origin' });
           clearTimeout(to);
           if (r.url && !allowed(r.url)) throw new Error('Blocked: redirected outside the allow-list');
           if (!r.ok) { if ([429, 502, 503, 504].indexOf(r.status) > -1 && a < tries) { await sleep(delay); delay *= 2; continue; } throw new Error('HTTP ' + r.status); }
@@ -105,6 +105,20 @@ export default function install(g) {
     var d = j.daily, dly = d.time.map(function (t, i) { return { t: t * 1000, rain: d.precipitation_sum[i], snow: d.snowfall_sum[i], gust: d.wind_gusts_10m_max[i], tmax: d.temperature_2m_max[i], tmin: d.temperature_2m_min[i] }; });
     var c = j.current;
     return { lat: j.latitude, lon: j.longitude, elev: j.elevation, tz: j.timezone, utcOffset: j.utc_offset_seconds * 1000, hours: hours, days: dly, current: { t: c.time * 1000, temp: c.temperature_2m, feels: c.apparent_temperature, rh: c.relative_humidity_2m, precip: c.precipitation, snowfall: c.snowfall, code: c.weather_code, cloud: c.cloud_cover, pressure: c.pressure_msl, wind: c.wind_speed_10m, windDir: c.wind_direction_10m, gust: c.wind_gusts_10m, isDay: c.is_day } };
+  };
+
+  /* ---------------- optional statistical forecast (TimesFM on the AEGIS server; display-only) ---------------- */
+  // The last 400 days of modelled discharge, oldest first, for the pattern model to read.
+  L.floodRecent = async function (lat, lon) {
+    var iso = function (ms) { return new Date(ms).toISOString().slice(0, 10); };
+    var v = await req('flood', 'https://flood-api.open-meteo.com/v1/flood?latitude=' + n4(lat) + '&longitude=' + n4(lon) + '&daily=river_discharge&start_date=' + iso(Date.now() - 400 * DAY) + '&end_date=' + iso(Date.now() - DAY), { ttl: 6 * 3600000, label: 'fetching the last 400 days of discharge…' });
+    return ((v.daily && v.daily.river_discharge) || []).filter(function (x) { return typeof x === 'number' && isFinite(x) && x >= 0; });
+  };
+  L.statForecast = async function (kind, series, horizon) {
+    var r = await fetch('/api/forecast', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kind: kind, series: series, horizon: horizon }) });
+    var j = await r.json().catch(function () { return null; });
+    if (!r.ok || !j || !Array.isArray(j.point)) { var e = new Error('unavailable'); e.code = (j && typeof j.code === 'string') ? j.code : (r.status === 401 ? 'signed_out' : 'unavailable'); throw e; }
+    return j;
   };
 
   /* ---------------- river discharge (GloFAS-derived) with a Gumbel fit to annual maxima ---------------- */

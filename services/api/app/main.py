@@ -89,6 +89,9 @@ from app.handover import router as handover_router
 from app.operator_copilot import router as operator_copilot_router
 app.include_router(handover_router)
 app.include_router(operator_copilot_router)
+# Optional TimesFM statistical forecast (display-only, off unless AEGIS_TIMESFM=1; no write path).
+from app.statistical_forecast import router as statistical_forecast_router
+app.include_router(statistical_forecast_router)
 # A8 post-event learning (maker-checker threshold proposals, explicit apply) and A9 exercise drills
 # (simulated clock, exercise-only state); both 404 unless AEGIS_PROACTIVE=1.
 from app.learning import router as learning_router

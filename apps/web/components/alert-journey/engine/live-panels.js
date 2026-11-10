@@ -148,6 +148,15 @@ export default function install(g) {
     else if (!fl.days.length) h += '<p class="muted"><b>Abstains:</b> ' + esc(fl.abstain || 'no river here') + '. The flood model has no river cell at this point (try a point on a river).</p>';
     else h += '<div id="flChart"></div><small class="muted">Model grid cell ' + fl.grid[0].toFixed(3) + '°, ' + fl.grid[1].toFixed(3) + '° (≈5 km). Model discharge, not a gauge reading. Dashed lines = 2/5/20-yr return levels from ' + (fl.fit ? fl.fit.n : '–') + ' years of GloFAS history.</small>';
     h += '</div>';
+    if (fl && fl.days.length) {
+      var sf = d.statForecast || { state: 'idle' }, SFMSG = { switched_off: 'The statistical forecast is switched off on this server. An administrator can enable it (see Go-Live Setup).', model_unavailable: 'The forecasting model is not installed on this server, or it could not load.', too_short: 'Fewer than 60 days of discharge are available here, which is too little for the model.', signed_out: 'Your session has ended. Sign in again.', series_is_constant: 'The discharge here does not change, so there is nothing to forecast.' };
+      h += '<div class="card"><div class="k">STATISTICAL FORECAST · TimesFM 2.5 · optional</div>';
+      if (sf.state === 'busy') h += '<p class="muted">Working… The first run loads the model and can take up to a minute.</p>';
+      else if (sf.state === 'done') h += '<div id="sfChart"></div><small class="muted"><b style="color:#b79bff">Purple</b>: pattern model, middle estimate with its 10–90% range. <b style="color:#38e1ff">Blue</b>: the GloFAS river model for the same days.' + (sf.out.holdout ? ' Check on the last ' + sf.out.holdout.points + ' known days: average error <b>' + sf.out.holdout.modelError.toFixed(1) + ' m³/s</b>, against ' + sf.out.holdout.repeatLastError.toFixed(1) + ' for simply repeating the last value; ' + sf.out.holdout.insideRange + ' of ' + sf.out.holdout.points + ' days fell inside the range. One slice of history, not accuracy.' : '') + '</small>';
+      else if (sf.state === 'error') h += '<p class="muted">' + esc(SFMSG[sf.code] || 'The statistical forecast is not available right now.') + '</p>';
+      if (sf.state !== 'busy') h += '<button class="btn" id="sfRun" type="button" style="display:block;margin-top:8px">' + (sf.state === 'done' ? 'Run again' : 'Run a 30-day statistical forecast') + '</button>';
+      h += '<small class="muted" style="display:block;margin-top:6px">A general pattern model that knows nothing about rivers or weather and was not trained on Indian hydrology. It can miss extremes. Shown for comparison only: not an AEGIS assessment, never used for alerts.</small></div>';
+    }
     h += '<div class="card"><div class="k">RAINFALL EXTREMES · ERA5 ' + (ar ? ar.years[0] + '–' + ar.years[ar.years.length - 1] : '') + '</div>';
     if (!ar) h += '<p class="muted">' + (d.archiveErr ? 'History unavailable: ' + esc(d.archiveErr) : 'Loading 34 years of reanalysis…') + '</p>';
     else { var ft = M.gumbelFit(ar.maxP1), r24 = d.forecast ? M.windowSum(d.forecast.hours, Date.now(), 'precip', 24) : null; h += '<div id="rnChart"></div>' + (ft ? '<table class="kv rl"><tr><th>Return period</th>' + [2, 5, 10, 20, 50, 100].map(function (t) { return '<td>' + t + ' yr</td>'; }).join('') + '</tr><tr><th>1-day rain</th>' + [2, 5, 10, 20, 50, 100].map(function (t) { return '<td><b>' + M.gumbelQ(ft, t).toFixed(0) + '</b> mm</td>'; }).join('') + '</tr></table><small class="muted">Gumbel (EV1) fitted by L-moments to ' + ft.n + ' annual maxima. ' + (r24 != null ? 'Forecast next 24 h: <b>' + r24.toFixed(0) + ' mm</b> → ' + M.rpText(M.gumbelRP(ft, Math.max(r24, 0.1))) + '.' : '') + ' Small samples carry large uncertainty (see the 90% range in the hazard board).</small>' : '<p class="muted">Too few years to fit.</p>'); }
@@ -157,6 +166,20 @@ export default function install(g) {
     if (cl) h += '<div id="cmChart"></div><small class="muted">Single-model CMIP6 projection (MRI-AGCM3-2-S) via Open-Meteo: illustrative, not a forecast.</small>';
     h += '</div>';
     host.innerHTML = h;
+    var sfBtn = host.querySelector('#sfRun');
+    if (sfBtn) sfBtn.onclick = function () {
+      var place = S.place, again = function () { if (S.place === place && host.isConnected) P.flood(host); };
+      d.statForecast = { state: 'busy' }; again();
+      L.floodRecent(place.lat, place.lon).then(function (series) {
+        if (series.length < 60) { var short = new Error('short'); short.code = 'too_short'; throw short; }
+        return L.statForecast('river_discharge', series, 30);
+      }).then(function (out) { d.statForecast = { state: 'done', out: out }; again(); }).catch(function (e) { d.statForecast = { state: 'error', code: e && e.code }; again(); });
+    };
+    if (d.statForecast && d.statForecast.state === 'done' && fl && fl.days.length && host.querySelector('#sfChart')) {
+      var so = d.statForecast.out, sx = so.point.map(function (_, i) { return i + 1; }), t0 = Date.now(), gf = fl.days.filter(function (x) { return x.t >= t0 - 864e5; }).slice(0, 30);
+      plot(host.querySelector('#sfChart'), { h: 150, xmin: 1, xmax: 30, ymax: Math.max.apply(null, so.q90.concat(gf.map(function (x) { return x.q; }))) * 1.12, yfmt: function (v) { return v < 10 ? v.toFixed(1) : Math.round(v); }, xticks: [[1, '+1d'], [10, '+10d'], [20, '+20d'], [30, '+30d']],
+        series: [{ type: 'band', xs: sx, hi: so.q90, lo: so.q10, color: '#b79bff' }, { type: 'line', xs: sx, ys: so.point, color: '#b79bff', width: 2 }, { type: 'line', xs: gf.map(function (_, i) { return i + 1; }), ys: gf.map(function (x) { return x.q; }), color: '#38e1ff', width: 2, dash: [5, 4] }] });
+    }
     if (fl && fl.days.length) {
       var now = Date.now(), xs = fl.days.map(function (x) { return (x.t - now) / 864e5; }), ys = fl.days.map(function (x) { return x.q; }), mx = Math.max.apply(null, ys.concat(fl.q2 ? [fl.q2 * 1.05] : [0]));
       plot(host.querySelector('#flChart'), { h: 150, xmin: -30, xmax: 30, ymax: mx * 1.1, yfmt: function (v) { return Math.round(v); }, xticks: [[-30, '−30d'], [-15, ''], [0, 'today'], [15, '+15d'], [30, '+30d']], series: [{ type: 'area', xs: xs, ys: ys, color: '#38e1ff', width: 2 }], hlines: fl.fit ? [{ y: fl.q2, label: '2 yr', color: '#f6e65a' }, { y: fl.q5, label: '5 yr', color: '#ffb547' }, { y: fl.q20, label: '20 yr', color: '#ff6a5d' }] : [], vlines: [{ x: 0, color: '#4be3a0', label: 'now' }] });
