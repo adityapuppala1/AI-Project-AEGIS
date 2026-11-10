@@ -73,7 +73,7 @@ export function PublicSignalsStrip() {
         <StatusPill tone={worst === "stale" ? "danger" : worst === "aging" ? "warning" : "success"}>{worst === "stale" ? "Stale · " : ""}USGS &amp; NASA fetched {ageLabel((now - oldest) / 1000)}</StatusPill>
         {failed && <span className="text-[11px] text-rose-700 dark:text-rose-300">Last refresh failed; showing earlier data.</span>}
       </div>
-      <Link href="/earth-watch" className="inline-flex items-center gap-1 text-xs font-semibold text-accent">Open Earth Watch <ArrowRight size={14}/></Link>
+      <Link href="/earth-watch" className="inline-flex min-h-11 items-center gap-1 text-xs font-semibold text-accent">Open Earth Watch <ArrowRight size={14}/></Link>
     </div>
     <dl className="mt-4 grid gap-3 sm:grid-cols-3">
       <div className="rounded-lg bg-elevated/40 p-3"><dt className="text-[11px] text-muted">Earthquakes, India &amp; neighbours (7 days)</dt>

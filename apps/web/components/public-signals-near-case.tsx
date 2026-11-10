@@ -130,7 +130,7 @@ export function PublicSignalsNearCase({ lat, lon }: { lat: number; lon: number }
                 <td className="p-2"><span className="inline-flex items-center gap-1"><Compass size={12} aria-hidden="true"/>{compassLabel(bearing)}</span></td>
                 <td className="p-2">{formatIst(record.observed_at)}</td></tr>)}</tbody>
             </table></div>}
-        <Link href="/earth-watch" className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-accent">Open the full Earth Watch map <ArrowRight size={14}/></Link>
+        <Link href="/earth-watch" className="mt-2 inline-flex min-h-11 items-center gap-1 text-xs font-semibold text-accent">Open the full Earth Watch map <ArrowRight size={14}/></Link>
       </div>
     </div>}
   </section>;

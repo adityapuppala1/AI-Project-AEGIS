@@ -59,8 +59,7 @@ test('translate falls back to English for unknown text and for English itself', 
 });
 
 test('every navigation label and group in the app shell is translated', () => {
-  const shell = fs.readFileSync(path.join(root, 'components/app-shell.tsx'), 'utf8');
-  const block = shell.slice(shell.indexOf('const navigation'), shell.indexOf('// Matches Tailwind'));
+  const block = fs.readFileSync(path.join(root, 'lib/navigation.ts'), 'utf8');
   const labels = [...block.matchAll(/label: "([^"]+)"/g)].map(match => match[1]);
   assert.ok(labels.length >= 20, 'found ' + labels.length);
   const known = new Set(tr.TRANSLATION_ENTRIES.map(entry => entry[0]));

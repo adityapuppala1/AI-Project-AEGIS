@@ -3,26 +3,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useT } from "./language-provider";
 import { useRouter } from "next/navigation";
-import { BookOpenCheck, ClipboardCheck, Command, LayoutDashboard, LifeBuoy, Search, Settings2, X, Activity, RadioTower, Workflow, BrainCircuit, Route, UsersRound, Archive, SearchX, FileText } from "lucide-react";
+import { Command, LayoutDashboard, LifeBuoy, Search, X, Activity, SearchX, FileText } from "lucide-react";
 import { EmptyState, ErrorState, Skeleton } from "./ui";
 import type { Incident } from "../lib/types";
+import { allPages } from "../lib/navigation";
 
 type CommandItem = { label: string; description: string; href: string; kind: "page" | "incident"; group?: "pages" | "cases" | "help" };
-const pages: CommandItem[] = [
-  { label: "Command Center", description: "System overview and geospatial map", href: "/", kind: "page" },
-  { label: "Exercise Walkthrough", description: "Nine-stage integrated simulation", href: "/demo", kind: "page" },
-  { label: "Incident Registry", description: "Search, sort and filter exercise incidents", href: "/incidents", kind: "page" },
-  { label: "Source Freshness", description: "Inspect delayed and missing synthetic data feeds", href: "/sources", kind: "page" },
-  { label: "DataFusion Replay", description: "Review synthetic ingestion, duplicates and quarantine", href: "/ingestion", kind: "page" },
-  { label: "Model Evaluation Lab", description: "Synthetic holdout metrics, calibration and limitations", href: "/model-lab", kind: "page" },
-  { label: "Approval Workbench", description: "Authenticated maker-checker workflow", href: "/approvals", kind: "page" },
-  { label: "AgencySync Tasks", description: "Fictional acknowledgements and department timelines", href: "/agency-sync", kind: "page" },
-  { label: "Audit360 Export", description: "Download bounded synthetic case provenance and checksum", href: "/audit", kind: "page" },
-  { label: "Response Playbooks", description: "Emergency exercise procedures", href: "/playbooks", kind: "page" },
-  { label: "Administration", description: "Policy and integration previews", href: "/admin", kind: "page" },
-  { label: "Self Help & FAQ", description: "Guides, shortcuts, troubleshooting and AI explanations", href: "/help", kind: "page" },
-];
-const icons = [LayoutDashboard, Route, Activity, RadioTower, Workflow, BrainCircuit, ClipboardCheck, UsersRound, Archive, BookOpenCheck, Settings2, LifeBuoy];
+const pages: CommandItem[] = allPages.map(page => ({ label: page.label, description: page.description, href: page.href, kind: "page" }));
+const icons = allPages.map(page => page.icon);
 const GROUPS = [
   { key: "pages", label: "Pages", icon: LayoutDashboard },
   { key: "cases", label: "Cases", icon: FileText },

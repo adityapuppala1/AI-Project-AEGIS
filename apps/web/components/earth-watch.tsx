@@ -343,8 +343,8 @@ export function EarthWatch() {
           <div className="panel-heading"><h2 className="flex items-center gap-2 text-base font-bold"><Layers size={18} className="text-accent"/> {t("Hazard layers")}</h2>
             <span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">{t("Read-only")}</span></div>
           <div className="space-y-3 border-b border-stroke p-4 text-sm">
-            <label className="flex items-center gap-2"><input type="checkbox" checked={showQuakes} onChange={event => setShowQuakes(event.target.checked)}/> USGS earthquakes <small className="text-muted">M2.5+ · 7 days</small></label>
-            <label className="flex items-center gap-2"><input type="checkbox" checked={showEvents} onChange={event => setShowEvents(event.target.checked)}/> NASA EONET events <small className="text-muted">open · 30 days</small></label>
+            <label className="flex min-h-11 cursor-pointer items-center gap-2"><input type="checkbox" className="h-5 w-5 accent-teal-600" checked={showQuakes} onChange={event => setShowQuakes(event.target.checked)}/> USGS earthquakes <small className="text-muted">M2.5+ · 7 days</small></label>
+            <label className="flex min-h-11 cursor-pointer items-center gap-2"><input type="checkbox" className="h-5 w-5 accent-teal-600" checked={showEvents} onChange={event => setShowEvents(event.target.checked)}/> NASA EONET events <small className="text-muted">open · 30 days</small></label>
             <label className="block text-xs font-semibold text-muted">{t("Event category")}
               <select className="field mt-1 w-full" value={category} onChange={event => setCategory(event.target.value)}>
                 <option value="all">{t("All natural events")}</option>

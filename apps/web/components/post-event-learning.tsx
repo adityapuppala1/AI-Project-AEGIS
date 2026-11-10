@@ -9,26 +9,12 @@ import { useOperatorSession } from "../lib/use-operator-session";
 import { SignInRequired } from "./sign-in-required";
 import {
   cleanConfig, cleanProposal, cleanScenarios, cleanWindow, pctLabel,
-  type ConfigView, type LearningWindow, type Proposal, type Scenario,
-} from "../lib/learning";
+  type ConfigView, type LearningWindow, type Proposal, type Scenario, call } from "../lib/learning";
 
 const BASIS_LABEL: Record<string, string> = {
   synthetic_rehearsal: "Synthetic rehearsal", known_events_unreviewed: "Unreviewed catalogue labels", registered_protocol_labels: "Protocol-eligible labels",
 };
 const STATUS_TONE = { draft: "neutral", submitted: "warning", approved: "success", rejected: "danger" } as const;
-
-async function call<T>(url: string, clean: (value: unknown) => T | null, body?: unknown): Promise<T> {
-  const response = await fetch(url, { method: body === undefined ? "GET" : "POST", cache: "no-store",
-    headers: body === undefined ? undefined : { "Content-Type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) });
-  const data = await response.json().catch(() => null) as unknown;
-  if (!response.ok) {
-    const info = data as { error?: string; code?: string } | null;
-    throw new Error([info?.error || "Request failed", info?.code].filter(Boolean).join(" · "));
-  }
-  const cleaned = clean(data);
-  if (!cleaned) throw new Error("Invalid response");
-  return cleaned;
-}
 
 /** A8: closed event windows, rehearsal statistics and maker-checker threshold proposals. Approval never applies. */
 export function PostEventLearning() {

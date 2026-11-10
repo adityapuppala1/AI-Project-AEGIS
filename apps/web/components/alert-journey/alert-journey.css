@@ -181,7 +181,7 @@ details summary{cursor:pointer;color:var(--mu);font-size:11.5px} details ul{marg
   #side{width:min(380px,calc(100vw - 24px));top:auto;height:44vh;bottom:calc(var(--dockH) + 10px);right:12px} #kpis{right:12px} #phoneW{display:none} #layers{display:none} #minimapWrap{width:132px;height:132px;bottom:calc(44vh + var(--dockH) + 22px)} #toasts{display:none}
   .incident .synth{display:none} .clockb .cl small{display:none} .phasechips{display:none} .hgrid{grid-template-columns:1fr}
 }
-@media (max-width:640px){ .brand span,.incident b{display:none} #side{height:40vh;width:calc(100vw - 24px)} .kpi{min-width:84px} #minimapWrap{display:none!important} }
+@media (max-width:640px){ .brand span,.incident b{display:none} #side{height:40vh;width:calc(100vw - 24px)} .kpi{min-width:84px} #minimapWrap{display:none!important} #diveHint{left:50%;bottom:calc(var(--dockH) + 40vh + 22px)} #diveHint small{display:none} }
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 .orb small{display:block}.card.insp{animation:none}.orb b{display:block}
 

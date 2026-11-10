@@ -64,7 +64,7 @@ export default function HelpPage() {
       <div className="relative z-10 max-w-2xl">
         <p className="eyebrow flex items-center gap-2"><LifeBuoy size={16} className="text-accent"/> Knowledge Center</p>
         <h2 className="mt-3 text-xl font-bold tracking-tight sm:text-2xl">Answers for every stage of the response exercise</h2>
-        <p className="mt-3 text-sm leading-6 text-muted">Explore concise, verified product guidance. AI-generated help is not connected yet; this library contains curated application documentation.</p>
+        <p className="mt-3 text-sm leading-6 text-muted">Explore concise, verified product guidance. These answers are written and checked by people. For questions about agency records, signed-in operators can use the Operator Copilot, which answers only from validated records.</p>
         <SearchField className="mt-5" label={t("Search self-help articles")} value={query} onChange={setQuery} placeholder={t("Search login, incident search, AI, alerts...")}/>
       </div>
     </div>
@@ -73,7 +73,7 @@ export default function HelpPage() {
         { label: "Incident Registry", detail: "Search and filter records", icon: Database, href: "/incidents" },
         { label: "Source Freshness", detail: "Inspect synthetic data timeliness", icon: RadioTower, href: "/sources" },
         { label: "Response Playbooks", detail: "Approved-response preparation", icon: BookOpenCheck, href: "/playbooks" },
-        { label: "Operator Approvals", detail: "Maker-checker guidance", icon: LockKeyhole, href: "/approvals" },
+        { label: "Approval Workbench", detail: "Maker-checker guidance", icon: LockKeyhole, href: "/approvals" },
         { label: "AI Transparency", detail: "What models can and cannot do", icon: BrainCircuit, href: "#help-articles" },
       ].map(item => <Link key={item.label} href={item.href} className="panel group block p-4 transition-colors hover:border-accent/40 hover:bg-elevated/70">
         <item.icon size={22} className="text-accent"/><h3 className="mt-3 flex items-center gap-2 text-sm font-bold">{item.label}<ArrowRight size={14} className="opacity-50 transition-transform group-hover:translate-x-1"/></h3>

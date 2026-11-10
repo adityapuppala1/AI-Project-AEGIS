@@ -34,6 +34,7 @@ const ENTRIES: readonly Entry[] = [
   ["Govern", "పాలన", "शासन"],
   ["Command Center", "కమాండ్ సెంటర్", "कमांड सेंटर"],
   ["Exercise Walkthrough", "అభ్యాస వాక్‌థ్రూ", "अभ्यास वॉकथ्रू"],
+  ["About AEGIS", "AEGIS గురించి", "AEGIS के बारे में"],
   ["Alert Journey", "హెచ్చరిక ప్రయాణం", "चेतावनी यात्रा"],
   ["Go-Live Setup", "గో-లైవ్ సెటప్", "गो-लाइव सेटअप"],
   ["Incident Registry", "సంఘటనల రిజిస్టర్", "घटना रजिस्टर"],

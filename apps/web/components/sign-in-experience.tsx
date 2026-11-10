@@ -142,6 +142,7 @@ export function SignInExperience({ failed }: Readonly<{ failed: boolean }>) {
         <Link href="/" className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-[#0a1026]/70 px-4 py-2 text-sm text-[#cfd8f5] backdrop-blur transition hover:border-[#38e1ff] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#38e1ff]">
           <ArrowLeft size={16} aria-hidden="true" />Back to Command Center
         </Link>
+        <Link href="/welcome" className="mr-auto hidden rounded-full px-3 py-2 text-sm text-[#cfd8f5] underline-offset-4 hover:text-white hover:underline sm:inline">What is AEGIS?</Link>
         <span className="rounded-full border border-[#ffb547]/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-[.14em] text-[#ffb547]">Exercise only · synthetic data</span>
       </header>
 
@@ -192,7 +193,7 @@ export function SignInExperience({ failed }: Readonly<{ failed: boolean }>) {
           </ul>
 
           <div className={`mt-7 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-5 text-xs ${rise("delay-700")}`}>
-            <Link href="/alert-journey" className="inline-flex items-center gap-2 text-[#38e1ff] underline-offset-4 hover:underline"><Satellite size={14} aria-hidden="true" />Explore the Alert Journey (no sign-in needed)</Link>
+            <Link href="/alert-journey" className="inline-flex min-h-11 items-center gap-2 text-[#38e1ff] underline-offset-4 hover:underline"><Satellite size={14} aria-hidden="true" />Explore the Alert Journey (no sign-in needed)</Link>
             <span className="text-[#93a0c8]">Trouble signing in? Contact your agency administrator.</span>
           </div>
         </section>

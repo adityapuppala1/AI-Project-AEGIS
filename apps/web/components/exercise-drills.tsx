@@ -7,7 +7,7 @@ import { useT } from "./language-provider";
 import { EmptyState, ErrorState, Panel, SkeletonRows, StatusPill } from "./ui";
 import { useOperatorSession } from "../lib/use-operator-session";
 import { SignInRequired } from "./sign-in-required";
-import { DRILL_ACTIONS, cleanDrill, cleanReport, cleanScenarios, simClock, type Drill, type DrillAction, type DrillReport, type Scenario } from "../lib/learning";
+import { DRILL_ACTIONS, cleanDrill, cleanReport, cleanScenarios, simClock, type Drill, type DrillAction, type DrillReport, type Scenario, call } from "../lib/learning";
 
 const ACTION_LABEL: Record<DrillAction, string> = {
   acknowledge_watch: "Acknowledge watch", take_handoff: "Take hand-off", submit: "Submit", approve: "Approve (checker)",
@@ -17,19 +17,6 @@ const SLA_LABEL: Record<string, string> = {
 };
 const SLA_TONE = { within_synthetic_target: "success", synthetic_target_elapsed: "warning", not_taken: "danger", not_applicable: "neutral" } as const;
 const STEPS = [5, 15, 30, 60] as const;
-
-async function call<T>(url: string, clean: (value: unknown) => T | null, body?: unknown): Promise<T> {
-  const response = await fetch(url, { method: body === undefined ? "GET" : "POST", cache: "no-store",
-    headers: body === undefined ? undefined : { "Content-Type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) });
-  const data = await response.json().catch(() => null) as unknown;
-  if (!response.ok) {
-    const info = data as { error?: string; code?: string } | null;
-    throw new Error([info?.error || "Request failed", info?.code].filter(Boolean).join(" · "));
-  }
-  const cleaned = clean(data);
-  if (!cleaned) throw new Error("Invalid response");
-  return cleaned;
-}
 
 /** A9 tabletop drills on a simulated clock. Exercise-only; nothing here touches live watch data or sends. */
 export function ExerciseDrills() {

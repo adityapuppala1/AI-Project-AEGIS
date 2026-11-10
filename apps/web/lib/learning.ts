@@ -260,3 +260,17 @@ export function cleanReport(value: unknown): DrillReport | null {
 export const pctLabel = (rate: Rate): string => rate.estimate === null ? "n/a"
   : `${Math.round(rate.estimate * 100)}%` + (rate.ci95 ? ` (95% CI ${Math.round(rate.ci95[0] * 100)}-${Math.round(rate.ci95[1] * 100)}%)` : "");
 export const simClock = (minute: number): string => `T+${String(Math.floor(minute / 60)).padStart(2, "0")}:${String(minute % 60).padStart(2, "0")}`;
+
+/** Client request helper shared by the learning and drill pages: sends, checks the status, then validates the reply. */
+export async function call<T>(url: string, clean: (value: unknown) => T | null, body?: unknown): Promise<T> {
+  const response = await fetch(url, { method: body === undefined ? "GET" : "POST", cache: "no-store",
+    headers: body === undefined ? undefined : { "Content-Type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) });
+  const data = await response.json().catch(() => null) as unknown;
+  if (!response.ok) {
+    const info = data as { error?: string; code?: string } | null;
+    throw new Error([info?.error || "Request failed", info?.code].filter(Boolean).join(" · "));
+  }
+  const cleaned = clean(data);
+  if (!cleaned) throw new Error("Invalid response");
+  return cleaned;
+}

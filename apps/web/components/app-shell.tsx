@@ -4,51 +4,15 @@ import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } fro
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
-import {
-  Activity, BookOpenCheck, ChevronRight, Command, LayoutDashboard,
-  ChevronDown, Menu, Moon, Settings2, ShieldCheck, Sun, X, ClipboardCheck, LifeBuoy, RadioTower, Workflow, BrainCircuit, Route, UsersRound, Archive, Globe2, Gauge, Inbox, Radar, Plug, ClipboardList, MessagesSquare, GraduationCap, BarChart3, Satellite, Rocket,
-} from "lucide-react";
+import { ChevronRight, Command, ChevronDown, Menu, Moon, ShieldCheck, Sun, X } from "lucide-react";
 
 import { OperatorAuth } from "./operator-auth";
 import { GlobalSearch } from "./global-search";
 import { LanguageSwitcher } from "./language-switcher";
 import { useT } from "./language-provider";
 import { PageHeader, ToastProvider, type Crumb } from "./ui";
+import { navigation } from "../lib/navigation";
 
-const navigation = [
-  { label: "Overview", items: [
-    { href: "/", label: "Command Center", icon: LayoutDashboard },
-    { href: "/demo", label: "Exercise Walkthrough", icon: Route },
-    { href: "/alert-journey", label: "Alert Journey", icon: Satellite },
-  ]},
-  { label: "Observe", items: [
-    { href: "/incidents", label: "Incident Registry", icon: Activity },
-    { href: "/sources", label: "Source Freshness", icon: RadioTower },
-    { href: "/earth-watch", label: "Earth Watch", icon: Globe2 },
-    { href: "/watch", label: "Hazard Watch", icon: Radar },
-    { href: "/public-intake", label: "Public Intake", icon: Inbox },
-    { href: "/ingestion", label: "DataFusion Replay", icon: Workflow },
-    { href: "/model-lab", label: "Model Evaluation Lab", icon: BrainCircuit },
-  ]},
-  { label: "Coordinate", items: [
-    { href: "/approvals", label: "Approval Workbench", icon: ClipboardCheck },
-    { href: "/department-tasks", label: "Department Inbox", icon: ClipboardCheck },
-    { href: "/response-teams", label: "Team Availability", icon: Gauge },
-    { href: "/agency-sync", label: "AgencySync Tasks", icon: UsersRound },
-    { href: "/handover", label: "Shift Handover", icon: ClipboardList },
-    { href: "/copilot", label: "Operator Copilot", icon: MessagesSquare },
-    { href: "/drills", label: "Exercise Drills", icon: GraduationCap },
-  ]},
-  { label: "Govern", items: [
-    { href: "/audit", label: "Audit360 Export", icon: Archive },
-    { href: "/playbooks", label: "Response Playbooks", icon: BookOpenCheck },
-    { href: "/learning", label: "Post-event Learning", icon: BarChart3 },
-    { href: "/help", label: "Help & Learning", icon: LifeBuoy },
-    { href: "/admin", label: "Administration", icon: Settings2 },
-    { href: "/admin/connectors", label: "Connectors", icon: Plug },
-    { href: "/admin/go-live", label: "Go-Live Setup", icon: Rocket },
-  ]},
-];
 
 // Matches Tailwind's lg breakpoint, where the rail stops being an overlay drawer.
 const RAIL_QUERY = "(min-width: 64rem)";
