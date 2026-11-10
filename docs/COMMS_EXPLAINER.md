@@ -31,7 +31,7 @@
 - **Round 5 (10–11 Nov 2026):** Home button in the Alert Journey top bar (both modes); new `/sign-in` page (3D
   backdrop, no password field, starts the OIDC flow only); page CSP moved to a per-request nonce (`middleware.ts`,
   `lib/csp.ts`) with `connect-src 'self'`; all maps load tiles through the relay; orbit relay falls back to SatNOGS DB
-  when CelesTrak refuses the server; three axe findings fixed. Demo video: `docs/media/alert-journey-demo.mp4`.
+  when CelesTrak refuses the server; three axe findings fixed. Narrated demo videos: `docs/media/01`–`05` (see `docs/media/NARRATION.md`).
 - **Go-Live Setup page:** `/admin/go-live` (nav: Govern) lists every external API, key, secret, switch and agreement,
   where each is set, how to obtain it, and what the page can detect (OIDC configured, public feeds, public intake). It is
   read-only and never shows or accepts a secret; keys are entered on `/admin/connectors` by a signed-in platform admin.

@@ -1,0 +1,87 @@
+# Security assessment — 10 November 2026
+
+Scope: the AEGIS prototype as run locally on one Windows laptop with Docker Compose (web BFF, API, PostgreSQL, local
+identity provider), branch `feat/landing-ux-security-hardening`. Tested by the development assistant, white-box, as an
+unauthenticated attacker on the same machine. **This is a developer self-assessment. It is not an independent
+penetration test and does not replace the CERT-In empanelled audit that government hosting requires.**
+
+## Executive summary
+
+- No critical or high-severity weakness was found in the code paths reviewed.
+- Four medium-severity weaknesses were found, all in the public-data relay (`/api/alert-journey/relay`). They allowed
+  abuse and denial of service, not data theft. **All four are fixed and re-tested.**
+- Dependency scans found no known vulnerability in the web (npm) or API (Python) packages.
+- 87 dynamic probes and an OWASP ZAP passive scan found no exploitable issue after the fixes. ZAP's five remaining
+  warnings are low or informational and are listed below.
+- Several kinds of testing asked for could **not** be done here; see "Not done". Signed-in screens were not tested.
+
+## What was tested, and the result
+
+| Test type | Tool / method | Result |
+|---|---|---|
+| Secure code review | Manual white-box review of BFF routes, sign-in, relay, CSP, API authorisation, SQL, Docker files | 4 medium, 3 low, 2 informational; details below |
+| SAST (Python) | Bandit 1.9 on `services/api/app` (8,226 lines) | 0 high. 12 medium + 6 low, all reviewed: 10 SQL-string flags are fixed column names chosen by code, XML parsing already rejects DOCTYPE/ENTITY; one `assert` used as a safety check was replaced with a real check |
+| SAST (TypeScript) | `tsc --noEmit` strict type check | Clean |
+| SAST (Semgrep) | Tried natively and in a container | **Did not run**: the scanner never finished on this machine (cause not confirmed; possibly it could not download its rules) |
+| SonarQube | — | **Not run**: no SonarQube server is available. Editor warnings in the files touched were reviewed |
+| SCA (dependencies) | `npm audit` (web), `pip-audit` (API) | 0 known vulnerabilities in both |
+| Secrets in the repository | Pattern scan of the committed diff and review of tracked files | None found; identity-provider passwords are environment placeholders |
+| DAST | 87 scripted probes (headers, sign-in flow, CSRF, methods, SSRF, injection, path traversal, input validation, XSS in a real browser) | 83 pass. The 4 non-passes are not defects (see notes) |
+| DAST | OWASP ZAP baseline (spider + passive rules) | 0 fail, 63 pass, 5 warnings |
+| Container / Docker review | Manual review of Dockerfiles and Compose files | Hardening added (below). Image CVE scan **not run** |
+| Automated tests | 191 web tests, 769 API tests | All pass |
+| Accessibility (not security) | axe WCAG 2.1 A/AA on five pages; layout audit of 26 signed-out pages at six screen sizes | 0 violations; no overflow or clipped controls |
+
+Notes on the four DAST non-passes: the citizen-intake route answered "disabled" (correct, it is switched off); two
+routes answer without a session by design (the read-only review preview, and sign-out); the HTTP client refused to
+send a TRACE request; and port 5432 on this laptop is open, but it belongs to **another program on the laptop, not to
+AEGIS** (the AEGIS database port is not published). The owner may want to check that other program, because it
+listens on all network interfaces.
+
+## Findings and what was done
+
+| # | Severity | Finding | Status |
+|---|---|---|---|
+| 1 | Medium | Relay rate limit trusted a caller-supplied address header, and could be reset for everyone | **Fixed.** The header is used only when `AEGIS_TRUSTED_PROXY=1`; otherwise one shared limit applies. Counters are evicted oldest-first. A per-source cap (900 new fetches a minute) and a cap on simultaneous fetches (96) were added |
+| 2 | Medium | Relay read a whole POST body into memory before checking its size | **Fixed.** Bodies are read in pieces and refused past 8,000 bytes (HTTP 413) |
+| 3 | Medium | Relay could be driven from another website and its cache defeated with made-up addresses | **Fixed.** Cross-site requests are refused (HTTP 403). Tile sources accept only an exact path shape and no query string |
+| 4 | Medium | Relay held a whole upstream reply in memory before checking its size | **Fixed.** Replies are read in pieces and dropped past 6 MB |
+| 5 | Low | Relay accepted look-alike content types (for example `image/pngx`) | **Fixed.** Exact types only |
+| 6 | Low | Containers ran with default privileges | **Fixed** for web and API: no new privileges, all Linux capabilities dropped, process limit. Read-only file systems are still to do |
+| 7 | Low | Satellite names from the public feed were stored unsanitised; the page's escape function did not cover the single quote | **Fixed** on both sides |
+| 8 | Low | Citizen-intake limit is shared by all callers (one script could fill the daily quota) | **Open.** The feature is off by default and already needs a security review before it is enabled |
+| 9 | Low | Database password has a built-in fallback value in `compose.yaml` if the variable is unset | **Open.** The database is not reachable from outside Docker. Make the variable mandatory before any shared deployment |
+| 10 | Info | API interactive documentation was reachable on the API port | **Fixed.** Off unless `AEGIS_API_DOCS=1` |
+| 11 | Info | Some read routes answer without sign-in | By design: they return synthetic exercise fixtures only. Each needs re-confirmation before real data is ever loaded |
+| 12 | Info | Malformed input to the risk calculator returned "unavailable" (503) instead of "bad request" | **Fixed** (400) |
+
+ZAP warnings left as they are: `style-src 'unsafe-inline'` (needed by the map and 3D libraries; scripts are strict);
+no Cross-Origin-Embedder-Policy header (would block map tiles as built today); "user-controllable attribute" on
+`?mode=live` (the value is matched against two fixed words and never written into the page); two informational notes.
+
+Controls reviewed and found sound: OpenID Connect sign-in with PKCE, state and nonce; RS256-only token checks with
+issuer, audience and expiry; encrypted HTTP-only session cookie capped at 15 minutes; exact-Origin checks on every
+state-changing route; maker and checker must differ, enforced on the server with a row lock; parameterised SQL;
+AES-256-GCM connector vault; relay allow-list (HTTPS only, fixed hosts, no redirects); per-request nonce CSP.
+
+## Not done, and why
+
+| Asked for | State |
+|---|---|
+| Signed-in testing (authorisation between agencies and roles in the running app) | Not done. The demo accounts' current passwords are not on file, and creating test accounts was not permitted in this session. Server-side rules are covered by the 769 API tests only |
+| Active attack scan (ZAP full scan, Burp) | Not run. It would have pushed junk requests through the relay to third-party public services |
+| Semgrep, SonarQube, container image CVE scan (Trivy) | Not run on this machine. Run them in CI or on the audit machine |
+| Network testing, cloud (AWS/GCP/Azure) testing, Kubernetes testing | Not applicable yet: there is no network, cloud account or cluster, only one laptop |
+| Desktop application testing | Not applicable: AEGIS is a web application |
+| Social engineering, red team / blue team exercise, agentic exposure validation | Not done. These test an organisation and its people and need written authorisation, a real deployment and an independent team |
+| Debrief session | To be held with the owner; this document is the written part |
+
+## Recommended next steps
+
+1. Give the test team working demo sign-ins, then repeat the dynamic tests signed in as maker, checker, department
+   operator and administrator, including cross-agency access attempts.
+2. Put a reverse proxy in front of the web container (TLS, request size limits, real client addresses) and set
+   `AEGIS_TRUSTED_PROXY=1` only then.
+3. Add Semgrep or SonarQube, `npm audit`, `pip-audit` and an image scan to CI, failing the build on high findings.
+4. Make the database password mandatory, run containers with read-only file systems, and move secrets to a vault.
+5. Commission the CERT-In empanelled audit before any hosting decision (see `docs/GOVT_DEPLOYMENT_READINESS.md`).

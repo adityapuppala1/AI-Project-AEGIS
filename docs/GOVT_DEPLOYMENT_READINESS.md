@@ -5,6 +5,8 @@ This page lists what stands between the current code and such use, so nobody mis
 system. It is not legal or compliance advice. Requirement summaries below come from secondary sources (law-firm notes,
 STQC pages) found by web search on this date; confirm every clause against the official text before relying on it.
 
+Security test results and open findings: `docs/SECURITY_ASSESSMENT.md`.
+
 ## What the code already does
 
 - OIDC sign-in with signed agency and role claims; maker and checker must be different people; audit trail on decisions.

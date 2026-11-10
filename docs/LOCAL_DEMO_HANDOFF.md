@@ -18,6 +18,38 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Round 6: landing page, relay hardening, security assessment, narrated videos — 10 November 2026 (Windows laptop)
+
+Branch `feat/landing-ux-security-hardening` (created from `feat/agentic-proactive-l3` at `9924a37`, which was pushed
+first). Compose services left **running** (same overlays as round 5), volumes untouched.
+
+**Completed and verified by execution on the Windows laptop:**
+- `/welcome` landing page ("About AEGIS" in the nav): scroll-driven three.js explanation of the six steps, hazard
+  picker, why it was built (NDMA vulnerability figures, to be confirmed against ndma.gov.in), who it helps, what the AI
+  may and may not do, the hand-over chain, technology, status. English only. Font: Anek Latin (self-hosted package).
+- One shared page list (`lib/navigation.ts`) for the side navigation and Ctrl+K search (search was missing 13 pages).
+  Non-functional preview controls removed from `/admin`; duplicated request helper merged; app icon added.
+- Relay hardening and other fixes listed in `docs/SECURITY_ASSESSMENT.md`; API docs off unless `AEGIS_API_DOCS=1`;
+  web and API containers run with no-new-privileges, all capabilities dropped and a process limit.
+- Checks: `npm run typecheck` OK; web tests 191 pass; `services/api/.venv` pytest 769 passed / 28 skipped;
+  `app.model_lab --check` PASS; `npm audit` and `pip-audit` 0 known vulnerabilities; Bandit 0 high; 87 dynamic probes
+  (83 pass, 4 explained non-defects); OWASP ZAP baseline 0 fail / 5 warnings; layout audit of 26 signed-out pages at
+  six screen sizes (no overflow, clipped controls or broken images; small tap targets fixed); Alert Journey checked at
+  phone, tablet and laptop sizes.
+- Narrated walkthrough videos `docs/media/01`–`05` with `docs/media/NARRATION.md` (edge-tts voice
+  `en-IN-NeerjaNeural`; the narration text was sent to Microsoft's speech service). The earlier silent video was removed.
+
+**Not done / blocked:**
+- Signed-in screens: not audited, not security-tested and not filmed. The three demo accounts no longer accept the
+  passwords in the local env files, and creating throwaway accounts was not permitted in this session.
+- Semgrep, SonarQube and a container image CVE scan did not run on this machine. No active attack scan.
+- Page merges suggested by the duplication review (Sources + DataFusion, Team Availability into AgencySync, Earth
+  Watch into Hazard Watch, one tabbed Administration page, shared map and feed helpers) were not done.
+- No new prediction model was added; the landing page explains the existing AI functions and their limits.
+- The 3D globes use a schematic outline of India. Before any government showing, replace it with a Survey of
+  India-compliant boundary.
+- Committed locally on the new branch; not pushed.
+
 ## Round 5: sign-in page, nonce CSP, relayed maps, Home button, demo video — 10 November 2026 (Windows laptop)
 
 Branch `feat/agentic-proactive-l3`, base `3061aec`, **uncommitted**. Compose services left **running** (web, api, db,
