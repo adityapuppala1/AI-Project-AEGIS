@@ -212,13 +212,13 @@ export default function ApprovalWorkbench() {
             </div>
             <p className="text-xs text-muted" aria-live="polite">{rationale.length}/2000 {t("characters")} · {t("minimum 10")}</p>
             <label className="flex items-start gap-2 text-xs leading-5">
-              <input type="checkbox" checked={recoverInTab} disabled={!canCreate || busy}
+              <input type="checkbox" className="h-5 w-5 shrink-0 accent-teal-600" checked={recoverInTab} disabled={!canCreate || busy}
                 onChange={event => setRecoverInTab(draftBuffer.current.setRecovery(event.target.checked))}/>
               Recover unsaved rationale after reload in this tab
             </label>
             <p className="text-xs leading-5 text-muted">{recoverInTab ? "Tab recovery is enabled for up to 8 hours. Text is stored in this browser tab; use only on a trusted device." : "Recovery is off or browser storage is unavailable. Unsaved text stays in page memory only."} Up to 10 case/action drafts, 2,000 characters each. Identity/access changes and sign-out clear recovery. A successful save clears that draft. This does not submit or approve anything.</p>
             <label className="flex items-start gap-2 text-xs leading-5">
-              <input type="checkbox" checked={includeReviewFocus} onChange={event => setIncludeReviewFocus(event.target.checked)} disabled={!canCreate || busy}/>
+              <input type="checkbox" className="h-5 w-5 shrink-0 accent-teal-600" checked={includeReviewFocus} onChange={event => setIncludeReviewFocus(event.target.checked)} disabled={!canCreate || busy}/>
               Save review focus with this draft (synthetic demo agency only). Local AI selects existing cited items; unavailable AI uses a labelled template. This may take about 20 seconds.
             </label>
             <button type="submit" className="control control-primary w-full" disabled={!canCreate || busy || rationale.trim().length < 10}>
@@ -304,7 +304,7 @@ export default function ApprovalWorkbench() {
                 </li>)}</ul></details>
                 {proposal.proposal.simulation.sla_policy && <p className="mt-2 text-xs">Synthetic rehearsal targets only; no operational SLA, escalation, notification or department participation.</p>}
               </div>}
-              <a className="mt-3 inline-block text-sm underline" href={`/api/proposals/${proposal.id}/audit`} target="_blank" rel="noreferrer">Open private proposal audit JSON</a>
+              <a className="mt-2 inline-flex min-h-11 items-center text-sm underline" href={`/api/proposals/${proposal.id}/audit`} target="_blank" rel="noreferrer">Open private proposal audit JSON</a>
               {proposal.status === "approved" && proposal.action_type === "prepare_warning" && proposal.proposal.response_draft && <div className="mt-3 text-sm">
                 <a className="control" href={`/api/proposals/${proposal.id}/cap-draft`}>Download exercise CAP XML draft</a>
                 <p className="mt-2 text-xs text-muted">Private exercise artifact only. Unknown hazard severity; no verified footprint. Never transmit or use for operations.</p>

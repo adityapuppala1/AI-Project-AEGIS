@@ -11,7 +11,7 @@ import { GlobalSearch } from "./global-search";
 import { LanguageSwitcher } from "./language-switcher";
 import { useT } from "./language-provider";
 import { PageHeader, ToastProvider, type Crumb } from "./ui";
-import { navigation } from "../lib/navigation";
+import { locate, navigation } from "../lib/navigation";
 
 
 // Matches Tailwind's lg breakpoint, where the rail stops being an overlay drawer.
@@ -49,14 +49,10 @@ function writeMini(next: boolean) {
   memoryMini = next;
   try { localStorage.setItem(RAIL_STATE_KEY, next ? "1" : "0"); } catch { /* memory copy only */ }
 }
-const isActive = (pathname: string, href: string) => href === "/" ? pathname === href : pathname === href || pathname.startsWith(href + "/");
-/** The most specific nav entry for a path (so /admin/connectors wins over /admin). */
+/** The menu entry for a path (tabbed pages such as /admin/connectors belong to their parent entry). */
 function currentSection(pathname: string) {
-  let best: { group: string; label: string; href: string } | null = null;
-  for (const group of navigation) for (const item of group.items) {
-    if (isActive(pathname, item.href) && (!best || item.href.length > best.href.length)) best = { group: group.label, label: item.label, href: item.href };
-  }
-  return best;
+  const found = locate(pathname);
+  return found && { group: found.group, label: found.item.label, href: found.item.href, tabs: found.item.tabs, tab: found.tab };
 }
 const isTyping = (target: EventTarget | null) => target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
 
@@ -158,7 +154,7 @@ export function AppShell({ children, title, description, actions, breadcrumbs }:
   const groups = useMemo(() => navigation.map(group => ({
     ...group,
     // Matches page names only (in English and in the chosen language), so results stay predictable.
-    items: query ? group.items.filter(item => item.label.toLowerCase().includes(query) || t(item.label).toLowerCase().includes(query)) : group.items,
+    items: query ? group.items.filter(item => [item, ...(item.tabs ?? [])].some(page => page.label.toLowerCase().includes(query) || t(page.label).toLowerCase().includes(query))) : group.items,
   })).filter(group => group.items.length > 0), [query, t]);
   const firstMatch = query ? groups[0]?.items[0] : undefined;
 
@@ -226,7 +222,7 @@ export function AppShell({ children, title, description, actions, breadcrumbs }:
                   </button>}
                 <div id={listId} className="rail-items" data-closed={!open || undefined} inert={!open}>
                   <div>{group.items.map(({ href, label, icon: Icon }) => {
-                    const active = isActive(pathname, href) && section?.href === href;
+                    const active = section?.href === href;
                     return <Link key={href} href={href} aria-current={active ? "page" : undefined} data-tip={t(label)} className={`rail-link ${active ? "nav-active" : ""}`}
                       onClick={() => { if (href === pathname) setMenuOpen(false); }}>
                       <Icon size={17} aria-hidden="true" className="shrink-0" /><span className="rail-text">{t(label)}</span>
@@ -272,6 +268,9 @@ export function AppShell({ children, title, description, actions, breadcrumbs }:
             <div className="reveal-in">
               <PageHeader eyebrow={t("Adaptive Emergency Geospatial Intelligence System")} title={t(title)} description={t(description)} breadcrumbs={breadcrumbs}
                 actions={actions} chip={<span className="rounded-md border border-stroke bg-surface px-3 py-2 text-[10px] font-bold uppercase tracking-[.17em] text-muted">{t("Local exercise node · HYD-01")}</span>} />
+              {section?.tabs && <nav aria-label={t(section.label)} className="section-tabs">
+                {section.tabs.map(({ href, label, icon: Icon }) => <Link key={href} href={href} aria-current={section.tab?.href === href ? "page" : undefined} className="section-tab"><Icon size={16} aria-hidden="true" /><span>{t(label)}</span></Link>)}
+              </nav>}
               {children}
             </div>
           </ToastProvider>
