@@ -11,6 +11,7 @@
     "predev": "node scripts/prepare-map-worker.cjs"
   },
   "dependencies": {
+    "@fontsource-variable/anek-latin": "5.3.0",
     "clsx": "^2.1.1",
     "jose": "^5.9.6",
     "lucide-react": "^0.468.0",
