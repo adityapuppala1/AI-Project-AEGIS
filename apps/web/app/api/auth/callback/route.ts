@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
       agencyId: operator.agencyId, roles: operator.roles, departmentId: operator.departmentId,
     }, ttl);
     if (encrypted.length > 3900) return errorResult(401);
-    const response = NextResponse.redirect(config.origin + (operator.roles.includes("department_operator") ? "/department-tasks" : "/approvals"));
+    const response = NextResponse.redirect(config.origin + (operator.roles.includes("department_operator") ? "/department-tasks" : "/"));
     response.cookies.set(cookieName(config, "flow"), "", cookieOptions(config, 0));
     response.cookies.set(cookieName(config, "session"), encrypted, cookieOptions(config, ttl));
     response.headers.set("Cache-Control", "no-store");

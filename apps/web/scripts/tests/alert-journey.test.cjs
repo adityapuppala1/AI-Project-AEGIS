@@ -280,3 +280,34 @@ test('feed-supplied links are rendered only when they are plain https URLs', () 
   assert.ok(!/href="' \+ esc\(/.test(panels), 'links from feeds must go through safeUrl');
   assert.ok(/function safeUrl\(u\)[^}]+protocol === 'https:'/.test(panels));
 });
+
+// ---- sign-in gate: nothing but the landing page and sign-in is open to a signed-out visitor ----
+test('sign-in gate: only the landing page, sign-in page and sign-in endpoints are public', () => {
+  const gate = loadTs('lib/session-gate.ts', { jose: require('jose') });
+  for (const open of ['/', '/welcome', '/sign-in', '/api/auth/login', '/api/auth/callback', '/api/auth/session']) assert.ok(gate.isPublicPath(open), open);
+  for (const closed of ['/alert-journey', '/incidents', '/admin/go-live', '/api/incidents', '/api/alert-journey/relay', '/api/alert-journey/tle', '/api/policy', '/welcome/x', '/sign-in/x', '/api/authx', '/demo'])
+    assert.ok(!gate.isPublicPath(closed), closed);
+  const middleware = read('middleware.ts');
+  assert.ok(middleware.includes('status: 401') && middleware.includes('"/sign-in"') && !middleware.includes('next-router-prefetch'), 'pages redirect, APIs answer 401, prefetches are gated too');
+  assert.ok(/isFixturePath\(pathname\) && session\.agencyId !== fixtureAgency\(\)/.test(middleware), 'exercise records only for the owning agency');
+});
+
+test('sign-in gate accepts only an unexpired cookie sealed with the server key', async () => {
+  const jose = require('jose'), key = require('node:crypto').randomBytes(32), before = process.env.BFF_SESSION_KEY_BASE64;
+  process.env.BFF_SESSION_KEY_BASE64 = key.toString('base64');
+  try {
+    const code = ts.transpileModule(read('lib/session-gate.ts'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, mod = { exports: {} };
+    new Function('require', 'module', 'exports', 'process', code)(name => name === 'jose' ? jose : require(name), mod, mod.exports, process);
+    const gate = mod.exports;
+    const seal = (payload, k = key, exp = Math.floor(Date.now() / 1000) + 600) => new jose.EncryptJWT(payload).setProtectedHeader({ alg: 'dir', enc: 'A256GCM' }).setExpirationTime(exp).encrypt(k);
+    const good = { sub: 'u1', agencyId: '11111111-1111-4111-8111-111111111111', roles: ['incident_operator'] };
+    assert.deepEqual(await gate.gateSession(await seal(good)), { agencyId: good.agencyId, roles: good.roles });
+    assert.equal(await gate.gateSession(await seal(good, require('node:crypto').randomBytes(32))), null, 'sealed with another key');
+    assert.equal(await gate.gateSession(await seal(good, key, Math.floor(Date.now() / 1000) - 5)), null, 'expired');
+    assert.equal(await gate.gateSession(await seal({ ...good, agencyId: 'not-a-uuid' })), null);
+    assert.equal(await gate.gateSession(await seal({ ...good, roles: [] })), null);
+    assert.equal(await gate.gateSession('eyJhbGciOiJub25lIn0.e30.'), null, 'unsigned token');
+    assert.equal(await gate.gateSession(undefined), null);
+    assert.ok(gate.isFixturePath('/api/incidents/x/readiness') && gate.isFixturePath('/demo') && !gate.isFixturePath('/api/proposals'));
+  } finally { if (before === undefined) delete process.env.BFF_SESSION_KEY_BASE64; else process.env.BFF_SESSION_KEY_BASE64 = before; }
+});
