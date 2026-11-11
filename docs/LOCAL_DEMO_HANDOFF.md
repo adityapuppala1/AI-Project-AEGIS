@@ -18,6 +18,44 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Round 8: install guide, demo accounts script, new videos and screenshots, published to main — 11 November 2026 (Windows laptop)
+
+Branch `feat/landing-ux-security-hardening`, then fast-forwarded to `main` on the owner's instruction ("Push to main
+branch"). No force-push, no Actions run (CI only starts on a labelled pull request or a manual run). Compose services
+left **running** (web, api, db, local-idp, local-idp-tls; overlays local-idp + public-earth + proactive + timesfm),
+volumes untouched.
+
+**Completed and verified by execution on the Windows laptop (not a Linux runner):**
+- `docs/INSTALL.md`: first-install steps, sign-in setup, demo accounts and what the demo data contains. README install,
+  status, screenshot and video sections rewritten to match; `docs/WINDOWS_LOCAL_SETUP.md` points to it.
+- `scripts/new-demo-accounts.ps1`: creates `<prefix>-maker/-checker/-auditor/-admin` in the local identity provider,
+  leaves existing accounts unchanged, saves generated passwords only to the private LocalAppData file. Run under
+  Windows PowerShell 5.1: default prefix reported all four as existing; a test prefix created four accounts with the
+  right role, which were then deleted again together with their lines in the private file.
+- `scripts/start-windows.ps1 -SignIn` (adds the identity overlay and its env files; `-StatisticalForecast` now defaults
+  the model cache folder). Run with `-SignIn -PublicEarth -Proactive -StatisticalForecast -NoBuild` against the running
+  stack: no container was recreated, `/` 200, `/incidents` 307 to sign-in when signed out, API health ok.
+- `tests/test_proactive_connectors.py` and `tests/test_public_intake.py` (they read the start script): 119 passed.
+  No application code changed in this round, so the full suites were not run again (round 7 results stand).
+- Nine narrated videos `docs/media/01`–`09` (48 MB in total) and 18 screenshots in `docs/screenshots`, recorded signed
+  in with the demo accounts; each video has a video and an audio stream; passwords appear in no frame, caption or file.
+- Tracked files scanned for keys and passwords before publishing (the repository is public): only the documented
+  local-only database default was found.
+
+**Not done / open:**
+- The install steps were **not run end to end on a clean computer**. Steps 3–4 repeat the commands run by hand on
+  4 November; a clean run would need a second machine because this laptop's database must not be reset.
+- The Department Inbox shows "Verified department role required" for every demo account, because the local identity
+  provider has no department-operator role. Videos and screenshots show that message.
+- During recording, signing out and signing in again in the same browser logged the previous user back in until the
+  identity provider's cookies were cleared. Probably the provider's own "do you want to log out?" page was not
+  confirmed by the script; not investigated. Check by hand before a two-person demo, or use a private window.
+- The recording left four synthetic proposals in the approval queue (one still pending). Sample source readings are
+  old, so four of five sources show as stale.
+- Not filmed: Hazard Watch, Public Intake, Earth Watch, Copilot, Drills, Handover, Learning, the TimesFM chart.
+- Still open from round 7: API port fixture reads without sign-in, TimesFM back-test, Survey of India-compliant
+  outline, NDMA figures to confirm, native review of Telugu/Hindi text, Semgrep/SonarQube/image scan.
+
 ## Round 7: sign-in gate, redesign, merged menu, optional TimesFM forecast — 10 November 2026 (Windows laptop)
 
 Branch `feat/landing-ux-security-hardening`. Compose services left **running** with overlays local-idp +

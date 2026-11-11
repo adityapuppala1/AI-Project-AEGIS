@@ -53,3 +53,5 @@
 - Sign-in gate: `apps/web/middleware.ts` keeps every page and API route except `/`, `/welcome`, `/sign-in` and `/api/auth/*` behind a valid session, and serves seeded exercise records only to their owning agency. Never add a public page or route without updating `lib/session-gate.ts` and its tests. Route-level role and agency checks stay in place.
 
 - Statistical forecast (TimesFM 2.5) is optional, display-only and off unless `compose.timesfm.yaml` / `-StatisticalForecast` is used. It must never write, never feed proposals or alerts, and its hold-out figures are never called accuracy. Do not use TimesFM 3.0 weights (non-production licence). See docs/STATISTICAL_FORECAST.md.
+
+- First-install steps live in docs/INSTALL.md; keep it in step with `scripts/start-windows.ps1` (`-SignIn`) and `scripts/new-demo-accounts.ps1`. Demo accounts are local-only, generated passwords stay in the private LocalAppData folder and are never printed, committed or reset by scripts; never touch the owner's `exercise-*` accounts. The owner authorised publishing to `main` on 11 November 2026 by fast-forward only; the no-force-push and no-Actions rules still apply.

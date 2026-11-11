@@ -1,5 +1,9 @@
 # AEGIS Windows local development — 16 GB RAM
 
+> **Current install steps are in [INSTALL.md](INSTALL.md)** (sign-in setup, demo accounts, demo data). This page is kept for its
+> troubleshooting notes; its branch names and the `/docs` and `/admin` links describe older milestones. Never run
+> `docker compose down -v`: it deletes the database.
+
 ## Prerequisites
 - Windows 10/11 with WSL2 enabled; Docker Desktop using WSL2 backend.
 - Git for Windows, PowerShell and optionally VS Code.

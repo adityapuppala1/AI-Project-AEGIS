@@ -14,11 +14,38 @@ warning draft is produced. Automation prepares and explains; humans decide; the 
 
 ## Screenshots
 
-| Command Center | Incident workspace |
+Taken from the running local app on 11 November 2026. All data shown is synthetic exercise data.
+
+| Landing page (public) | Sign-in |
 |---|---|
-| ![Command Center](docs/screenshots/command-center.png) | ![Incident](docs/screenshots/incident.png) |
-| **Approvals workbench** | **Hazard Watch** |
-| ![Approvals](docs/screenshots/approvals.png) | ![Hazard Watch](docs/screenshots/hazard-watch.png) |
+| ![Landing page](docs/screenshots/landing-hero.png) | ![Sign-in](docs/screenshots/sign-in.png) |
+| **Command Center (signed in)** | **Alert Journey: Live Earth** |
+| ![Command Center](docs/screenshots/command-center.png) | ![Live Earth](docs/screenshots/live-earth.png) |
+| **Alert Journey: exercise story** | **Flood tab** |
+| ![Exercise story](docs/screenshots/alert-journey-exercise.png) | ![Flood tab](docs/screenshots/flood-tab.png) |
+| **Approvals (two-person check)** | **Source freshness** |
+| ![Approvals](docs/screenshots/approvals.png) | ![Sources](docs/screenshots/sources.png) |
+| **AgencySync tasks** | **Audit trail** |
+| ![AgencySync](docs/screenshots/agency-sync.png) | ![Audit](docs/screenshots/audit.png) |
+
+More in [docs/screenshots](docs/screenshots), including phone-width views.
+
+## Walkthrough videos
+
+Narrated screen recordings of the local app (Indian English voice-over with matching captions). Scripts and how they
+were made: [docs/media/NARRATION.md](docs/media/NARRATION.md).
+
+| Video | Shows |
+|---|---|
+| [01 About AEGIS](docs/media/01-about-aegis.mp4) | The public landing page: the six steps from signal to warning, who it helps, what the AI may and may not do |
+| [02 Sign-in](docs/media/02-sign-in.mp4) | The sign-in page and a real sign-in through the local identity provider |
+| [03 Alert Journey exercise](docs/media/03-alert-journey-exercise.mp4) | The 3D exercise story with its three human decision gates |
+| [04 Live Earth](docs/media/04-live-earth.mp4) | Live public reference data on the globe, a city view and the Flood tab |
+| [05 Command Center](docs/media/05-command-center-tour.mp4) | The signed-in home screen, menu, incident registry and one case |
+| [06 Guided exercise](docs/media/06-exercise-walkthrough.mp4) | The 11-stage guided exercise page |
+| [07 Inputs](docs/media/07-inputs.mp4) | Source freshness and DataFusion ingestion |
+| [08 Approvals](docs/media/08-approvals-maker-checker.mp4) | A maker drafts and submits; a different checker signs in and approves |
+| [09 Team response](docs/media/09-team-response.mp4) | Team availability, AgencySync tasks, department inbox, audit and administration |
 
 ## Architecture
 
@@ -56,28 +83,31 @@ More detail: [architecture decisions](docs/ARCHITECTURE.md) · [security and gov
 
 ## Install and run (Windows)
 
-**Prerequisites:** Windows 10/11, [Docker Desktop](https://www.docker.com/products/docker-desktop/) with WSL2,
-Git, PowerShell. For local code checks also Node.js 20+ and Python 3.12.
+**You need:** Windows 10/11, [Docker Desktop](https://www.docker.com/products/docker-desktop/) with WSL2, Git and
+PowerShell. Step-by-step guide with the demo data, sign-in setup, demo accounts and troubleshooting:
+**[docs/INSTALL.md](docs/INSTALL.md)**.
 
 ```powershell
 git clone https://github.com/adityapuppala1/AI-Project-AEGIS.git
 cd AI-Project-AEGIS
-Copy-Item .env.example .env          # local-only values; never commit .env
-
-# Start Docker Desktop first, then:
-powershell -ExecutionPolicy Bypass -File .\scripts\start-windows.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\check-local-runtime.ps1 -RequireRunning
-powershell -ExecutionPolicy Bypass -File .\scripts\verify-windows.ps1
+Copy-Item .env.example .env                                               # local-only values; never commit .env
+powershell -ExecutionPolicy Bypass -File .\scripts\start-windows.ps1       # builds, starts, loads the demo data
+powershell -ExecutionPolicy Bypass -File .\scripts\prepare-local-idp.ps1 -GenerateLocalSecrets
+# one-time sign-in setup: docs/INSTALL.md step 4 (five commands, one certificate prompt)
+powershell -ExecutionPolicy Bypass -File .\scripts\start-windows.ps1 -SignIn -NoBuild
+powershell -ExecutionPolicy Bypass -File .\scripts\new-demo-accounts.ps1   # demo-maker, -checker, -auditor, -admin
 ```
 
-Open http://localhost:3000 (app), http://localhost:3000/demo (guided exercise) and
-http://localhost:8000/docs (API). Stop with `scripts\stop-windows.ps1`; the database volume is kept.
+Open http://localhost:3000. The landing page and the sign-in page are public; **everything else needs a sign-in**.
+Demo passwords are saved to `%LOCALAPPDATA%\AEGIS\local-idp\demo-credentials.txt`, never to the repository.
+Stop with `scripts\stop-windows.ps1`; the database volume is kept.
 
-Optional overlays (default off): `-LocalCopilot`, `-PublicEarth`, `-PublicIntake`, `-Proactive`
-(the last needs `AEGIS_CONNECTOR_KEY`, see `scripts/new-connector-key.ps1`). Sign-in for the approval
-workbench needs an OIDC identity provider; see [local IdP review](docs/LOCAL_IDP_REVIEW.md).
-Run one AEGIS stack at a time ([single-instance rules](docs/SINGLE_INSTANCE_LOCAL_RUNTIME.md)).
-Full setup and troubleshooting: [Windows local setup](docs/WINDOWS_LOCAL_SETUP.md).
+**Demo data** is synthetic and is loaded automatically at start (`db/seed*.sql`): one demo agency, two Hyderabad
+incidents with evidence, data sources, map assets, department tasks and exposure features. Optional extra exercise
+data: `scripts\replay-windows.ps1` and `scripts\run-tabletop-windows.ps1 -ConfirmExercise`.
+
+Optional switches (default off): `-PublicEarth`, `-Proactive`, `-StatisticalForecast`, `-LocalCopilot`,
+`-PublicIntake`. Run one AEGIS stack at a time ([single-instance rules](docs/SINGLE_INSTANCE_LOCAL_RUNTIME.md)).
 
 **Local checks**
 
@@ -95,22 +125,14 @@ cd ..\..\apps\web; npm ci --no-audit --no-fund; npm run typecheck; npm run build
 
 ## Status
 
-**Consolidated synthetic demo release candidate (in development).** The latest integrated branch is `feat/ciphercop-integrated-demo-rc`, combining the original GeoCommand, DataFusion, Incident Fusion, response guidance, ApprovalGuard, AgencySync, PolicyStudio, ReplayLab and Audit360 demo surfaces. **No real warnings, dispatch or validated flood forecasting.** The current release candidate still requires tests and owner approval; `main` is unchanged.
+**Local synthetic demonstration prototype.** `main` now carries the integrated work (sign-in gate, redesigned landing
+and sign-in pages, grouped menu, Alert Journey with Live Earth, approvals, department tasks, optional overlays).
+**No real warnings, no dispatch, no validated forecasting, no government approval.**
 
-**Latest verified local continuation:** `feat/aegis-local-demo-continuation` (transferred locally; not pushed). See [current handoff](docs/LOCAL_DEMO_HANDOFF.md).
-
-**Manual release evidence:** use the fillable [demo rehearsal and human
-acceptance record](docs/DEMO_REHEARSAL.md). Human accessibility/operator review
-and the deferred two-person IdP rehearsal remain open until recorded there.
-
-**Start here:** [Original-plan reconciliation and acceptance gates](docs/RELEASE_AUDIT.md) · [Guided exercise](http://localhost:3000/demo) (after local startup).
-
-```powershell
-# Run from the verified continuation checkout. Inspect git status before switching branches.
-powershell -ExecutionPolicy Bypass -File .\scripts\start-windows.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\check-local-runtime.ps1 -RequireRunning
-powershell -ExecutionPolicy Bypass -File .\scripts\verify-windows.ps1
-```
+- What was run, with results and what is still open: [current handoff](docs/LOCAL_DEMO_HANDOFF.md).
+- Security testing done and not done: [security assessment](docs/SECURITY_ASSESSMENT.md).
+- What a government deployment would still need: [deployment readiness](docs/GOVT_DEPLOYMENT_READINESS.md).
+- Human acceptance record (still open): [demo rehearsal](docs/DEMO_REHEARSAL.md).
 
 An optional local-only scenario refresh (`scripts/run-tabletop-windows.ps1 -ConfirmExercise`) appends three fictional readings without deleting source history. The `/demo` page guides the original scenario through the rule-only index, case evidence, playbook, human approval gate, scripted AgencySync acknowledgements and Audit360 export. No official provider is connected.
 
@@ -162,7 +184,7 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
-Open `http://localhost:8000/docs` for OpenAPI. Run `pytest -q` from `services/api`.
+The OpenAPI page at `http://localhost:8000/docs` is off unless `AEGIS_API_DOCS=1` is set. Run `pytest -q` from `services/api`.
 
 ## Documentation
 
