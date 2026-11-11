@@ -281,6 +281,23 @@ test('feed-supplied links are rendered only when they are plain https URLs', () 
   assert.ok(/function safeUrl\(u\)[^}]+protocol === 'https:'/.test(panels));
 });
 
+// ---- public pages: the globe uses bundled files only, so the sign-in gate and the page policy need no exception ----
+test('public-page globe loads only bundled imagery and keeps its honesty labels', () => {
+  const globe = read('components/globe/india-globe.ts'), outline = read('components/globe/india-outline.ts');
+  const imports = [...globe.matchAll(/from "(\.\/assets\/[^"]+)"/g)].map(match => match[1]);
+  assert.ok(imports.length >= 4, 'imagery is imported as build assets (served from /_next/static, already outside the gate)');
+  for (const file of imports) assert.ok(fs.existsSync(path.join(root, 'components/globe', file)), file);
+  for (const file of ['components/globe/india-globe.ts', 'components/welcome/welcome-scene.ts', 'components/sign-in-scene.ts'])
+    assert.ok(!/https?:\/\/|fetch\(|XMLHttpRequest|\/api\//.test(read(file)), file + ' contacts no host and reads no API');
+  assert.ok(!fs.existsSync(path.join(root, 'public/globe')), 'no new public/ folder that would need a gate exception');
+  assert.match(read('middleware.ts'), /matcher: \["\/\(\(\?!_next\/static\|_next\/image\|maplibre\/\|favicon\.ico\|icon\.svg\)\.\*\)"\]/, 'gate matcher unchanged');
+  assert.ok(outline.includes('not an authoritative boundary') && outline.includes('No internal or neighbouring boundaries'));
+  const landing = read('components/welcome/welcome-experience.tsx'), signIn = read('components/sign-in-experience.tsx');
+  for (const page of [landing, signIn]) assert.ok(page.includes('not an authoritative boundary') && page.includes('not live'), 'outline and imagery are labelled');
+  assert.ok(landing.includes('import("./welcome-scene")') && signIn.includes('import("./sign-in-scene")'), '3D code is loaded after first paint');
+  assert.ok(landing.includes('AEGIS does not send warnings') && landing.includes('synthetic exercise data'));
+});
+
 // ---- sign-in gate: nothing but the landing page and sign-in is open to a signed-out visitor ----
 test('sign-in gate: only the landing page, sign-in page and sign-in endpoints are public', () => {
   const gate = loadTs('lib/session-gate.ts', { jose: require('jose') });

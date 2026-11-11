@@ -1,32 +1,35 @@
 "use client";
 
 // Public landing page: what AEGIS is, why it exists and how an alert travels. Explanation only. Nothing here
-// reads operational data, and the 3D stage is an illustration (skipped without WebGL, still for reduced motion).
+// reads operational data. The 3D stage is an illustration of India seen from orbit: it is loaded after first paint,
+// replaced by a still picture without WebGL, and drawn without movement for reduced motion.
 // Signed-out visitors can only go on to /sign-in, so every call to action leads there until a session exists.
 import { Fragment, useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import Link from "next/link";
 import "@fontsource-variable/anek-latin/wdth.css";
 import { ArrowDown, Ban, Bot, Building2, Check, Command, FileCheck2, Landmark, LogIn, Minus, Play, RadioTower, Satellite, Smartphone, UserCheck, Users, UsersRound } from "lucide-react";
-import { startWelcomeScene, type HazardId, type WelcomeScene } from "./welcome-scene";
+import stillView from "../globe/assets/india-globe-still.webp";
+import { indiaDaylight, istClock } from "../globe/sun";
+import type { HazardId, WelcomeScene } from "./welcome-scene";
 import "./welcome.css";
 
-const HAZARDS: Array<{ id: HazardId; label: string; sense: string; predict: string; mark: string }> = [
-  { id: "cyclone", label: "Cyclone", mark: "A storm turning over the Bay of Bengal", sense: "Weather satellites and coastal gauges follow a storm forming over the Bay of Bengal, days before landfall.", predict: "Several possible storm tracks are compared. The districts most likely to flood are marked, with the evidence behind each one listed." },
-  { id: "flood", label: "River flood", mark: "Water rising along a river", sense: "Rainfall estimates and river gauges show water rising upstream, long before it reaches the towns below.", predict: "The river level is compared with past years to say how unusual it is, and which low-lying areas would flood first." },
-  { id: "earthquake", label: "Earthquake", mark: "Shaking spreading from an epicentre", sense: "Seismic networks report a strong earthquake within minutes of it happening.", predict: "Earthquakes cannot be predicted, and AEGIS says so. It estimates who was shaken and what may follow, such as landslides." },
-  { id: "heatwave", label: "Heatwave", mark: "Heat building over the plains", sense: "Temperature and humidity forecasts show several dangerous days ahead.", predict: "Forecast heat is compared with local records to flag the districts where the health risk is highest." },
+const HAZARDS: Array<{ id: HazardId; label: string; sense: string; predict: string; mark: string; where: string; drawn: string }> = [
+  { id: "cyclone", label: "Cyclone", mark: "A storm turning over the Bay of Bengal", where: "Bay of Bengal and the Odisha coast", drawn: "A storm, turning the way they do north of the equator", sense: "Weather satellites and coastal gauges follow a storm forming over the Bay of Bengal, days before landfall.", predict: "Several possible storm tracks are compared. The districts most likely to flood are marked, with the evidence behind each one listed." },
+  { id: "flood", label: "River flood", mark: "Water rising along the Brahmaputra", where: "Brahmaputra valley, Assam", drawn: "The Brahmaputra, with the Ganga and Godavari for context", sense: "Rainfall estimates and river gauges show water rising upstream, long before it reaches the towns below.", predict: "The river level is compared with past years to say how unusual it is, and which low-lying areas would flood first." },
+  { id: "earthquake", label: "Earthquake", mark: "Shaking spreading from an epicentre", where: "Himalayan arc, Uttarakhand", drawn: "The Himalayan seismic belt, drawn schematically", sense: "Seismic networks report a strong earthquake within minutes of it happening.", predict: "Earthquakes cannot be predicted, and AEGIS says so. It estimates who was shaken and what may follow, such as landslides." },
+  { id: "heatwave", label: "Heatwave", mark: "Heat building over the plains", where: "North-west and central plains", drawn: "Heat building over the land", sense: "Temperature and humidity forecasts show several dangerous days ahead.", predict: "Forecast heat is compared with local records to flag the districts where the health risk is highest." },
 ];
 
+const SATELLITE_KEY: [string, string] = ["ink", "INSAT-3DR and INSAT-3DS, India’s weather satellites. Heights are not to scale."];
 type Step = { title: string; rail: string; text: (hazard: (typeof HAZARDS)[number]) => string; ai: string; people: string; key: Array<[string, string]> };
 const STEPS: Step[] = [
-  { title: "Sense the hazard", rail: "Sense", text: hazard => hazard.sense, ai: "Reads many sources at once and flags the ones that are late or disagree.", people: "Decide which sources the agency trusts.", key: [["sea", "Readings arriving from satellites and gauges"], ["hazard", "The hazard being watched"]] },
+  { title: "Sense the hazard", rail: "Sense", text: hazard => hazard.sense, ai: "Reads many sources at once and flags the ones that are late or disagree.", people: "Decide which sources the agency trusts.", key: [["sea", "Readings arriving from satellites and gauges"], ["hazard", "The hazard being watched"], SATELLITE_KEY] },
   { title: "Estimate the risk", rail: "Predict", text: hazard => hazard.predict, ai: "Gives a range, cites every source, and says “not enough evidence” when that is the truth.", people: "Read the evidence and question it.", key: [["ink", "Possible paths, not one certain line"], ["risk", "Area most at risk, inside a wider likely range"]] },
   { title: "Two people decide", rail: "Decide", text: () => "One officer drafts the alert. A different officer checks it and approves or sends it back with a reason. No single person can approve alone, and software cannot approve at all.", ai: "Points the checker to the evidence that matters most.", people: "Draft, check, approve. Their names and reasons are recorded.", key: [["sea", "The maker, who drafts"], ["ink", "The checker, a different officer"], ["green", "Approved by both"]] },
   { title: "Hand over to the authority", rail: "Hand over", text: () => "The approved draft goes to the alerting authority in the standard alert format (Common Alerting Protocol). AEGIS stops here. It has no way to send a public warning.", ai: "Fills a fixed template. It does not write free text into an alert.", people: "The authority decides whether, where and when to warn.", key: [["green", "The approved draft"], ["ink", "The one gate out of AEGIS"]] },
   { title: "Reach people", rail: "Reach", text: () => "The authority’s own system passes the warning to telecom operators, who broadcast it to phones in the affected area. Response teams receive their tasks from their departments.", ai: "Suggests where teams could wait, as a recommendation only.", people: "Departments task their teams. Operators deliver the broadcast.", key: [["saffron", "The authority’s own channel. AEGIS is not on these lines."]] },
   { title: "Learn from what happened", rail: "Learn", text: () => "After the event, what was estimated is compared with what happened. Any change to a threshold goes through the same two-person approval before it is used.", ai: "Reports how its estimates compared, without calling it accuracy.", people: "Approve or reject each proposed change.", key: [["sea", "What happened, returning to the desk"]] },
 ];
-const OVERVIEW_KEY: Array<[string, string]> = [["saffron", "The subcontinent, drawn schematically"], ["hazard", "The hazard you picked"]];
 
 // `share` is the same figure as a fraction of its whole, used only to draw the bar beside it.
 const FIGURES = [
@@ -100,6 +103,9 @@ export function WelcomeExperience() {
   const [hazardId, setHazardId] = useState<HazardId>("cyclone");
   const [active, setActive] = useState(0);
   const [webgl, setWebgl] = useState(true);
+  const [live, setLive] = useState(false);
+  const [now, setNow] = useState<Date | null>(null);
+  const viewRef = useRef<HTMLSpanElement>(null), hazardRef = useRef<HazardId>("cyclone");
   const [session, setSession] = useState<Session | null>(null);
   const [node, setNode] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -109,10 +115,16 @@ export function WelcomeExperience() {
   useEffect(() => {
     const canvas = canvasRef.current, steps = stepsRef.current, root = rootRef.current;
     if (!canvas || !steps || !root) return;
-    const scene = startWelcomeScene(canvas, calm());
-    sceneRef.current = scene;
-    if (!scene) setWebgl(false);
-    let queued = 0;
+    // The 3D code (three.js and the imagery) is fetched after the page has painted. Until it is ready, and whenever
+    // WebGL is missing, the still picture of the same view stands in.
+    let queued = 0, gone = false;
+    const showView = (lon: number, lat: number) => { if (viewRef.current) viewRef.current.textContent = `${lat.toFixed(1)}°N ${lon.toFixed(1)}°E`; };
+    import("./welcome-scene").then(module => {
+      if (gone) return;
+      const scene = module.startWelcomeScene(canvas, calm(), { onReady: () => { if (!gone) setLive(true); }, onView: showView });
+      if (!scene) { setWebgl(false); return; }
+      sceneRef.current = scene; scene.setHazard(hazardRef.current); measure();
+    }).catch(() => { if (!gone) setWebgl(false); });
     const measure = () => {
       queued = 0;
       const blocks = Array.from(steps.querySelectorAll<HTMLElement>("[data-stage]")), { line, wide } = readingLine();
@@ -123,7 +135,7 @@ export function WelcomeExperience() {
       if (centres.length && middle >= centres[centres.length - 1]) stage = centres.length - 1;
       else for (let i = 0; i < centres.length - 1; i++) if (middle >= centres[i] && middle < centres[i + 1]) stage = i + (middle - centres[i]) / (centres[i + 1] - centres[i]);
       const settled = wide ? stage : Math.floor(stage + 0.02);
-      scene?.setStage(settled); setActive(Math.round(settled));
+      sceneRef.current?.setStage(settled); setActive(Math.round(settled));
       const span = document.documentElement.scrollHeight - window.innerHeight;
       root.style.setProperty("--wl-page", String(span > 0 ? Math.min(1, window.scrollY / span) : 0));
       root.style.setProperty("--wl-story", String(Math.min(1, settled / (blocks.length - 1))));
@@ -140,10 +152,17 @@ export function WelcomeExperience() {
       for (const item of reveals) { if (item.getBoundingClientRect().top < window.innerHeight) item.dataset.in = "1"; else watcher.observe(item); }
       root.dataset.motion = "on";
     }
-    return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); cancelAnimationFrame(queued); watcher?.disconnect(); scene?.dispose(); sceneRef.current = null; };
+    return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); cancelAnimationFrame(queued); watcher?.disconnect(); gone = true; sceneRef.current?.dispose(); sceneRef.current = null; };
   }, []);
 
-  useEffect(() => { sceneRef.current?.setHazard(hazardId); }, [hazardId]);
+  useEffect(() => { hazardRef.current = hazardId; sceneRef.current?.setHazard(hazardId); }, [hazardId]);
+
+  // The clock beside the globe. Set after mount so the server and the browser never disagree about the time.
+  useEffect(() => {
+    setNow(new Date());
+    const timer = window.setInterval(() => setNow(new Date()), 20000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -178,13 +197,16 @@ export function WelcomeExperience() {
     event.currentTarget.querySelectorAll<HTMLButtonElement>("button")[next]?.focus();
   };
 
+  // Picking a hazard flies the globe to the region where it is shown, even when it is already the selected one.
+  const pickHazard = (id: HazardId) => { setHazardId(id); sceneRef.current?.setHazard(id, true); };
   const hazardPicker = (label: string) => (
     <div className="wl-hazards" role="group" aria-label={label}>
       <span>{label}</span>
-      {HAZARDS.map(item => <button key={item.id} type="button" data-hazard={item.id} aria-pressed={item.id === hazardId} onClick={() => setHazardId(item.id)}>{item.label}</button>)}
+      {HAZARDS.map(item => <button key={item.id} type="button" data-hazard={item.id} aria-pressed={item.id === hazardId} onClick={() => pickHazard(item.id)}>{item.label}</button>)}
     </div>
   );
-  const legend = active === 0 ? OVERVIEW_KEY : STEPS[active - 1].key;
+  const legend: Array<[string, string]> = active === 0 ? [["saffron", "India, outlined"], ["hazard", hazard.drawn], SATELLITE_KEY] : STEPS[active - 1].key;
+  const daylight = now ? indiaDaylight(now) : null;
   const current = CHAIN[node];
 
   return (
@@ -205,11 +227,21 @@ export function WelcomeExperience() {
       <main>
         <div className="wl-story" id="wl-how">
           <div className="wl-stage">
-            <div className="wl-stage-art" aria-hidden="true">
-              {webgl ? <canvas ref={canvasRef} /> : <div className="wl-stage-fallback"><div /></div>}
-              <div className="wl-key" key={active + hazardId}>
-                <b>{active === 0 ? hazard.mark : STEPS[active - 1].title}</b>
-                <ul>{legend.map(([tone, text]) => <li key={text}><i data-tone={tone} />{text}</li>)}</ul>
+            <div className="wl-stage-art" aria-hidden="true" data-live={live || undefined}>
+              {/* eslint-disable-next-line @next/next/no-img-element -- a fixed, self-hosted build asset */}
+              <img className="wl-still" src={stillView.src} width={stillView.width} height={stillView.height} alt="" decoding="async" />
+              {webgl && <canvas ref={canvasRef} />}
+              <div className="wl-hud">
+                <p className="wl-fix">
+                  <b>{hazard.where}</b>
+                  <span>Looking at <span ref={viewRef}>20.0°N 80.5°E</span></span>
+                  {now && <span className="wl-clock">{istClock(now)} IST, {daylight} over India</span>}
+                </p>
+                <div className="wl-key" key={active + hazardId}>
+                  <b>{active === 0 ? hazard.mark : STEPS[active - 1].title}</b>
+                  <ul>{legend.map(([tone, text]) => <li key={text}><i data-tone={tone} />{text}</li>)}</ul>
+                </div>
+                <p className="wl-credit">Illustration, not live imagery</p>
               </div>
             </div>
             <nav className="wl-rail" aria-label="Steps in the story">
@@ -372,7 +404,7 @@ export function WelcomeExperience() {
       <footer className="wl-foot">
         <div className="wl-wrap">
           <span>AEGIS, exercise prototype. Synthetic data. Not a warning service.</span>
-          <span>The globe is an illustration, not a map of record or a depiction of boundaries.</span>
+          <span>The globe is an illustration built from NASA imagery. It is not live and not a map of record. India’s outline is schematic, not an authoritative boundary.</span>
         </div>
       </footer>
     </div>

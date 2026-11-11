@@ -35,10 +35,36 @@ The owner should confirm that the project stays non-commercial; several verdicts
 | 21 | Open-Meteo Ensemble API (`ensemble-api.open-meteo.com`, GFS 31 members) (Alert Journey live mode) | Forecast-confidence band and share of members with heavy rain | **PERMITTED-WITH-CONDITIONS** (as row 1) |
 | 22 | SatNOGS DB orbital elements (`db.satnogs.org/api/tle/`) (Alert Journey live mode, server relay fallback only) | Satellite positions when CelesTrak refuses the server; one download per 6 hours, cached in memory | **PERMITTED-WITH-CONDITIONS — TERMS TO CONFIRM** (inference: SatNOGS DB data is CC BY-SA 4.0, attribution shown in Sources; the terms page was not read by the owner; no key) |
 | 23 | TimesFM 2.5 model (`google/timesfm-2.5-200m-pytorch`, Hugging Face) and `timesfm` package (optional statistical forecast) | Pattern forecast of river discharge, display-only, off by default | **PERMITTED** (Apache-2.0 code and 2.5 weights; not an officially supported Google product). **TimesFM 3.0 weights are EXCLUDED**: non-commercial, non-production licence |
+| 24 | NASA Blue Marble (shaded relief and bathymetry) and VIIRS Black Marble 2016 still images, downloaded once from NASA GIBS and bundled, downscaled, in the web app (`apps/web/components/globe/assets/`) | The globe illustration on the public landing and sign-in pages. Not live, not fetched at run time | **PERMITTED-WITH-CONDITIONS** (inference: NASA imagery is not copyrighted and may be reused with credit; credit recorded here and in the page footer; NASA's media-usage page was not re-read on 2026-11-11) |
+| 25 | Natural Earth 1:10m vectors: `admin_0_countries_ind` (India point-of-view edition) and `rivers_lake_centerlines`, simplified into `apps/web/components/globe/india-outline.ts` | India's outline and three river courses on the same globe illustration | **PERMITTED** (inference from general knowledge: Natural Earth data is public domain, no permission or credit needed; the terms page was not re-read on 2026-11-11). Shown as a schematic outline, **not** an authoritative boundary |
 | 19 | NOT USED: Google Maps / Earth, IMD, India-WRIS / CWC, GDACS, Esri imagery, OpenCelliD, NASA FIRMS, Copernicus CDS | — | **EXCLUDED / OWNER ACTION NEEDED** (paid, terms not cleared, or key/account required) |
 
 Phase 1 pilot sources approved to start: **row 1 only.** Rows 2 and 3 need the owner to create accounts and keep
 credentials in their own environment; they are not started. Rows 4 and 5 stay excluded.
+
+## Public-page globe assets (rows 24–25) — added 11 November 2026
+
+Unlike every other row, these are **files stored in the repository** and served by the app itself. The browser never
+contacts NASA or Natural Earth: the files are imported by the page code and served from `/_next/static/media/`.
+
+| File (`apps/web/components/globe/assets/`) | Size | Made from |
+|---|---|---|
+| `earth-day.jpg` (2048×1024) | 184 KB | GIBS WMS layer `BlueMarble_ShadedRelief_Bathymetry`, whole Earth, EPSG:4326 |
+| `earth-day-india.jpg` (2048×2048) | 433 KB | Same layer, window 49–109°E, 8°S–52°N |
+| `earth-night.jpg` (2048×1024) | 52 KB | GIBS WMS layer `VIIRS_Black_Marble` (2016), whole Earth |
+| `earth-night-india.jpg` (1024×1024) | 65 KB | Same layer, same window |
+| `india-globe-still.webp` (900×900) | 123 KB | The day image and the outline below, drawn as one still view (shown before the 3D view loads and when WebGL is unavailable) |
+| `../india-outline.ts` | 20 KB | Natural Earth 1:10m `ne_10m_admin_0_countries_ind` (India feature only) and `ne_10m_rivers_lake_centerlines` (Brahmaputra with Dihang, Ganges, Godavari), from the `nvkelso/natural-earth-vector` repository, simplified to about 4 km |
+
+- **Credit used:** "Imagery: NASA Blue Marble and Black Marble, via NASA GIBS/ESDIS. Outline and rivers: Natural Earth."
+- **Fact (checked in the data, 2026-11-11):** the India feature of the "India point of view" edition spans 68.14–97.36°E
+  and 8.08–37.05°N and contains Gilgit, Muzaffarabad, Aksai Chin, Leh, Tawang and Anjaw; it has 18 island polygons for
+  the Andaman and Nicobar Islands and 11 for Lakshadweep. So the outline follows the Indian depiction of the external
+  boundary.
+- **Not established:** this is Natural Earth's data, **not Survey of India data**, and it has been simplified. It has not
+  been compared with a Survey of India map. The pages therefore say "schematic, not an authoritative boundary", draw no
+  internal or neighbouring boundaries, and must keep that wording until the owner supplies an approved outline.
+- **Inference:** NASA imagery and Natural Earth data are free to reuse; neither terms page was re-read on this date.
 
 ## Live Earth page (rows 13–19) — added 10 November 2026
 
