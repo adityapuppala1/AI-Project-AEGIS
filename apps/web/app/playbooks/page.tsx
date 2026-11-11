@@ -28,7 +28,7 @@ export default function PlaybooksPage() {
   const shown = useMemo(() => steps.filter(x => !query.trim() || `${x.id} ${x.title} ${x.details}`.toLowerCase().includes(query.trim().toLowerCase())), [query]);
   return <AppShell title="Response Playbooks"
     description="Versioned citation reference for the integrated urban-flood exercise; not an approved emergency SOP.">
-    <div role="note" className="mb-5 flex items-center gap-3 rounded-xl border border-amber-500/25 bg-amber-500/10 p-4 text-sm text-amber-700 dark:text-amber-300">
+    <div role="note" className="mb-5 flex items-center gap-3 rounded-lg border border-amber-500/25 bg-amber-500/10 p-4 text-sm text-amber-700 dark:text-amber-300">
       <ShieldAlert size={20} className="shrink-0"/>
       <span>SIMULATION ONLY. These review steps are illustrative. Real emergency procedures require authority approval, validated data and separate human decisions.</span>
     </div>
@@ -39,13 +39,13 @@ export default function PlaybooksPage() {
     <SearchField label={t("Search playbook steps")} value={query} onChange={setQuery} className="mb-4"/>
     <section className="panel overflow-hidden">
       <div className="panel-heading">
-        <div><h2 className="flex items-center gap-2 text-base font-bold"><BookOpenCheck size={19} className="text-accent"/> Urban Flood Exercise · Referenced Steps</h2>
+        <div><h2 className="flex items-center gap-2 t-title"><BookOpenCheck size={19} className="text-accent"/> Urban Flood Exercise · Referenced Steps</h2>
           <p className="mt-1 font-mono text-xs text-muted">{PLAYBOOK}</p></div>
         <span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">Draft · Unapproved</span>
       </div>
       <div className="grid gap-3 p-5 md:grid-cols-2">
         {shown.length === 0 && <div className="md:col-span-2"><EmptyState title={t("No playbook steps match")} body={t("No match does not mean a step is unnecessary; clear the search to see all steps.")}/></div>}
-        {shown.map((step,index) => <details className="group rounded-xl border border-stroke bg-elevated/40 p-4" key={step.id} open={index === 0 && !query}>
+        {shown.map((step,index) => <details className="group rounded-lg border border-stroke bg-elevated/40 p-4" key={step.id} open={index === 0 && !query}>
           <summary className="flex cursor-pointer flex-wrap items-center gap-3 text-sm font-semibold">
             <CheckCircle2 size={18} className="shrink-0 text-accent"/>
             <span className="rounded bg-accent/10 px-2 py-1 font-mono text-xs text-accent">{step.id}</span>{step.title}
@@ -57,14 +57,14 @@ export default function PlaybooksPage() {
         </details>)}
       </div>
     </section>
-    <section className="panel mt-5 p-5" aria-label="Exercise playbook cross references">
+    <section className="panel p-4 mt-5" aria-label="Exercise playbook cross references">
       <h3 className="text-sm font-bold">Continue the cited tabletop workflow</h3>
       <p className="mt-2 text-xs leading-6 text-muted">The incident review checklist cites this version and source/evidence UUIDs, while AgencySync task rows reference the same version. These links are explanatory—not operational authorization.</p>
       <div className="mt-4 flex flex-wrap gap-3">
-        <Link href="/demo" className="control text-xs">Guided walkthrough <ArrowRight size={15}/></Link>
-        <Link href="/incidents/22222222-2222-4222-8222-222222222222" className="control text-xs">Synthetic case evidence <ArrowRight size={15}/></Link>
-        <Link href="/agency-sync" className="control text-xs">Scripted task audit <ArrowRight size={15}/></Link>
-        <Link href="/approvals" className="control text-xs">Human approval gate <ArrowRight size={15}/></Link>
+        <Link href="/demo" className="control control-sm">Guided walkthrough <ArrowRight size={15}/></Link>
+        <Link href="/incidents/22222222-2222-4222-8222-222222222222" className="control control-sm">Synthetic case evidence <ArrowRight size={15}/></Link>
+        <Link href="/agency-sync" className="control control-sm">Scripted task audit <ArrowRight size={15}/></Link>
+        <Link href="/approvals" className="control control-sm">Human approval gate <ArrowRight size={15}/></Link>
       </div>
     </section>
   </AppShell>;

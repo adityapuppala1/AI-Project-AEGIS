@@ -73,8 +73,9 @@ test('sort helpers cycle asc, desc, none and map to aria-sort', () => {
   assert.equal(kit.clamp01(2), 1); assert.equal(kit.clamp01(-1), 0); assert.equal(kit.clamp01(NaN), 0);
 });
 
-test('every literal t("...") in components/ui and every dynamic kit word has Telugu and Hindi', () => {
-  const known = new Set(tr.TRANSLATION_ENTRIES.map(entry => entry[0]));
+test('every literal t("...") in components/ui is translated or registered as pending native review; dynamic kit words are translated', () => {
+  const reviewed = new Set(tr.TRANSLATION_ENTRIES.map(entry => entry[0]));
+  const known = new Set([...reviewed, ...load('lib/translations-pending.ts').PENDING_NATIVE_REVIEW]);
   const dir = path.join(root, 'components/ui');
   let checked = 0;
   for (const file of fs.readdirSync(dir).filter(name => name.endsWith('.tsx'))) {
@@ -86,7 +87,7 @@ test('every literal t("...") in components/ui and every dynamic kit word has Tel
   }
   assert.ok(checked >= 10, 'found ' + checked);
   // Passed through t(variable): step statuses and age units.
-  for (const word of [...kit.STEP_STATUSES, 'min', 'hr', 'days']) assert.ok(known.has(word), 'missing dynamic translation: ' + word);
+  for (const word of [...kit.STEP_STATUSES, 'min', 'hr', 'days']) assert.ok(reviewed.has(word), 'missing dynamic translation: ' + word);
 });
 
 test('components/ui is exported from the index and has no raw hex colours', () => {

@@ -36,7 +36,7 @@ export default function IngestionPage() {
   }, [version]);
 
   return <AppShell title="DataFusion Ingestion" description="Validated observation contracts, replay deduplication and quarantine monitoring for synthetic exercise data.">
-    <div role="note" className="mb-5 flex gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs leading-6 text-amber-800 dark:text-amber-200">
+    <div role="note" className="mb-5 flex gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-xs leading-6 text-amber-800 dark:text-amber-200">
       <ShieldCheck size={20} className="mt-1 shrink-0"/>
       <span><strong>Exercise-only: no live ingestion.</strong> Replay runs only through a local Docker CLI command using bundled fixture data. The browser cannot send measurements, warnings or dispatch instructions.</span>
     </div>
@@ -64,7 +64,7 @@ export default function IngestionPage() {
     </Panel>
     <div className="mt-5 grid items-start gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(330px,1fr)]">
       <section className="panel overflow-hidden">
-        <div className="panel-heading"><div><h2 className="flex items-center gap-2 text-base font-bold"><ClipboardList size={18} className="text-accent"/> Quarantine reasons</h2><p className="mt-1 text-xs text-muted">Counts never display rejected raw payloads.</p></div><span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">Read only</span></div>
+        <div className="panel-heading"><div><h2 className="flex items-center gap-2 t-title"><ClipboardList size={18} className="text-accent"/> Quarantine reasons</h2><p className="mt-1 text-xs text-muted">Counts never display rejected raw payloads.</p></div><span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">Read only</span></div>
         <div className="divide-y divide-stroke">
           {REASONS.map(reason => <div className="flex items-center justify-between gap-3 px-5 py-4" key={reason}>
             <span className="flex items-center gap-3"><AlertTriangle size={17} className="shrink-0 text-muted" aria-hidden="true"/><span className="text-sm">{REASON_LABELS[reason]}</span></span>
@@ -73,16 +73,16 @@ export default function IngestionPage() {
         </div>
       </section>
       <section className="panel">
-        <div className="panel-heading"><h2 className="flex items-center gap-2 text-base font-bold"><TerminalSquare size={18} className="text-accent"/> Reproducible local replay</h2></div>
+        <div className="panel-heading"><h2 className="flex items-center gap-2 t-title"><TerminalSquare size={18} className="text-accent"/> Reproducible local replay</h2></div>
         <div className="space-y-4 p-5">
           <p className="text-sm leading-6 text-muted">Run the reviewed synthetic fixture in your Windows Docker terminal. Repeating it should not create duplicate accepted events or repeated quarantine rows.</p>
-          <div className="rounded-xl border border-stroke bg-elevated p-4">
+          <div className="rounded-lg border border-stroke bg-elevated p-4">
             <p className="eyebrow mb-2">PowerShell · project root</p>
             <code className="break-all font-mono text-xs text-ink">docker compose exec api python -m app.replay</code>
           </div>
           <p className="text-xs leading-6 text-muted"><strong>No Run button:</strong> replay is intentionally restricted to a locally authorized terminal command, not exposed as a public API.</p>
-          <Link href="/sources" className="control w-full text-xs"><Database size={16}/> Examine resulting source history <ArrowRight size={15}/></Link>
-          <Link href="/help" className="control w-full text-xs"><Activity size={16}/> Read source quality guidance <ArrowRight size={15}/></Link>
+          <Link href="/sources" className="control control-sm w-full"><Database size={16}/> Examine resulting source history <ArrowRight size={15}/></Link>
+          <Link href="/help" className="control control-sm w-full"><Activity size={16}/> Read source quality guidance <ArrowRight size={15}/></Link>
         </div>
       </section>
     </div>

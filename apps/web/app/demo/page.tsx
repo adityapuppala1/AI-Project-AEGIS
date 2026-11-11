@@ -2,6 +2,8 @@ import { AppShell } from "../../components/app-shell";
 import { DemoJourney } from "../../components/demo-journey";
 import { RiskExercisePanel } from "../../components/risk-exercise-panel";
 
+export const metadata = { title: "Exercise Walkthrough" };
+
 export const dynamic = "force-dynamic";
 const CASE = "22222222-2222-4222-8222-222222222222";
 

@@ -1,17 +1,21 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type FocusEvent, type KeyboardEvent, type MouseEvent, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type KeyboardEvent, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { ChevronDown, Command, Menu, Moon, PanelLeftClose, PanelLeftOpen, Search, ShieldCheck, Sun, X } from "lucide-react";
+import { Building2, ChevronDown, Command, Layers, Lock, Menu, Moon, PanelLeftClose, PanelLeftOpen, Search, Server, ShieldCheck, Sun, X } from "lucide-react";
 
 import { OperatorAuth } from "./operator-auth";
 import { GlobalSearch } from "./global-search";
 import { LanguageSwitcher } from "./language-switcher";
 import { useT } from "./language-provider";
-import { PageHeader, ToastProvider, type Crumb } from "./ui";
-import { locate, navigation } from "../lib/navigation";
+import { PageHeader, PageHelp, Tip, ToastProvider, useNow, type Crumb } from "./ui";
+import { GROUP_CHAIN, locate, navigation, type NavItem } from "../lib/navigation";
+import { ROLE_INFO, canOpenPage, pageRoles } from "../lib/roles";
+import { helpFor } from "../lib/page-help";
+import { shortId } from "../lib/labels";
+import { useOperatorSession } from "../lib/use-operator-session";
 
 
 // Matches Tailwind's lg breakpoint, where the rail stops being an overlay drawer.
@@ -52,21 +56,41 @@ function writeMini(next: boolean) {
 /** The menu entry for a path (tabbed pages such as /admin/connectors belong to their parent entry). */
 function currentSection(pathname: string) {
   const found = locate(pathname);
-  return found && { group: found.group, label: found.item.label, href: found.item.href, tabs: found.item.tabs, tab: found.tab };
+  return found && { group: found.group, label: found.item.label, href: found.item.href, tabs: found.item.tabs, tab: found.tab, page: found.tab ?? found.item };
 }
 const isTyping = (target: EventTarget | null) => target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
+
+// A menu entry is "for another role" when the signed-in person can use none of its pages. Menus only: the server decides.
+const LOCKED_GROUP = "For other roles";
+const entryPages = (item: NavItem) => item.tabs ?? [item];
+function neededLabel(item: NavItem, t: (text: string) => string): string {
+  const roles = [...new Set(entryPages(item).flatMap(page => pageRoles(page.href) ?? []))];
+  return roles.map(role => t(ROLE_INFO[role].label)).join(", ");
+}
+// The rail has room for one role name; the full list is in the tooltip and the accessible name.
+const shortNeeds = (needs: string) => { const parts = needs.split(", "); return parts.length > 1 ? `${parts[0]} +${parts.length - 1}` : needs; };
 
 function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+  const label = mounted ? `Switch to ${resolvedTheme === "dark" ? "light" : "dark"} theme` : "Theme loading";
   return (
-    <button type="button" className="control h-10 w-10 !px-0" disabled={!mounted}
-      aria-label={mounted ? `Switch to ${resolvedTheme === "dark" ? "light" : "dark"} theme` : "Theme loading"}
+    <button type="button" className="control control-quiet control-icon" disabled={!mounted} aria-label={label} title={mounted ? label : undefined}
       onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}>
-      {mounted && resolvedTheme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+      {mounted && resolvedTheme === "dark" ? <Sun size={18} aria-hidden="true" /> : <Moon size={18} aria-hidden="true" />}
     </button>
   );
+}
+
+/** India Standard Time for the desk strip. A placeholder until the browser clock is known, so server and client match. */
+function DeskClock() {
+  const now = useNow(undefined, 20_000);
+  if (now === null) return <span className="desk-clock" aria-hidden="true">--:--</span>;
+  const date = new Date(now);
+  const time = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", hour12: false }).format(date);
+  const day = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Kolkata", weekday: "short", day: "numeric", month: "short" }).format(date);
+  return <span><time className="desk-clock" dateTime={date.toISOString()}>{time}</time><span> IST</span><span className="hidden sm:inline"> · {day}</span></span>;
 }
 
 export function AppShell({ children, title, description, actions, breadcrumbs }: { children: ReactNode; title: string; description: string; actions?: ReactNode; breadcrumbs?: readonly Crumb[] }) {
@@ -85,7 +109,9 @@ export function AppShell({ children, title, description, actions, breadcrumbs }:
   const [miniChoice, setMiniChoice] = useState(memoryMini);
   const [ready, setReady] = useState(false);
   const [filter, setFilter] = useState("");
-  const [tip, setTip] = useState<{ text: string; top: number; left: number } | null>(null);
+  const [othersOpen, setOthersOpen] = useState(false);
+  const session = useOperatorSession();
+  const roles = session?.authenticated ? session.roles : null;
   const mini = miniChoice && persistentRail;
   const drawer = !persistentRail;
 
@@ -98,13 +124,13 @@ export function AppShell({ children, title, description, actions, breadcrumbs }:
     if (!list) return;
     list.scrollTop = memoryScroll;
     list.querySelector<HTMLElement>('[aria-current="page"]')?.scrollIntoView({ block: "nearest" });
-  }, []);
+  }, [roles]);
 
   const toggleGroup = (label: string) => setCollapsed(current => {
     const next = current.includes(label) ? current.filter(item => item !== label) : [...current, label];
     writeCollapsed(next); return next;
   });
-  const setMini = (next: boolean) => { writeMini(next); setMiniChoice(next); setTip(null); };
+  const setMini = (next: boolean) => { writeMini(next); setMiniChoice(next); };
   useEffect(() => {
     setMenuOpen(false);
     // Navigating into a collapsed group must never hide the page the operator is on.
@@ -151,11 +177,15 @@ export function AppShell({ children, title, description, actions, breadcrumbs }:
   }, []);
 
   const query = mini ? "" : filter.trim().toLowerCase();
-  const groups = useMemo(() => navigation.map(group => ({
-    ...group,
+  const groups = useMemo(() => {
     // Matches page names only (in English and in the chosen language), so results stay predictable.
-    items: query ? group.items.filter(item => [item, ...(item.tabs ?? [])].some(page => page.label.toLowerCase().includes(query) || t(page.label).toLowerCase().includes(query))) : group.items,
-  })).filter(group => group.items.length > 0), [query, t]);
+    const matches = (item: NavItem) => !query || [item, ...(item.tabs ?? [])].some(page => page.label.toLowerCase().includes(query) || t(page.label).toLowerCase().includes(query));
+    const usable = (item: NavItem) => entryPages(item).some(page => canOpenPage(page.href, roles));
+    const own = navigation.map(group => ({ ...group, items: group.items.filter(item => matches(item) && usable(item)) }));
+    // Entries the signed-in role cannot use are kept, in one closed group at the end, each saying which role it needs.
+    const others = navigation.flatMap(group => group.items).filter(item => matches(item) && !usable(item));
+    return [...own, { label: LOCKED_GROUP, items: others }].filter(group => group.items.length > 0);
+  }, [query, t, roles]);
   const firstMatch = query ? groups[0]?.items[0] : undefined;
 
   const stops = () => Array.from(listRef.current?.querySelectorAll<HTMLElement>("a[href], button:not(:disabled)") ?? []).filter(item => !item.closest("[inert]"));
@@ -173,15 +203,13 @@ export function AppShell({ children, title, description, actions, breadcrumbs }:
     const next = event.key === "Home" ? 0 : event.key === "End" ? items.length - 1 : Math.min(items.length - 1, Math.max(0, at + (event.key === "ArrowDown" ? 1 : -1)));
     items[next]?.focus();
   };
-  // Icon-only rail: the label of the hovered or focused entry is shown beside it.
-  const showTip = (event: MouseEvent<HTMLElement> | FocusEvent<HTMLElement>) => {
-    if (!mini) return;
-    const target = (event.target as HTMLElement).closest<HTMLElement>("[data-tip]");
-    if (!target) { setTip(null); return; }
-    const box = target.getBoundingClientRect();
-    setTip({ text: target.dataset.tip ?? "", top: box.top + box.height / 2, left: box.right + 10 });
-  };
-  const hideTip = () => setTip(null);
+
+  const help = helpFor(pathname);
+  // Nested pages get breadcrumbs back to their menu entry unless the page supplies its own.
+  const crumbs: readonly Crumb[] | undefined = breadcrumbs ?? (section?.tab && section.tab.href !== section.href
+    ? [{ label: t(section.group) }, { label: t(section.label), href: section.href }, { label: t(section.tab.label) }] : undefined);
+  const agency = session?.authenticated ? session.agencyId : undefined;
+  const exerciseNote = t("Synthetic exercise data. Optional NASA/USGS context is labelled separately. No real emergency alerts or responder dispatch.");
 
   return (
     <div className="min-h-screen lg:flex">
@@ -189,16 +217,16 @@ export function AppShell({ children, title, description, actions, breadcrumbs }:
       {menuOpen && <button className="rail-backdrop lg:hidden" tabIndex={-1} aria-label="Close navigation" onClick={dismissMenu} />}
       <aside ref={railRef} id="primary-rail" className="command-rail" data-open={menuOpen || undefined} data-mini={mini || undefined} data-ready={ready || undefined}
         role={drawer ? "dialog" : undefined} aria-modal={drawer ? true : undefined} aria-label={drawer ? "Navigation" : undefined}
-        inert={!menuOpen && !persistentRail} onMouseOver={showTip} onMouseLeave={hideTip} onFocus={showTip} onBlur={hideTip}>
+        inert={!menuOpen && !persistentRail}>
         <div className="rail-head">
-          <Link href="/" className="rail-brand" aria-label="AEGIS home" data-tip="AEGIS">
-            <span className="brand-mark flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"><Command size={20} aria-hidden="true"/></span>
-            <span className="rail-text"><strong className="block text-base font-black leading-tight tracking-[.14em]">AEGIS</strong><span className="block whitespace-nowrap text-[11px] font-semibold leading-tight text-muted">{t("Emergency intelligence")}</span></span>
+          <Link href="/" className="rail-brand" aria-label="AEGIS home">
+            <span className="brand-mark flex h-8 w-8 shrink-0 items-center justify-center"><Command size={18} aria-hidden="true"/></span>
+            <span className="rail-text"><strong className="block text-[15px] font-bold leading-tight tracking-[.12em]">AEGIS</strong><span className="block whitespace-nowrap text-[11px] font-medium leading-tight text-muted">{t("Emergency intelligence")}</span></span>
           </Link>
-          <button ref={closeMenuRef} className="control h-11 w-11 shrink-0 !px-0 lg:hidden" aria-label="Close menu" onClick={dismissMenu}><X size={18} aria-hidden="true"/></button>
+          <button ref={closeMenuRef} className="control control-quiet control-icon lg:hidden" aria-label="Close menu" onClick={dismissMenu}><X size={18} aria-hidden="true"/></button>
         </div>
         {mini
-          ? <div className="rail-search"><button type="button" className="rail-link justify-center" data-tip={t("Find a page")} aria-label={t("Find a page")} onClick={() => { setMini(false); window.setTimeout(() => filterRef.current?.focus(), 60); }}><Search size={17} aria-hidden="true" /></button></div>
+          ? <div className="rail-search"><Tip text={t("Find a page")} side="right"><button type="button" className="rail-link justify-center" aria-label={t("Find a page")} onClick={() => { setMini(false); window.setTimeout(() => filterRef.current?.focus(), 60); }}><Search size={17} aria-hidden="true" /></button></Tip></div>
           : <div className="rail-search">
             <Search size={16} aria-hidden="true" className="rail-search-icon" />
             <input ref={filterRef} type="search" data-nav-filter="" className="rail-filter" value={filter} placeholder={t("Find a page")} aria-label={t("Find a page")} aria-controls="primary-rail-list"
@@ -207,26 +235,36 @@ export function AppShell({ children, title, description, actions, breadcrumbs }:
               ? <button type="button" className="rail-search-clear" aria-label={t("Clear")} onClick={() => { setFilter(""); filterRef.current?.focus(); }}><X size={14} aria-hidden="true" /></button>
               : <kbd className="rail-search-key" aria-hidden="true">/</kbd>}
           </div>}
-        <div ref={listRef} id="primary-rail-list" className="rail-list" onScroll={event => { memoryScroll = event.currentTarget.scrollTop; hideTip(); }} onKeyDown={onListKey}>
+        <div ref={listRef} id="primary-rail-list" className="rail-list" onScroll={event => { memoryScroll = event.currentTarget.scrollTop; }} onKeyDown={onListKey}>
           <nav aria-label="Primary navigation">
             {groups.map((group, groupIndex) => {
-              const open = mini || Boolean(query) || !collapsed.includes(group.label);
-              const hasActive = section?.group === group.label;
-              const listId = "nav-group-" + group.label.toLowerCase();
+              const locked = group.label === LOCKED_GROUP;
+              const hasActive = group.items.some(item => item.href === section?.href);
+              const open = mini || Boolean(query) || (locked ? othersOpen || hasActive : !collapsed.includes(group.label));
+              const listId = "nav-group-" + group.label.toLowerCase().replace(/[^a-z]+/g, "-");
+              const chain = GROUP_CHAIN[group.label];
               return <div key={group.label} className="rail-section">
                 {mini
                   ? groupIndex > 0 && <div className="rail-divider" role="presentation" />
-                  : <button type="button" className="rail-group" data-active={hasActive || undefined} aria-expanded={open} aria-controls={listId} disabled={Boolean(query)} onClick={() => toggleGroup(group.label)}>
-                    <span>{t(group.label)}</span>
-                    {query ? <span className="rail-count">{group.items.length}</span> : <ChevronDown size={14} aria-hidden="true" className={`transition-transform duration-200 ${open ? "" : "-rotate-90"}`} />}
+                  : <button type="button" className="rail-group" data-active={hasActive || undefined} aria-expanded={open} aria-controls={listId} disabled={Boolean(query)} onClick={() => locked ? setOthersOpen(value => !value) : toggleGroup(group.label)}>
+                    <span className="flex min-w-0 items-baseline">{t(group.label)}{chain && <span className="rail-group-chain">{chain.map(step => t(step)).join(" · ")}</span>}</span>
+                    <span className="inline-flex shrink-0 items-center gap-1">{(query || locked) && <span className="rail-count">{group.items.length}</span>}{!query && <ChevronDown size={14} aria-hidden="true" className={`transition-transform duration-200 ${open ? "" : "-rotate-90"}`} />}</span>
                   </button>}
                 <div id={listId} className="rail-items" data-closed={!open || undefined} inert={!open}>
-                  <div>{group.items.map(({ href, label, icon: Icon }) => {
+                  <div>{group.items.map(item => {
+                    const { href, label, icon: Icon } = item;
                     const active = section?.href === href;
-                    return <Link key={href} href={href} aria-current={active ? "page" : undefined} data-tip={t(label)} className={`rail-link ${active ? "nav-active" : ""}`}
-                      onClick={() => { if (href === pathname) setMenuOpen(false); }}>
-                      <Icon size={17} aria-hidden="true" className="shrink-0" /><span className="rail-text">{t(label)}</span>
-                    </Link>;
+                    const needs = locked ? neededLabel(item, t) : "";
+                    const tabs = item.tabs?.length ?? 0;
+                    return <Tip key={href} text={t(label) + (needs ? ` (${t("needs")} ${needs})` : "")} side="right" disabled={!mini}>
+                      <Link href={href} aria-current={active ? "page" : undefined} data-locked={locked || undefined} title={needs ? `${t("needs")} ${needs}` : undefined} className={`rail-link ${active ? "nav-active" : ""}`}
+                        onClick={() => { if (href === pathname) setMenuOpen(false); }}>
+                        <Icon size={17} aria-hidden="true" className="shrink-0" /><span className="rail-text">{t(label)}</span>
+                        {locked
+                          ? <span className="rail-meta"><Lock size={11} aria-hidden="true" /><span className="sr-only">{t("needs")} {needs}</span><span aria-hidden="true">{shortNeeds(needs)}</span></span>
+                          : tabs > 1 && <span className="rail-meta" title={`${tabs} ${t("tabs")}`}><Layers size={11} aria-hidden="true" />{tabs}<span className="sr-only"> {t("tabs")}</span></span>}
+                      </Link>
+                    </Tip>;
                   })}</div>
                 </div>
               </div>;
@@ -234,43 +272,52 @@ export function AppShell({ children, title, description, actions, breadcrumbs }:
             {groups.length === 0 && <p className="px-3 py-6 text-center text-xs text-muted" role="status">{t("No pages match")}</p>}
           </nav>
         </div>
-        <div className="rail-foot">
-          <div className="rail-note" data-tip={t("Exercise environment")}>
-            <div className="flex items-center gap-2 text-xs font-bold text-amber-700 dark:text-amber-300"><ShieldCheck size={16} aria-hidden="true" className="shrink-0" /><span className="rail-text">{t("Exercise environment")}</span></div>
-            <p className="rail-text mt-1.5 text-[11px] leading-[1.45] text-muted">{t("Synthetic exercise data. Optional NASA/USGS context is labelled separately. No real emergency alerts or responder dispatch.")}</p>
+        <Tip side={mini ? "right" : "top"} text={exerciseNote}>
+          <div className="rail-foot" tabIndex={0}>
+            <ShieldCheck size={15} aria-hidden="true" className="shrink-0 text-brand" />
+            <span className="rail-text flex-1 font-semibold">{t("Exercise environment")}</span>
+            <span className="rail-text">v0.2</span>
+            <span className="sr-only">{exerciseNote}</span>
           </div>
-          <p className="rail-text mt-2 px-1 text-[11px] text-muted">AEGIS v0.2</p>
-        </div>
+        </Tip>
       </aside>
-      {tip && <div className="rail-tip" role="presentation" aria-hidden="true" style={{ top: tip.top, left: tip.left }}>{tip.text}</div>}
       <div className="min-w-0 flex-1" inert={menuOpen && drawer}>
-        <div className="command-topbar sticky top-0 z-20 flex h-16 items-center justify-between gap-3 border-b border-stroke bg-surface/90 px-4 backdrop-blur-xl sm:px-6">
-          <div className="@container flex min-w-0 flex-1 items-center gap-3">
-            <button ref={openMenuRef} className="control h-11 w-11 shrink-0 !px-0 lg:hidden" aria-label="Open navigation" aria-expanded={menuOpen} aria-controls="primary-rail" onClick={() => setMenuOpen(true)}><Menu size={19} aria-hidden="true"/></button>
-            <button type="button" data-rail-toggle="" className="control hidden h-10 w-10 shrink-0 !px-0 lg:inline-flex" aria-label={t(miniChoice ? "Expand sidebar" : "Collapse sidebar")} title={t(miniChoice ? "Expand sidebar" : "Collapse sidebar")} aria-expanded={!miniChoice} aria-controls="primary-rail" onClick={() => setMini(!miniChoice)}>
-              {miniChoice ? <PanelLeftOpen size={18} aria-hidden="true" /> : <PanelLeftClose size={18} aria-hidden="true" />}
-            </button>
-            <p className="hidden min-w-0 truncate text-[13px] font-semibold text-muted sm:@min-[15rem]:block">{section ? <><span className="hidden 2xl:inline">{t(section.group)} <span aria-hidden="true" className="mx-1 opacity-60">/</span> </span><span className="text-ink">{t(section.label)}</span></> : t("Public safety / Hyderabad")}</p>
-            <p className="hidden min-w-0 truncate text-xs font-semibold text-muted min-[400px]:block sm:hidden">{section ? t(section.label) : "AEGIS / Exercise"}</p>
+        <div className="sticky top-0 z-20">
+          <div className="command-topbar flex items-center justify-between gap-3 border-b border-stroke bg-surface px-3 sm:px-5">
+            <div className="@container flex min-w-0 flex-1 items-center gap-2">
+              <button ref={openMenuRef} className="control control-quiet control-icon lg:hidden" aria-label="Open navigation" aria-expanded={menuOpen} aria-controls="primary-rail" onClick={() => setMenuOpen(true)}><Menu size={19} aria-hidden="true"/></button>
+              <button type="button" data-rail-toggle="" className="control control-quiet control-icon hidden lg:inline-flex" aria-label={t(miniChoice ? "Expand sidebar" : "Collapse sidebar")} title={t(miniChoice ? "Expand sidebar" : "Collapse sidebar")} aria-expanded={!miniChoice} aria-controls="primary-rail" onClick={() => setMini(!miniChoice)}>
+                {miniChoice ? <PanelLeftOpen size={18} aria-hidden="true" /> : <PanelLeftClose size={18} aria-hidden="true" />}
+              </button>
+              <p className="hidden min-w-0 truncate text-[13px] font-medium text-muted sm:@min-[15rem]:block">{section ? <><span className="hidden 2xl:inline">{t(section.group)} <span aria-hidden="true" className="mx-1 opacity-60">/</span> </span><span className="font-semibold text-ink">{t(section.label)}</span></> : t("Public safety / Hyderabad")}</p>
+              <p className="hidden min-w-0 truncate text-xs font-semibold text-muted min-[400px]:block sm:hidden">{section ? t(section.label) : "AEGIS / Exercise"}</p>
+            </div>
+            <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
+              <LanguageSwitcher />
+              <GlobalSearch />
+              <ThemeToggle />
+              <OperatorAuth />
+            </div>
           </div>
-          <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
-            <span className="hidden items-center gap-2 rounded-full border border-amber-400/25 bg-amber-400/10 px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300 sm:inline-flex">
-              <span className="status-dot bg-amber-400"/> {t("Simulation mode")}
-            </span>
-            <LanguageSwitcher />
-            <GlobalSearch />
-            <ThemeToggle />
-            <OperatorAuth />
+          {/* The desk strip: a standing statement of state, place and time. It cannot be mistaken for live operation. */}
+          <div className="desk-strip" role="note" aria-label={t("Exercise environment")}>
+            <span className="exercise-tape">{t("EXERCISE")}<small className="hidden min-[420px]:inline">{t("No live warnings or dispatch")}</small></span>
+            <div className="desk-facts">
+              <span className="hidden md:inline-flex"><Server size={13} aria-hidden="true" />{t("Local exercise node · HYD-01")}</span>
+              {agency && <span className="hidden xl:inline-flex" title={agency}><Building2 size={13} aria-hidden="true" />{t("Agency")} <span className="mono">{shortId(agency)}</span></span>}
+              <DeskClock />
+            </div>
           </div>
         </div>
-        <main id="main-content" tabIndex={-1} className="mx-auto max-w-[1800px] px-4 pb-12 pt-6 outline-none sm:px-7">
+        <main id="main-content" tabIndex={-1} className="mx-auto max-w-[1800px] px-4 pb-12 pt-5 outline-none sm:px-6">
           <ToastProvider>
             <div className="reveal-in">
-              <PageHeader eyebrow={t("Adaptive Emergency Geospatial Intelligence System")} title={t(title)} description={t(description)} breadcrumbs={breadcrumbs}
-                actions={actions} chip={<span className="rounded-md border border-stroke bg-surface px-3 py-2 text-[10px] font-bold uppercase tracking-[.17em] text-muted">{t("Local exercise node · HYD-01")}</span>} />
+              <p className="print-only mb-3 text-xs">AEGIS · {t("Exercise environment")} · {t("No live warnings or dispatch")}</p>
+              <PageHeader eyebrow={section ? t(section.group) : undefined} chain={section?.page.chain} title={t(title)} description={t(description)} breadcrumbs={crumbs} actions={actions} />
               {section?.tabs && <nav aria-label={t(section.label)} className="section-tabs">
                 {section.tabs.map(({ href, label, icon: Icon }) => <Link key={href} href={href} aria-current={section.tab?.href === href ? "page" : undefined} className="section-tab"><Icon size={16} aria-hidden="true" /><span>{t(label)}</span></Link>)}
               </nav>}
+              {help && <PageHelp help={help} />}
               {children}
             </div>
           </ToastProvider>

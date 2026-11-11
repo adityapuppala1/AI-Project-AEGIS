@@ -26,9 +26,9 @@ export function ExerciseReviewBrief({ brief }: { brief: ReviewBrief }) {
         ["URB-01", "URB-03", "URB-04"].includes(item.playbook_step)) ||
       !Array.isArray(brief.limitations) || brief.limitations.length > 20 ||
       !brief.limitations.every(item => typeof item === "string")) {
-    return <p role="alert">Review brief classification not verified.</p>;
+    return <ErrorState message={"Review brief classification not verified."} />;
   }
-  return <details className="mt-4 rounded-xl border border-stroke p-4">
+  return <details className="mt-4 rounded-lg border border-stroke p-4">
     <summary className="cursor-pointer text-sm font-bold">Cited exercise review brief</summary>
     <p className="mt-3 text-xs leading-6 text-muted">Deterministic template; no AI model was used. These are review notes, not an assessment of real flood risk or an authorization.</p>
     <ul className="mt-3 space-y-3">
@@ -51,3 +51,4 @@ export function ExerciseReviewBrief({ brief }: { brief: ReviewBrief }) {
     </ul>
   </details>;
 }
+import { ErrorState } from "./ui";

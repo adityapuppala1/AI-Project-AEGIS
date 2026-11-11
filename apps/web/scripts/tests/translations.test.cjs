@@ -17,6 +17,10 @@ function load(file) {
 }
 const tr = load('lib/translations.ts');
 const intake = load('lib/public-intake.ts');
+const { PENDING_NATIVE_REVIEW } = load('lib/translations-pending.ts');
+const pendingTool = require('../list-pending-translations.cjs');
+// Reviewed translations plus the register of English strings still waiting for a native speaker.
+const accounted = () => new Set([...tr.TRANSLATION_ENTRIES.map(entry => entry[0]), ...PENDING_NATIVE_REVIEW]);
 const TELUGU = /[ఀ-౿]/, DEVANAGARI = /[ऀ-ॿ]/;
 
 test('every entry has real Telugu and Hindi text, not English left in place', () => {
@@ -62,12 +66,12 @@ test('every navigation label and group in the app shell is translated', () => {
   const block = fs.readFileSync(path.join(root, 'lib/navigation.ts'), 'utf8');
   const labels = [...block.matchAll(/label: "([^"]+)"/g)].map(match => match[1]);
   assert.ok(labels.length >= 20, 'found ' + labels.length);
-  const known = new Set(tr.TRANSLATION_ENTRIES.map(entry => entry[0]));
+  const known = accounted();
   for (const label of labels) assert.ok(known.has(label), 'missing translation for nav label: ' + label);
 });
 
-test('every literal t("...") in the translated components has a translation', () => {
-  const known = new Set(tr.TRANSLATION_ENTRIES.map(entry => entry[0]));
+test('every literal t("...") in the translated components is translated or registered as pending native review', () => {
+  const known = accounted();
   const files = fs.readdirSync(path.join(root, 'components')).filter(name => name.endsWith('.tsx')).map(name => 'components/' + name).filter(file => fs.readFileSync(path.join(root, file), 'utf8').includes('language-provider')).concat(fs.readdirSync(path.join(root, 'components/ui')).filter(name => name.endsWith('.tsx')).map(name => 'components/ui/' + name));
   let checked = 0;
   for (const file of files) {
@@ -99,5 +103,17 @@ test('page titles, descriptions, hazard labels, cities and every form validation
     const source = fs.readFileSync(path.join(root, file), 'utf8');
     assert.ok(source.includes(start), file);
     assert.ok([...known].some(entry => entry.startsWith(start)), 'no translated description for ' + file);
+  }
+});
+
+test('the pending-native-review register is exact: generated from the source, never machine-translated', () => {
+  const known = new Set(tr.TRANSLATION_ENTRIES.map(entry => entry[0]));
+  assert.deepEqual([...PENDING_NATIVE_REVIEW], pendingTool.pending(), 'run: node scripts/list-pending-translations.cjs');
+  assert.equal(new Set(PENDING_NATIVE_REVIEW).size, PENDING_NATIVE_REVIEW.length, 'duplicate pending keys');
+  for (const text of PENDING_NATIVE_REVIEW) {
+    assert.ok(!known.has(text), 'already translated, so not pending: ' + text);
+    assert.doesNotMatch(text, TELUGU); assert.doesNotMatch(text, DEVANAGARI);
+    // Pending strings stay in English in every language until a native speaker supplies the text.
+    assert.equal(tr.translate('te', text), text); assert.equal(tr.translate('hi', text), text);
   }
 });

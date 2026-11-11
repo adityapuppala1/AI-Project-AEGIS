@@ -1,5 +1,10 @@
 "use client";
 
+import { PermissionState } from "./ui";
+import { pageRoles } from "../lib/roles";
+import { RecordRef } from "./ui";
+import { codeLabel, plainText } from "../lib/labels";
+import { DataTable } from "./ui";
 import { useCallback, useEffect, useState } from "react";
 import { AlarmClock, ClipboardCheck, GraduationCap, Play, RefreshCw } from "lucide-react";
 import { AppShell } from "./app-shell";
@@ -78,16 +83,18 @@ export function ExerciseDrills() {
     </div>
     {session && !session.authenticated && <SignInRequired session={session}/>}
     {loading && session?.authenticated !== false && <SkeletonRows rows={4} label={t("Loading drills")}/>}
-    {error && <ErrorState message={t(error)} onRetry={() => void load()}/>}
+    {error && (/insufficient role/i.test(error)
+      ? <PermissionState needs={pageRoles("/drills") ?? []} roles={session?.roles} what={t("Drills rehearse the incident desk, so they are for the incident desk and administrators.")} where={{ href: "/department-tasks", label: t("Open the Department Inbox") }} />
+      : <ErrorState message={t(error)} onRetry={() => void load()}/>)}
     {session?.authenticated && !loading && !error && <div className="space-y-4">
       <Panel title={t("Start a drill")} icon={Play}>
-        <p className="mb-2 text-xs text-muted">{note}</p>
+        <p className="helper mb-2">{plainText(note)}</p>
         <div className="flex flex-wrap items-end gap-2">
-          <div><label htmlFor="drill-scenario" className="block text-xs font-bold">{t("Scenario")}</label>
+          <div><label htmlFor="drill-scenario" className="field-label">{t("Scenario")}</label>
             <select id="drill-scenario" className="field" value={scenario} onChange={e => setScenario(e.target.value)}>
               {scenarios.map(s => <option key={s.id} value={s.id}>{s.title}</option>)}</select></div>
           <button type="button" className="control control-primary" disabled={busy || !scenario || !isOperator} onClick={() => act("/api/drills", { scenario_id: scenario })}>{t("Start drill")}</button>
-          {drills.length > 0 && <div><label htmlFor="drill-pick" className="block text-xs font-bold">{t("Open an earlier drill")}</label>
+          {drills.length > 0 && <div><label htmlFor="drill-pick" className="field-label">{t("Open an earlier drill")}</label>
             <select id="drill-pick" className="field" value={drill?.id ?? ""} onChange={e => setDrill(drills.find(d => d.id === e.target.value) ?? null)}>
               <option value="">-</option>{drills.map(d => <option key={d.id} value={d.id}>{d.title} · {simClock(d.sim_minute)}</option>)}</select></div>}
         </div>
@@ -98,29 +105,28 @@ export function ExerciseDrills() {
           <StatusPill tone="sample">{t("Exercise drill")}</StatusPill>
           <strong>{simClock(drill.sim_minute)}</strong><span className="text-muted">/ {simClock(drill.end_minute)}</span>
           <StatusPill tone={drill.trigger_state === "candidate" ? "danger" : drill.trigger_state === "watch" ? "warning" : "neutral"}>{t("Trigger state")}: {t(drill.trigger_state)}</StatusPill>
-          <StatusPill tone={drill.status === "running" ? "info" : "neutral"}>{t(drill.status)}</StatusPill>
-          {drill.event_ref && <code className="text-[11px]">{drill.event_ref}</code>}
+          <StatusPill tone={drill.status === "running" ? "info" : "neutral"}>{t(codeLabel(drill.status))}</StatusPill>
+          {drill.event_ref && <RecordRef id={drill.event_ref} />}
         </div>
-        <ol className="mt-2 space-y-1 text-xs">{drill.injected.map(i => <li key={i.evidence_id}>{simClock(i.minute)} · {i.value} · {t(i.trigger_state)} · <code className="break-all">{i.evidence_id}</code></li>)}</ol>
+        <ol className="mt-3 space-y-1.5 text-xs">{drill.injected.map(i => <li key={i.evidence_id} className="flex flex-wrap items-center gap-2 tnum"><span>{simClock(i.minute)}</span><span>{i.value}</span><span>{t(i.trigger_state)}</span><RecordRef id={i.evidence_id} /></li>)}</ol>
         {drill.status === "running" && isOperator && <div className="mt-3 flex flex-wrap gap-2">
-          {STEPS.map(step => <button key={step} type="button" className="control" disabled={busy} onClick={() => act(`/api/drills/${drill.id}/clock`, { expected_minute: drill.sim_minute, minutes: step })}>+{step} {t("min")}</button>)}
+          {STEPS.map(step => <button key={step} type="button" className="control control-sm" disabled={busy} onClick={() => act(`/api/drills/${drill.id}/clock`, { expected_minute: drill.sim_minute, minutes: step })}>+{step} {t("min")}</button>)}
         </div>}
         <div className="mt-3 flex flex-wrap gap-2">
           {DRILL_ACTIONS.map(action => <button key={action} type="button" className="control" disabled={busy || !ready(action)} onClick={() => act(`/api/drills/${drill.id}/respond`, { action })}>
             <ClipboardCheck size={16}/>{t(ACTION_LABEL[action])}{drill.actions[action] ? ` · ${simClock(drill.actions[action]!.minute)}` : ""}</button>)}
         </div>
-        <p className="mt-1 text-[11px] text-muted">{t("Approval in a drill needs a different person with the checker role, as in the real workflow.")}</p>
+        <p className="helper mt-2">{t("Approval in a drill needs a different person with the checker role, as in the real workflow.")}</p>
       </Panel>}
 
       {report && <Panel title={t("Coach report")} icon={GraduationCap}>
-        <p className="mb-2 text-xs text-muted">{report.note}</p>
-        <div className="overflow-x-auto"><table className="data-table">
-          <caption className="sr-only">{t("Timeliness against synthetic targets")}</caption>
-          <thead><tr><th scope="col">{t("Step")}</th><th scope="col">{t("Target (min)")}</th><th scope="col">{t("Elapsed (min)")}</th><th scope="col">{t("Result")}</th><th scope="col">{t("Coach note")}</th></tr></thead>
+        <p className="helper mb-2">{plainText(report.note)}</p>
+        <div className="rounded-md border border-stroke"><DataTable label={t("Timeliness against synthetic targets")} minWidth="34rem">
+          <thead><tr><th scope="col">{t("Step")}</th><th scope="col" className="num">{t("Target (min)")}</th><th scope="col" className="num">{t("Elapsed (min)")}</th><th scope="col">{t("Result")}</th><th scope="col">{t("Coach note")}</th></tr></thead>
           <tbody>{report.actions.map(a => <tr key={a.action}><td>{t(ACTION_LABEL[a.action])}</td><td>{a.target_minutes}</td><td>{a.elapsed_minutes ?? "-"}</td>
-            <td><StatusPill tone={SLA_TONE[a.status]}>{t(SLA_LABEL[a.status])}</StatusPill></td><td>{a.coach_note}</td></tr>)}</tbody>
-        </table></div>
-        <p className="mt-2 flex flex-wrap gap-1">{report.cited_event_ids.map(id => <code key={id} className="rounded bg-surface-2 px-1 text-[11px] break-all">{id}</code>)}</p>
+            <td><StatusPill tone={SLA_TONE[a.status]}>{t(SLA_LABEL[a.status])}</StatusPill></td><td>{plainText(a.coach_note)}</td></tr>)}</tbody>
+        </DataTable></div>
+        <p className="mt-2 flex flex-wrap gap-1">{report.cited_event_ids.map(id => <RecordRef key={id} id={id} />)}</p>
       </Panel>}
       <div className="flex items-center gap-3"><button type="button" className="control" onClick={() => void load()} disabled={busy}><RefreshCw size={16}/>{t("Refresh")}</button>
         <span aria-live="polite" role="status" className="text-xs">{message}</span></div>

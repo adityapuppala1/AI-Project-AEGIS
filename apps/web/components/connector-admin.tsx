@@ -1,5 +1,10 @@
 "use client";
 
+import { RecordRef } from "./ui";
+import { PermissionState, SkeletonRows } from "./ui";
+import { pageRoles } from "../lib/roles";
+import { SignInRequired } from "./sign-in-required";
+import { ErrorState } from "./ui";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Activity, AlertTriangle, Ban, CheckCircle2, ChevronDown, CircleDashed, CircleHelp, Cloud, Eraser, ExternalLink, Eye, EyeOff, FileOutput, FlaskConical, Flame, Gavel, History, KeyRound,
@@ -58,7 +63,7 @@ function StatusPill({ connector }: Readonly<{ connector: Connector }>) {
 
 function SampleBadge() {
   const t = useT();
-  return <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-amber-800 ring-1 ring-amber-500/40 dark:text-amber-200"><FlaskConical size={12} aria-hidden="true"/>{t("SAMPLE — not real connectors")}</span>;
+  return <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-1 text-[10px] font-bold text-amber-800 ring-1 ring-amber-500/40 dark:text-amber-200"><FlaskConical size={12} aria-hidden="true"/>{t("SAMPLE — not real connectors")}</span>;
 }
 
 function AuditTimeline({ rows, name, now }: Readonly<{ rows: AuditRow[]; name: string; now: number }>) {
@@ -69,7 +74,7 @@ function AuditTimeline({ rows, name, now }: Readonly<{ rows: AuditRow[]; name: s
     const Icon = icon(row.action); const age = ageParts(row.at, now);
     return <li key={row.id || index} className="relative text-xs">
       <span className={`absolute -left-[1.65rem] flex h-5 w-5 items-center justify-center rounded-full border bg-surface ${row.ok ? "border-stroke text-muted" : "border-rose-500 text-rose-700 dark:text-rose-300"}`} aria-hidden="true"><Icon size={11}/></span>
-      <p><strong>{label(row.action)}</strong> · {row.ok ? t("ok") : t("failed")} <span className="text-muted">· {row.actor}</span></p>
+      <p><strong>{label(row.action)}</strong> · {row.ok ? t("ok") : t("failed")} <span className="text-muted">· <RecordRef id={row.actor} /></span></p>
       <p className="text-muted" title={formatIst(row.at)}>{age ? (age.unit === "now" ? t("just now") : `${age.n} ${t(age.unit)} ${t("ago")}`) : t("time unknown")}</p>
     </li>;
   })}</ol>;
@@ -146,7 +151,7 @@ function ConnectorCard({ connector, masterKey, preview, now, onToast, onSaved }:
     }
   }
 
-  const required = <span className="ml-1 rounded bg-elevated px-1.5 py-0.5 text-[10px] font-bold uppercase text-muted"><span aria-hidden="true">{t("Required")}</span><span className="sr-only">({t("required")})</span></span>;
+  const required = <span className="ml-1 rounded bg-elevated px-1.5 py-0.5 text-[10px] font-bold text-muted"><span aria-hidden="true">{t("Required")}</span><span className="sr-only">({t("required")})</span></span>;
   const plainField = (field: Connector["fields"][number]) => {
     const id = `${base}-s-${field.name}`; const value = settings[field.name]; const hint = `${id}-hint`;
     return <div key={field.name}>
@@ -164,9 +169,9 @@ function ConnectorCard({ connector, masterKey, preview, now, onToast, onSaved }:
   return <section id={base} className="panel min-w-0 scroll-mt-24" aria-labelledby={`${base}-title`}>
     <div className="panel-heading !items-start">
       <div className="flex min-w-0 items-start gap-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent"><Icon size={20} aria-hidden="true"/></span>
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent"><Icon size={20} aria-hidden="true"/></span>
         <div className="min-w-0">
-          <h2 id={`${base}-title`} className="text-base font-bold">{connector.name}</h2>
+          <h2 id={`${base}-title`} className="t-title">{connector.name}</h2>
           <div className="mt-1.5 flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-elevated px-2.5 py-1 text-[11px] font-semibold text-muted ring-1 ring-stroke">{connector.category || t("other")}</span>
             <StatusPill connector={connector}/>
@@ -218,7 +223,7 @@ function ConnectorCard({ connector, masterKey, preview, now, onToast, onSaved }:
       {secretsPending && !masterKey && <p className="text-xs text-rose-700 dark:text-rose-300">{t("The master key is not configured, so secrets cannot be saved.")}</p>}
 
       {hasAdvanced && <div>
-        <button type="button" className="control !min-h-9 text-xs" aria-expanded={advanced} aria-controls={`${base}-advanced`} onClick={() => setAdvanced(v => !v)}>
+        <button type="button" className="control control-sm" aria-expanded={advanced} aria-controls={`${base}-advanced`} onClick={() => setAdvanced(v => !v)}>
           {t("Advanced settings")}<ChevronDown size={14} aria-hidden="true" className={advanced ? "rotate-180" : ""}/></button>
         {advanced && <div id={`${base}-advanced`} className="mt-3 space-y-4 rounded-lg border border-stroke p-3">
           {optionalPlain.map(plainField)}
@@ -233,7 +238,7 @@ function ConnectorCard({ connector, masterKey, preview, now, onToast, onSaved }:
         {test.ok ? t("Test passed") : t("Test failed")} · HTTP {test.status_code ?? "n/a"} · {test.latency_ms ?? "n/a"} ms{test.message ? ` · ${test.message}` : ""}{test.at ? ` · ${formatIst(test.at)}` : ""}</p>}
 
       <div>
-        <button type="button" className="control !min-h-9 text-xs" aria-expanded={auditOpen} aria-controls={`${base}-audit`} onClick={toggleAudit}>
+        <button type="button" className="control control-sm" aria-expanded={auditOpen} aria-controls={`${base}-audit`} onClick={toggleAudit}>
           <History size={14} aria-hidden="true"/>{t("Audit (last 50)")}<ChevronDown size={14} aria-hidden="true" className={auditOpen ? "rotate-180" : ""}/></button>
         {auditOpen && <div id={`${base}-audit`} className="mt-3 max-h-72 overflow-y-auto pr-1" tabIndex={0} aria-label={`${connector.name} ${t("Audit (last 50)")}`}>
           {audit === null ? <p className="text-xs text-muted" role="status">{t("Loading audit…")}</p>
@@ -243,13 +248,13 @@ function ConnectorCard({ connector, masterKey, preview, now, onToast, onSaved }:
       </div>
 
       <div className="sticky bottom-0 z-10 -mx-5 -mb-5 flex flex-wrap items-center gap-3 rounded-b-xl border-t border-stroke bg-surface px-5 py-3">
-        {!readOnly && <button type="button" className="control control-primary" onClick={save} disabled={preview || !dirty || busy !== "" || (secretsPending && !masterKey)}>
+        {!readOnly && <button type="button" className={dirty ? "control control-primary" : "control"} onClick={save} disabled={preview || !dirty || busy !== "" || (secretsPending && !masterKey)}>
           {busy === "save" ? <Loader2 size={16} className="animate-spin" aria-hidden="true"/> : <Save size={16} aria-hidden="true"/>}{t("Save")}</button>}
         <button type="button" className="control" onClick={runTest} disabled={busy !== ""}>
           {busy === "test" ? <Loader2 size={16} className="animate-spin" aria-hidden="true"/> : <Activity size={16} aria-hidden="true"/>}{t("Test connection")}</button>
         {dirty && <>
           <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-800 dark:text-amber-300"><span className="status-dot bg-amber-500" aria-hidden="true"/>{t("Unsaved changes")}</span>
-          <button type="button" className="control !min-h-9 text-xs" onClick={discard} disabled={busy !== ""}><Undo2 size={14} aria-hidden="true"/>{t("Discard changes")}</button>
+          <button type="button" className="control control-sm" onClick={discard} disabled={busy !== ""}><Undo2 size={14} aria-hidden="true"/>{t("Discard changes")}</button>
         </>}
         {preview && <span className="text-[11px] text-muted">{t("Saving is switched off in the sample preview.")}</span>}
       </div>
@@ -290,11 +295,11 @@ function SetupHeader({ payload, preview }: Readonly<{ payload: ConnectorsPayload
     return list;
   }, [payload, counted, t]);
   const keyOk = payload.master_key_configured;
-  return <section className="panel mb-5 p-5" aria-labelledby="setup-progress">
+  return <section className="panel p-4 mb-5" aria-labelledby="setup-progress">
     <div className="flex flex-wrap items-center gap-5">
       <Ring ready={ready} total={counted.length}/>
       <div className="min-w-0 flex-1 basis-56">
-        <h2 id="setup-progress" className="text-base font-bold">{ready} {t("of")} {counted.length} {t("connectors ready")}</h2>
+        <h2 id="setup-progress" className="t-title">{ready} {t("of")} {counted.length} {t("connectors ready")}</h2>
         <p className="mt-1 text-xs text-muted">{t("Ready means enabled with a passing test. Authority notification can never be enabled and is not counted.")}</p>
         <p className={`mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold ring-1 ${keyOk ? "bg-emerald-500/10 text-emerald-800 ring-emerald-500/30 dark:text-emerald-300" : "bg-rose-500/10 text-rose-700 ring-rose-500/30 dark:text-rose-300"}`}>
           {keyOk ? <ShieldCheck size={13} aria-hidden="true"/> : <AlertTriangle size={13} aria-hidden="true"/>}{keyOk ? t("Master key configured") : t("Master key missing")}</p>
@@ -349,35 +354,29 @@ export function ConnectorAdmin() {
 
   const samplePayload = useMemo(() => preview ? buildSampleConnectors(Date.now()) : null, [preview]);
   const view = preview ? samplePayload : payload;
-  const showBody = preview || isAdmin;
+  const showBody = isAdmin;
 
-  return <AppShell title="Connector Administration" description="Configure the data and decision connectors used by Hazard Watch. Secrets are write-only and AEGIS never sends warnings.">
-    <div className="panel mb-5 flex flex-wrap items-center gap-3 p-3">
+  return <AppShell title="Connectors" description="Configure the data and decision connectors used by Hazard Watch. Secrets are write-only and AEGIS never sends warnings.">
+    {isAdmin && <div className="panel mb-4 flex flex-wrap items-center gap-3 p-3">
       <button type="button" role="switch" aria-checked={preview} aria-describedby="preview-help" onClick={() => { setPreview(value => !value); setNotice(null); nowRef.current = Date.now(); }}
         className="inline-flex min-h-10 items-center gap-3 rounded-lg px-1 text-sm font-semibold">
         <span className={`relative h-6 w-11 shrink-0 rounded-full border transition-colors ${preview ? "border-amber-600 bg-amber-500" : "border-stroke bg-elevated"}`} aria-hidden="true">
           <span className={`absolute top-0.5 rounded-full bg-white shadow transition-all ${preview ? "left-5" : "left-0.5"}`} style={{ height: 18, width: 18 }}/></span>
-        <FlaskConical size={16} aria-hidden="true"/>{t("Preview as admin (sample)")}</button>
-      <p id="preview-help" className="min-w-0 flex-1 basis-60 text-xs text-muted">{t("Shows eight sample connectors in different states so the layout can be judged without a session. Makes no API calls and cannot save.")}</p>
+        <FlaskConical size={16} aria-hidden="true"/>{t("Show an illustration with sample connectors")}</button>
+      <p id="preview-help" className="min-w-0 flex-1 basis-60 text-xs text-muted">{t("An illustration only: eight made-up connectors in different states. It reads nothing from this server and cannot save.")}</p>
       {preview && <SampleBadge/>}
-    </div>
+    </div>}
 
-    {!preview && session === null && <p className="panel p-6 text-sm text-muted" role="status">{t("Checking operator session…")}</p>}
-    {!preview && session !== null && !isAdmin && <section className="panel p-8 text-center" aria-labelledby="connector-auth">
-      <Lock size={28} className="mx-auto text-accent" aria-hidden="true"/>
-      <h2 id="connector-auth" className="mt-3 text-lg font-bold">{t("platform_admin role required")}</h2>
-      <p className="mx-auto mt-2 max-w-xl text-sm text-muted">{session.authenticated
-        ? t("Your signed-in account does not carry the platform_admin role, so connector settings are hidden.")
-        : t("Sign in with a platform_admin account to view and change connector settings.")}</p>
-      {!session.authenticated && session.configured && <a href="/api/auth/login" className="control control-primary mt-5">{t("Sign in securely")}</a>}
-      {!session.configured && <p className="mt-3 text-xs text-muted">{t("SSO not configured")}</p>}
-    </section>}
+    {session === null && <div className="panel p-4"><SkeletonRows rows={2} label={t("Checking operator session…")} /></div>}
+    {session !== null && !session.authenticated && <SignInRequired session={session}/>}
+    {session !== null && session.authenticated && !isAdmin && <PermissionState needs={pageRoles("/admin/connectors") ?? []} roles={session.roles}
+      what={t("Connector keys and switches are set by an administrator. Nothing about them is shown to other roles.")} where={{ href: "/admin", label: t("Open Administration") }} />}
 
     {showBody && <>
-      {!preview && error && <div role="alert" className="mb-5 flex items-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-700 dark:text-rose-300"><AlertTriangle size={18}/>{error}</div>}
+      {!preview && error && <ErrorState message={error} className="mb-4" />}
       {!preview && loading && !payload && <div role="status" aria-busy="true"><span className="sr-only">{t("Loading connectors…")}</span>
-        <div aria-hidden="true" className="space-y-5"><div className="panel flex items-center gap-5 p-5"><div className="shimmer h-20 w-20 !rounded-full"/><div className="flex-1 space-y-3"><div className="shimmer h-4 w-1/2"/><div className="shimmer h-3 w-3/4"/></div></div>
-          <div className="grid gap-5 xl:grid-cols-2">{[0, 1].map(i => <div key={i} className="panel p-5"><div className="shimmer h-5 w-1/3"/><div className="shimmer mt-4 h-10 w-full"/><div className="shimmer mt-3 h-10 w-full"/></div>)}</div></div></div>}
+        <div aria-hidden="true" className="space-y-5"><div className="panel p-4 flex items-center gap-5"><div className="shimmer h-20 w-20 !rounded-full"/><div className="flex-1 space-y-3"><div className="shimmer h-4 w-1/2"/><div className="shimmer h-3 w-3/4"/></div></div>
+          <div className="grid gap-5 xl:grid-cols-2">{[0, 1].map(i => <div key={i} className="panel p-4"><div className="shimmer h-5 w-1/3"/><div className="shimmer mt-4 h-10 w-full"/><div className="shimmer mt-3 h-10 w-full"/></div>)}</div></div></div>}
       {!preview && isAdmin && <ProactivePauseControl/>}
       {view && <>
         <SetupHeader payload={view} preview={preview}/>

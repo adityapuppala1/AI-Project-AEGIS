@@ -1,5 +1,7 @@
 "use client";
 
+import { codeLabel } from "../lib/labels";
+import { DataTable } from "./ui";
 import { useCallback, useEffect, useState } from "react";
 import { Ban, Check, CheckCircle2, Copy, Download, FileText, Gavel, Loader2, Play, ShieldAlert, StepForward, UserCheck, type LucideIcon } from "lucide-react";
 import { useT } from "./language-provider";
@@ -22,7 +24,7 @@ const STEP_CAPTION: Record<RunStep, string> = {
 const FLAG_LABEL: Record<SentinelFlagName, string> = { strengthened: "Evidence strengthened", weakened: "Evidence weakened", contradicted: "Evidence contradicts trigger", stale: "Evidence stale" };
 const FLAG_TONE: Record<SentinelFlagName, Tone> = { strengthened: "warning", weakened: "info", contradicted: "danger", stale: "neutral" };
 const BAND_ICON: Record<DecisionBand, LucideIcon> = { recommended: CheckCircle2, needs_review: UserCheck, blocked: Ban };
-const humanise = (name: string) => name.replace(/_/g, " ");
+const humanise = (name: string) => codeLabel(name);
 
 function Bars({ title, question }: Readonly<{ title: string; question: Question }>) {
   const t = useT();
@@ -60,7 +62,7 @@ function Stepper({ run, active, busy }: Readonly<{ run: ProactiveRun; active: bo
             : current && busy ? <Loader2 size={14} className="animate-spin" aria-hidden="true"/>
             : blocked ? <Ban size={14} aria-hidden="true"/> : <span aria-hidden="true">{index + 1}</span>}
         </span>
-        <span className="min-w-0"><span className="block text-xs font-bold">{t(STEP_LABEL[step])}</span>
+        <span className="min-w-0"><span className="field-label">{t(STEP_LABEL[step])}</span>
           <span className="block text-[11px] text-muted">{t(STEP_CAPTION[step])}</span>
           <span className="sr-only">{status}</span></span>
       </li>;
@@ -153,7 +155,7 @@ export function ProactiveRunPanel({ triggerEventId, triggerKey = null, canOperat
   const BandIcon = judgment ? BAND_ICON[judgment.decision_band] : ShieldAlert;
   return <section className="panel min-w-0" aria-labelledby="proactive-run-title">
     <div className="panel-heading">
-      <h3 id="proactive-run-title" className="flex items-center gap-2 text-base font-bold"><Gavel size={18} className="text-accent" aria-hidden="true"/>{t("Bounded run")}</h3>
+      <h3 id="proactive-run-title" className="flex items-center gap-2 t-title"><Gavel size={18} className="text-accent" aria-hidden="true"/>{t("Bounded run")}</h3>
       {sample && <SampleChip/>}
       {!run && <button type="button" className="control control-primary" onClick={start} disabled={!canOperate || busy} aria-describedby="run-reason">
         {busy ? <Loader2 size={16} className="animate-spin" aria-hidden="true"/> : <Play size={16} aria-hidden="true"/>}{t("Start bounded run")}</button>}
@@ -182,22 +184,21 @@ export function ProactiveRunPanel({ triggerEventId, triggerKey = null, canOperat
         </div>}
 
         {run.variants.length > 0 && <div className="reveal-in overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <caption className="sr-only">{t("Threshold variants")}</caption>
-            <thead><tr className="text-muted"><th scope="col" className="py-1 pr-3">{t("Variant")}</th><th scope="col" className="pr-3">{t("Threshold change")}</th><th scope="col" className="pr-3">{t("Outcome")}</th><th scope="col">{t("Score")}</th></tr></thead>
-            <tbody>{run.variants.map(variant => <tr key={variant.id} className="border-t border-stroke"><td className="py-1 pr-3">{variant.label}</td>
-              <td className="pr-3 tabular-nums">{variant.threshold_delta > 0 ? "+" : ""}{variant.threshold_delta}</td><td className="pr-3">{t(variant.resulting_state)}</td><td className="tabular-nums">{variant.score.toFixed(2)}</td></tr>)}</tbody>
-          </table>
+          <DataTable label={t("Threshold variants")} minWidth="18rem">
+            <thead><tr><th scope="col">{t("Variant")}</th><th scope="col" className="num">{t("Threshold change")}</th><th scope="col">{t("Outcome")}</th><th scope="col" className="num">{t("Score")}</th></tr></thead>
+            <tbody>{run.variants.map(variant => <tr key={variant.id}><td>{variant.label}</td>
+              <td className="num">{variant.threshold_delta > 0 ? "+" : ""}{variant.threshold_delta}</td><td>{t(variant.resulting_state)}</td><td className="num">{variant.score.toFixed(2)}</td></tr>)}</tbody>
+          </DataTable>
         </div>}
 
-        {judgment && <div className="reveal-in space-y-3 rounded-xl border border-stroke p-4" aria-label={t("Judgment")} role="group">
+        {judgment && <div className="reveal-in space-y-3 rounded-lg border border-stroke p-4" aria-label={t("Judgment")} role="group">
           <div className="flex flex-wrap items-center gap-2">
             <span className={`rounded-full px-3 py-1 text-[11px] font-bold ring-1 ${judgment.provider === "typesafe_jev" ? "bg-sky-500/10 text-sky-700 ring-sky-500/30 dark:text-sky-300" : "bg-slate-500/10 text-slate-700 ring-slate-500/30 dark:text-slate-300"}`}>
               {judgment.provider === "typesafe_jev" ? t("Typesafe Jev") : t("Test double")} · {judgment.model}</span>
           </div>
-          <div className={`flex items-center gap-3 rounded-xl px-4 py-3 ring-1 ${BAND_STYLE[judgment.decision_band]}`}>
+          <div className={`flex items-center gap-3 rounded-lg px-4 py-3 ring-1 ${BAND_STYLE[judgment.decision_band]}`}>
             <BandIcon size={28} className="shrink-0" aria-hidden="true"/>
-            <div className="min-w-0"><p className="text-lg font-bold uppercase tracking-wide">{t(BAND_LABEL[judgment.decision_band])}</p>
+            <div className="min-w-0"><p className="text-lg font-bold">{t(BAND_LABEL[judgment.decision_band])}</p>
               <p className="text-xs leading-5">{t(BAND_POLICY[judgment.decision_band])}</p></div>
           </div>
           <p className="text-sm leading-6">{t("Evidence supports option")} <strong>{humanise(judgment.playbook_option.choice) || t("none")}</strong> {t("with")} <strong>{pct(judgment.playbook_option.confidence)}</strong> {t("confidence")} — {t(BAND_LABEL[judgment.decision_band])}.</p>
@@ -213,9 +214,9 @@ export function ProactiveRunPanel({ triggerEventId, triggerKey = null, canOperat
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h4 className="flex items-center gap-2 text-sm font-bold"><FileText size={16} aria-hidden="true"/>{t("Exercise CAP preview")}</h4>
             <div className="flex flex-wrap gap-2">
-              <button type="button" className="control !min-h-9 text-xs" onClick={copyCap} disabled={!capFull}>{copied ? <Check size={14} aria-hidden="true"/> : <Copy size={14} aria-hidden="true"/>}{copied ? t("Copied") : t("Copy")}</button>
-              {sample ? <button type="button" className="control !min-h-9 text-xs" onClick={downloadSample}><Download size={14} aria-hidden="true"/>{t("Download CAP draft")}</button>
-                : <a className="control !min-h-9 text-xs" href={`/api/proactive/runs/${run.id}/cap`} download={capFilename(run.id)}><Download size={14} aria-hidden="true"/>{t("Download CAP draft")}</a>}
+              <button type="button" className="control control-sm" onClick={copyCap} disabled={!capFull}>{copied ? <Check size={14} aria-hidden="true"/> : <Copy size={14} aria-hidden="true"/>}{copied ? t("Copied") : t("Copy")}</button>
+              {sample ? <button type="button" className="control control-sm" onClick={downloadSample}><Download size={14} aria-hidden="true"/>{t("Download CAP draft")}</button>
+                : <a className="control control-sm" href={`/api/proactive/runs/${run.id}/cap`} download={capFilename(run.id)}><Download size={14} aria-hidden="true"/>{t("Download CAP draft")}</a>}
             </div>
           </div>
           <p className="break-all text-[11px] text-muted">SHA-256 {run.cap.sha256}</p>
@@ -223,7 +224,7 @@ export function ProactiveRunPanel({ triggerEventId, triggerKey = null, canOperat
             {run.cap.languages.map(item => <StatusPill key={item.language} tone={item.review_status === "pending" ? "warning" : item.review_status === "approved" ? "success" : "neutral"}>
               {item.language}: {item.review_status === "pending" ? t("pending native review") : item.review_status === "approved" ? t("native review signed off") : t("source text")}</StatusPill>)}
           </div>}
-          <pre className="max-h-72 overflow-auto rounded-xl border border-stroke bg-elevated p-3 font-mono text-[11px] leading-5" tabIndex={0} aria-label={t("First 40 lines of the Exercise CAP draft")}><code>{capFull ? previewLines(capFull, 40) : t("Loading preview…")}</code></pre>
+          <pre className="max-h-72 overflow-auto rounded-lg border border-stroke bg-elevated p-3 font-mono text-[11px] leading-5" tabIndex={0} aria-label={t("First 40 lines of the Exercise CAP draft")}><code>{capFull ? previewLines(capFull, 40) : t("Loading preview…")}</code></pre>
         </div>}
 
         <RunPlanPanel runId={run.id} refreshKey={`${run.completed_steps.length}-${run.status}`} sample={sample}/>
@@ -235,7 +236,7 @@ export function ProactiveRunPanel({ triggerEventId, triggerKey = null, canOperat
           <button type="button" className="control" onClick={() => setCancelling(open => !open)} aria-expanded={cancelling} aria-controls="run-cancel"><Ban size={16} aria-hidden="true"/>{t("Cancel run")}</button>
         </div>}
         {cancelling && active && <div id="run-cancel" className="space-y-2">
-          <label htmlFor="run-cancel-reason" className="block text-xs font-bold">{t("Cancellation rationale (10 to 2000 characters)")}</label>
+          <label htmlFor="run-cancel-reason" className="field-label">{t("Cancellation rationale (10 to 2000 characters)")}</label>
           <textarea id="run-cancel-reason" className="field !h-24 py-2" value={rationale} maxLength={2000} onChange={event => setRationale(event.target.value)} aria-describedby="run-cancel-hint"/>
           <p id="run-cancel-hint" className="text-[11px] text-muted">{rationale.trim().length}/2000 · {t("Recorded in the run audit.")}</p>
           <button type="button" className="control control-primary" onClick={cancel} disabled={busy || rationale.trim().length < 10}><Check size={16} aria-hidden="true"/>{t("Confirm cancellation")}</button>

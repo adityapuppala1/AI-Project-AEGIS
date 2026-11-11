@@ -63,7 +63,7 @@ export function PublicSignalsStrip() {
   const oldest = Math.min(...feeds.map(feed => Date.parse(feed.fetched_at)));
   const strongest = summary.strongest;
 
-  return <section className="panel mt-5 p-4 sm:p-5" aria-label="Public reference signals">
+  return <section className="panel mt-5 p-4" aria-label="Public reference signals">
     <div className="flex flex-wrap items-center justify-between gap-3">
       <div className="flex flex-wrap items-center gap-3">
         <h2 className="flex items-center gap-2 text-sm font-bold">

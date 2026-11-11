@@ -1,5 +1,7 @@
 "use client";
 
+import { PermissionState } from "./ui";
+import { pageRoles } from "../lib/roles";
 import { useCallback, useEffect, useState } from "react";
 import { BarChart3, Check, FileDiff, GitPullRequest, Play, RefreshCw, ShieldCheck, X } from "lucide-react";
 import { AppShell } from "./app-shell";
@@ -7,6 +9,8 @@ import { useT } from "./language-provider";
 import { EmptyState, ErrorState, Panel, SkeletonRows, StatusPill } from "./ui";
 import { useOperatorSession } from "../lib/use-operator-session";
 import { SignInRequired } from "./sign-in-required";
+import { DataTable, HazardGlyph, RecordRef, TwoKey, formatAbsolute, keysForStatus } from "./ui";
+import { codeLabel, sentenceCase } from "../lib/labels";
 import {
   cleanConfig, cleanProposal, cleanScenarios, cleanWindow, pctLabel,
   type ConfigView, type LearningWindow, type Proposal, type Scenario, call } from "../lib/learning";
@@ -70,36 +74,40 @@ export function PostEventLearning() {
     </div>
     {session && !session.authenticated && <SignInRequired session={session}/>}
     {loading && session?.authenticated !== false && <SkeletonRows rows={5} label={t("Loading learning records")}/>}
-    {error && <ErrorState message={t(error)} onRetry={() => void load()}/>}
+    {error && (/insufficient role/i.test(error)
+      ? <PermissionState needs={pageRoles("/learning") ?? []} roles={session?.roles} what={t("Learning records belong to the incident desk, so they are for the incident desk and administrators.")} where={{ href: "/department-tasks", label: t("Open the Department Inbox") }} />
+      : <ErrorState message={t(error)} onRetry={() => void load()}/>)}
     {session?.authenticated && !loading && !error && <div className="space-y-4">
       {config && <Panel title={t("Engine configuration")} icon={ShieldCheck}>
-        <p className="text-sm">{t("Effective version")}: <code className="break-all">{config.effective_version}</code> · {t("Source")}: <code>{config.config_source}</code></p>
-        <div className="mt-2 overflow-x-auto"><table className="data-table">
-          <caption className="sr-only">{t("Effective trigger thresholds")}</caption>
-          <thead><tr><th scope="col">{t("Hazard")}</th><th scope="col">{t("Watch")}</th><th scope="col">{t("Candidate")}</th></tr></thead>
-          <tbody>{Object.entries(config.thresholds).map(([name, spec]) => <tr key={name}><td>{name}</td><td>{spec.watch}</td><td>{spec.candidate}</td></tr>)}</tbody>
-        </table></div>
-        {config.versions.length > 0 && <ul className="mt-2 space-y-1 text-xs">{config.versions.map(v => <li key={v.version_id}><code className="break-all">{v.version_id}</code> · {v.applied_by} · {v.applied_at}</li>)}</ul>}
+        <p className="text-sm">{t("Source")}: <strong className="font-semibold" title={config.config_source}>{t(codeLabel(config.config_source))}</strong></p>
+        <div className="mt-3 rounded-md border border-stroke"><DataTable label={t("Effective trigger thresholds")} minWidth="24rem">
+          <thead><tr><th scope="col">{t("Hazard")}</th><th scope="col" className="num">{t("Watch")}</th><th scope="col" className="num">{t("Candidate")}</th></tr></thead>
+          <tbody>{Object.entries(config.thresholds).map(([name, spec]) => <tr key={name}><td title={name}><HazardGlyph value={name} label={t(codeLabel(name))} /></td><td className="num">{spec.watch}</td><td className="num">{spec.candidate}</td></tr>)}</tbody>
+        </DataTable></div>
+        <details className="mt-3 text-xs text-muted"><summary className="cursor-pointer font-semibold">{t("Technical details")}</summary>
+          <p className="mt-2">{t("Effective version")}: <code className="break-all">{config.effective_version}</code></p>
+          {config.versions.length > 0 && <ul className="mt-2 space-y-1.5">{config.versions.map(v => <li key={v.version_id} className="flex flex-wrap items-center gap-2"><code className="break-all">{v.version_id}</code><RecordRef id={v.applied_by} /><time className="tnum">{formatAbsolute(v.applied_at) || v.applied_at}</time></li>)}</ul>}
+        </details>
       </Panel>}
 
       {isMaker && <Panel title={t("Close or replay an event window")} icon={Play}>
         <div className="grid gap-4 md:grid-cols-3">
           <div className="space-y-2">
-            <label htmlFor="learn-scenario" className="block text-xs font-bold">{t("Replay a synthetic scenario")}</label>
+            <label htmlFor="learn-scenario" className="field-label">{t("Replay a synthetic scenario")}</label>
             <select id="learn-scenario" className="field" value={scenario} onChange={e => setScenario(e.target.value)}>
               {scenarios.map(s => <option key={s.id} value={s.id}>{s.title}</option>)}</select>
             <button type="button" className="control" disabled={busy || !scenario} onClick={() => act("/api/learning/windows/replay", { source: "synthetic", scenario_id: scenario }, "Window recorded")}>{t("Replay scenario")}</button>
           </div>
           <div className="space-y-2">
-            <p className="text-xs font-bold">{t("Replay catalogue events (training years 2000-2017 only)")}</p>
+            <p className="field-label">{t("Replay catalogue events (training years 2000-2017 only)")}</p>
             <input aria-label={t("Window start")} className="field" type="date" value={range.start} onChange={e => setRange({ ...range, start: e.target.value })}/>
             <input aria-label={t("Window end")} className="field" type="date" value={range.end} onChange={e => setRange({ ...range, end: e.target.value })}/>
             <button type="button" className="control" disabled={busy} onClick={() => act("/api/learning/windows/replay", { source: "known_events", window_start: range.start, window_end: range.end }, "Window recorded")}>{t("Replay catalogue events")}</button>
           </div>
           <div className="space-y-2">
-            <p className="text-xs font-bold">{t("Close an operator event window")}</p>
+            <p className="field-label">{t("Close an operator event window")}</p>
             <select aria-label={t("Hazard")} className="field" value={close.hazard} onChange={e => setClose({ ...close, hazard: e.target.value })}>
-              {Object.keys(config?.thresholds ?? { heavy_rain: null }).map(name => <option key={name} value={name}>{name}</option>)}</select>
+              {Object.keys(config?.thresholds ?? { heavy_rain: null }).map(name => <option key={name} value={name}>{t(codeLabel(name))}</option>)}</select>
             <input aria-label={t("Window start")} className="field" type="date" value={close.start} onChange={e => setClose({ ...close, start: e.target.value })}/>
             <input aria-label={t("Window end")} className="field" type="date" value={close.end} onChange={e => setClose({ ...close, end: e.target.value })}/>
             <input aria-label={t("Observed event days (comma-separated ISO dates)")} placeholder="2026-07-04, 2026-07-20" className="field" value={close.days} onChange={e => setClose({ ...close, days: e.target.value })}/>
@@ -111,44 +119,43 @@ export function PostEventLearning() {
       <Panel title={t("Closed event windows")} icon={BarChart3}>
         {windows.length === 0 ? <EmptyState title={t("No closed windows yet")}/> : <div className="space-y-3">{windows.map(w => <div key={w.id} className="rounded-lg border border-stroke p-3 text-sm">
           <div className="flex flex-wrap items-center gap-2">
-            <strong>{w.hazard}</strong><span>{w.window_start} → {w.window_end}</span>
+            <strong className="font-semibold" title={w.hazard}><HazardGlyph value={w.hazard} label={t(codeLabel(w.hazard))} /></strong><span className="tnum">{w.window_start} → {w.window_end}</span>
             <StatusPill tone={w.basis === "synthetic_rehearsal" ? "sample" : "warning"}>{t(BASIS_LABEL[w.basis])}</StatusPill>
-            <code className="text-[11px] break-all">{w.config_version}</code>
           </div>
           <p className="mt-1 text-xs text-muted">{w.basis_note}</p>
-          <div className="mt-2 overflow-x-auto"><table className="data-table">
-            <caption className="sr-only">{t("Per-rule statistics")}</caption>
-            <thead><tr><th scope="col">{t("Rule")}</th><th scope="col">{t("Hits")}</th><th scope="col">{t("Misses")}</th><th scope="col">{t("False-alarm episodes")}</th><th scope="col">{t("Detected share")}</th><th scope="col">{t("False-alarm share")}</th><th scope="col">{t("Lead time (days)")}</th></tr></thead>
-            <tbody>{w.rules.map(r => <tr key={r.rule_id}><td>{r.rule_id}</td><td>{r.hits}</td><td>{r.misses}</td><td>{r.false_alarm_episodes}</td>
-              <td>{pctLabel(r.probability_of_detection)}{r.probability_of_detection.ci_reason && <span className="text-muted"> · {r.probability_of_detection.ci_reason}</span>}</td>
-              <td>{pctLabel(r.false_alarm_ratio)}</td><td>{r.lead_time_days.n ? `${r.lead_time_days.min}/${r.lead_time_days.median}/${r.lead_time_days.max}` : "n/a"}</td></tr>)}</tbody>
-          </table></div>
-          {w.event_refs.length > 0 && <p className="mt-1 flex flex-wrap gap-1">{w.event_refs.map(ref => <code key={ref} className="rounded bg-surface-2 px-1 text-[11px]">{ref}</code>)}</p>}
-          {isMaker && <button type="button" className="control mt-2" disabled={busy} onClick={() => act("/api/learning/proposals", { window_id: w.id }, "Proposal drafted")}><FileDiff size={16}/>{t("Propose threshold change")}</button>}
+          <div className="mt-2 rounded-md border border-stroke"><DataTable label={t("Per-rule statistics")} minWidth="44rem" rows={w.rules.length} columns={7}>
+            <thead><tr><th scope="col">{t("Rule")}</th><th scope="col" className="num">{t("Hits")}</th><th scope="col" className="num">{t("Misses")}</th><th scope="col" className="num">{t("False-alarm episodes")}</th><th scope="col" className="num">{t("Detected share")}</th><th scope="col" className="num">{t("False-alarm share")}</th><th scope="col" className="num">{t("Lead time (days)")}</th></tr></thead>
+            <tbody>{w.rules.map(r => <tr key={r.rule_id}><td title={r.rule_id}>{t(codeLabel(r.rule_id))}</td><td className="num">{r.hits}</td><td className="num">{r.misses}</td><td className="num">{r.false_alarm_episodes}</td>
+              <td className="num">{pctLabel(r.probability_of_detection)}{r.probability_of_detection.ci_reason && <span className="text-muted" title={r.probability_of_detection.ci_reason}> · {t(codeLabel(r.probability_of_detection.ci_reason))}</span>}</td>
+              <td className="num">{pctLabel(r.false_alarm_ratio)}</td><td className="num">{r.lead_time_days.n ? `${r.lead_time_days.min}/${r.lead_time_days.median}/${r.lead_time_days.max}` : t("n/a")}</td></tr>)}</tbody>
+          </DataTable></div>
+          <p className="helper mt-1" title={w.config_version}>{t("Scored against the thresholds in force when the window closed.")}</p>
+          {w.event_refs.length > 0 && <p className="mt-1 flex flex-wrap gap-1">{w.event_refs.map(ref => <RecordRef key={ref} id={ref} />)}</p>}
+          {isMaker && <button type="button" className="control control-sm mt-2" disabled={busy} onClick={() => act("/api/learning/proposals", { window_id: w.id }, "Proposal drafted")}><FileDiff size={16}/>{t("Propose threshold change")}</button>}
         </div>)}</div>}
       </Panel>
 
       <Panel title={t("Threshold proposals")} icon={GitPullRequest}>
         {proposals.length === 0 ? <EmptyState title={t("No threshold proposals yet")}/> : <div className="space-y-3">{proposals.map(p => <div key={p.id} className="rounded-lg border border-stroke p-3 text-sm">
           <div className="flex flex-wrap items-center gap-2">
-            <StatusPill tone={STATUS_TONE[p.status]}>{t(p.status)}</StatusPill>
+            <span className="text-xs font-semibold" title={p.status}>{t(codeLabel(p.status))}</span><TwoKey {...keysForStatus(p.status)} />
             {p.applied_version ? <StatusPill tone="info">{t("Applied to engine")}</StatusPill> : p.status === "approved" ? <StatusPill tone="warning">{t("Approved candidate, not applied")}</StatusPill> : null}
-            <code className="text-[11px] break-all">{p.base_version} → {p.new_version}</code>
           </div>
-          <ul className="mt-2 text-xs">{p.changes.map(c => <li key={c.path}><code>{c.path}</code>: {c.old} → {c.new}</li>)}</ul>
-          <p className="mt-1 text-xs text-muted">{t("Maker")}: {p.maker_subject}{p.checker_subject ? ` · ${t("Checker")}: ${p.checker_subject}` : ""}</p>
+          <ul className="mt-2 space-y-1 text-sm">{p.changes.map(c => <li key={c.path} title={c.path}>{t(sentenceCase(c.path))}: <span className="tnum">{c.old} → <strong className="font-semibold">{c.new}</strong></span></li>)}</ul>
+          <p className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted"><span>{t("Maker")}</span><RecordRef id={p.maker_subject} />{p.checker_subject && <><span>{t("Checker")}</span><RecordRef id={p.checker_subject} /></>}</p>
+          <details className="mt-1 text-xs text-muted"><summary className="cursor-pointer">{t("Technical details")}</summary><code className="break-all">{p.base_version} → {p.new_version}</code></details>
           {p.status === "draft" && isMaker && <button type="button" className="control mt-2" disabled={busy} onClick={() => act(`/api/learning/proposals/${p.id}/submit`, {}, "Submitted for independent review")}>{t("Submit for review")}</button>}
           {(p.status === "submitted" && isChecker || p.status === "approved" && !p.applied_version && isAdmin) && <div className="mt-2 space-y-2">
-            <label htmlFor={`rationale-${p.id}`} className="block text-xs font-bold">{t("Decision rationale (10 to 2000 characters)")}</label>
+            <label htmlFor={`rationale-${p.id}`} className="field-label">{t("Decision rationale (10 to 2000 characters)")}</label>
             <textarea id={`rationale-${p.id}`} className="field !h-20 py-2" maxLength={2000} value={note(p.id)} onChange={e => setRationale({ ...rationale, [p.id]: e.target.value })}/>
             <div className="flex flex-wrap gap-2">
               {p.status === "submitted" && <>
                 <button type="button" className="control control-primary" disabled={busy || note(p.id).trim().length < 10} onClick={() => act(`/api/learning/proposals/${p.id}/review`, { approve: true, rationale: note(p.id) }, "Recorded as approved candidate")}><Check size={16}/>{t("Approve candidate")}</button>
-                <button type="button" className="control" disabled={busy || note(p.id).trim().length < 10} onClick={() => act(`/api/learning/proposals/${p.id}/review`, { approve: false, rationale: note(p.id) }, "Proposal rejected")}><X size={16}/>{t("Reject")}</button>
+                <button type="button" className="control control-danger" disabled={busy || note(p.id).trim().length < 10} onClick={() => act(`/api/learning/proposals/${p.id}/review`, { approve: false, rationale: note(p.id) }, "Proposal rejected")}><X size={16}/>{t("Reject")}</button>
               </>}
               {p.status === "approved" && <button type="button" className="control control-primary" disabled={busy || note(p.id).trim().length < 10} onClick={() => act(`/api/learning/proposals/${p.id}/apply`, { rationale: note(p.id) }, "New config version applied")}>{t("Apply as new config version")}</button>}
             </div>
-            <p className="text-[11px] text-muted">{t("The API refuses self-approval, system subjects and other agencies. Apply is a separate platform_admin action.")}</p>
+            <p className="helper">{t("The server refuses self-approval, system accounts and other agencies. Applying is a separate Administrator action.")}</p>
           </div>}
         </div>)}</div>}
       </Panel>

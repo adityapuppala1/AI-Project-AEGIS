@@ -36,7 +36,7 @@ export function GroundedEvidenceGuide({ incidentId }: { incidentId: string }) {
     } finally { if (controller.current === current) setBusy(false); }
   }
   function cancel() { controller.current?.abort(); setBusy(false); setMessage("Request cancelled. No proposal was changed."); }
-  return <section className="mt-6 rounded-xl border border-stroke bg-surface p-5" aria-label="Grounded evidence guide">
+  return <section className="mt-6 rounded-lg border border-stroke bg-surface p-5" aria-label="Grounded evidence guide">
     <div className="flex items-start gap-3"><BrainCircuit className="mt-0.5 text-accent" size={20}/><div>
       <h2 className="font-bold">Grounded evidence guide</h2>
       <p className="mt-1 text-xs leading-5 text-muted">Ask about evidence, unknowns, or playbook review options. Answers use the validated synthetic checklist only and cannot write, approve, notify, or dispatch.</p>

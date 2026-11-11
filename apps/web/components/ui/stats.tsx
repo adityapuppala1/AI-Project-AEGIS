@@ -22,7 +22,7 @@ export function StatTile({ label, value, icon: Icon, tone = "info", meter, href,
   const t = useT();
   const percent = meter === undefined ? null : Math.round(clamp01(meter) * 100);
   const body = <>
-    <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wide text-muted">{Icon && <Icon size={14} aria-hidden="true" />}{label}</div>
+    <div className="flex items-center gap-2 text-[11px] font-bold text-muted">{Icon && <Icon size={14} aria-hidden="true" />}<span className="first-cap">{label}</span></div>
     {/* mt-auto pins the value to the tile bottom so numbers line up across a row when labels wrap unevenly. */}
     <div className="mt-auto pt-2 text-2xl font-bold leading-none">{typeof value === "number" ? <CountUpNumber value={value} /> : value}</div>
     {hint && <div className="mt-1.5 text-xs text-muted">{hint}</div>}

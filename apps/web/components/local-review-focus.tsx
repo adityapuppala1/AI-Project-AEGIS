@@ -1,4 +1,5 @@
 "use client";
+import { ErrorState } from "./ui";
 import {useEffect,useRef,useState} from "react";
 export type Focus={status:"template_fallback"|"model_assisted_selection";reason:string;model:string|null;reference_time:string;finding:{text:string;evidence_ids:string[];source_ids:string[]};review_option:{playbook_step:string;text:string};limitations:string[]};
 const reasons:Record<string,string>={disabled:"Local model is disabled",unsupported_configuration:"Local model configuration is unsupported",missing_evidence:"Case evidence is missing",busy:"Local model is busy",invalid_output:"Model output did not pass validation",unavailable:"Local model is unavailable"};
@@ -20,13 +21,13 @@ export function LocalReviewFocus({incidentId}:{incidentId:string}) {
   }catch(cause){if(pending.current===controller)setError(controller.signal.aborted?"Preview timed out; the ordinary checklist remains available":cause instanceof Error?cause.message:"Unavailable");}
   finally{clearTimeout(timer);if(pending.current===controller){setBusy(false);pending.current=null;}}
  }
- return <section className="mt-4 rounded-xl border border-stroke p-4" aria-label="Local review focus">
+ return <section className="mt-4 rounded-lg border border-stroke p-4" aria-label="Local review focus">
   <h5 className="text-sm font-bold">Review focus preview</h5>
   <p className="mt-2 text-xs leading-6 text-muted">Optional local AI selects existing review items only. It adds no facts, forecast, saved proposal or approval. A template is used when AI is unavailable.</p>
-  <div className="mt-3 flex flex-wrap gap-2"><button type="button" className="control text-xs" disabled={busy} onClick={()=>void preview()}>Get review focus</button>
-  {busy&&<button type="button" className="control text-xs" onClick={()=>{pending.current?.abort();pending.current=null;setBusy(false);setError("Preview cancelled; no proposal was saved");}}>Cancel preview</button>}</div>
+  <div className="mt-3 flex flex-wrap gap-2"><button type="button" className="control control-sm" disabled={busy} onClick={()=>void preview()}>Get review focus</button>
+  {busy&&<button type="button" className="control control-sm" onClick={()=>{pending.current?.abort();pending.current=null;setBusy(false);setError("Preview cancelled; no proposal was saved");}}>Cancel preview</button>}</div>
   {busy&&<p role="status" className="mt-2 text-xs">Checking local review focus…</p>}
-  {error&&<p role="alert" className="mt-2 text-xs">{error}</p>}
+  {error&&<ErrorState message={error} className="mt-2" />}
   {focus&&<ReviewFocusDetails focus={focus}/>}
  </section>;
 }

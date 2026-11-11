@@ -149,15 +149,15 @@ export function GeoMap({ incidents, selectedId, onSelect }: {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stroke bg-elevated/50 px-4 py-3">
         <p className="max-w-md text-xs text-muted">{spatial ? "Equal-height locator symbols only · not buildings, flood extent or severity." : "2D overview · select a case in the map or incident queue."}</p>
-        <button type="button" className="control text-xs" aria-pressed={spatial}
+        <button type="button" className="control control-sm" aria-pressed={spatial}
           disabled={!sceneReady || mapError} onClick={changeView}><Box size={15}/>{spatial ? "Return to 2D" : "Explore in 3D"}</button>
       </div>
     <div className="relative h-[320px] w-full sm:h-[390px]">
       <div ref={containerRef} className="aegis-map" role="region" aria-label="Hyderabad map with synthetic incident markers" />
-      {tilesUnavailable && !mapError && <div className="absolute left-3 right-3 top-3 rounded-xl border border-amber-500/30 bg-surface p-3 text-sm text-ink shadow-lg">
+      {tilesUnavailable && !mapError && <div className="absolute left-3 right-3 top-3 rounded-lg border border-amber-500/30 bg-surface p-3 text-sm text-ink shadow-lg">
         <p role="status" className="font-semibold">Base map tiles unavailable</p>
         <p className="mt-1 text-xs text-muted">Geographic context may be incomplete. Synthetic markers and the incident list remain available.</p>
-        <button type="button" onClick={retryTiles} className="control mt-2 text-xs">Retry map tiles</button>
+        <button type="button" onClick={retryTiles} className="control control-sm mt-2">Retry map tiles</button>
       </div>}
       {mapError && <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-elevated p-6 text-center">
         <MapPinned size={30} className="text-accent" />

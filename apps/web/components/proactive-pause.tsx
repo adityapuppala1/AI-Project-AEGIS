@@ -1,5 +1,6 @@
 "use client";
 
+import { RecordRef } from "./ui";
 import { useCallback, useEffect, useState } from "react";
 import { Loader2, OctagonPause, Play } from "lucide-react";
 import { useT } from "./language-provider";
@@ -51,7 +52,7 @@ export function ProactivePauseControl() {
       {failed && <ErrorState message={t("The kill switch state could not be read. Writes fail closed until it is readable.")} onRetry={() => void load()}/>}
       {state && <KeyValueList items={[
         { label: t("Last changed"), value: state.updated_at ? formatIst(state.updated_at) : "—" },
-        { label: t("Changed by"), value: state.updated_by ?? "—" },
+        { label: t("Changed by"), value: state.updated_by ? <RecordRef id={state.updated_by} /> : "—" },
         { label: t("Reason"), value: state.reason ?? "—" },
       ]}/>}
       {state && <div className="space-y-2">
@@ -70,7 +71,7 @@ export function ProactivePauseControl() {
         <summary className="cursor-pointer font-semibold">{t("Kill switch history")}</summary>
         <ul className="mt-2 space-y-1">
           {state.audit.map((row, index) => <li key={`${row.at}-${index}`} className="border-t border-stroke pt-1">
-            {row.at ? formatIst(row.at) : "—"} · {row.paused ? t("Paused") : t("Running")} · {row.actor} · {row.reason}</li>)}
+            {row.at ? formatIst(row.at) : "—"} · {row.paused ? t("Paused") : t("Running")} · <RecordRef id={row.actor} /> · {row.reason}</li>)}
         </ul>
       </details>}
     </div>

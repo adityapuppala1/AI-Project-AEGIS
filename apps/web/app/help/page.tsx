@@ -60,7 +60,7 @@ export default function HelpPage() {
   ), [category,query]);
 
   return <AppShell title="Help & Learning" description="Contextual guidance, self-service troubleshooting, accessibility and transparent AI limitations.">
-    <div className="signal-surface relative mb-6 overflow-hidden rounded-2xl border border-stroke bg-surface p-6 sm:p-8">
+    <div className="signal-surface relative mb-6 overflow-hidden rounded-lg border border-stroke bg-surface p-6 sm:p-8">
       <div className="relative z-10 max-w-2xl">
         <p className="eyebrow flex items-center gap-2"><LifeBuoy size={16} className="text-accent"/> Knowledge Center</p>
         <h2 className="mt-3 text-xl font-bold tracking-tight sm:text-2xl">Answers for every stage of the response exercise</h2>
@@ -81,7 +81,7 @@ export default function HelpPage() {
       </Link>)}
     </section>
     <section className="panel overflow-hidden" id="help-articles">
-      <div className="panel-heading"><div><h2 className="text-base font-bold">Support articles & FAQs</h2><p className="mt-1 text-xs text-muted">Browse curated answers; no chatbot hallucinations</p></div>
+      <div className="panel-heading"><div><h2 className="t-title">Support articles & FAQs</h2><p className="mt-1 text-xs text-muted">Browse curated answers; no chatbot hallucinations</p></div>
         <span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">{visible.length} articles</span></div>
       <Tabs className="px-4" idPrefix="help" label={t("Help article categories")} value={category} onChange={setCategory}
         tabs={categories.map(c => ({ value: c, label: t(c) }))}/>
@@ -90,23 +90,23 @@ export default function HelpPage() {
           return <div key={item.title} id={pid} className="py-4">
             <h3><button type="button" aria-expanded={open} aria-controls={pid + "-answer"} onClick={() => setOpenTitle(open ? null : item.title)}
               className="block w-full rounded-md pr-4 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent">
-              <span className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-accent">{t(item.category)}</span>
+              <span className="mb-2 block text-[11px] font-semibold text-accent">{t(item.category)}</span>
               <span className="block text-sm font-bold">{item.title}</span><span className="mt-1 block text-xs text-muted">{item.description}</span>
               <span className="mt-2 block text-xs text-muted">{open ? "Collapse answer −" : "Expand answer +"}</span>
             </button></h3>
             <div id={pid + "-answer"} hidden={!open}>
-              <p className="mt-3 max-w-3xl rounded-xl bg-elevated/60 p-4 text-sm leading-7 text-ink">{item.answer}</p>
+              <p className="mt-3 max-w-3xl rounded-lg bg-elevated/60 p-4 text-sm leading-7 text-ink">{item.answer}</p>
               {item.href && <Link className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-accent" href={item.href}>Open related module <ArrowRight size={14}/></Link>}
             </div>
           </div>; })}
         {visible.length === 0 && <p className="p-8 text-center text-sm text-muted">No help articles match. Try another query or select All topics.</p>}
       </div></TabPanel>
     </section>
-    <section className="panel mt-5 p-5" aria-label={t("Troubleshooting steps")}>
-      <h2 className="text-base font-bold">{t("If the app shows unavailable")}</h2>
+    <section className="panel p-4 mt-5" aria-label={t("Troubleshooting steps")}>
+      <h2 className="t-title">{t("If the app shows unavailable")}</h2>
       <Stepper className="mt-4" label={t("Troubleshooting steps")} steps={TROUBLE.map(([id, label]): Step => ({ id, label: t(label), status: "pending" }))}/>
     </section>
-    <div className="mt-5 flex flex-wrap items-start gap-3 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 text-xs leading-6 text-muted">
+    <div className="mt-5 flex flex-wrap items-start gap-3 rounded-lg border border-amber-500/20 bg-amber-500/5 p-4 text-xs leading-6 text-muted">
       <ShieldCheck className="mt-1 shrink-0 text-amber-500" size={18}/>
       <span>Emergency procedures must be approved by the responsible agency. These help articles describe a synthetic hackathon application and are not public emergency instructions.</span>
       <span className="ml-auto flex items-center gap-2"><Keyboard size={16}/> Ctrl/⌘ + K for global search</span>

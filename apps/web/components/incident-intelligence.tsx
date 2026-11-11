@@ -1,5 +1,6 @@
 "use client";
 
+import { shortId } from "../lib/labels";
 import { useState } from "react";
 import Link from "next/link";
 import {
@@ -58,7 +59,8 @@ export function IncidentIntelligence({ workspace }: { workspace: IncidentWorkspa
     { value: "readiness" as View, label: t("Readiness"), icon: ClipboardCheck },
   ];
 
-  return <AppShell title="Incident Intelligence" description="Explore a synthetic incident, its evidence lineage, recorded events and decision constraints.">
+  return <AppShell title="Incident Intelligence" description="Explore a synthetic incident, its evidence lineage, recorded events and decision constraints."
+    breadcrumbs={[{ label: t("Observe") }, { label: t("Incident Registry"), href: "/incidents" }, { label: shortId(workspace.incident.id) }]}>
     <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
       <Link href="/incidents" className="inline-flex min-h-9 items-center gap-2 text-sm font-semibold text-accent hover:underline">
         <ArrowLeft size={16} aria-hidden="true"/> {t("Incident Registry")}
@@ -72,7 +74,7 @@ export function IncidentIntelligence({ workspace }: { workspace: IncidentWorkspa
       </div>
     </div>
     <div className="mb-5"><SituationBriefButton workspace={workspace}/></div>
-    <div role="note" className="mb-5 flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4">
+    <div role="note" className="mb-5 flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
       <ShieldAlert className="mt-0.5 shrink-0 text-amber-700 dark:text-amber-300" size={20} aria-hidden="true"/>
       <p className="text-xs leading-6 text-amber-800 dark:text-amber-200">
         <strong>{t("SIMULATION · Not a real public-safety incident.")}</strong>{" "}
@@ -80,7 +82,7 @@ export function IncidentIntelligence({ workspace }: { workspace: IncidentWorkspa
       </p>
     </div>
 
-    <section className="panel mb-5 p-5 sm:p-6" aria-label={t("Case overview")}>
+    <section className="panel p-4 mb-5" aria-label={t("Case overview")}>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="eyebrow">{t("Incident reference · Hyderabad training area")}</p>
@@ -117,7 +119,7 @@ export function IncidentIntelligence({ workspace }: { workspace: IncidentWorkspa
             <span className="mt-1 block">{t("Map tiles are loaded from a public provider; no restricted geography is shown.")}</span>
           </div>
         </Panel>
-        <section className="panel p-5 sm:p-6" aria-label={t("Operator interpretation")}>
+        <section className="panel p-4" aria-label={t("Operator interpretation")}>
           <p className="eyebrow">{t("Decision-support guidance")}</p>
           <h3 className="mt-3 text-lg font-bold">{t("Verify evidence before action")}</h3>
           <p className="mt-2 text-sm leading-6 text-muted">
@@ -149,7 +151,7 @@ export function IncidentIntelligence({ workspace }: { workspace: IncidentWorkspa
             body={t("Never infer that missing data confirms safety. Add or replay synthetic evidence before drawing any conclusion.")}/>}
           {workspace.evidence.map(item => {
             const Icon = kindIcon(item.source_kind);
-            return <article key={item.id} className="reveal-in rounded-xl border border-stroke bg-elevated/30 p-4">
+            return <article key={item.id} className="reveal-in rounded-lg border border-stroke bg-elevated/30 p-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent/10 text-accent"><Icon size={18} aria-hidden="true"/></span>
                 <StatusPill tone={item.quality_status === "synthetic_curated" ? "info" : "warning"}>
@@ -204,7 +206,7 @@ export function IncidentIntelligence({ workspace }: { workspace: IncidentWorkspa
 
     <TabPanel idPrefix="case" value="readiness" active={view === "readiness"}>
       <div className="grid gap-5 lg:grid-cols-2">
-        <section className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-5" aria-label={t("AI transparency")}>
+        <section className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-5" aria-label={t("AI transparency")}>
           <h3 className="flex items-center gap-2 text-sm font-bold"><BrainCircuit size={18} aria-hidden="true" className="text-amber-700 dark:text-amber-300"/> {t("No trained forecast for this incident")}</h3>
           <p className="mt-3 text-sm leading-6 text-muted">{workspace.assessment.message}</p>
           <KeyValueList className="mt-4" items={[
@@ -213,7 +215,7 @@ export function IncidentIntelligence({ workspace }: { workspace: IncidentWorkspa
             { label: t("Prediction horizon"), value: <strong className="text-xs">{t("Not available")}</strong> },
           ]}/>
         </section>
-        <section className="rounded-xl border border-stroke bg-elevated/30 p-5" aria-label={t("Human decision boundary")}>
+        <section className="rounded-lg border border-stroke bg-elevated/30 p-5" aria-label={t("Human decision boundary")}>
           <h3 className="flex items-center gap-2 text-sm font-bold"><ShieldCheck size={18} aria-hidden="true" className="text-accent"/> {t("Human decision boundary")}</h3>
           <p className="mt-3 text-sm leading-6 text-muted">
             {t("AEGIS may document simulated analyses and internal proposals. Real alerting, emergency dispatch and life-safety commands are not connected. Any future operational workflow requires authorized human oversight.")}

@@ -1,5 +1,6 @@
 "use client";
 
+import { ErrorState } from "./ui";
 import { useCallback, useEffect, useState } from "react";
 import {
   AlertTriangle, CircleHelp, Droplets, Flame, Inbox, Loader2, Mountain, PhoneCall, RefreshCw, Send, ShieldAlert, Wind, Waves,
@@ -95,27 +96,27 @@ export function PublicIntake() {
   const field = "field w-full";
   return <AppShell title="Public Intake" description="A quarantine-only form for unverified public reports. Reports are held for human review and never become cases automatically.">
     <div className="mb-5 grid gap-3 lg:grid-cols-2">
-      <div className="flex items-start gap-3 rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-xs leading-6 text-rose-800 dark:text-rose-200" role="note">
+      <div className="flex items-start gap-3 rounded-lg border border-rose-500/30 bg-rose-500/10 p-4 text-xs leading-6 text-rose-800 dark:text-rose-200" role="note">
         <PhoneCall className="mt-1 shrink-0" size={19}/>
         <p><strong>{t("In an emergency, call 112 now.")}</strong>{t(" This form is not monitored in real time. It does not alert anyone and no responder is dispatched.")}</p>
       </div>
-      <div className="flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs leading-6 text-amber-800 dark:text-amber-200" role="note">
+      <div className="flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-xs leading-6 text-amber-800 dark:text-amber-200" role="note">
         <ShieldAlert className="mt-1 shrink-0" size={19}/>
         <p><strong>{t("Quarantine only.")}</strong>{t(" No name, phone, email or link is accepted. Reports are unverified, cannot create or change a case, and are shown to reviewers as received.")}</p>
       </div>
     </div>
 
-    {gate === "checking" && <p className="panel p-6 text-sm text-muted" role="status">{t("Checking whether public intake is enabled…")}</p>}
-    {gate === "error" && <div role="alert" className="flex items-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-700 dark:text-rose-300"><AlertTriangle size={18}/>{t("Intake status is unavailable. The rest of AEGIS is unaffected.")}</div>}
-    {gate === "disabled" && <section className="panel p-6">
-      <h2 className="flex items-center gap-2 text-base font-bold"><Inbox size={18} className="text-accent"/> {t("Public intake is switched off")}</h2>
+    {gate === "checking" && <p className="panel p-4 text-sm text-muted" role="status">{t("Checking whether public intake is enabled…")}</p>}
+    {gate === "error" && <ErrorState message={t("Intake status is unavailable. The rest of AEGIS is unaffected.")} />}
+    {gate === "disabled" && <section className="panel p-4">
+      <h2 className="flex items-center gap-2 t-title"><Inbox size={18} className="text-accent"/> {t("Public intake is switched off")}</h2>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">{t("The base AEGIS stack accepts no public input. To rehearse intake, restart with the optional profile. Reports go to an isolated quarantine table only.")}</p>
-      <pre className="mt-4 overflow-x-auto rounded-xl bg-elevated p-4 text-xs" tabIndex={0} aria-label="Start command"><code>powershell -ExecutionPolicy Bypass -File scripts/start-windows.ps1 -NoBuild -PublicIntake</code></pre>
+      <pre className="mt-4 overflow-x-auto rounded-lg bg-elevated p-4 text-xs" tabIndex={0} aria-label="Start command"><code>powershell -ExecutionPolicy Bypass -File scripts/start-windows.ps1 -NoBuild -PublicIntake</code></pre>
     </section>}
 
     {gate === "enabled" && <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,1fr)]">
       <section className="panel min-w-0" aria-label={t("Report what you see")}>
-        <div className="panel-heading"><h2 className="flex items-center gap-2 text-base font-bold"><Send size={18} className="text-accent"/> {t("Report what you see")}</h2>
+        <div className="panel-heading"><h2 className="flex items-center gap-2 t-title"><Send size={18} className="text-accent"/> {t("Report what you see")}</h2>
           <span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">{t("Unverified")}</span></div>
         {receipt ? <div className="p-6 text-center" role="status">
           <svg viewBox="0 0 64 64" className="mx-auto h-20 w-20" aria-hidden="true">
@@ -127,14 +128,14 @@ export function PublicIntake() {
           <button type="button" className="control mt-5" onClick={() => setReceipt(null)}>{t("Send another report")}</button>
         </div> : <form className="space-y-5 p-5" onSubmit={event => void submit(event)} noValidate>
           <fieldset>
-            <legend className="mb-2 text-xs font-bold uppercase tracking-[.1em] text-muted">{t("What are you reporting?")}</legend>
+            <legend className="mb-2 text-xs font-bold text-muted">{t("What are you reporting?")}</legend>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               {HAZARDS.map(({ key, label, hint }, index) => {
                 const Icon = ICONS[key], active = draft.hazard_type === key;
                 return <label key={key} className={`reveal-in flex cursor-pointer items-center gap-3 rounded-xl border p-3 transition-colors focus-within:ring-2 focus-within:ring-accent ${active ? "border-accent bg-accent/5" : "border-stroke hover:bg-elevated"}`} style={{ "--i": index } as React.CSSProperties}>
                   <input type="radio" name="hazard" value={key} checked={active} onChange={() => update("hazard_type", key)} className="sr-only"/>
                   <span className={`rounded-lg p-2 ${TONES[key]}`}><Icon size={17} aria-hidden="true"/></span>
-                  <span className="min-w-0"><span className="block text-xs font-bold">{t(label)}</span><span className="block text-[10px] leading-tight text-muted">{t(hint)}</span></span>
+                  <span className="min-w-0"><span className="field-label">{t(label)}</span><span className="block text-[10px] leading-tight text-muted">{t(hint)}</span></span>
                 </label>;
               })}
             </div>
@@ -163,7 +164,7 @@ export function PublicIntake() {
               <input className={`${field} mt-1`} inputMode="decimal" value={draft.lon} onChange={event => update("lon", event.target.value)} aria-invalid={Boolean(errors.lon)}/>
               {errors.lon && <span role="alert" className="mt-1 block text-[11px] font-normal text-rose-600">{t(errors.lon)}</span>}</label>
           </div>
-          {formError && <p role="alert" className="flex items-center gap-2 text-sm text-rose-700 dark:text-rose-300"><AlertTriangle size={16}/>{t(formError)}</p>}
+          {formError && <ErrorState message={t(formError)} />}
           <button type="submit" className="control control-primary" disabled={submitting}>
             {submitting ? <Loader2 size={16} className="animate-spin"/> : <Send size={16}/>} {submitting ? t("Sending…") : t("Send to quarantine")}
           </button>
@@ -171,10 +172,10 @@ export function PublicIntake() {
       </section>
 
       <section className="panel min-w-0" aria-label={t("Quarantine queue")}>
-        <div className="panel-heading"><div><h2 className="flex items-center gap-2 text-base font-bold"><Inbox size={18} className="text-accent"/> {t("Quarantine queue")}</h2>
+        <div className="panel-heading"><div><h2 className="flex items-center gap-2 t-title"><Inbox size={18} className="text-accent"/> {t("Quarantine queue")}</h2>
           <p className="mt-1 text-xs text-muted">{total} {t("stored · read-only · not cases")}</p></div>
-          <button type="button" className="control text-xs" onClick={() => void loadQueue()} disabled={loading}><RefreshCw size={15} className={loading ? "animate-spin" : ""}/> {t("Refresh")}</button></div>
-        {queueError && <p role="alert" className="px-5 pt-4 text-xs text-rose-700 dark:text-rose-300">{queueError}</p>}
+          <button type="button" className="control control-sm" onClick={() => void loadQueue()} disabled={loading}><RefreshCw size={15} className={loading ? "animate-spin" : ""}/> {t("Refresh")}</button></div>
+        {queueError && <ErrorState message={queueError} className="m-4" />}
         <div className="max-h-[560px] divide-y divide-stroke overflow-y-auto">
           {reports.map((report, index) => {
             const Icon = ICONS[report.hazard_type] ?? CircleHelp;

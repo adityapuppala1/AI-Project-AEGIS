@@ -1,5 +1,6 @@
 "use client";
 
+import { ErrorState } from "./ui";
 import { relayTileRequest } from "../lib/tile-relay";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { GeoJSONSource, Map as MapLibreMap, Popup } from "maplibre-gl";
@@ -272,19 +273,18 @@ export function EarthWatch() {
   const visibleList = records.slice(0, 120);
 
   return <AppShell title="Earth Watch" description="A read-only view of public satellite imagery and hazard reports, kept separate from every AEGIS case, approval and task.">
-    <div className="mb-5 flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs leading-6 text-amber-800 dark:text-amber-200" role="note">
+    <div className="mb-5 flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-xs leading-6 text-amber-800 dark:text-amber-200" role="note">
       <ShieldAlert className="mt-1 shrink-0" size={19}/>
       <p><strong>{t("Public reference data, not an AEGIS assessment.")}</strong>{t(" NASA and USGS reports are delayed, incomplete and sometimes preliminary. Nothing here creates a case, evidence, approval, task or warning. No markers does not mean an area is safe.")}</p>
     </div>
 
-    {gate === "checking" && <p className="panel p-6 text-sm text-muted" role="status">Checking whether public Earth feeds are enabled…</p>}
-    {gate === "error" && <div role="alert" className="flex items-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-700 dark:text-rose-300">
-      <AlertTriangle size={18}/>Earth Watch status is unavailable. The rest of AEGIS is unaffected.</div>}
-    {gate === "disabled" && <section className="panel p-6">
-      <h2 className="flex items-center gap-2 text-base font-bold"><Globe2 size={18} className="text-accent"/> Public feeds are switched off</h2>
+    {gate === "checking" && <p className="panel p-4 text-sm text-muted" role="status">Checking whether public Earth feeds are enabled…</p>}
+    {gate === "error" && <ErrorState message={"Earth Watch status is unavailable. The rest of AEGIS is unaffected."} />}
+    {gate === "disabled" && <section className="panel p-4">
+      <h2 className="flex items-center gap-2 t-title"><Globe2 size={18} className="text-accent"/> Public feeds are switched off</h2>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">The base AEGIS stack stays fully synthetic. To view USGS earthquakes, NASA EONET events and NASA satellite imagery,
         restart the API with the optional display-only profile. Data is fetched on demand, held in memory only and never written to the database.</p>
-      <pre className="mt-4 overflow-x-auto rounded-xl bg-elevated p-4 text-xs" tabIndex={0} aria-label="Start command"><code>powershell -ExecutionPolicy Bypass -File scripts/start-windows.ps1 -NoBuild -PublicEarth</code></pre>
+      <pre className="mt-4 overflow-x-auto rounded-lg bg-elevated p-4 text-xs" tabIndex={0} aria-label="Start command"><code>powershell -ExecutionPolicy Bypass -File scripts/start-windows.ps1 -NoBuild -PublicEarth</code></pre>
     </section>}
 
     {gate === "enabled" && <>
@@ -303,8 +303,7 @@ export function EarthWatch() {
           <RefreshCw size={16} className={refreshing ? "animate-spin" : ""}/> {t("Refresh feeds")}
         </button>
       </section>
-      {(errors.earthquakes || errors.events) && <p role="alert" className="mb-4 text-xs text-rose-700 dark:text-rose-300">
-        A feed refresh failed. Previously fetched data is shown and labelled with its fetch time; nothing is invented.</p>}
+      {(errors.earthquakes || errors.events) && <ErrorState message={"A feed refresh failed. Previously fetched data is shown and labelled with its fetch time; nothing is invented."} className="mb-4" />}
 
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.6fr)_minmax(320px,1fr)]">
         <section className="panel min-w-0 overflow-hidden" aria-label="Earth Watch map">
@@ -340,7 +339,7 @@ export function EarthWatch() {
         </section>
 
         <aside className="panel min-w-0 overflow-hidden" aria-label="Public hazard reports">
-          <div className="panel-heading"><h2 className="flex items-center gap-2 text-base font-bold"><Layers size={18} className="text-accent"/> {t("Hazard layers")}</h2>
+          <div className="panel-heading"><h2 className="flex items-center gap-2 t-title"><Layers size={18} className="text-accent"/> {t("Hazard layers")}</h2>
             <span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">{t("Read-only")}</span></div>
           <div className="space-y-3 border-b border-stroke p-4 text-sm">
             <label className="flex min-h-11 cursor-pointer items-center gap-2"><input type="checkbox" className="h-5 w-5 accent-teal-600" checked={showQuakes} onChange={event => setShowQuakes(event.target.checked)}/> USGS earthquakes <small className="text-muted">M2.5+ · 7 days</small></label>

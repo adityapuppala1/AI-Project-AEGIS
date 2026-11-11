@@ -16,7 +16,7 @@ export function IncidentUnavailable({ issue }: Readonly<{ issue: IncidentIssue }
     : issue === "unparseable"
       ? t("Incident data could not be parsed. Please retry from the registry.")
       : t("Refusing to display an unexpected incident classification.");
-  return <AppShell title="Incident Intelligence" description="Exercise source and chronology investigation">
+  return <AppShell title="Incident Intelligence" description="Exercise source and chronology investigation" breadcrumbs={[{ label: t("Observe") }, { label: t("Incident Registry"), href: "/incidents" }, { label: t("Incident") }]}>
     <Panel title={t("Incident workspace temporarily unavailable")} className="p-0">
       <div className="space-y-4 p-5">
         <ErrorState message={message}/>

@@ -49,7 +49,7 @@ export function RiskExercisePanel() {
   }
   return <section id="synthetic-risk" className="panel mt-5 overflow-hidden" aria-label="Illustrative hazard-index calculator">
     <div className="panel-heading"><div>
-      <h2 className="flex items-center gap-2 text-base font-bold"><BrainCircuit size={18} className="text-accent"/> Rule-based Hazard Index · Training</h2>
+      <h2 className="flex items-center gap-2 t-title"><BrainCircuit size={18} className="text-accent"/> Rule-based Hazard Index · Training</h2>
       <p className="mt-1 text-xs text-muted">Explore the original deterministic teaching formula with synthetic inputs only.</p>
     </div><span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">Not trained AI</span></div>
     <div role="note" className="flex items-start gap-3 border-b border-amber-500/20 bg-amber-500/10 p-4 text-xs leading-6 text-amber-800 dark:text-amber-200">
@@ -73,11 +73,11 @@ export function RiskExercisePanel() {
             <option value="limited">Limited (exercise)</option>
           </select>
         </label>
-        <button type="submit" className="control control-primary text-xs" disabled={busy}>
+        <button type="submit" className="control control-sm" disabled={busy}>
           <Calculator size={15}/> {busy ? "Calculating demo index…" : "Calculate synthetic index"}
         </button>
       </form>
-      <div className="rounded-xl border border-stroke bg-elevated/40 p-5">
+      <div className="rounded-lg border border-stroke bg-elevated/40 p-5">
         <p className="eyebrow">Demonstration-only result</p>
         {result ? <>
           <p className="mt-4 text-4xl font-bold tabular-nums">{result.hazard_index}<span className="ml-1 text-base text-muted">/ 100</span></p>

@@ -1,4 +1,5 @@
 "use client";
+import { ErrorState } from "./ui";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AlertTriangle, ArrowRight, Compass, Database, MapPinned, RefreshCw, ShieldAlert, ShieldCheck } from "lucide-react";
@@ -62,12 +63,12 @@ export function SpatialAnalysis({ incidentId }: { incidentId: string }) {
   return <section className="panel mt-5 overflow-hidden" aria-label="Fictional geospatial proximity analysis">
     <div className="panel-heading">
       <div>
-        <h3 className="flex items-center gap-2 text-base font-bold">
+        <h3 className="flex items-center gap-2 t-title">
           <Compass size={18} className="text-accent"/> Spatial Correlation Explorer
         </h3>
         <p className="mt-1 text-xs text-muted">PostGIS geodesic distances · fictional sources/assets · no actual impact determination</p>
       </div>
-      <button type="button" className="control !text-xs" onClick={() => setVersion(v=>v+1)} disabled={loading}>
+      <button type="button" className="control control-sm" onClick={() => setVersion(v=>v+1)} disabled={loading}>
         <RefreshCw size={15} className={loading ? "animate-spin" : ""}/> Refresh
       </button>
     </div>
@@ -82,7 +83,7 @@ export function SpatialAnalysis({ incidentId }: { incidentId: string }) {
          data ? `${data.nearby_sources.length} simulated sources · ${data.nearby_assets.length} fictional assets` : "No results loaded"}
       </span>
     </div>
-    {error && <p role="alert" className="border-b border-rose-500/20 bg-rose-500/10 px-5 py-3 text-sm text-rose-700 dark:text-rose-300">{error}. No proximity conclusions can be drawn.</p>}
+    {error && <ErrorState message={<>{error}. No proximity conclusions can be drawn.</>} className="m-4" />}
     <div className="flex items-start gap-3 border-b border-amber-500/20 bg-amber-500/5 px-5 py-4">
       <ShieldAlert className="mt-0.5 shrink-0 text-amber-700 dark:text-amber-300" size={18}/>
       <p className="text-xs leading-6 text-amber-800 dark:text-amber-200">
@@ -97,8 +98,8 @@ export function SpatialAnalysis({ incidentId }: { incidentId: string }) {
           <h4 className="flex items-center gap-2 text-sm font-bold"><Database className="text-accent" size={17}/> Nearby synthetic sources</h4>
           <p className="mt-1 text-xs text-muted">{staleCandidates} candidates have absent, outdated or anomalous readings.</p>
           <div className="mt-3 space-y-3">
-            {data.nearby_sources.length === 0 && <p className="rounded-xl border border-dashed border-stroke p-5 text-sm text-muted">No positioned synthetic source is within the selected search radius.</p>}
-            {data.nearby_sources.map(item => <article className="rounded-xl border border-stroke bg-elevated/35 p-4" key={item.id}>
+            {data.nearby_sources.length === 0 && <p className="rounded-lg border border-dashed border-stroke p-5 text-sm text-muted">No positioned synthetic source is within the selected search radius.</p>}
+            {data.nearby_sources.map(item => <article className="rounded-lg border border-stroke bg-elevated/35 p-4" key={item.id}>
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <strong className="text-sm">{item.name}</strong>
                 <span className="rounded-full bg-accent/10 px-2 py-1 text-xs font-semibold text-accent">{Math.round(item.distance_m)} m</span>
@@ -114,8 +115,8 @@ export function SpatialAnalysis({ incidentId }: { incidentId: string }) {
           <h4 className="flex items-center gap-2 text-sm font-bold"><MapPinned className="text-accent" size={17}/> Fictional infrastructure points</h4>
           <p className="mt-1 text-xs text-muted">All exposure and operational impacts are unassessed.</p>
           <div className="mt-3 space-y-3">
-            {data.nearby_assets.length === 0 && <p className="rounded-xl border border-dashed border-stroke p-5 text-sm text-muted">No fictional assets are within this search radius. This is not a safety determination.</p>}
-            {data.nearby_assets.map(item => <article className="rounded-xl border border-stroke bg-elevated/35 p-4" key={item.id}>
+            {data.nearby_assets.length === 0 && <p className="rounded-lg border border-dashed border-stroke p-5 text-sm text-muted">No fictional assets are within this search radius. This is not a safety determination.</p>}
+            {data.nearby_assets.map(item => <article className="rounded-lg border border-stroke bg-elevated/35 p-4" key={item.id}>
               <div className="flex flex-wrap justify-between gap-2">
                 <strong className="text-sm">{item.name}</strong>
                 <span className="rounded-full bg-accent/10 px-2 py-1 text-xs font-semibold text-accent">{Math.round(item.distance_m)} m</span>

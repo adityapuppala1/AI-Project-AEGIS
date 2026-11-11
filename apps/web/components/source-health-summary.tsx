@@ -25,9 +25,9 @@ export function SourceHealthSummary() {
   }, []);
   const attention = overview ? overview.counts.delayed + overview.counts.stale +
     overview.counts.no_data + overview.counts.clock_anomaly : 0;
-  return <section className="panel mt-5 flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5" aria-label="Exercise source timeliness summary">
+  return <section className="panel mt-5 flex flex-wrap items-center justify-between gap-4 p-4" aria-label="Exercise source timeliness summary">
     <div className="flex items-start gap-3">
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent"><RadioTower size={20}/></span>
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent"><RadioTower size={20}/></span>
       <div>
         <h2 className="text-sm font-bold">Source Freshness Monitor <span className="ml-1 font-normal text-muted">· Simulation</span></h2>
         {error ? <p role="status" className="mt-1 flex items-center gap-1.5 text-xs text-rose-700 dark:text-rose-300"><AlertTriangle size={14}/> Source monitoring data unavailable</p> :
@@ -40,6 +40,6 @@ export function SourceHealthSummary() {
           {overview && <StatusPill tone={attention > 0 ? "warning" : "success"}>{attention > 0 ? t("Needs attention") : t("Within demo window")}</StatusPill>}</p>
       </div>
     </div>
-    <Link href="/sources" className="control text-xs">Inspect sources <ArrowRight size={15}/></Link>
+    <Link href="/sources" className="control control-sm">Inspect sources <ArrowRight size={15}/></Link>
   </section>;
 }

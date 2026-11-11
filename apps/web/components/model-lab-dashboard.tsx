@@ -22,7 +22,7 @@ export function ModelLabDashboard({ report }: { report: ModelReport }) {
       count: value.count,
     }));
   return <>
-    <div className="mb-5 flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4">
+    <div className="mb-5 flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
       <ShieldAlert size={20} className="mt-0.5 shrink-0 text-amber-700 dark:text-amber-300"/>
       <div>
         <p className="text-sm font-bold text-amber-800 dark:text-amber-200">SIMULATION ONLY — never a real flood forecast</p>
@@ -47,7 +47,7 @@ export function ModelLabDashboard({ report }: { report: ModelReport }) {
     <section className="mt-5 grid items-start gap-5 xl:grid-cols-[minmax(0,1.25fr)_minmax(315px,.9fr)]">
       <article className="panel min-w-0 overflow-hidden">
         <div className="panel-heading">
-          <div><h2 className="flex items-center gap-2 text-base font-bold"><FlaskConical size={19} className="text-accent"/> Illustrative score reliability</h2>
+          <div><h2 className="flex items-center gap-2 t-title"><FlaskConical size={19} className="text-accent"/> Illustrative score reliability</h2>
             <p className="mt-1 text-xs leading-5 text-muted">Synthetic holdout only · small bins do not establish calibration</p></div>
           <span className="rounded-full bg-elevated px-3 py-1 text-[11px] font-semibold text-muted">5 score bins</span>
         </div>
@@ -80,7 +80,7 @@ export function ModelLabDashboard({ report }: { report: ModelReport }) {
         </details>
       </article>
       <article className="panel overflow-hidden" aria-label="Synthetic holdout confusion matrix">
-        <div className="panel-heading"><h2 className="flex items-center gap-2 text-base font-bold"><Binary size={18} className="text-accent"/> Classification breakdown</h2></div>
+        <div className="panel-heading"><h2 className="flex items-center gap-2 t-title"><Binary size={18} className="text-accent"/> Classification breakdown</h2></div>
         <div className="p-5">
           <p className="text-xs leading-5 text-muted">Threshold: {report.model_configuration.threshold}. Counts compare model outputs against artificially generated labels.</p>
           <ResponsiveTable className="mt-4 [&>table]:min-w-0 [&>table]:text-center [&>table]:text-xs" label={t("Confusion matrix table")} caption="Synthetic holdout confusion matrix">
@@ -101,7 +101,7 @@ export function ModelLabDashboard({ report }: { report: ModelReport }) {
     </section>
 
     <div className="mt-5 grid gap-5 xl:grid-cols-2">
-      <article className="panel p-5 sm:p-6">
+      <article className="panel p-4">
         <p className="eyebrow">Dataset provenance</p>
         <h2 className="mt-3 text-base font-bold">Reproducible event-group holdout</h2>
         <div className="mt-4 space-y-3 text-sm leading-6 text-muted">
@@ -112,18 +112,18 @@ export function ModelLabDashboard({ report }: { report: ModelReport }) {
         <p className="mt-4 break-all rounded-lg bg-elevated px-3 py-2 font-mono text-[11px] text-muted" title="Synthetic dataset SHA-256">Dataset SHA-256: {report.dataset_sha256}</p>
         <p className="mt-3 text-[11px] font-semibold text-muted">Model: {report.model_version}</p>
       </article>
-      <article className="panel p-5 sm:p-6">
+      <article className="panel p-4">
         <p className="eyebrow">Human-controlled decision boundary</p>
         <h2 className="mt-3 flex items-center gap-2 text-base font-bold"><ShieldCheck className="text-accent" size={20}/> Not operationally qualified</h2>
         <div className="mt-4 space-y-3">
           {report.limitations.map(value => <p key={value} className="flex items-start gap-2 text-sm leading-6 text-muted"><AlertTriangle size={16} className="mt-1 shrink-0 text-amber-500"/>{value}</p>)}
         </div>
-        <p className="mt-4 rounded-xl border border-stroke bg-elevated/50 p-4 text-xs leading-6 text-muted">
+        <p className="mt-4 rounded-lg border border-stroke bg-elevated/50 p-4 text-xs leading-6 text-muted">
           A synthetic holdout is useful for verifying software reproducibility, evaluation logic and transparent UX—but it cannot validate a flood model. Real deployment requires an independent, permissioned historical dataset; temporal and geographic holdout; calibration; uncertainty analysis; security review; and accountable agency approval.
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
-          <Link href="/incidents" className="control text-xs"><Database size={15}/> Exercise incidents <ArrowRight size={15}/></Link>
-          <Link href="/playbooks" className="control text-xs"><CheckCircle2 size={15}/> Response playbooks <ArrowRight size={15}/></Link>
+          <Link href="/incidents" className="control control-sm"><Database size={15}/> Exercise incidents <ArrowRight size={15}/></Link>
+          <Link href="/playbooks" className="control control-sm"><CheckCircle2 size={15}/> Response playbooks <ArrowRight size={15}/></Link>
         </div>
       </article>
     </div>

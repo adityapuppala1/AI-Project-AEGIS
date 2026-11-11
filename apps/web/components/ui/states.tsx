@@ -1,7 +1,10 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Inbox, RefreshCw, ShieldAlert, type LucideIcon } from "lucide-react";
+import Link from "next/link";
+import { Inbox, Lock, RefreshCw, ShieldAlert, type LucideIcon } from "lucide-react";
+import { ROLE_INFO, knownRoles, type RoleId } from "../../lib/roles";
+import { RoleChip } from "./identity";
 import { useT } from "../language-provider";
 
 /** Guided empty state. `title`, `body` and action labels must already be translated. */
@@ -18,16 +21,48 @@ export function EmptyState({ icon: Icon = Inbox, title, body, actions, className
 
 /** Error with an optional Retry button; announced immediately via role=alert. `message` is already translated. */
 export function ErrorState({ message, title, onRetry, icon: Icon = ShieldAlert, className = "" }: Readonly<{
-  message: string; title?: string; onRetry?: () => void; icon?: LucideIcon; className?: string;
+  message: ReactNode; title?: string; onRetry?: () => void; icon?: LucideIcon; className?: string;
 }>) {
   const t = useT();
-  return <div role="alert" className={`flex flex-wrap items-start gap-3 rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 ${className}`}>
+  return <div role="alert" className={`flex flex-wrap items-start gap-3 rounded-lg border border-rose-500/30 bg-rose-500/10 p-4 ${className}`}>
     <Icon size={18} aria-hidden="true" className="mt-0.5 shrink-0 text-rose-700 dark:text-rose-300" />
     <div className="min-w-0 flex-1">
       {title && <p className="text-sm font-bold text-rose-800 dark:text-rose-200">{title}</p>}
       <p className="text-sm text-rose-800 dark:text-rose-200">{message}</p>
     </div>
-    {onRetry && <button type="button" className="control !min-h-9 text-xs" onClick={onRetry}><RefreshCw size={14} aria-hidden="true" />{t("Retry")}</button>}
+    {onRetry && <button type="button" className="control control-sm" onClick={onRetry}><RefreshCw size={14} aria-hidden="true" />{t("Retry")}</button>}
+  </div>;
+}
+
+/**
+ * The one permission state, for a 401 or 403 answer. It says what the page needs, which role you hold and where to
+ * go instead. There is no Retry: asking again with the same role gives the same answer. "needs" lists the roles that
+ * can use the page (from lib/roles.ts); "roles" is the signed-in person's roles. Never the control, only the explanation.
+ */
+export function PermissionState({ needs, roles, what, where, className = "" }: Readonly<{
+  needs: readonly RoleId[]; roles: readonly string[] | null | undefined; what?: string; where?: { href: string; label: string }; className?: string;
+}>) {
+  const t = useT();
+  const held = knownRoles(roles);
+  return <div role="status" className={`panel flex flex-wrap items-start gap-4 p-5 ${className}`}>
+    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-elevated text-muted"><Lock size={18} aria-hidden="true" /></span>
+    <div className="min-w-0 flex-1 space-y-3">
+      <div>
+        <p className="t-title">{t("Your role cannot open this")}</p>
+        {what && <p className="mt-1 text-sm text-muted">{what}</p>}
+      </div>
+      <dl className="grid gap-x-4 gap-y-2 text-sm sm:grid-cols-[8rem_minmax(0,1fr)]">
+        <dt className="text-xs font-semibold text-muted">{t("It needs")}</dt>
+        <dd className="flex flex-wrap gap-1.5">{needs.map(role => <RoleChip key={role} role={role} />)}</dd>
+        <dt className="text-xs font-semibold text-muted">{t("You are signed in as")}</dt>
+        <dd className="flex flex-wrap gap-1.5">{held.length > 0 ? held.map(role => <RoleChip key={role} role={role} />) : <span className="text-muted">{t("No role that AEGIS recognises")}</span>}</dd>
+      </dl>
+      <p className="helper">{t("Roles are given in your agency's identity provider, not in AEGIS. Ask your administrator if you need a different one.")}{needs.length === 1 ? " " + t(ROLE_INFO[needs[0]].summary) : ""}</p>
+      <div className="flex flex-wrap gap-2">
+        {where && <Link href={where.href} className="control control-sm">{where.label}</Link>}
+        <Link href="/admin/users" className="control control-quiet control-sm">{t("See what each role can do")}</Link>
+      </div>
+    </div>
   </div>;
 }
 

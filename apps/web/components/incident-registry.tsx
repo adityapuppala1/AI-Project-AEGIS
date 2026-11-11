@@ -1,5 +1,6 @@
 "use client";
 
+import { RecordRef } from "./ui";
 import { useEffect, useMemo, useState, type KeyboardEvent } from "react";
 import Link from "next/link";
 import { ArrowRight, ChevronLeft, ChevronRight, ClipboardList, Eye, FlaskConical, Link2, MapPin, RefreshCw, SearchX } from "lucide-react";
@@ -180,8 +181,8 @@ export function IncidentRegistry() {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <button type="button" className="control !min-h-8 !text-xs" onClick={() => { clearFilters(); setSort("created_at"); setDirection("desc"); setPageSize(10); }}>{t("Reset")}</button>
-            <button type="button" className="control !min-h-8 !text-xs" onClick={() => void copyViewLink()}><Link2 size={14} aria-hidden="true"/> {t("Copy view link")}</button>
+            <button type="button" className="control control-sm" onClick={() => { clearFilters(); setSort("created_at"); setDirection("desc"); setPageSize(10); }}>{t("Reset")}</button>
+            <button type="button" className="control control-sm" onClick={() => void copyViewLink()}><Link2 size={14} aria-hidden="true"/> {t("Copy view link")}</button>
             {viewNotice && <span role="status" className="text-xs text-muted">{viewNotice}</span>}
           </div>
         </div>
@@ -196,16 +197,16 @@ export function IncidentRegistry() {
         {pending && !result && <div className="px-5 py-4"><SkeletonRows rows={6} label={t("Loading exercise incidents…")}/></div>}
         {!pending && !error && items.length === 0 && <EmptyState icon={SearchX} title={t("No incidents match")}
           body={t("Try changing the search term or status filter. No match does not mean an area is safe; it only means no synthetic record fits these filters.")}
-          actions={<button type="button" className="control text-xs" onClick={clearFilters}>{t("Clear filters")}</button>}/>}
+          actions={<button type="button" className="control control-sm" onClick={clearFilters}>{t("Clear filters")}</button>}/>}
         {items.length > 0 && <>
           <div onKeyDown={moveRowFocus} className="hidden md:block">
             <ResponsiveTable label={t("Exercise incident list")} caption={t("Exercise incident list; column headings sort the records")}>
               <thead className="bg-elevated/60"><tr>
                 <SortableHeader label={t("Incident")} direction={dirFor("hazard_type")} onSort={() => sortBy("hazard_type")} className="px-5"/>
                 <SortableHeader label={t("Status")} direction={dirFor("status")} onSort={() => sortBy("status")} className="px-5"/>
-                <th scope="col" className="px-5 py-2 text-left text-[11px] font-bold uppercase tracking-wide text-muted">{t("Coordinates")}</th>
+                <th scope="col" className="px-5 py-2 text-left text-[11px] font-bold text-muted">{t("Coordinates")}</th>
                 <SortableHeader label={t("Created")} direction={dirFor("created_at")} onSort={() => sortBy("created_at")} className="px-5"/>
-                <th scope="col" className="px-5 py-2 text-left text-[11px] font-bold uppercase tracking-wide text-muted">{t("Case ID")}</th>
+                <th scope="col" className="px-5 py-2 text-left text-[11px] font-bold text-muted">{t("Case ID")}</th>
               </tr></thead>
               <tbody className="divide-y divide-stroke">
                 {items.map(item => <tr key={item.id} onMouseEnter={() => setSelectedId(item.id)}
@@ -214,7 +215,7 @@ export function IncidentRegistry() {
                   <td className="px-5 py-4"><StatusBadge status={item.status}/></td>
                   <td className="px-5 py-4 font-mono text-xs tabular-nums text-muted"><MapPin size={13} aria-hidden="true" className="mr-1 inline"/>{coords(item)}</td>
                   <td className="px-5 py-4 text-xs text-muted">{new Date(item.created_at).toLocaleString()}</td>
-                  <td className="px-5 py-4 font-mono text-xs text-muted" title={item.id}>{item.id.slice(0, 8)}</td>
+                  <td className="px-5 py-4"><RecordRef id={item.id} kind="incident" /></td>
                 </tr>)}
               </tbody>
             </ResponsiveTable>
@@ -228,7 +229,7 @@ export function IncidentRegistry() {
               <div className="mt-2"><KeyValueList items={[
                 { label: t("Coordinates"), value: <span className="font-mono text-xs">{coords(item)}</span> },
                 { label: t("Created"), value: <span className="text-xs">{new Date(item.created_at).toLocaleString()}</span> },
-                { label: t("Case ID"), value: <span className="font-mono text-xs">{item.id.slice(0, 8)}</span> },
+                { label: t("Case ID"), value: <RecordRef id={item.id} kind="incident" /> },
               ]}/></div>
             </li>)}
           </ul>
@@ -249,9 +250,9 @@ export function IncidentRegistry() {
       <aside aria-label={t("Selected case summary")} className="xl:sticky xl:top-4">
         <Panel title={t("Selected case")} icon={Eye} description={t("Hover or focus a row to preview. Press Enter on the case name to open it.")}>
           {selected ? <div className="space-y-4 p-4">
-            <div className="flex flex-wrap items-center gap-2"><p className="text-base font-bold">{selected.hazard_type}</p><StatusBadge status={selected.status}/></div>
+            <div className="flex flex-wrap items-center gap-2"><p className="t-title">{selected.hazard_type}</p><StatusBadge status={selected.status}/></div>
             <KeyValueList items={[
-              { label: t("Case ID"), value: <span className="break-all font-mono text-xs">{selected.id}</span> },
+              { label: t("Case ID"), value: <RecordRef id={selected.id} kind="incident" /> },
               { label: t("Coordinates"), value: <span className="font-mono text-xs">{coords(selected)}</span> },
               { label: t("Created"), value: <DataFreshness observedAt={selected.created_at} staleAfterHours={24 * 365}/> },
             ]}/>

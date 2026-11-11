@@ -7,6 +7,7 @@ import Link from "next/link";
 import { CheckCircle2, CircleDashed, ExternalLink, KeyRound, LockKeyhole, PlugZap, ShieldAlert, ToggleLeft, XCircle } from "lucide-react";
 
 import { AppShell } from "../../../components/app-shell";
+import { DataTable, Panel } from "../../../components/ui";
 
 type Kind = "secret" | "setting" | "switch" | "key" | "agreement" | "none";
 type Check = "session" | "earth" | "intake";
@@ -20,10 +21,10 @@ const SECTIONS: Section[] = [
     { name: "OIDC_CLIENT_SECRET", kind: "secret", needed: "Only if your provider requires a confidential client", where: "Host .env file (never in the repository)", how: "Issued by the identity provider when the client is registered." },
     { name: "BFF_SESSION_KEY_BASE64", kind: "secret", needed: "Required for browser sign-in", where: "Host .env file (never in the repository)", how: "32 random bytes, base64. Generate locally; the PowerShell one-liner is in .env.example." },
     { name: "APP_ORIGIN", kind: "setting", needed: "Required (public URL of this site)", where: "Host .env file", how: "For example https://aegis.example.gov. Must match the redirect URL registered with the provider." },
-    { name: "Operator accounts with roles and MFA", kind: "agreement", needed: "Required", where: "Your identity provider", how: "Create incident_operator, incident_checker, department_operator, incident_auditor and platform_admin users in separate real accounts. Maker and checker must be different people." },
+    { name: "Operator accounts with roles and MFA", kind: "agreement", needed: "Required", where: "Your identity provider", how: "Create a separate real account for each person, with one of the five roles (Maker, Checker, Auditor, Department desk, Administrator). The exact role ids are listed under Users and access. Maker and checker must be different people." },
   ]},
   { id: "platform", title: "2 · Platform secrets", summary: "Set on the host before first start. They cannot be read or changed from the browser, by design.", items: [
-    { name: "POSTGRES_PASSWORD", kind: "secret", needed: "Required (replace the local-only default)", where: "Host .env file", how: "Choose a strong unique password before any non-local deployment. Never reuse aegis_local_only." },
+    { name: "POSTGRES_PASSWORD", kind: "secret", needed: "Required (replace the local-only default)", where: "Host .env file", how: "Choose a strong unique password before any non-local deployment. Never reuse the local-only default." },
     { name: "AEGIS_CONNECTOR_KEY", kind: "secret", needed: "Required to store connector keys", where: "Host .env file", how: "Run scripts/new-connector-key.ps1. It encrypts connector secrets at rest; losing it means re-entering every key." },
     { name: "TLS certificate and reverse proxy", kind: "agreement", needed: "Required outside a laptop", where: "Your hosting environment", how: "Serve the site over HTTPS only. Not part of this repository." },
   ]},
@@ -36,12 +37,12 @@ const SECTIONS: Section[] = [
     { name: "-LocalCopilot (AEGIS_LOCAL_COPILOT_MODEL)", kind: "switch", needed: "Optional: local language model", where: "scripts/start-windows.ps1 -LocalCopilot", how: "Uses a model on this machine (default tinyllama:1.1b via Ollama). No cloud key." },
   ]},
   { id: "connectors", title: "4 · Data-source connectors (keys entered in the app)", summary: "A signed-in platform administrator enters these on the Connectors page. Keys are encrypted with AEGIS_CONNECTOR_KEY, never shown again and every change is audited.", items: [
-    { name: "open_meteo", kind: "none", needed: "No key", where: "Connectors page", how: "Free for non-commercial use (CC BY 4.0). A commercial deployment needs a paid Open-Meteo plan." },
-    { name: "nasa_firms · map_key", kind: "key", needed: "Free key", where: "Connectors page", how: "Request a MAP_KEY at firms.modaps.eosdis.nasa.gov (email registration)." },
-    { name: "copernicus_cdse · client_id + client_secret", kind: "key", needed: "Free account", where: "Connectors page", how: "Create an OAuth client at dataspace.copernicus.eu for Sentinel-1 flood extent." },
-    { name: "typesafe_jev · api_key", kind: "key", needed: "Paid, optional", where: "Connectors page", how: "Only if the decision-judgment service is used. Set a monthly token budget." },
-    { name: "imd_warnings · terms_accepted", kind: "agreement", needed: "Blocked until written terms exist", where: "Connectors page (after agreement)", how: "India Meteorological Department data needs a written supply agreement; the connector refuses to run until terms are accepted." },
-    { name: "nasa_lhasa · cap_handover", kind: "none", needed: "No key", where: "Connectors page", how: "Landslide reference and file export of approved CAP drafts." },
+    { name: "Open-Meteo", kind: "none", needed: "No key", where: "Connectors page", how: "Free for non-commercial use (CC BY 4.0). A commercial deployment needs a paid Open-Meteo plan." },
+    { name: "NASA FIRMS · map key", kind: "key", needed: "Free key", where: "Connectors page", how: "Request a MAP_KEY at firms.modaps.eosdis.nasa.gov (email registration)." },
+    { name: "Copernicus CDSE · client id and secret", kind: "key", needed: "Free account", where: "Connectors page", how: "Create an OAuth client at dataspace.copernicus.eu for Sentinel-1 flood extent." },
+    { name: "TypeSafe Jev · API key", kind: "key", needed: "Paid, optional", where: "Connectors page", how: "Only if the decision-judgment service is used. Set a monthly token budget." },
+    { name: "IMD warnings · terms accepted", kind: "agreement", needed: "Blocked until written terms exist", where: "Connectors page (after agreement)", how: "India Meteorological Department data needs a written supply agreement; the connector refuses to run until terms are accepted." },
+    { name: "NASA LHASA · CAP handover", kind: "none", needed: "No key", where: "Connectors page", how: "Landslide reference and file export of approved CAP drafts." },
   ]},
   { id: "journey", title: "5 · Alert Journey live mode (no keys)", summary: "Fetched by this server on the viewer's behalf after they opt in, and only when -PublicEarth is on. All are keyless; each has attribution and non-commercial terms recorded in research/real-data/LICENCES.md.", items: [
     { name: "Open-Meteo: forecast, ensemble, flood, ERA5 history, climate, marine, geocoding", kind: "none", needed: "No key · non-commercial · relayed by this server", where: "Nothing to configure", how: "Commercial use needs a paid plan and an API key." },
@@ -102,42 +103,34 @@ function ProbePill({ state }: { state: Probe | undefined }) {
 export default function GoLivePage() {
   const { probes, signedIn } = useProbes();
   return <AppShell title="Go-Live Setup" description="Every external API, key, secret, switch and agreement AEGIS needs, where each is configured and what is still missing. Read-only: no secret is shown or entered on this page.">
-    <div className="mb-5 flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-700 dark:text-amber-300">
-      <LockKeyhole className="mt-0.5 shrink-0" size={18}/>
-      <div><strong>How configuration works in AEGIS</strong>
-        <p className="mt-1 text-xs leading-5">Secrets live in two places only: the host <code>.env</code> file (set by whoever runs the server) and the encrypted connector vault (entered by a signed-in platform administrator on the Connectors page). This page is a checklist; it cannot read or change either.</p>
-      </div>
-    </div>
-    <section className="panel mb-5 p-5" aria-label="Where to configure">
-      <h2 className="text-base font-bold">Start here</h2>
-      <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm">
+    <Panel className="mb-4" title="How configuration works in AEGIS" icon={LockKeyhole}>
+        <p className="text-sm leading-6">Secrets live in two places only: the host <code>.env</code> file (set by whoever runs the server) and the encrypted connector vault (entered by a signed-in platform administrator on the Connectors page). This page is a checklist; it cannot read or change either.</p>
+    </Panel>
+    <Panel className="mb-4" title="Start here">
+      <ol className="list-decimal space-y-2 pl-5 text-sm">
         <li>On the server, copy <code>.env.example</code> to <code>.env</code> and fill sections 1 and 2 below. Restart with <code>scripts/start-windows.ps1</code> and the switches you want (section 3).</li>
-        <li>{signedIn ? "You are signed in." : "Sign in with a platform_admin account (top-right of this page). If the sign-in button says “SSO not configured”, finish section 1 first."}</li>
+        <li>{signedIn ? "You are signed in." : "Sign in with an Administrator account (top-right of this page). If the sign-in button says “SSO not configured”, finish section 1 first."}</li>
         <li>Open the Connectors page and enter the API keys from section 4. Use each connector&rsquo;s Test button.</li>
       </ol>
       <div className="mt-4 flex flex-wrap gap-2">
-        <Link className="control" href="/admin/connectors"><KeyRound size={16}/>Open Connectors (enter API keys)</Link>
+        <Link className="control control-primary" href="/admin/connectors"><KeyRound size={16}/>Open Connectors (enter API keys)</Link>
         <Link className="control" href="/admin"><PlugZap size={16}/>Administration (policy preview)</Link>
         <Link className="control" href="/alert-journey"><ExternalLink size={16}/>Alert Journey</Link>
       </div>
-    </section>
-    {SECTIONS.map(section => <section key={section.id} className="panel mb-5 p-5" aria-labelledby={"gl-" + section.id}>
-      <h2 id={"gl-" + section.id} className="text-base font-bold">{section.title}</h2>
-      <p className="mt-1 text-sm text-muted">{section.summary}</p>
-      <div className="mt-3 overflow-x-auto">
-        <table className="data-table">
+    </Panel>
+    {SECTIONS.map(section => <Panel key={section.id} id={"gl-" + section.id} className="mb-4" title={section.title} description={section.summary} bodyClassName="p-0">
+        <DataTable label={section.title} minWidth="62rem">
           <thead><tr><th scope="col">Item</th><th scope="col">Type</th><th scope="col">Needed</th><th scope="col">Where to set it</th><th scope="col">How to get it</th><th scope="col">Status</th></tr></thead>
           <tbody>{section.items.map(item => { const Icon = KIND_ICON[item.kind]; return <tr key={item.name}>
-            <td className="min-w-[200px] font-semibold"><code className="break-words text-[11px]">{item.name}</code>{item.link && <div className="mt-1"><Link className="text-accent underline" href={item.link.href}>{item.link.label}</Link></div>}</td>
+            <td className="min-w-[200px] font-semibold">{/^[A-Z_·s-]+$/.test(item.name) || item.name.startsWith("-") ? <code className="break-words text-[11px]">{item.name}</code> : <span className="break-words">{item.name}</span>}{item.link && <div className="mt-1"><Link className="text-accent underline" href={item.link.href}>{item.link.label}</Link></div>}</td>
             <td className="whitespace-nowrap"><span className="inline-flex items-center gap-1"><Icon size={14}/>{KIND_LABEL[item.kind]}</span></td>
             <td className="min-w-[140px]">{item.needed}</td>
             <td className="min-w-[160px]">{item.where}</td>
             <td className="min-w-[240px] whitespace-normal">{item.how}</td>
             <td className="min-w-[150px]">{item.kind === "none" ? <span className="text-xs text-muted">Nothing to set</span> : item.where.startsWith("Not ") ? <span className="text-xs text-muted">Not available</span> : item.where.startsWith("Connectors page") ? <Link className="text-xs text-accent underline" href="/admin/connectors">Check on Connectors</Link> : <ProbePill state={item.check ? probes[item.check] : undefined}/>}</td>
           </tr>; })}</tbody>
-        </table>
-      </div>
-    </section>)}
+        </DataTable>
+    </Panel>)}
     <p className="mb-8 text-xs text-muted">Sources for this checklist: <code>.env.example</code>, the Compose files, <code>docs/PROACTIVE_IMPLEMENTATION_CONTRACT.md</code>, <code>docs/OIDC_IDENTITY_AND_AUTHORIZATION.md</code> and <code>research/real-data/LICENCES.md</code>. Licence terms change; re-check before a real deployment.</p>
   </AppShell>;
 }

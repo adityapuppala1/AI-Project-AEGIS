@@ -1,5 +1,6 @@
 "use client";
 
+import { codeLabel } from "../lib/labels";
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import Link from "next/link";
 import {
@@ -119,7 +120,7 @@ export function AgencySync() {
 
   return <AppShell title="AgencySync — Exercise Tasks"
     description="Reproducible fictional department follow-up and acknowledgement history. No messages or field tasks are sent.">
-    <div className="mb-5 flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs leading-6 text-amber-800 dark:text-amber-200" role="note">
+    <div className="mb-5 flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-xs leading-6 text-amber-800 dark:text-amber-200" role="note">
       <ShieldAlert size={19} className="mt-0.5 shrink-0"/>
       <p><strong>Fully scripted simulation.</strong> Department names, task assignments, acknowledgements and closures are local database fixtures.
         This interface cannot send operational requests, notify responders or change task state.</p>
@@ -142,7 +143,7 @@ export function AgencySync() {
     <div className="mt-5 grid items-start gap-5 2xl:grid-cols-[minmax(0,1.25fr)_minmax(320px,1fr)]">
       <section className="panel min-w-0 overflow-hidden">
         <div className="panel-heading"><div>
-          <h2 className="flex items-center gap-2 text-base font-bold"><ClipboardList size={18} className="text-accent"/> Task registry</h2>
+          <h2 className="flex items-center gap-2 t-title"><ClipboardList size={18} className="text-accent"/> Task registry</h2>
           <p className="mt-1 text-xs text-muted">Select a task for its immutable scripted chronology.</p>
         </div></div>
         <div className="flex flex-wrap items-center gap-3 border-b border-stroke p-4">
@@ -176,7 +177,7 @@ export function AgencySync() {
         <p className="border-t border-stroke px-5 py-3 text-xs text-muted">{shown.length} matching of {board?.total_in_scope ?? "—"} local fictional records.</p>
       </section>
       <section className="panel min-w-0 overflow-hidden" aria-label="Scripted acknowledgement timeline">
-        <div className="panel-heading"><h2 className="flex items-center gap-2 text-base font-bold"><GitBranch size={18} className="text-accent"/> Scripted audit trail</h2></div>
+        <div className="panel-heading"><h2 className="flex items-center gap-2 t-title"><GitBranch size={18} className="text-accent"/> Scripted audit trail</h2></div>
         {historyError && <ErrorState className="m-4" message={historyError} onRetry={() => setRevision(value => value+1)}/>}
         {historyLoading && <div className="p-4"><SkeletonRows rows={3} label={t("Loading chronology…")}/></div>}
         {!selectedId && <EmptyState icon={GitBranch} title={t("Select a fictional task")} body={t("Select a fictional task to inspect its scripted acknowledgement chain.")}/>}
@@ -187,15 +188,15 @@ export function AgencySync() {
           <ol className="mt-5 space-y-4 border-l-2 border-stroke pl-4">
             {detail.events.map(event => <li key={event.id} className="relative">
               <span aria-hidden="true" className="absolute -left-[22px] top-1 h-2.5 w-2.5 rounded-full bg-accent"/>
-              <p className="text-xs font-bold capitalize">{event.kind.replaceAll("_", " ")}</p>
+              <p className="text-xs font-bold capitalize">{codeLabel(event.kind)}</p>
               <p className="mt-1 text-xs leading-6 text-muted">{event.summary}</p>
               <p className="mt-1 text-[11px] text-muted">{when(event.occurred_at)}</p>
             </li>)}
           </ol>
           <div className="mt-5 flex flex-wrap gap-2">
-            <Link className="control text-xs" href={"/incidents/" + detail.task.incident_id}>
+            <Link className="control control-sm" href={"/incidents/" + detail.task.incident_id}>
               Incident evidence <ArrowRight size={14}/></Link>
-            <Link className="control text-xs" href="/playbooks">
+            <Link className="control control-sm" href="/playbooks">
               Source playbook <ArrowRight size={14}/></Link>
           </div>
         </div>}

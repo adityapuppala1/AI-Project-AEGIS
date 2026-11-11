@@ -108,6 +108,7 @@ export function AlertJourney({ initialMode }: { initialMode: JourneyMode }) {
 
   return (
     <div onClick={onClick}>
+      <h1 className="sr-only">Alert Journey: how a hazard becomes an official warning. Exercise only.</h1>
       {/* The key gives each mode a brand-new DOM subtree for its engine. */}
       <div key={mode} ref={rootRef} className="aj-root">
         {mode === "live" ? <LiveShell /> : <ExerciseShell />}

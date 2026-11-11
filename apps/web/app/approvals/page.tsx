@@ -1,12 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
-import { AlertTriangle, Check, ClipboardCheck, LockKeyhole, Plus, RefreshCw, ShieldCheck, X } from "lucide-react";
+import { Check, ClipboardCheck, LockKeyhole, Plus, RefreshCw, X } from "lucide-react";
+import { codeLabel, shortId } from "../../lib/labels";
+import { pageRoles } from "../../lib/roles";
 import { ReviewFocusDetails, type Focus } from "../../components/local-review-focus";
 import { ExerciseDraftBuffer } from "../../lib/exercise-draft-buffer";
 import { AppShell } from "../../components/app-shell";
 import { useT } from "../../components/language-provider";
-import { Stepper, type Step } from "../../components/ui";
+import { Button, ErrorState, HazardGlyph, Panel, PermissionState, RecordRef, RoleChip, SkeletonRows, StatusPill, Stepper, TwoKey, keysForStatus, type Step } from "../../components/ui";
 import { ExerciseReviewBrief, type ReviewBrief } from "../../components/exercise-review-brief";
 
 function workflowSteps(status: string, simulated: boolean): { id: string; label: string; status: "done" | "current" | "pending" | "blocked" }[] {
@@ -30,12 +32,6 @@ const actionTypes = [
   { value: "prepare_warning", label: "Prepare warning draft (never send)" },
   { value: "propose_dispatch", label: "Draft responder plan (never dispatch)" },
 ];
-const statuses: Record<string,string> = {
-  draft: "bg-sky-500/10 text-sky-600 dark:text-sky-300",
-  submitted: "bg-amber-500/10 text-amber-700 dark:text-amber-300",
-  approved: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
-  rejected: "bg-rose-500/10 text-rose-700 dark:text-rose-300",
-};
 function displayError(input: unknown): string {
   if (input && typeof input === "object" && "detail" in input && typeof input.detail === "string") return input.detail;
   if (input && typeof input === "object" && "error" in input && typeof input.error === "string") return input.error;
@@ -57,6 +53,10 @@ export default function ApprovalWorkbench() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [refused, setRefused] = useState(false);
+  // Proposals whose status changed in the last reload are marked once, so the eye finds what moved.
+  const [changedIds, setChangedIds] = useState<ReadonlySet<string>>(new Set());
+  const lastStatus = useRef<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const draftBuffer = useRef(new ExerciseDraftBuffer());
   const accessScope = useRef("");
@@ -94,12 +94,17 @@ export default function ApprovalWorkbench() {
         fetch("/api/proposals/incidents", { cache: "no-store", credentials: "same-origin" }),
         fetch("/api/proposals", { cache: "no-store" }),
       ]);
+      // A role refusal is not an outage: say which role the workbench needs instead of "could not load".
+      if (casesResponse.status === 403 || approvalsResponse.status === 403) { setRefused(true); setProposals([]); setIncidents([]); setError(""); return; }
+      setRefused(false);
       if (!casesResponse.ok || !approvalsResponse.ok) throw new Error("Could not load agency proposals");
       const cases: Incident[] = await casesResponse.json();
       const tasks: Proposal[] = await approvalsResponse.json();
       setIncidents(cases);
       const incident = cases.some(item => item.id === draftTarget.current.incident) ? draftTarget.current.incident : cases[0]?.id || "";
       chooseDraft(incident, draftTarget.current.action);
+      setChangedIds(new Set(tasks.filter(item => item.id in lastStatus.current ? lastStatus.current[item.id] !== item.status : Object.keys(lastStatus.current).length > 0).map(item => item.id)));
+      lastStatus.current = Object.fromEntries(tasks.map(item => [item.id, item.status]));
       setProposals(tasks);
       setError("");
     } catch (cause) {
@@ -150,17 +155,10 @@ export default function ApprovalWorkbench() {
   }
 
   return <AppShell title="Approval Workbench" description="Authenticated exercise proposals, controlled submissions and independent checker decisions.">
-    <div className="mb-5 flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-4 text-amber-800 dark:text-amber-300">
-      <ShieldCheck className="mt-0.5 shrink-0" size={20}/>
-      <div><p className="text-sm font-bold">Training environment only</p><p className="mt-1 text-xs leading-5">
-        Approval records document simulated decisions. They never issue public warnings or dispatch responders.
-        This workbench requires a trusted identity provider with signed agency and role claims.</p></div>
-    </div>
+    {!auth && loading && <section className="panel p-4"><SkeletonRows rows={3} label={t("Checking operator session...")} /></section>}
+    {!auth && !loading && <ErrorState title={t("Session verification unavailable")} message={t("Unsaved text is hidden until your identity is verified.")} onRetry={() => void reload()} />}
 
-    {!auth && loading && <section className="panel p-8 text-center text-sm text-muted">Checking secure operator session...</section>}
-    {!auth && !loading && <section className="panel p-5"><p role="alert">Session verification unavailable. Unsaved text is hidden until your identity is verified.</p><button type="button" className="control mt-3" onClick={() => void reload()}>Retry session verification</button></section>}
-
-    {auth && !auth.authenticated && <section className="panel p-8">
+    {auth && !auth.authenticated && <section className="panel p-4">
       <div className="mx-auto max-w-xl text-center">
         <LockKeyhole className="mx-auto mb-4 text-accent" size={35}/>
         <h2 className="text-xl font-bold">Verified operator sign-in required</h2>
@@ -169,39 +167,40 @@ export default function ApprovalWorkbench() {
           "The trusted identity provider is not configured yet. This page intentionally cannot create or approve proposals using pretend identities."}
         </p>
         {auth.configured && <a href="/api/auth/login" className="control control-primary mt-5">Sign in securely</a>}
-        <p className="mt-4 text-xs text-muted">The public synthetic command-center dashboard remains accessible without login.</p>
       </div>
     </section>}
 
-    {auth?.authenticated && <div className="space-y-5">
-      <div className="panel flex flex-wrap items-center justify-between gap-3 p-4">
-        <div><p className="eyebrow">Verified access context</p>
-          <p className="mt-2 text-sm font-semibold">{auth.subject} <span className="font-normal text-muted">· Agency {auth.agencyId?.slice(0,8)}</span></p>
-          <p className="mt-1 text-xs text-muted">{auth.roles?.join(" · ")}</p>
-        </div>
-        <button type="button" className="control" onClick={() => void reload()} disabled={busy || loading}>
-          <RefreshCw size={16} className={loading ? "animate-spin" : ""}/> Refresh
-        </button>
+    {auth?.authenticated && refused && <PermissionState needs={pageRoles("/approvals") ?? []} roles={auth.roles}
+      what={t("Proposals are read by the people who make, check and audit them. Administrators set up the node but take no part in a decision.")}
+      where={{ href: "/", label: t("Back to Command Center") }} />}
+
+    {auth?.authenticated && !refused && <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="flex flex-wrap items-center gap-2 text-sm">
+          <span className="text-muted">{t("You are signed in as")}</span>
+          {(auth.roles ?? []).map(role => <RoleChip key={role} role={role} />)}
+          <span className="helper">{canMake && canReview ? t("You can draft, and check what other people submitted.") : canMake ? t("You draft and submit. A different person approves.") : canReview ? t("You approve or reject what a different person submitted.") : t("You can read every proposal; you cannot change one.")}</span>
+        </p>
+        <Button icon={RefreshCw} onClick={() => void reload()} disabled={busy} loading={loading}>{t("Refresh")}</Button>
       </div>
-      {message && <p role="status" className="rounded-xl border border-emerald-500/25 bg-emerald-500/10 p-3 text-sm text-emerald-700 dark:text-emerald-300">{message}</p>}
-      {error && <p role="alert" className="flex items-center gap-2 rounded-xl border border-rose-500/25 bg-rose-500/10 p-3 text-sm text-rose-700 dark:text-rose-300"><AlertTriangle size={17}/>{error}</p>}
-      <div className="grid items-start gap-5 2xl:grid-cols-[minmax(300px,.8fr)_minmax(0,1.5fr)]">
-        <section className="panel">
-          <div className="panel-heading"><h2 className="flex items-center gap-2 text-base font-bold"><Plus size={17} className="text-accent"/> Create proposal</h2></div>
-          <form className="space-y-4 p-5" onSubmit={create}>
-            {!canMake && <p className="text-sm text-muted">Read-only access. The incident-operator role is required to create proposals.</p>}
-            <div><label className="mb-2 block text-xs font-semibold text-muted" htmlFor="exercise-incident">Exercise incident</label>
+      {message && <p role="status"><StatusPill tone="success">{message}</StatusPill></p>}
+      {error && <ErrorState message={error} />}
+      <div className="grid items-start gap-4 2xl:grid-cols-[minmax(300px,.8fr)_minmax(0,1.5fr)]">
+        <Panel title={t("Create proposal")} icon={Plus} description={t("Saved as a draft. Nothing is submitted until you choose to.")}>
+          <form className="space-y-4" onSubmit={create}>
+            {!canMake && <p className="helper">{t("Read-only. Drafting a proposal needs the Maker role.")}</p>}
+            <div><label className="field-label" htmlFor="exercise-incident">Exercise incident</label>
               <select id="exercise-incident" className="field" value={selectedIncident} onChange={event => chooseDraft(event.target.value, actionType)} disabled={!canMake || busy || loading}>
                 {!incidents.length && <option value="">No incidents available</option>}
-                {incidents.map(item => <option key={item.id} value={item.id}>{item.hazard_type} · {item.id.slice(0,8)}</option>)}
+                {incidents.map(item => <option key={item.id} value={item.id}>{t(codeLabel(item.hazard_type))} · {item.id.slice(0,8)}</option>)}
               </select>
             </div>
-            <div><label className="mb-2 block text-xs font-semibold text-muted" htmlFor="exercise-action">Proposed action</label>
+            <div><label className="field-label" htmlFor="exercise-action">Proposed action</label>
               <select id="exercise-action" className="field" value={actionType} onChange={event => chooseDraft(selectedIncident, event.target.value)} disabled={!canCreate || busy}>
                 {actionTypes.map(item => <option value={item.value} key={item.value}>{item.label}</option>)}
               </select>
             </div>
-            <div><label className="mb-2 block text-xs font-semibold text-muted" htmlFor="exercise-rationale">Supporting rationale</label>
+            <div><label className="field-label" htmlFor="exercise-rationale">Supporting rationale</label>
               <textarea id="exercise-rationale" className="field !h-28 resize-y py-3" minLength={10} maxLength={2000} required
                 value={rationale} onChange={event => {
                   setRationale(event.target.value);
@@ -221,44 +220,45 @@ export default function ApprovalWorkbench() {
               <input type="checkbox" className="h-5 w-5 shrink-0 accent-teal-600" checked={includeReviewFocus} onChange={event => setIncludeReviewFocus(event.target.checked)} disabled={!canCreate || busy}/>
               Save review focus with this draft (synthetic demo agency only). Local AI selects existing cited items; unavailable AI uses a labelled template. This may take about 20 seconds.
             </label>
-            <button type="submit" className="control control-primary w-full" disabled={!canCreate || busy || rationale.trim().length < 10}>
-              <Plus size={16}/> Save exercise draft
-            </button>
-            {(!canCreate || rationale.trim().length < 10) && <p className="text-xs text-muted">{!canCreate ? t("Disabled: the incident-operator role is required to save drafts.") : t("Disabled: enter a rationale of at least 10 characters.")}</p>}
+            <Button type="submit" variant={canMake ? "primary" : "secondary"} icon={Plus} className="w-full" loading={busy && canCreate} disabled={!canCreate || busy || rationale.trim().length < 10}>{t("Save exercise draft")}</Button>
+            {(!canCreate || rationale.trim().length < 10) && <p className="helper">{!canCreate ? t("Disabled: the incident-operator role is required to save drafts.") : t("Disabled: enter a rationale of at least 10 characters.")}</p>}
           </form>
-        </section>
-        <section className="panel min-w-0">
-          <div className="panel-heading"><div><h2 className="flex items-center gap-2 text-base font-bold"><ClipboardCheck size={17} className="text-accent"/> Agency approval queue</h2><p className="mt-1 text-xs text-muted">Records are filtered to the signed agency on the server.</p></div>
-            <span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">{proposals.length} proposals</span></div>
+        </Panel>
+        <Panel className="min-w-0" title={t("Agency approval queue")} icon={ClipboardCheck} description={t("Records are filtered to the signed agency on the server.")}
+          actions={<span className="tnum text-xs font-semibold text-muted">{proposals.length} {t("proposals")}</span>} bodyClassName="p-0">
           <div className="max-h-[700px] divide-y divide-stroke overflow-y-auto">
-            {loading && <p className="p-6 text-sm text-muted">Loading approval records...</p>}
-            {!loading && proposals.length === 0 && <p className="p-6 text-sm text-muted">No proposals yet. Operators can create an exercise draft.</p>}
-            {proposals.map(proposal => <article key={proposal.id} className="p-5">
-              <div className="flex flex-wrap items-center justify-between gap-2"><div>
-                <p className="text-sm font-bold">{actionTypes.find(item => item.value === proposal.action_type)?.label ?? proposal.action_type}</p>
-                <p className="mt-1 text-xs text-muted">Maker: {proposal.maker_subject} · Incident {proposal.incident_id.slice(0,8)}</p>
-              </div><span className={`rounded-full px-3 py-1 text-xs font-semibold capitalize ${statuses[proposal.status] ?? "bg-elevated"}`}>{proposal.status}</span></div>
+            {loading && <div className="p-4"><SkeletonRows rows={3} label={t("Loading approval records...")} /></div>}
+            {!loading && proposals.length === 0 && <p className="p-5 text-sm text-muted">{t("No proposals yet. A maker can save an exercise draft.")}</p>}
+            {proposals.map(proposal => <article key={proposal.id + proposal.status} className={changedIds.has(proposal.id) ? "just-changed p-4" : "p-4"}>
+              <div className="flex flex-wrap items-start justify-between gap-2"><div>
+                <p className="text-sm font-semibold">{actionTypes.find(item => item.value === proposal.action_type)?.label ?? t(codeLabel(proposal.action_type))}</p>
+                <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
+                  <HazardGlyph value={incidents.find(item => item.id === proposal.incident_id)?.hazard_type} />
+                  <span>{t("Incident")}</span><RecordRef id={proposal.incident_id} kind="incident" />
+                  <span>{t("Maker")}</span>{proposal.maker_subject === auth.subject ? <strong className="font-semibold text-ink">{t("you")}</strong> : <RecordRef id={proposal.maker_subject} />}
+                </p>
+              </div><span className="flex flex-wrap items-center gap-2" title={proposal.status}><span className="text-xs font-semibold">{t(codeLabel(proposal.status))}</span><TwoKey {...keysForStatus(proposal.status)} /></span></div>
               <Stepper className="mt-3" label={t("Approval progress")} steps={workflowSteps(proposal.status, !!proposal.proposal.simulation).map((x): Step => ({ ...x, label: t(x.label) }))}/>
               <p className="mt-3 text-sm leading-6 text-muted">{proposal.proposal?.rationale || "No rationale recorded"}</p>
               {proposal.proposal.response_draft && <div className="mt-3 text-sm text-muted">
                 <p>Playbook: {proposal.proposal.response_draft.playbook.version}</p>
                 {proposal.proposal.response_draft.review_brief && <ExerciseReviewBrief brief={proposal.proposal.response_draft.review_brief}/>}
-                <p>Captured context: {proposal.proposal.response_draft.context_state.replaceAll("_", " ")}</p>
+                <p>Captured context: {t(codeLabel(proposal.proposal.response_draft.context_state))}</p>
                 <p>{proposal.proposal.response_draft.playbook.synthetic_evidence_ids.length} synthetic evidence references preserved for review.</p>
                 <ul className="mt-2 list-disc pl-5">{proposal.proposal.response_draft.recommendation_draft.map(step => <li key={step}>{step}</li>)}</ul>
               </div>}
-              {proposal.proposal.review_focus && <section className="mt-3 rounded-xl border border-stroke p-3" aria-label="Saved review focus">
+              {proposal.proposal.review_focus && <section className="mt-3 rounded-lg border border-stroke p-3" aria-label="Saved review focus">
                 <h3 className="text-sm font-bold">Saved review focus</h3>
                 <p className="mt-1 text-xs text-muted">Captured when this draft was created. Selection is not evidence validation or approval.</p>
                 <ReviewFocusDetails focus={proposal.proposal.review_focus}/>
               </section>}
-              {proposal.status === "draft" && <section className="mt-3 rounded-xl border border-stroke p-3" aria-label="Bounded assistance run">
+              {proposal.status === "draft" && <section className="mt-3 rounded-lg border border-stroke p-3" aria-label="Bounded assistance run">
                 <h3 className="text-sm font-bold">Bounded assistance run</h3>
                 {!proposal.proposal.assistance_run && <p className="mt-1 text-xs text-muted">Optional three-step review: gather saved references, check recorded quality, validate the draft, then stop for human review.</p>}
                 {proposal.proposal.assistance_run && <div className="mt-2 text-xs leading-6 text-muted">
-                  <p>Status: <strong>{proposal.proposal.assistance_run.status.replaceAll("_", " ")}</strong> · {proposal.proposal.assistance_run.completed_steps.length}/{proposal.proposal.assistance_run.step_budget} steps</p>
-                  {proposal.proposal.assistance_run.next_step && <p>Next explicit step: {proposal.proposal.assistance_run.next_step.replaceAll("_", " ")}</p>}
-                  <ol className="mt-1 list-decimal pl-5">{proposal.proposal.assistance_run.completed_steps.map(item => <li key={item.step}>{item.step.replaceAll("_", " ")}</li>)}</ol>
+                  <p>Status: <strong>{t(codeLabel(proposal.proposal.assistance_run.status))}</strong> · {proposal.proposal.assistance_run.completed_steps.length}/{proposal.proposal.assistance_run.step_budget} steps</p>
+                  {proposal.proposal.assistance_run.next_step && <p>Next explicit step: {t(codeLabel(proposal.proposal.assistance_run.next_step))}</p>}
+                  <ol className="mt-1 list-decimal pl-5">{proposal.proposal.assistance_run.completed_steps.map(item => <li key={item.step}>{t(codeLabel(item.step))}</li>)}</ol>
                   <p>No submission, approval, dispatch or acknowledgement is performed by this run.</p>
                 </div>}
                 {canMake && proposal.maker_subject === auth.subject && (!proposal.proposal.assistance_run || proposal.proposal.assistance_run.status === "cancelled") && <button type="button" className="control mt-2" disabled={busy} onClick={() => void change(proposal, "start_assistance")}>{proposal.proposal.assistance_run ? "Start a new bounded run" : "Start bounded assistance"}</button>}
@@ -275,16 +275,16 @@ export default function ApprovalWorkbench() {
               {proposal.proposal.simulation && <div className="mt-3 text-sm text-muted">
                 <p>Operator-recorded simulation only · no messages sent · no real department acknowledgements.</p>
                 <details className="mt-2"><summary className="cursor-pointer font-semibold">Scripted task progress</summary>
-                <ul className="mt-3 space-y-4">{proposal.proposal.simulation.tasks.map(task => <li key={task.department} className="rounded-xl border border-stroke p-3">
-                  <p className="font-semibold">{task.department}: {task.state}</p>
-                  {task.due_at && <p className="mt-1 text-xs">Synthetic review target: {task.sla_minutes} minutes · due {new Date(task.due_at).toLocaleString()} · <strong>{task.sla_status?.replaceAll("_", " ")}</strong></p>}
-                  <p className="mt-1 text-xs">Assigned desk: {(task.assigned_department || task.id || task.department).replaceAll("_", " ")}</p>
-                  <ol className="mt-2 text-xs">{task.events?.map((event, index) => <li key={index}>{event.kind} · {new Date(event.occurred_at).toLocaleString()}{event.actor_subject ? ` · ${event.actor_subject}` : ""}{event.rationale ? ` · ${event.rationale}` : ""}</li>)}</ol>
+                <ul className="mt-3 space-y-4">{proposal.proposal.simulation.tasks.map(task => <li key={task.department} className="rounded-lg border border-stroke p-3">
+                  <p className="font-semibold" title={task.department + ": " + task.state}>{t(codeLabel(task.department))}: {t(codeLabel(task.state))}</p>
+                  {task.due_at && <p className="mt-1 text-xs">Synthetic review target: {task.sla_minutes} minutes · due {new Date(task.due_at).toLocaleString()} · <strong>{t(codeLabel(task.sla_status))}</strong></p>}
+                  <p className="mt-1 text-xs">Assigned desk: {t(codeLabel(task.assigned_department || task.id || task.department))}</p>
+                  <ol className="mt-2 text-xs">{task.events?.map((event, index) => <li key={index}>{t(codeLabel(event.kind))} · {new Date(event.occurred_at).toLocaleString()}{event.actor_subject ? ` · ${shortId(event.actor_subject)}` : ""}{event.rationale ? ` · ${event.rationale}` : ""}</li>)}</ol>
                   {proposal.status === "approved" && canMake && task.id && task.state !== "closed" && ["aegis.proposal.simulation.v2", "aegis.proposal.simulation.v3"].includes(proposal.proposal.simulation?.version || "") && <div className="mt-3">
-                    <label htmlFor={`task-${proposal.id}-${task.id}`} className="text-xs font-semibold">Scripted task rationale for {task.department} (required)</label>
+                    <label htmlFor={`task-${proposal.id}-${task.id}`} className="text-xs font-semibold">Scripted task rationale for {t(codeLabel(task.department))} (required)</label>
                     <textarea id={`task-${proposal.id}-${task.id}`} className="field mt-1 !h-20 resize-y py-2" maxLength={2000}
                       value={reviewReasons[`${proposal.id}:${task.id}`] || ""} onChange={event => setReviewReasons(value => ({ ...value, [`${proposal.id}:${task.id}`]: event.target.value }))}/>
-                    <button type="button" className="control mt-2" aria-label={`${task.state === "prepared" ? "Record scripted acknowledgement" : "Close scripted task"} for ${task.department}`} disabled={busy || (reviewReasons[`${proposal.id}:${task.id}`] || "").trim().length < 10}
+                    <button type="button" className="control mt-2" aria-label={`${task.state === "prepared" ? "Record scripted acknowledgement" : "Close scripted task"} for ${codeLabel(task.department)}`} disabled={busy || (reviewReasons[`${proposal.id}:${task.id}`] || "").trim().length < 10}
                       onClick={() => void change(proposal, task.state === "prepared" ? "acknowledge_task" : "close_task", task.id)}>
                       {task.state === "prepared" ? "Record scripted acknowledgement" : "Close scripted task"}
                     </button>
@@ -294,7 +294,7 @@ export default function ApprovalWorkbench() {
                         value={assignmentTargets[`${proposal.id}:${task.id}`] || ""}
                         onChange={event => setAssignmentTargets(current => ({ ...current, [`${proposal.id}:${task.id}`]: event.target.value }))}>
                         <option value="">Choose a different desk</option>
-                        {["control_room", "infrastructure", "communications"].filter(department => department !== (task.assigned_department || task.id)).map(department => <option key={department} value={department}>{department.replaceAll("_", " ")}</option>)}
+                        {["control_room", "infrastructure", "communications"].filter(department => department !== (task.assigned_department || task.id)).map(department => <option key={department} value={department}>{t(codeLabel(department))}</option>)}
                       </select>
                       <button type="button" className="control mt-2" disabled={busy || !assignmentTargets[`${proposal.id}:${task.id}`] || (reviewReasons[`${proposal.id}:${task.id}`] || "").trim().length < 10}
                         onClick={() => void change(proposal, "reassign_task", task.id)}>Reassign with rationale</button>
@@ -304,7 +304,7 @@ export default function ApprovalWorkbench() {
                 </li>)}</ul></details>
                 {proposal.proposal.simulation.sla_policy && <p className="mt-2 text-xs">Synthetic rehearsal targets only; no operational SLA, escalation, notification or department participation.</p>}
               </div>}
-              <a className="mt-2 inline-flex min-h-11 items-center text-sm underline" href={`/api/proposals/${proposal.id}/audit`} target="_blank" rel="noreferrer">Open private proposal audit JSON</a>
+              <p className="mt-3"><a className="control control-quiet control-sm" href={`/api/proposals/${proposal.id}/audit`} target="_blank" rel="noreferrer">Open private proposal audit JSON</a></p>
               {proposal.status === "approved" && proposal.action_type === "prepare_warning" && proposal.proposal.response_draft && <div className="mt-3 text-sm">
                 <a className="control" href={`/api/proposals/${proposal.id}/cap-draft`}>Download exercise CAP XML draft</a>
                 <p className="mt-2 text-xs text-muted">Private exercise artifact only. Unknown hazard severity; no verified footprint. Never transmit or use for operations.</p>
@@ -313,14 +313,14 @@ export default function ApprovalWorkbench() {
                 <button type="button" className="control mt-3" disabled={busy} onClick={() => void change(proposal, "submit")}>
                   Submit for independent review
                 </button>}
-              {proposal.status === "submitted" && canReview && proposal.maker_subject !== auth.subject && <div className="mt-4 rounded-xl border border-stroke bg-elevated/30 p-3">
-                <label htmlFor={`review-${proposal.id}`} className="text-xs font-semibold text-muted">Checker rationale (required)</label>
+              {proposal.status === "submitted" && canReview && proposal.maker_subject !== auth.subject && <div className="mt-4 rounded-lg border border-stroke bg-elevated/30 p-3">
+                <label htmlFor={`review-${proposal.id}`} className="field-label">Checker rationale (required)</label>
                 <textarea id={`review-${proposal.id}`} className="field mt-2 !h-20 resize-y py-2" maxLength={2000}
                   value={reviewReasons[proposal.id] || ""} onChange={event => setReviewReasons(value => ({ ...value, [proposal.id]: event.target.value }))}
                   placeholder="Record why you accept or reject this exercise proposal..." />
                 <div className="mt-3 flex flex-wrap gap-2">
                   <button type="button" className="control control-primary" disabled={busy || !(reviewReasons[proposal.id]?.trim())} onClick={() => void change(proposal, "approve")}><Check size={16}/> Approve draft</button>
-                  <button type="button" className="control" disabled={busy || !(reviewReasons[proposal.id]?.trim())} onClick={() => void change(proposal, "reject")}><X size={16}/> Reject draft</button>
+                  <button type="button" className="control control-danger" disabled={busy || !(reviewReasons[proposal.id]?.trim())} onClick={() => void change(proposal, "reject")}><X size={16}/> Reject draft</button>
                 </div>
                 {!(reviewReasons[proposal.id]?.trim()) && <p className="mt-2 text-xs text-muted">{t("Disabled: a checker rationale is required before approving or rejecting.")}</p>}
               </div>}
@@ -328,7 +328,7 @@ export default function ApprovalWorkbench() {
               {proposal.status === "submitted" && !canReview && <p className="mt-3 text-xs text-muted">{t("Waiting for an independent checker; your role cannot review this proposal.")}</p>}
             </article>)}
           </div>
-        </section>
+        </Panel>
       </div>
     </div>}
   </AppShell>;

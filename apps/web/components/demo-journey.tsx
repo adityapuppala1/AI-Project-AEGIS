@@ -3,6 +3,8 @@
 import { useRef, useState } from "react";
 import Link from "next/link";
 import { useT } from "./language-provider";
+import { ErrorState, Panel, StatusPill } from "./ui";
+import { codeLabel } from "../lib/labels";
 import { ArrowLeft, ArrowRight, BookOpenCheck, ClipboardCheck, Compass, Database, FlaskConical, RadioTower, ShieldAlert, UsersRound, Workflow, Archive, Calculator } from "lucide-react";
 
 type ReadinessState = "ready" | "not_ready" | "unavailable";
@@ -133,9 +135,9 @@ export function DemoJourney({ snapshot }: { snapshot: Snapshot }) {
   const current = steps[active];
   const ActiveIcon = current.icon;
   return <>
-    <div role="note" className="mb-5 flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs leading-6 text-amber-800 dark:text-amber-200">
-      <ShieldAlert size={20} className="mt-1 shrink-0"/>
-      <p><strong>Tabletop simulation only.</strong> This walkthrough uses fictional Hyderabad incident fixtures. It cannot forecast actual floods, contact departments, issue public warnings or dispatch responders. Advancing a step only changes what is shown on this page.</p>
+    <div role="note" className="mb-4 flex items-start gap-2 text-xs leading-6 text-muted">
+      <ShieldAlert size={16} className="mt-1 shrink-0"/>
+      <p><strong className="text-ink">Tabletop simulation only.</strong> This walkthrough uses fictional Hyderabad incident fixtures. It cannot forecast actual floods, contact departments, issue public warnings or dispatch responders. Advancing a step only changes what is shown on this page.</p>
     </div>
     <section className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6" aria-label="Demonstration environment snapshot">
       {[
@@ -148,25 +150,23 @@ export function DemoJourney({ snapshot }: { snapshot: Snapshot }) {
         ["AgencySync", snapshot.taskCount === null ? "Unavailable" : snapshot.taskCount + " scripted tasks",
           snapshot.scriptedAcknowledgements === null ? "No field contacts" : snapshot.scriptedAcknowledgements + " simulated acknowledgements"],
       ].map(([heading,value,caption]) => <article className="panel p-3 sm:p-4" key={heading}>
-        <h2 className="text-[10px] font-bold uppercase tracking-[.1em] text-muted">{heading}</h2>
-        <p className="mt-2 text-sm font-bold sm:text-base">{value}</p>
-        <p className="mt-1 text-[10px] leading-4 text-muted">{caption}</p>
+        <h2 className="text-xs font-semibold text-muted">{heading}</h2>
+        <p className="mt-1.5 text-sm font-semibold sm:text-[15px]">{value}</p>
+        <p className="mt-1 text-[11px] leading-4 text-muted">{caption}</p>
       </article>)}
     </section>
-    <section className="panel mt-5 p-5" aria-label="Local dependency diagnostics">
-      <h2 className="text-sm font-bold">Local dependency diagnostics</h2>
-      <p className="mt-1 text-xs leading-5 text-muted">Bounded exercise-stack checks only. These do not establish field sensor, agency, or public-safety readiness.</p>
-      {snapshot.dependencies.length ? <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {snapshot.dependencies.map(item => <li className="rounded-xl border border-stroke bg-elevated/40 p-3" key={item.id}>
+    <Panel className="mt-4" title="Local dependency diagnostics" description="Bounded exercise-stack checks only. These do not establish field sensor, agency, or public-safety readiness.">
+      {snapshot.dependencies.length ? <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {snapshot.dependencies.map(item => <li className="rounded-lg border border-stroke bg-elevated/40 p-3" key={item.id}>
           <div className="flex items-center justify-between gap-3">
             <span className="text-xs font-semibold">{item.label}</span>
-            <span className={`rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wide ${item.status === "ready" ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300" : "bg-amber-500/10 text-amber-700 dark:text-amber-300"}`}>{item.status.replaceAll("_", " ")}</span>
+            <StatusPill tone={item.status === "ready" ? "success" : "warning"}>{t(codeLabel(item.status))}</StatusPill>
           </div>
-          <p className="mt-2 text-[11px] text-muted">Code: {item.reasonCode}</p>
+          <p className="mt-2 text-xs text-muted" title={item.reasonCode}>{t(codeLabel(item.reasonCode))}</p>
           {item.status !== "ready" && <p className="mt-2 text-xs leading-5 text-muted">{item.nextStep}</p>}
         </li>)}
-      </ul> : <p className="mt-4 rounded-xl border border-amber-500/25 bg-amber-500/10 p-3 text-xs text-amber-800 dark:text-amber-200">Dependency diagnostics unavailable. Check the guarded local services before continuing.</p>}
-    </section>
+      </ul> : <ErrorState message="Dependency diagnostics unavailable. Check the guarded local services before continuing." />}
+    </Panel>
     <div className="mt-5 grid items-start gap-5 lg:grid-cols-[minmax(210px,.65fr)_minmax(0,1.4fr)]">
       <nav className="panel min-w-0 overflow-hidden p-3" aria-label="Exercise demo steps">
         <p className="eyebrow px-3 pt-2">Guided journey · {steps.length} stages</p>
@@ -179,31 +179,31 @@ export function DemoJourney({ snapshot }: { snapshot: Snapshot }) {
           </button>)}
         </div>
       </nav>
-      <article className="panel min-w-0 p-5 sm:p-7">
+      <article className="panel p-4 min-w-0">
         <div className="flex items-center justify-between gap-3">
           <span className="eyebrow">Stage {active+1} / {steps.length}</span>
           <span className="rounded-full bg-elevated px-3 py-1 text-[11px] font-semibold text-muted">{t("No live actions")}</span>
         </div>
         <div role="progressbar" aria-label={t("Walkthrough progress")} aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent} className="mt-3 h-1.5 rounded-full bg-elevated"><div className="bar-grow h-1.5 rounded-full bg-accent" style={{ width: `${percent}%` }}/></div>
-        <div className="mt-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent/10 text-accent"><ActiveIcon size={27}/></div>
+        <div className="mt-5 flex h-14 w-14 items-center justify-center rounded-lg bg-accent/10 text-accent"><ActiveIcon size={27}/></div>
         <h2 className="mt-5 text-xl font-bold">{current.title}</h2>
         <p className="mt-2 text-sm font-semibold text-accent">{current.subtitle}</p>
         <p className="mt-4 text-sm leading-7 text-muted">{current.description}</p>
-        <div className="mt-5 rounded-xl border border-stroke bg-elevated/40 p-4 text-xs leading-6">
+        <div className="mt-5 rounded-lg border border-stroke bg-elevated/40 p-4 text-xs leading-6">
           <p className="font-semibold">{t("What you will see")}: {current.subtitle}</p>
           <p className="mt-1 text-muted">{t("Exercise reference")}</p>
           <p className="mt-1 text-muted">{current.playbook} · AEGIS-URBAN-FLOOD-EXERCISE-v0.1</p>
         </div>
         <div className="mt-6">
-          <Link href={current.href} className="control control-primary inline-flex text-sm">
+          <Link href={current.href} className="control control-primary">
             {current.link} <ArrowRight size={16}/>
           </Link>
         </div>
         <div className="mt-7 flex flex-wrap items-center justify-between gap-3 border-t border-stroke pt-5">
           <button type="button" onClick={() => setActive(index => Math.max(0,index-1))}
-            disabled={active===0} className="control text-xs"><ArrowLeft size={15}/> Previous</button>
+            disabled={active===0} className="control control-sm"><ArrowLeft size={15}/> Previous</button>
           <span className="text-xs text-muted">Navigation does not approve, notify or mutate data.</span>
-          <button type="button" className="control text-xs"
+          <button type="button" className="control control-sm"
             disabled={active === steps.length-1}
             onClick={() => setActive(index => Math.min(steps.length-1,index+1))}>Next stage <ArrowRight size={15}/></button>
         </div>

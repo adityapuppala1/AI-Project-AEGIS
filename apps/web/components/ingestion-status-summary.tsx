@@ -22,9 +22,9 @@ export function IngestionStatusSummary() {
       .catch(() => { if (!controller.signal.aborted) setFailed(true); });
     return () => controller.abort();
   }, []);
-  return <section className="panel mt-5 flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5" aria-label="DataFusion replay summary">
+  return <section className="panel mt-5 flex flex-wrap items-center justify-between gap-4 p-4" aria-label="DataFusion replay summary">
     <div className="flex min-w-0 items-start gap-3">
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent"><GitMerge size={20}/></span>
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent"><GitMerge size={20}/></span>
       <div className="min-w-0"><h2 className="text-sm font-bold">DataFusion Ingestion <span className="ml-1 font-normal text-muted">· Synthetic replay</span></h2>
         <p className="mt-1 text-xs text-muted">
           {failed ? "Ingestion status unavailable" :
@@ -36,6 +36,6 @@ export function IngestionStatusSummary() {
           {status && <DataFreshness observedAt={status.generated_at} staleAfterHours={1}/>}</p>
       </div>
     </div>
-    <Link href="/ingestion" className="control text-xs">Review replay <ArrowRight size={15}/></Link>
+    <Link href="/ingestion" className="control control-sm">Review replay <ArrowRight size={15}/></Link>
   </section>;
 }

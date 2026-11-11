@@ -12,8 +12,8 @@ export const toneIcon = (tone: Tone): LucideIcon => ICONS[TONE_ICON_NAME[tone]];
 /** Status chip: tone colour plus an icon and text. `children` must already be translated by the caller. */
 export function StatusPill({ tone = "neutral", icon, children, className = "" }: Readonly<{ tone?: Tone; icon?: LucideIcon; children: ReactNode; className?: string }>) {
   const Icon = icon ?? toneIcon(tone);
-  return <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ring-1 ${TONE_CLASS[tone]} ${className}`}>
-    <Icon size={12} aria-hidden="true" />{children}</span>;
+  return <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold ring-1 ${TONE_CLASS[tone]} ${className}`}>
+    <Icon size={12} aria-hidden="true" /><span className="first-cap">{children}</span></span>;
 }
 
 /**

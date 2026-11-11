@@ -1,5 +1,6 @@
 "use client";
 
+import { codeLabel } from "../lib/labels";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { LocalReviewFocus } from "./local-review-focus";
@@ -148,7 +149,7 @@ export function AssessmentReadiness({ incidentId }: { incidentId: string }) {
     description={t("Synthetic evidence checks, not a flood prediction")}
     actions={<>
       <InlineHelp label={t("About this checklist")}>{t("A deterministic checklist of simulated inputs. It does not forecast anything, and approval is still required from an independent human reviewer.")}</InlineHelp>
-      <button type="button" className="control text-xs" disabled={busy} onClick={() => setRevision(n => n + 1)}>
+      <button type="button" className="control control-sm" disabled={busy} onClick={() => setRevision(n => n + 1)}>
         <RefreshCw size={16} aria-hidden="true" className={busy ? "animate-spin" : ""}/> {t("Recheck")}
       </button>
     </>}>
@@ -168,7 +169,7 @@ export function AssessmentReadiness({ incidentId }: { incidentId: string }) {
     </SkeletonRegion></div>}
     {error && <div className="px-5 pb-4"><ErrorState message={`${t(error)}. ${t("No simulated conclusion is available.")}`} onRetry={() => setRevision(n => n + 1)}/></div>}
     {result && <div className="grid gap-5 p-5 lg:grid-cols-2">
-      <div className="rounded-xl border border-stroke bg-elevated/40 p-4 lg:col-span-2">
+      <div className="rounded-lg border border-stroke bg-elevated/40 p-4 lg:col-span-2">
         <h4 className="text-sm font-bold">{t("Context and limits")}</h4>
         <dl className="mt-3 space-y-2 text-xs leading-6 text-muted">
           <div><dt className="inline font-semibold">{t("Freshness evaluated at")}: </dt><dd className="inline"><time dateTime={result.reference_time}>{result.reference_time}</time> {t("(synthetic observations, not live sensors)")}</dd></div>
@@ -180,10 +181,10 @@ export function AssessmentReadiness({ incidentId }: { incidentId: string }) {
           {result.unknowns.map(item => <li key={item} className="flex items-start gap-2"><CircleHelp size={14} aria-hidden="true" className="mt-1 shrink-0"/><span>{item}</span></li>)}
         </ul>
         <p className="mt-3 text-sm"><strong>{t("Next human review step")}:</strong> {result.next_review_step}</p>
-        <div className="mt-4 rounded-xl border border-stroke bg-surface p-3 text-xs leading-6">
-          <p className="font-semibold">{t("Explicit source comparison")}: {result.source_comparison.status.replaceAll("_", " ")}</p>
+        <div className="mt-4 rounded-lg border border-stroke bg-surface p-3 text-xs leading-6">
+          <p className="font-semibold">{t("Explicit source comparison")}: {codeLabel(result.source_comparison.status)}</p>
           {result.source_comparison.groups.map(group => <p className="mt-1 text-muted" key={group.comparison_group}>
-            {group.comparison_group}: {group.status.replaceAll("_", " ")} · {t("tolerance")} {group.tolerance} {group.metric_unit}
+            {group.comparison_group}: {codeLabel(group.status)} · {t("tolerance")} {group.tolerance} {group.metric_unit}
             {group.value_range === null ? "" : ` · ${t("observed range")} ${group.value_range} ${group.metric_unit}`} · {group.source_ids.length} {t("cited sources")}
           </p>)}
           <p className="mt-2 text-muted">{result.source_comparison.note}</p>
@@ -211,7 +212,7 @@ export function AssessmentReadiness({ incidentId }: { incidentId: string }) {
         <p className="mt-3 text-xs leading-5 text-muted">{t("These are simulation record counts, not hazard probabilities or verified exposure counts.")}</p>
         <h4 className="mt-5 text-sm font-bold">{t("Input checks")}</h4>
         <ul className="mt-2 space-y-2">
-          {checks.map(check => <li key={check.label} className="flex items-start gap-2 rounded-xl border border-stroke p-3 text-xs">
+          {checks.map(check => <li key={check.label} className="flex items-start gap-2 rounded-lg border border-stroke p-3 text-xs">
             {check.ok ? <CheckCircle2 size={16} aria-hidden="true" className="mt-0.5 shrink-0 text-emerald-700 dark:text-emerald-300"/> : <AlertTriangle size={16} aria-hidden="true" className="mt-0.5 shrink-0 text-amber-700 dark:text-amber-300"/>}
             <span className="min-w-0 flex-1">{check.label}</span>
             <StatusPill tone={check.ok ? "success" : "warning"}>{check.ok ? check.pass : check.fail}</StatusPill>
@@ -224,27 +225,27 @@ export function AssessmentReadiness({ incidentId }: { incidentId: string }) {
       <div>
         <h4 className="text-sm font-bold">{t("Why these checks matter")}</h4>
         <ul className="mt-3 space-y-2">
-          {result.reasons.map(item => <li className="rounded-xl border border-stroke p-3 text-xs leading-6 text-muted" key={item.code}>{item.description}</li>)}
+          {result.reasons.map(item => <li className="rounded-lg border border-stroke p-3 text-xs leading-6 text-muted" key={item.code}>{item.description}</li>)}
         </ul>
       </div>
-      <div className="rounded-xl border border-stroke bg-elevated/40 p-4 lg:col-span-2">
+      <div className="rounded-lg border border-stroke bg-elevated/40 p-4 lg:col-span-2">
         <h4 className="text-sm font-bold">{t("Human exercise-review checklist")}</h4>
         <ol className="mt-3 list-decimal space-y-2 pl-5 text-xs leading-6 text-muted">
           {result.recommendation_draft.map(step => <li key={step}>{step}</li>)}
         </ol>
         <p className="mt-3 text-xs text-muted">{t("Static safety guidance, not a machine-issued emergency action or automatically generated forecast.")}</p>
-        <div className="mt-4 rounded-xl border border-stroke bg-surface p-3 text-xs leading-6 text-muted">
+        <div className="mt-4 rounded-lg border border-stroke bg-surface p-3 text-xs leading-6 text-muted">
           <p className="font-semibold text-ink">{t("Traceable teaching references")}</p>
-          <p className="mt-1">{t("Playbook")}: {result.playbook.version} · {result.playbook.status.replaceAll("_", " ")}</p>
+          <p className="mt-1">{t("Playbook")}: {result.playbook.version} · {codeLabel(result.playbook.status)}</p>
           <p className="mt-1">{result.playbook.synthetic_evidence_ids.length} {t("synthetic case evidence IDs and")} {result.playbook.synthetic_source_ids.length} {t("synthetic source IDs cited.")}</p>
           <p className="mt-1 break-all font-mono text-[11px]">{result.playbook.synthetic_evidence_ids.join(" · ") || t("No case evidence reference available")}</p>
           <Link href="/playbooks" className="mt-2 inline-flex min-h-9 items-center gap-1 font-semibold text-accent">{t("Read referenced playbook")} <ArrowRight size={14} aria-hidden="true"/></Link>
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-3">
-          <button type="button" className="control text-xs" onClick={() => void copyExerciseReview()}>
+          <button type="button" className="control control-sm" onClick={() => void copyExerciseReview()}>
             {t("Copy synthetic review rationale")}
           </button>
-          <Link href="/approvals" className="control text-xs"><ClipboardCheck size={16} aria-hidden="true"/> {t("Open verified exercise approvals")} <ArrowRight size={15} aria-hidden="true"/></Link>
+          <Link href="/approvals" className="control control-sm"><ClipboardCheck size={16} aria-hidden="true"/> {t("Open verified exercise approvals")} <ArrowRight size={15} aria-hidden="true"/></Link>
           {copyResult && <span role="status" className="text-xs text-muted">{copyResult}</span>}
         </div>
       </div>

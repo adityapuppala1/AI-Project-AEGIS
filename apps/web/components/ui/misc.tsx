@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import * as Popover from "@radix-ui/react-popover";
 import { Ban, Check, CircleHelp, Copy } from "lucide-react";
 import { useT } from "../language-provider";
 import { type StepStatus } from "./helpers";
@@ -47,31 +48,19 @@ export function CopyButton({ value, label, className = "" }: Readonly<{ value: s
     timer.current = setTimeout(() => setState("idle"), 2200);
   };
   return <span className={`inline-flex items-center gap-2 ${className}`}>
-    <button type="button" className="control !min-h-9 text-xs" onClick={copy}>
+    <button type="button" className="control control-sm" onClick={copy}>
       {state === "copied" ? <Check size={14} aria-hidden="true" /> : <Copy size={14} aria-hidden="true" />}{label ?? t("Copy")}</button>
     <span aria-live="polite" className="text-xs text-muted">{state === "copied" ? t("Copied") : state === "failed" ? t("Copy failed") : ""}</span>
   </span>;
 }
 
 /**
- * Small help button opening an inline popover. Escape or an outside click closes it and focus returns to the button.
- * `label` is the accessible name of the button (already translated); children are the help text.
+ * Small help button opening a popover (Radix: Escape or an outside click closes it and focus returns to the button).
+ * "label" is the accessible name of the button (already translated); children are the help text.
  */
 export function InlineHelp({ label, children, className = "" }: Readonly<{ label: string; children: ReactNode; className?: string }>) {
-  const id = useId();
-  const [open, setOpen] = useState(false);
-  const button = useRef<HTMLButtonElement>(null);
-  const root = useRef<HTMLSpanElement>(null);
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") { setOpen(false); button.current?.focus(); } };
-    const onPointer = (event: PointerEvent) => { if (!root.current?.contains(event.target as Node)) setOpen(false); };
-    document.addEventListener("keydown", onKey); document.addEventListener("pointerdown", onPointer);
-    return () => { document.removeEventListener("keydown", onKey); document.removeEventListener("pointerdown", onPointer); };
-  }, [open]);
-  return <span ref={root} className={`relative inline-flex ${className}`}>
-    <button ref={button} type="button" aria-label={label} aria-expanded={open} aria-controls={id} onClick={() => setOpen(value => !value)}
-      className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted hover:bg-elevated hover:text-ink"><CircleHelp size={16} aria-hidden="true" /></button>
-    {open && <div id={id} role="note" className="sheet-in absolute left-0 top-full z-30 mt-2 w-72 max-w-[80vw] rounded-lg border border-stroke bg-surface p-3 text-xs leading-5 text-ink shadow-panel">{children}</div>}
-  </span>;
+  return <Popover.Root>
+    <Popover.Trigger aria-label={label} className={"inline-flex h-8 w-8 items-center justify-center rounded-full text-muted hover:bg-elevated hover:text-ink " + className}><CircleHelp size={16} aria-hidden="true" /></Popover.Trigger>
+    <Popover.Portal><Popover.Content role="note" align="start" sideOffset={6} collisionPadding={8} className="float w-72 max-w-[80vw] p-3 text-xs leading-5">{children}</Popover.Content></Popover.Portal>
+  </Popover.Root>;
 }

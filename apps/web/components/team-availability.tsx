@@ -75,7 +75,7 @@ export function TeamAvailability() {
   const shown = teams.filter(team => statusFilter === "all" || team.status === statusFilter);
 
   return <AppShell title="Team Availability" description="A read-only synthetic view of which fictional desks are loaded with scripted exercise tasks.">
-    <div className="mb-5 flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs leading-6 text-amber-800 dark:text-amber-200" role="note">
+    <div className="mb-5 flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-xs leading-6 text-amber-800 dark:text-amber-200" role="note">
       <ShieldAlert className="mt-1 shrink-0" size={19}/>
       <p><strong>Exercise board, not real staffing.</strong> Teams and tasks are fictional scripted fixtures. The {DEMO_CAPACITY}-slot capacity is a planning
         parameter for this rehearsal only. Nothing here assigns, notifies or dispatches anyone.</p>
@@ -90,8 +90,8 @@ export function TeamAvailability() {
     <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
       <p className="flex flex-wrap items-center gap-2 text-xs text-muted" role="status">{board && <DataFreshness observedAt={board.as_of} staleAfterHours={1}/>}{board ? `${teams.length} fictional teams · ${totals.open} open scripted tasks · ${totals.overdue} past their demo due window` : "Awaiting the exercise task registry"}</p>
       <div className="flex gap-2">
-        <Link href="/agency-sync" className="control text-xs">Task details <ArrowRight size={14}/></Link>
-        <button type="button" className="control text-xs" onClick={() => setRevision(value => value + 1)} disabled={loading}>
+        <Link href="/agency-sync" className="control control-sm">Task details <ArrowRight size={14}/></Link>
+        <button type="button" className="control control-sm" onClick={() => setRevision(value => value + 1)} disabled={loading}>
           <RefreshCw size={15} className={loading ? "animate-spin" : ""}/> Refresh</button>
       </div>
     </div>
@@ -106,7 +106,7 @@ export function TeamAvailability() {
       {shown.map((team, index) => {
         const Icon = ICONS[team.kind];
         const total = Math.max(1, team.prepared + team.acknowledged + team.closed);
-        return <article key={team.label} className="panel reveal-in min-w-0 p-5" style={{ "--i": index } as React.CSSProperties}>
+        return <article key={team.label} className="panel p-4 reveal-in min-w-0" style={{ "--i": index } as React.CSSProperties}>
           <div className="flex items-start gap-4">
             <Gauge team={team} animate={animate}/>
             <div className="min-w-0 flex-1">

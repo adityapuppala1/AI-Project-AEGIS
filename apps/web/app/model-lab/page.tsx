@@ -3,6 +3,8 @@ import { ModelLabDashboard } from "../../components/model-lab-dashboard";
 import { ErrorState } from "../../components/ui";
 import type { ModelReport } from "../../lib/model-lab";
 
+export const metadata = { title: "Model Evaluation Lab" };
+
 export const dynamic = "force-dynamic";
 export default async function ModelLabPage() {
   let report: ModelReport | null = null;
@@ -24,10 +26,10 @@ export default async function ModelLabPage() {
   return <AppShell title="Model Evaluation Lab"
     description="Reproducible offline synthetic scenarios, model transparency and held-out diagnostics—not an operational forecast.">
     {report ? <ModelLabDashboard report={report}/> :
-      <section className="panel p-6">
+      <section className="panel p-4">
         <ErrorState title="Evaluation report unavailable"
           message="The signed-off synthetic model report cannot be loaded. No scores, forecast estimates or fallback values will be shown. Check the local FastAPI container and try again."/>
-        <a href="/model-lab" className="control mt-4 text-xs">Retry</a>
+        <a href="/model-lab" className="control control-sm mt-4">Retry</a>
       </section>}
   </AppShell>;
 }

@@ -3,6 +3,8 @@ import { IncidentUnavailable } from "../../../components/incident-unavailable";
 import { IncidentIntelligence } from "../../../components/incident-intelligence";
 import type { IncidentWorkspace } from "../../../lib/incident-intelligence";
 
+export const metadata = { title: "Incident" };
+
 export const dynamic = "force-dynamic";
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 

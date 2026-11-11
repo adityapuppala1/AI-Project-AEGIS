@@ -5,7 +5,7 @@ const config: Config = {
   content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
   theme: {
     extend: {
-      fontFamily: { sans: ["Inter", "Segoe UI", "Arial", "sans-serif"] },
+      fontFamily: { sans: ["Anek Latin Variable", "ui-sans-serif", "system-ui", "Segoe UI", "sans-serif"] },
       colors: {
         canvas: "rgb(var(--canvas) / <alpha-value>)",
         surface: "rgb(var(--surface) / <alpha-value>)",
@@ -15,8 +15,11 @@ const config: Config = {
         muted: "rgb(var(--muted) / <alpha-value>)",
         accent: "rgb(var(--accent) / <alpha-value>)",
         signal: "rgb(var(--signal) / <alpha-value>)",
+        brand: "rgb(var(--brand) / <alpha-value>)",
+        "brand-fill": "rgb(var(--brand-fill) / <alpha-value>)",
+        "brand-ink": "rgb(var(--brand-ink) / <alpha-value>)",
       },
-      boxShadow: { panel: "0 10px 32px rgba(4,8,20,.07), 0 1px 3px rgba(4,8,20,.05)" },
+      boxShadow: { panel: "0 1px 0 rgba(5,11,36,.04)" },
     },
   },
   plugins: [],

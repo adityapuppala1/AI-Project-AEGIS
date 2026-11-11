@@ -1,5 +1,6 @@
 "use client";
 
+import { DataTable } from "./ui";
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import Link from "next/link";
 import { Activity, AlertTriangle, ArrowRight, Clock3, Database, Gauge, RadioTower, RefreshCw, Search, ShieldAlert, ShieldCheck, WifiOff } from "lucide-react";
@@ -143,7 +144,7 @@ export function SourceObservatory() {
   };
 
   return <AppShell title="Source Health & Freshness" description="Observe simulated feed timeliness, delivery delay and missing data before relying on a signal.">
-    <div className="mb-5 flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs leading-6 text-amber-800 dark:text-amber-200" role="note">
+    <div className="mb-5 flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-xs leading-6 text-amber-800 dark:text-amber-200" role="note">
       <ShieldAlert className="mt-1 shrink-0" size={19}/>
       <p><strong>Exercise-only observability.</strong> These sources are database fixtures, not connected IMD, NDMA, CCTV or municipal devices.
         Freshness is a timestamp heuristic, not validation that any disaster signal is accurate or any physical equipment is operational.</p>
@@ -174,7 +175,7 @@ export function SourceObservatory() {
     <div className="mt-5 grid items-start gap-5 2xl:grid-cols-[minmax(0,1.1fr)_minmax(370px,1fr)]">
       <section className="panel min-w-0 overflow-hidden">
         <div className="panel-heading">
-          <div><h2 className="flex items-center gap-2 text-base font-bold"><RadioTower size={18} className="text-accent"/> Exercise Source Registry</h2>
+          <div><h2 className="flex items-center gap-2 t-title"><RadioTower size={18} className="text-accent"/> Exercise Source Registry</h2>
             <p className="mt-1 text-xs text-muted">Select a simulated feed to review its latest readings.</p></div>
           <Link href="/help" className="inline-flex min-h-9 items-center gap-1 text-xs font-semibold text-accent hover:underline">Data guidance <ArrowRight size={14} aria-hidden="true"/></Link>
         </div>
@@ -195,7 +196,7 @@ export function SourceObservatory() {
           {sources.map(source => <button type="button" key={source.id} data-source-row onClick={() => setSelectedId(source.id)}
             aria-pressed={selectedId === source.id}
             className={`flex w-full flex-wrap items-center gap-3 p-4 text-left transition-colors hover:bg-elevated/60 sm:p-5 ${selectedId === source.id ? "bg-accent/5" : ""}`}>
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent"><Gauge size={20} aria-hidden="true"/></span>
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent"><Gauge size={20} aria-hidden="true"/></span>
             <span className="min-w-0 flex-1"><strong className="block break-words text-sm leading-snug">{source.name}</strong>
               <span className="mt-1 block text-xs text-muted">{KIND_LABELS[source.source_kind]}</span>
               <DataFreshness className="mt-1" observedAt={source.latest?.observed_at} ingestedAt={source.latest?.ingested_at ?? null} staleAfterHours={Math.max(1, (source.expected_interval_seconds * 3) / 3600)} stale={source.health.status === "stale"}/>
@@ -208,22 +209,22 @@ export function SourceObservatory() {
           </button>)}
           {!loading && sources.length === 0 && <EmptyState icon={Search} title={t("No matching exercise feeds")}
             body={t("Try clearing the search or filter. An empty list does not mean the sources are healthy.")}
-            actions={<button type="button" className="control text-xs" onClick={() => { setQuery(""); setFilter("all"); }}>{t("Clear filters")}</button>}/>}
+            actions={<button type="button" className="control control-sm" onClick={() => { setQuery(""); setFilter("all"); }}>{t("Clear filters")}</button>}/>}
         </div>
         <p className="border-t border-stroke px-5 py-3 text-xs text-muted">{sources.length} matching · All records are synthetic</p>
       </section>
 
       <section className="panel min-w-0 overflow-hidden" aria-label="Selected source details">
-        <div className="panel-heading"><h2 className="flex items-center gap-2 text-base font-bold"><Database size={18} className="text-accent"/> Source Detail & Trends</h2>
+        <div className="panel-heading"><h2 className="flex items-center gap-2 t-title"><Database size={18} className="text-accent"/> Source Detail & Trends</h2>
           <span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">Read-only</span></div>
         {!selected ? <EmptyState icon={Database} title={t("Select an exercise source")} body={t("Choose a feed from the registry to review its latest synthetic readings.")}/> : <>
           <div className="space-y-3 p-5">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <h3 className="text-base font-bold">{selected.name}</h3>
+              <h3 className="t-title">{selected.name}</h3>
               <Badge status={selected.health.status}/>
             </div>
             <p className="text-xs leading-5 text-muted">{selected.health.reason}</p>
-            <dl className="grid gap-3 rounded-xl bg-elevated/40 p-4 text-xs sm:grid-cols-2">
+            <dl className="grid gap-3 rounded-lg bg-elevated/40 p-4 text-xs sm:grid-cols-2">
               <div><dt className="text-muted">Last observed</dt><dd className="mt-1 font-semibold">{timestamp(selected.latest?.observed_at)}</dd></div>
               <div><dt className="text-muted">Last ingested</dt><dd className="mt-1 font-semibold">{timestamp(selected.latest?.ingested_at)}</dd></div>
               <div><dt className="text-muted">Observation age</dt><dd className="mt-1 font-semibold">{displayAge(selected.health.age_seconds)}</dd></div>
@@ -257,28 +258,27 @@ export function SourceObservatory() {
                 </LineChart>
               </ResponsiveContainer>
             </div>}
-            {!historyLoading && !historyError && history?.samples.length === 0 && <div className="mt-4 rounded-xl border border-dashed border-stroke p-6 text-center text-xs text-muted">
+            {!historyLoading && !historyError && history?.samples.length === 0 && <div className="mt-4 rounded-lg border border-dashed border-stroke p-6 text-center text-xs text-muted">
               No synthetic readings exist for this source. Never infer that missing data indicates safety.
             </div>}
-            {history && history.samples.length > 0 && <details className="mt-4 rounded-xl border border-stroke p-3">
+            {history && history.samples.length > 0 && <details className="mt-4 rounded-lg border border-stroke p-3">
               <summary className="cursor-pointer text-xs font-semibold">Show accessible sample table ({history.samples.length} readings)</summary>
               <div className="mt-3 max-h-64 overflow-auto">
-                <table className="w-full min-w-[330px] text-left text-xs">
-                  <caption className="sr-only">Synthetic reading values and observation times</caption>
-                  <thead className="text-muted"><tr><th className="p-2">Observed</th><th className="p-2">Value ({selected.metric_unit})</th><th className="p-2">Quality</th></tr></thead>
-                  <tbody className="divide-y divide-stroke">{history.samples.map(sample => <tr key={sample.id}>
-                    <td className="p-2">{timestamp(sample.observed_at)}</td>
-                    <td className="p-2 tabular-nums">{sample.value}</td>
-                    <td className="p-2">{sample.quality_status === "synthetic_curated" ? "Curated fixture" : "Unverified fixture"}</td>
+                <DataTable label="Synthetic reading values and observation times" minWidth="20.625rem">
+                  <thead><tr><th scope="col">Observed</th><th scope="col" className="num">Value ({selected.metric_unit})</th><th scope="col">Quality</th></tr></thead>
+                  <tbody>{history.samples.map(sample => <tr key={sample.id}>
+                    <td>{timestamp(sample.observed_at)}</td>
+                    <td className="num">{sample.value}</td>
+                    <td>{sample.quality_status === "synthetic_curated" ? "Curated fixture" : "Unverified fixture"}</td>
                   </tr>)}</tbody>
-                </table>
+                </DataTable>
               </div>
             </details>}
           </div>
         </>}
       </section>
     </div>
-    <p className="mt-5 flex items-start gap-2 rounded-xl border border-stroke bg-elevated/40 p-4 text-xs leading-6 text-muted">
+    <p className="mt-5 flex items-start gap-2 rounded-lg border border-stroke bg-elevated/40 p-4 text-xs leading-6 text-muted">
       <ShieldCheck size={17} className="mt-1 shrink-0 text-accent"/>
       Clock comparisons are made on the API server against a reference timestamp. Age and delay thresholds are per-source demo settings;
       a displayed “within window” status describes only this synthetic observation's age, not data truthfulness or source-device health.

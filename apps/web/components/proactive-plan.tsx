@@ -1,5 +1,7 @@
 "use client";
 
+import { codeLabel } from "../lib/labels";
+import { DataTable } from "./ui";
 import { useEffect, useState } from "react";
 import { Activity, MapPinned, ShieldAlert } from "lucide-react";
 import { useT } from "./language-provider";
@@ -25,7 +27,7 @@ const STEP_LABEL: Record<RunStep, string> = {
 };
 const NODE_TONE: Record<NodeStatus, Tone> = { done: "success", next: "info", pending: "neutral", blocked: "danger" };
 const fmtMs = (value: number | null) => value === null ? "—" : value < 1000 ? `${value} ms` : `${(value / 1000).toFixed(1)} s`;
-const outcomeText = (value: string | null) => value ? value.replace(/_/g, " ") : "—";
+const outcomeText = (value: string | null) => value ? codeLabel(value) : "—";
 
 function useRunResource<T>(path: string | null, clean: (value: unknown) => T, refreshKey: string) {
   const [data, setData] = useState<T | null>(null);
@@ -51,7 +53,7 @@ export function RunPlanPanel({ runId, refreshKey, sample = false }: Readonly<{ r
   const t = useT();
   const { data, state } = useRunResource<PrepositioningPlan>(sample ? null : `/api/proactive/runs/${runId}/plan`, cleanPlan, refreshKey);
   if (sample || state === "idle" || state === "missing") return null;
-  return <div className="space-y-3 rounded-xl border border-stroke p-4" role="group" aria-labelledby="plan-title">
+  return <div className="space-y-3 rounded-lg border border-stroke p-4" role="group" aria-labelledby="plan-title">
     <div className="flex flex-wrap items-center justify-between gap-2">
       <h4 id="plan-title" className="flex items-center gap-2 text-sm font-bold"><MapPinned size={16} aria-hidden="true"/>{t("Pre-positioning options")}</h4>
       <StatusPill tone="sample">{t("estimated, synthetic")}</StatusPill>
@@ -71,16 +73,15 @@ export function RunPlanPanel({ runId, refreshKey, sample = false }: Readonly<{ r
           <span className="text-muted">· {t("Team move")} ≤ {option.max_preposition_minutes} min</span>
         </div>
         <div className="mt-2 overflow-x-auto">
-          <table className="data-table">
-            <caption className="sr-only">{t("Option")} {option.rank}</caption>
-            <thead><tr className="text-muted"><th scope="col" className="py-1 pr-3">{t("Team")}</th><th scope="col" className="pr-3">{t("Staging point")}</th><th scope="col" className="pr-3">{t("Team move")}</th><th scope="col">{t("Covers")}</th></tr></thead>
-            <tbody>{option.assignments.map(a => <tr key={a.team_id} className="border-t border-stroke">
-              <td className="py-1 pr-3"><span className="font-semibold">{a.team_label}</span> <code className="text-muted">{a.team_id}</code></td>
-              <td className="pr-3">{t(a.staging_kind)} <code className="text-muted" title={a.staging_feature_id}>{short(a.staging_feature_id)}</code></td>
-              <td className="pr-3 tabular-nums">{a.preposition_minutes} min</td>
-              <td>{a.covers.length === 0 ? <span className="text-muted">{t("reserve")}</span> : a.covers.map(c => <code key={c.feature_id} className="mr-2" title={c.feature_id}>{short(c.feature_id)} · {c.minutes}m</code>)}</td>
+          <DataTable label={`${t("Option")} ${option.rank}`} minWidth="18rem">
+            <thead><tr><th scope="col">{t("Team")}</th><th scope="col">{t("Staging point")}</th><th scope="col">{t("Team move")}</th><th scope="col">{t("Covers")}</th></tr></thead>
+            <tbody>{option.assignments.map(a => <tr key={a.team_id}>
+              <td><span className="font-semibold">{a.team_label}</span> <code>{a.team_id}</code></td>
+              <td>{t(a.staging_kind)} <code title={a.staging_feature_id}>{short(a.staging_feature_id)}</code></td>
+              <td className="num">{a.preposition_minutes} min</td>
+              <td>{a.covers.length === 0 ? <span>{t("reserve")}</span> : a.covers.map(c => <code key={c.feature_id} className="mr-2" title={c.feature_id}>{short(c.feature_id)} · {c.minutes}m</code>)}</td>
             </tr>)}</tbody>
-          </table>
+          </DataTable>
         </div>
         {option.uncovered_feature_ids.length > 0 && <p className="mt-1 text-[11px] text-rose-700 dark:text-rose-300">{t("Not covered within capacity")}: {option.uncovered_feature_ids.map(short).join(", ")}</p>}
       </li>)}</ol>
@@ -95,10 +96,10 @@ export function RunTimeline({ runId, refreshKey, sample = false }: Readonly<{ ru
   const { data, state } = useRunResource<RunObservability>(sample ? null : `/api/proactive/runs/${runId}/observability`, cleanObservability, refreshKey);
   if (sample || state === "idle" || state === "missing") return null;
   const top = Math.max(1, ...(data?.nodes ?? []).map(n => n.duration_ms ?? 0));
-  return <div className="space-y-3 rounded-xl border border-stroke p-4" role="group" aria-labelledby="timeline-title">
+  return <div className="space-y-3 rounded-lg border border-stroke p-4" role="group" aria-labelledby="timeline-title">
     <div className="flex flex-wrap items-center justify-between gap-2">
       <h4 id="timeline-title" className="flex items-center gap-2 text-sm font-bold"><Activity size={16} aria-hidden="true"/>{t("Run timeline")}</h4>
-      <button type="button" className="control !min-h-9 text-xs" onClick={() => setShowTable(v => !v)} aria-expanded={showTable} aria-controls="timeline-table">{showTable ? t("Show graph") : t("Show table")}</button>
+      <button type="button" className="control control-sm" onClick={() => setShowTable(v => !v)} aria-expanded={showTable} aria-controls="timeline-table">{showTable ? t("Show graph") : t("Show table")}</button>
     </div>
     {state === "loading" && <SkeletonRows rows={2} label={t("Loading timeline")}/>}
     {state === "error" && <ErrorState message={t("The run timeline could not be loaded.")}/>}
@@ -113,24 +114,23 @@ export function RunTimeline({ runId, refreshKey, sample = false }: Readonly<{ ru
         <span className="flex items-center gap-1"><StatusPill tone={NODE_TONE[node.status]}>{t(node.status)}</StatusPill><span className="tabular-nums text-muted">{fmtMs(node.duration_ms)}</span></span>
       </li>)}</ol>}
       {showTable && <div id="timeline-table" className="overflow-x-auto">
-        <table className="data-table">
-          <caption className="sr-only">{t("Run timeline")}</caption>
-          <thead><tr className="text-muted"><th scope="col" className="py-1 pr-2">{t("Event")}</th><th scope="col" className="pr-2">{t("Finished")}</th><th scope="col" className="pr-2">{t("Duration")}</th><th scope="col" className="pr-2">{t("Actor")}</th><th scope="col" className="pr-2">{t("Outcome")}</th><th scope="col">{t("Budget")}</th></tr></thead>
-          <tbody>{data.events.map((event, index) => <tr key={`${event.step}-${index}`} className="border-t border-stroke">
-            <td className="py-1 pr-2">{event.step in STEP_LABEL ? t(STEP_LABEL[event.step as RunStep]) : t(outcomeText(event.step))}</td>
-            <td className="pr-2">{formatIst(event.finished_at)}</td><td className="pr-2 tabular-nums">{fmtMs(event.duration_ms)}</td>
-            <td className="pr-2">{t(event.actor_kind)}</td><td className="pr-2">{t(outcomeText(event.outcome))}</td>
-            <td className="tabular-nums">{event.budget_used}/{data.step_budget}</td>
+        <DataTable label={t("Run timeline")} minWidth="18rem">
+          <thead><tr><th scope="col">{t("Event")}</th><th scope="col">{t("Finished")}</th><th scope="col" className="num">{t("Duration")}</th><th scope="col">{t("Actor")}</th><th scope="col">{t("Outcome")}</th><th scope="col" className="num">{t("Budget")}</th></tr></thead>
+          <tbody>{data.events.map((event, index) => <tr key={`${event.step}-${index}`}>
+            <td>{event.step in STEP_LABEL ? t(STEP_LABEL[event.step as RunStep]) : t(outcomeText(event.step))}</td>
+            <td>{formatIst(event.finished_at)}</td><td className="num">{fmtMs(event.duration_ms)}</td>
+            <td>{t(event.actor_kind)}</td><td>{t(outcomeText(event.outcome))}</td>
+            <td className="num">{event.budget_used}/{data.step_budget}</td>
           </tr>)}</tbody>
-        </table>
+        </DataTable>
       </div>}
       {data.scheduler_ticks && data.scheduler_ticks.length > 0 && <details className="text-[11px]">
         <summary className="cursor-pointer font-semibold">{t("Recent scheduler ticks")}</summary>
-        <table className="data-table mt-1">
-          <thead><tr className="text-muted"><th scope="col" className="pr-2">{t("Started")}</th><th scope="col" className="pr-2">{t("Duration")}</th><th scope="col" className="pr-2">{t("Outcome")}</th><th scope="col">{t("Runs started")}</th></tr></thead>
-          <tbody>{data.scheduler_ticks.map(tick => <tr key={tick.id} className="border-t border-stroke"><td className="pr-2">{formatIst(tick.started_at)}</td>
-            <td className="pr-2 tabular-nums">{fmtMs(tick.duration_ms ?? null)}</td><td className="pr-2">{t(outcomeText(tick.outcome))}</td><td className="tabular-nums">{tick.runs_started}</td></tr>)}</tbody>
-        </table>
+        <DataTable label={t("Recent scheduler ticks")} minWidth="18rem" className="mt-1">
+          <thead><tr><th scope="col">{t("Started")}</th><th scope="col" className="num">{t("Duration")}</th><th scope="col">{t("Outcome")}</th><th scope="col" className="num">{t("Runs started")}</th></tr></thead>
+          <tbody>{data.scheduler_ticks.map(tick => <tr key={tick.id}><td>{formatIst(tick.started_at)}</td>
+            <td className="num">{fmtMs(tick.duration_ms ?? null)}</td><td>{t(outcomeText(tick.outcome))}</td><td className="num">{tick.runs_started}</td></tr>)}</tbody>
+        </DataTable>
       </details>}
     </>}
   </div>;

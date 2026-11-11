@@ -1,28 +1,39 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import Link from "next/link";
+import * as Menu from "@radix-ui/react-dropdown-menu";
+import { ChevronDown, Info, KeyRound, LogIn, LogOut } from "lucide-react";
 import { useT } from "./language-provider";
 import { clearExerciseDraftRecovery } from "../lib/exercise-draft-buffer";
-import { StatusPill } from "./ui";
-import { LogIn, LogOut, ShieldCheck } from "lucide-react";
+import { useOperatorSession, type SessionInfo } from "../lib/use-operator-session";
+import { ROLE_INFO, knownRoles, primaryRole } from "../lib/roles";
+import { codeLabel, timeLeft } from "../lib/labels";
+import { Avatar, RoleChip } from "./ui/identity";
+import { RecordRef } from "./ui/record";
+import { useNow } from "./ui/hooks";
 
-interface Session {
-  authenticated: boolean;
-  configured: boolean;
-  subject?: string;
-  roles?: string[];
+/** The name shown for a signed-in person. Never the raw account id. */
+export function personName(session: SessionInfo): string {
+  return session.displayName || session.username || "Signed-in operator";
 }
+
+/** "1 h 12 min" from the session end time; empty until the clock is known. */
+export function useSessionTimeLeft(expiresAt: number | undefined): string {
+  const t = useT();
+  const now = useNow(undefined, 30_000);
+  if (!expiresAt || now === null) return "";
+  const left = timeLeft(expiresAt - now);
+  if (!left) return t("ended");
+  if (left.hours === 0 && left.minutes === 0) return t("under a minute");
+  return (left.hours > 0 ? `${left.hours} ${t("hr")} ` : "") + `${left.minutes} ${t("min")}`;
+}
+
+/** Account menu: who is signed in, in which role, for which agency, for how long, and Sign out. Visible at every width. */
 export function OperatorAuth() {
   const t = useT();
-  const [session, setSession] = useState<Session | null>(null);
+  const session = useOperatorSession();
   const [busy, setBusy] = useState(false);
-  useEffect(() => {
-    let active = true;
-    fetch("/api/auth/session", { cache: "no-store" })
-      .then((response) => response.json())
-      .then((value) => { if (active) setSession(value); })
-      .catch(() => { if (active) setSession({ authenticated: false, configured: false }); });
-    return () => { active = false; };
-  }, []);
+  const left = useSessionTimeLeft(session?.expiresAt);
   async function signOut() {
     setBusy(true);
     clearExerciseDraftRecovery();
@@ -35,15 +46,47 @@ export function OperatorAuth() {
       window.location.assign(body.logoutUrl || "/");
     } catch { setBusy(false); }
   }
-  if (!session) return <span className="text-xs text-muted" aria-live="polite">Checking operator session...</span>;
-  if (session.authenticated) return <div className="flex items-center gap-2">
-    <span className="hidden max-w-[160px] truncate text-xs text-muted xl:inline" title={session.subject}>
-      <ShieldCheck size={14} className="mr-1 inline text-accent"/>{session.subject}
-    </span>
-    {(session.roles ?? []).slice(0, 3).map(role => <span key={role} className="hidden xl:inline"><StatusPill tone="info">{role.replaceAll("_", " ")}</StatusPill></span>)}
-    <button type="button" onClick={signOut} disabled={busy} className="control h-9 text-xs" aria-label="Sign out of operator session"><LogOut size={15}/><span className="hidden sm:inline">Sign out</span></button>
-  </div>;
+  if (!session) return <span className="avatar shimmer" role="status" aria-label={t("Checking operator session...")} />;
+  if (session.authenticated) {
+    const name = personName(session), role = primaryRole(session.roles), roles = knownRoles(session.roles);
+    const roleLabel = role ? t(ROLE_INFO[role].label) : t("No role");
+    return <Menu.Root>
+      <Menu.Trigger className="account-trigger" aria-label={`${t("Account")}: ${t(name)}, ${roleLabel}`} data-account-menu="">
+        <Avatar name={name} role={role} />
+        <span className="hidden min-w-0 text-left leading-tight md:block">
+          <span className="block max-w-[9.5rem] truncate text-[13px] font-semibold">{t(name)}</span>
+          <span className="block text-[11.5px] font-semibold" data-role={role ? ROLE_INFO[role].tone : "auditor"} style={{ color: "rgb(var(--role))" }}>{roleLabel}</span>
+        </span>
+        <ChevronDown size={14} aria-hidden="true" className="hidden text-muted md:block" />
+      </Menu.Trigger>
+      <Menu.Portal>
+        <Menu.Content align="end" sideOffset={8} collisionPadding={8} className="float menu no-print">
+          <div className="flex items-center gap-3 px-2.5 pb-2 pt-2">
+            <Avatar name={name} role={role} className="!h-10 !w-10 !text-sm" />
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold">{t(name)}</p>
+              {session.username && session.username !== name && <p className="truncate text-xs text-muted">{session.username}</p>}
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-1.5 px-2.5 pb-2.5">{roles.length > 0 ? roles.map(item => <RoleChip key={item} role={item} />) : <span className="text-xs text-muted">{t("No role that AEGIS recognises")}</span>}</div>
+          <dl className="grid grid-cols-[5.5rem_minmax(0,1fr)] items-center gap-x-2 gap-y-1.5 border-t border-stroke px-2.5 py-2.5 text-xs">
+            {session.agencyId && <><dt className="text-muted">{t("Agency")}</dt><dd><RecordRef id={session.agencyId} /></dd></>}
+            {session.departmentId && <><dt className="text-muted">{t("Department")}</dt><dd className="font-semibold" title={session.departmentId}>{t(codeLabel(session.departmentId))}</dd></>}
+            {session.subject && <><dt className="text-muted">{t("Account id")}</dt><dd><RecordRef id={session.subject} /></dd></>}
+            {left && <><dt className="text-muted">{t("Session ends in")}</dt><dd className="tnum font-semibold">{left}</dd></>}
+          </dl>
+          <div className="menu-sep" role="separator" />
+          <Menu.Item asChild><Link href="/admin/users" className="menu-item"><KeyRound size={16} aria-hidden="true" className="text-muted" />{t("Users and access")}</Link></Menu.Item>
+          <Menu.Item asChild><Link href="/about" className="menu-item"><Info size={16} aria-hidden="true" className="text-muted" />{t("About AEGIS")}</Link></Menu.Item>
+          <div className="menu-sep" role="separator" />
+          <Menu.Item className="menu-item" data-danger="" disabled={busy} onSelect={event => { event.preventDefault(); void signOut(); }} aria-label={t("Sign out of operator session")}>
+            <LogOut size={16} aria-hidden="true" />{busy ? t("Signing out…") : t("Sign out")}
+          </Menu.Item>
+        </Menu.Content>
+      </Menu.Portal>
+    </Menu.Root>;
+  }
   if (!session.configured) return <span className="hidden text-xs text-amber-700 dark:text-amber-300 md:inline" title={t("Operator access requires a configured trusted identity provider")}>{t("SSO not configured")}</span>;
   // Icon-only below sm so the top bar fits a phone; the link keeps its full accessible name.
-  return <a className="control h-10 w-10 !px-0 text-xs sm:h-9 sm:w-auto sm:!px-3" href="/sign-in" aria-label="Operator sign in" title="Operator sign in"><LogIn size={15} aria-hidden="true"/><span className="hidden sm:inline">Operator sign in</span></a>;
+  return <a className="control control-icon sm:w-auto sm:px-3" href="/sign-in" aria-label="Operator sign in" title="Operator sign in"><LogIn size={16} aria-hidden="true"/><span className="hidden sm:inline">{t("Operator sign in")}</span></a>;
 }

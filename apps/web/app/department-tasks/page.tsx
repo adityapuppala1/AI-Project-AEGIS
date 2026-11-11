@@ -1,11 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
-import { ClipboardList, CheckCircle2, Clock, Inbox } from "lucide-react";
+import { ClipboardList, CheckCircle2, Clock, Inbox, RefreshCw } from "lucide-react";
 import { AppShell } from "../../components/app-shell";
 import { useT } from "../../components/language-provider";
 import { SignInRequired } from "../../components/sign-in-required";
 import { useOperatorSession } from "../../lib/use-operator-session";
-import { EmptyState, ErrorState, SkeletonRows, StatStrip, StatTile, StatusPill, type Tone } from "../../components/ui";
+import { codeLabel, shortId } from "../../lib/labels";
+import { pageRoles } from "../../lib/roles";
+import { Button, EmptyState, ErrorState, Panel, PermissionState, RecordRef, SkeletonRows, StatStrip, StatTile, StatusPill, type Tone } from "../../components/ui";
 const STATE_TONE: Record<string, Tone> = { prepared: "info", acknowledged: "warning", closed: "success" };
 interface TaskRow { proposal_id: string; incident_id: string; task: {
   id: string; assignment_version?: number; summary: string; state: string; due_at?: string; sla_status?: string;
@@ -14,9 +16,10 @@ interface TaskRow { proposal_id: string; incident_id: string; task: {
 export default function DepartmentTasks() {
   const t = useT();
   const [failed, setFailed] = useState(false);
+  const [refused, setRefused] = useState(false);
   const [rows, setRows] = useState<TaskRow[]>([]);
   const [department, setDepartment] = useState("");
-  const [message, setMessage] = useState("Loading verified department inbox…");
+  const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(true);
   const [notes, setNotes] = useState<Record<string, string>>({});
   const session = useOperatorSession();
@@ -24,15 +27,18 @@ export default function DepartmentTasks() {
   async function refresh() {
     setBusy(true);
     setFailed(false);
+    setRefused(false);
     setRows([]);
     setDepartment("");
     setNotes({});
+    setMessage("");
     try {
       const response = await fetch("/api/department-tasks", { cache: "no-store" });
       const data = await response.json();
+      // A role refusal is explained once, without a Retry that could never succeed.
+      if (response.status === 403) { setRefused(true); return; }
       if (!response.ok) throw new Error(data.error || "Department inbox unavailable");
       setRows(data.tasks); setDepartment(data.department_id);
-      setMessage(data.tasks.length ? "Approved rehearsal tasks loaded." : "No approved staged tasks for your department.");
     } catch (error) { setFailed(true); setMessage(error instanceof Error ? error.message : "Department inbox unavailable"); }
     finally { setBusy(false); }
   }
@@ -51,37 +57,45 @@ export default function DepartmentTasks() {
       });
       if (!response.ok) throw new Error("Action could not be confirmed. Refresh before retrying; it may have completed.");
       await refresh();
-    } catch (error) { setRows([]); setNotes({}); setMessage(error instanceof Error ? error.message : "Task update unavailable"); }
+    } catch (error) { setRows([]); setNotes({}); setFailed(true); setMessage(error instanceof Error ? error.message : "Task update unavailable"); }
     finally { setBusy(false); }
   }
-  return <AppShell title="Department inbox" description="Your department’s approved synthetic rehearsal tasks. Acknowledgements never contact real responders.">
+  const usable = !signedOut && !refused;
+  return <AppShell title="Department Inbox" description="Your department’s approved synthetic rehearsal tasks. Acknowledgements never contact real responders."
+    actions={usable ? <Button icon={RefreshCw} loading={busy} onClick={() => void refresh()}>{t("Refresh")}</Button> : undefined}>
     {signedOut && session && <SignInRequired session={session}/>}
-    {!signedOut && <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-      <p role="status" className="text-sm text-muted">{message}</p>
-      <button className="control" disabled={busy} onClick={() => void refresh()}>Refresh inbox</button>
-    </div>}
+    {refused && <PermissionState needs={pageRoles("/department-tasks") ?? []} roles={session?.roles}
+      what={t("The inbox shows the tasks of one department, so it opens only for an account that belongs to a department.")}
+      where={{ href: "/agency-sync", label: t("See all department timelines in AgencySync") }} />}
+    {usable && department && <p className="mb-4 flex flex-wrap items-center gap-2 text-sm"><span className="text-muted">{t("Your department")}</span><strong className="font-semibold" title={department}>{t(codeLabel(department))}</strong></p>}
     {rows.length > 0 && <StatStrip label={t("Department task summary")}>
       <StatTile label={t("Tasks")} value={rows.length} icon={ClipboardList} tone="info"/>
       <StatTile label={t("Prepared")} value={rows.filter(r => r.task.state === "prepared").length} icon={Inbox} tone="info"/>
       <StatTile label={t("Acknowledged")} value={rows.filter(r => r.task.state === "acknowledged").length} icon={Clock} tone="warning"/>
       <StatTile label={t("Closed")} value={rows.filter(r => r.task.state === "closed").length} icon={CheckCircle2} tone="success"/>
     </StatStrip>}
-    {busy && rows.length === 0 && !failed && <SkeletonRows rows={3}/>}
-    {failed && <ErrorState message={message} onRetry={() => void refresh()}/>}
-    {!signedOut && !busy && !failed && rows.length === 0 && <EmptyState icon={Inbox} title={t("No approved tasks for your department")} body={t("An empty inbox does not mean no work exists. Tasks appear only after an independent checker approves a proposal.")}/>}
-    {department && <p className="mb-4 text-sm font-semibold">Verified department: {department.replaceAll("_", " ")}</p>}
-    <div className="grid gap-4 xl:grid-cols-2">{rows.map(row => <article key={`${row.proposal_id}:${row.task.id}`} className="rounded-xl border border-stroke bg-surface p-5">
-      <h2 className="font-semibold">{row.task.summary}</h2>
-      <p className="mt-2 break-all text-xs text-muted">Proposal {row.proposal_id}</p>
-      <p className="mt-3 text-sm">State: <StatusPill tone={STATE_TONE[row.task.state] ?? "neutral"}>{row.task.state}</StatusPill></p>
-      {row.task.due_at && <p className="mt-1 text-sm text-muted">Synthetic target: {new Date(row.task.due_at).toLocaleString()} · {row.task.sla_status?.replaceAll("_", " ")}</p>}
-      <ol className="my-4 space-y-2 text-xs text-muted">{row.task.events.map((event, index) => <li key={index}>{event.kind} · {new Date(event.occurred_at).toLocaleString()}{event.actor_subject ? ` · ${event.actor_subject}` : ""}</li>)}</ol>
-      {["prepared", "acknowledged"].includes(row.task.state) && <form onSubmit={event => { event.preventDefault(); void advance(row); }}>
-        <label className="block text-sm" htmlFor={`note-${row.proposal_id}-${row.task.id}`}>Rehearsal rationale</label>
-        <textarea id={`note-${row.proposal_id}-${row.task.id}`} className="mt-2 w-full rounded-lg border border-stroke bg-elevated p-3 text-sm" minLength={10} maxLength={2000} required disabled={busy}
-          value={notes[`${row.proposal_id}:${row.task.id}`] || ""} onChange={event => setNotes(previous => ({ ...previous, [`${row.proposal_id}:${row.task.id}`]: event.target.value }))}/>
-        <button className="control mt-3" disabled={busy || (notes[`${row.proposal_id}:${row.task.id}`] || "").trim().length < 10}>{row.task.state === "prepared" ? "Acknowledge rehearsal task" : "Close rehearsal task"}</button>
-      </form>}
-    </article>)}</div>
+    {usable && busy && rows.length === 0 && !failed && <SkeletonRows rows={3} label={t("Loading verified department inbox…")}/>}
+    {failed && <ErrorState message={t(message)} onRetry={() => void refresh()}/>}
+    {usable && !busy && !failed && rows.length === 0 && <EmptyState icon={Inbox} title={t("No approved tasks for your department")} body={t("An empty inbox does not mean no work exists. Tasks appear only after an independent checker approves a proposal.")}/>}
+    <div className="grid gap-4 xl:grid-cols-2">{rows.map(row => {
+      const key = `${row.proposal_id}:${row.task.id}`, noteId = `note-${row.proposal_id}-${row.task.id}`;
+      return <Panel key={key} level={2} title={row.task.summary} actions={<span title={row.task.state}><StatusPill tone={STATE_TONE[row.task.state] ?? "neutral"}>{t(codeLabel(row.task.state))}</StatusPill></span>}>
+        <dl className="grid grid-cols-[7rem_minmax(0,1fr)] items-center gap-x-3 gap-y-2 text-sm">
+          <dt className="text-xs font-semibold text-muted">{t("Proposal")}</dt><dd><RecordRef id={row.proposal_id} kind="proposal" /></dd>
+          <dt className="text-xs font-semibold text-muted">{t("Incident")}</dt><dd><RecordRef id={row.incident_id} kind="incident" /></dd>
+          {row.task.due_at && <><dt className="text-xs font-semibold text-muted">{t("Rehearsal target")}</dt>
+            <dd className="tnum" title={row.task.sla_status}>{new Date(row.task.due_at).toLocaleString()}{row.task.sla_status ? " · " + t(codeLabel(row.task.sla_status)) : ""}</dd></>}
+        </dl>
+        {row.task.events.length > 0 && <ol className="mt-3 space-y-1 border-t border-stroke/60 pt-3 text-xs text-muted">{row.task.events.map((event, index) => <li key={index} className="tnum" title={event.kind}>
+          {t(codeLabel(event.kind))} · {new Date(event.occurred_at).toLocaleString()}{event.actor_subject ? <span title={event.actor_subject}> · {shortId(event.actor_subject)}</span> : null}</li>)}</ol>}
+        {["prepared", "acknowledged"].includes(row.task.state) && <form className="mt-4" onSubmit={event => { event.preventDefault(); void advance(row); }}>
+          <label className="field-label" htmlFor={noteId}>{t("Rehearsal rationale")}</label>
+          <textarea id={noteId} className="field" rows={3} minLength={10} maxLength={2000} required disabled={busy} aria-describedby={noteId + "-help"}
+            value={notes[key] || ""} onChange={event => setNotes(previous => ({ ...previous, [key]: event.target.value }))}/>
+          <p id={noteId + "-help"} className="helper mt-1">{t("At least 10 characters. Recorded in the audit trail; nobody is contacted.")}</p>
+          <Button type="submit" variant="primary" className="mt-3" disabled={busy || (notes[key] || "").trim().length < 10}>{row.task.state === "prepared" ? t("Acknowledge rehearsal task") : t("Close rehearsal task")}</Button>
+        </form>}
+      </Panel>;
+    })}</div>
   </AppShell>;
 }

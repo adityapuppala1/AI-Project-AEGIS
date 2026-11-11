@@ -1,20 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export const prefersReducedMotion = (): boolean =>
   typeof window !== "undefined" && typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/** Eased count-up to `value`; jumps straight to the value under prefers-reduced-motion. */
-export function useCountUp(value: number, durationMs = 600): number {
-  // Start at 0 on both server and client so hydration matches; the effect jumps to the value under reduced motion.
-  const [shown, setShown] = useState(0);
+/**
+ * A number that eases to its new value when the value CHANGES. The first value is shown as it is: a figure that
+ * has not changed does not perform. Jumps straight to the value under prefers-reduced-motion.
+ */
+export function useCountUp(value: number, durationMs = 450): number {
+  const [shown, setShown] = useState(value);
+  const from = useRef(value);
   useEffect(() => {
-    if (prefersReducedMotion()) { setShown(value); return; }
-    let frame = 0; const start = performance.now();
+    const start = from.current;
+    from.current = value;
+    if (start === value || prefersReducedMotion()) { setShown(value); return; }
+    let frame = 0; const began = performance.now();
     const tick = (time: number) => {
-      const progress = Math.min(1, (time - start) / durationMs);
-      setShown(Math.round(value * (1 - Math.pow(1 - progress, 3))));
+      const progress = Math.min(1, (time - began) / durationMs);
+      setShown(Math.round(start + (value - start) * (1 - Math.pow(1 - progress, 3))));
       if (progress < 1) frame = requestAnimationFrame(tick);
     };
     frame = requestAnimationFrame(tick);

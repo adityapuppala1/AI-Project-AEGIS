@@ -1,5 +1,7 @@
 "use client";
 
+import { codeLabel } from "../lib/labels";
+import { ErrorState } from "./ui";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AlertTriangle, Archive, ArrowRight, Download, FileCheck2, FileClock, ListChecks, RefreshCw, ShieldAlert } from "lucide-react";
@@ -71,7 +73,7 @@ export function Audit360Dashboard() {
 
   return <AppShell title="Audit360 — Exercise Evidence"
     description="Export a bounded, check-summed synthetic incident story from evidence through scripted acknowledgements.">
-    <div role="note" className="mb-5 flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs leading-6 text-amber-800 dark:text-amber-200">
+    <div role="note" className="mb-5 flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-xs leading-6 text-amber-800 dark:text-amber-200">
       <ShieldAlert size={19} className="mt-0.5 shrink-0"/>
       <p><strong>Fictional audit demonstration, not a legally signed audit.</strong> The export includes only public exercise fixture data.
         It excludes private approval histories, verified operator identities and real agency communications.
@@ -79,10 +81,10 @@ export function Audit360Dashboard() {
     </div>
     <section className="panel overflow-hidden">
       <div className="panel-heading"><div>
-        <h2 className="flex items-center gap-2 text-base font-bold"><Archive size={18} className="text-accent"/> Traceable Exercise Snapshot</h2>
+        <h2 className="flex items-center gap-2 t-title"><Archive size={18} className="text-accent"/> Traceable Exercise Snapshot</h2>
         <p className="mt-1 text-xs text-muted">Choose one of five synthetic incidents; no private cases are searchable here.</p>
       </div>
-      <button type="button" className="control text-xs" disabled={loading}
+      <button type="button" className="control control-sm" disabled={loading}
         onClick={() => setRevision(value=>value+1)}>
         <RefreshCw size={15} className={loading ? "animate-spin" : ""}/> Refresh
       </button>
@@ -94,7 +96,7 @@ export function Audit360Dashboard() {
           {CASES.map(item => <option key={item.id} value={item.id}>{item.label} · {item.id.slice(0,8)}</option>)}
         </select>
         {loading && <><p role="status" className="mt-4 text-sm text-muted">Generating safe read-only exercise snapshot…</p><SkeletonRows rows={3}/></>}
-        {error && <p role="alert" className="mt-4 flex items-center gap-2 text-sm text-rose-700 dark:text-rose-300"><AlertTriangle size={17}/>{error}. No saved prior snapshot is displayed as current.</p>}
+        {error && <ErrorState message={<>{error}. No saved prior snapshot is displayed as current.</>} className="mt-4" />}
         {bundle && <>
           <StatStrip label={t("Audit snapshot counts")} className="mt-5">
             <StatTile label="Synthetic case evidence" value={bundle.incident_workspace.evidence.length} icon={FileCheck2}/>
@@ -102,25 +104,25 @@ export function Audit360Dashboard() {
             <StatTile label="Fictional desk tasks" value={bundle.agency_task_board.tasks.length} icon={ListChecks}/>
             <StatTile label="Scripted task events" value={bundle.scripted_task_events.length} icon={Archive}/>
           </StatStrip>
-          <KeyValueList className="rounded-xl border border-stroke p-4" items={[
+          <KeyValueList className="rounded-lg border border-stroke p-4" items={[
             { label: "Playbook reference", value: <span className="break-all text-muted">{bundle.playbook_ref}</span> },
-            { label: "Assessment status", value: <span className="text-muted">{bundle.readiness_checklist.context_state.replaceAll("_", " ")}</span> },
+            { label: "Assessment status", value: <span className="text-muted">{codeLabel(bundle.readiness_checklist.context_state)}</span> },
             { label: "Snapshot time", value: <span className="text-muted">{timestamp(bundle.exported_at)} <DataFreshness observedAt={bundle.exported_at} staleAfterHours={24}/></span> },
             { label: "Unsigned SHA-256 manifest", value: <span className="flex flex-wrap items-center gap-2"><span className="break-all font-mono text-[11px] text-muted">{bundle.manifest_sha256}</span><CopyButton value={bundle.manifest_sha256} label={t("Copy checksum")}/></span> },
           ]}/>
           <div className="mt-5 flex flex-wrap gap-3">
-            <a href={"/api/incidents/" + incidentId + "/audit"} className="control control-primary text-xs"
+            <a href={"/api/incidents/" + incidentId + "/audit"} className="control control-primary control-sm"
               download={"aegis-exercise-audit-" + incidentId + ".json"}>
               <Download size={15}/> Export synthetic JSON bundle
             </a>
-            <Link className="control text-xs" href={"/incidents/" + incidentId}>
+            <Link className="control control-sm" href={"/incidents/" + incidentId}>
               <FileCheck2 size={15}/> Open case details <ArrowRight size={14}/>
             </Link>
           </div>
-          <details className="mt-5 rounded-xl border border-stroke p-4">
+          <details className="mt-5 rounded-lg border border-stroke p-4">
             <summary className="cursor-pointer text-xs font-semibold">Inspect scripted acknowledgement timeline ({bundle.scripted_task_events.length})</summary>
             <FilterChips label={t("Filter timeline by event kind")} className="mt-4"
-              options={Array.from(new Set(bundle.scripted_task_events.map(e => e.kind))).map(k => ({ value: k, label: k.replaceAll("_", " ") }))}
+              options={Array.from(new Set(bundle.scripted_task_events.map(e => e.kind))).map(k => ({ value: k, label: codeLabel(k) }))}
               selected={kinds} onToggle={k => setKinds(prev => { const next = new Set(prev); if (next.has(k)) next.delete(k); else next.add(k); return next; })}/>
             {(() => { const shown = bundle.scripted_task_events.filter(e => kinds.size === 0 || kinds.has(e.kind));
               return shown.length === 0 ? <EmptyState title={t("No scripted events match")} body={t("An empty filtered view does not mean nothing happened; clear the filter to see all events.")}/> :
