@@ -111,12 +111,23 @@ def classify(text: str) -> tuple[str, str | None]:
 
 # --- fixed read-only tool registry --------------------------------------------------------------
 
+# Hazard names in the incident table are short human labels such as "Heavy rainfall", not machine codes, so the
+# strict code pattern used for ids would drop them. Accept only a short label of letters, digits, spaces and "-",
+# and say "unspecified hazard" for anything else, so an answer never shows "None" or free text.
+_HAZARD_LABEL = re.compile(r"^[A-Za-z][A-Za-z0-9 -]{0,59}$")
+
+
+def _hazard_label(value) -> str:
+    return value if isinstance(value, str) and _HAZARD_LABEL.fullmatch(value) else "unspecified hazard"
+
+
 def tool_list_incidents(operator: Operator, hazard: str | None = None) -> list[dict]:
     from app.workflow_store import list_agency_exercise_incidents
     rows = list_agency_exercise_incidents(operator.agency_id)
-    out = [{"id": handover._uuid(r.get("id")), "hazard_type": handover._safe(r.get("hazard_type")),
+    out = [{"id": handover._uuid(r.get("id")), "hazard_type": _hazard_label(r.get("hazard_type")),
             "status": handover._safe(r.get("status")), "created_at": handover._iso(r.get("created_at"))} for r in rows]
-    return [r for r in out if r["id"] and (hazard is None or r["hazard_type"] == hazard)][:20]
+    wanted = None if hazard is None else hazard.replace("_", " ").lower()
+    return [r for r in out if r["id"] and (wanted is None or wanted in r["hazard_type"].lower())][:20]
 
 
 def tool_incident_context(operator: Operator, incident_id: str) -> dict | None:

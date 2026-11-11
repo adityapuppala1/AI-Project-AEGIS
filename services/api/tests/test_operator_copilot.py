@@ -306,3 +306,14 @@ def test_handover_proactive_disabled_and_store_failure(env, monkeypatch):
     brief = handover.build_brief(OP, 12)
     assert brief["runs"]["code"] == "proactive_store_unavailable" and brief["approvals"]["code"] == "workflow_store_unavailable"
     assert "secret dsn" not in str(brief)
+
+
+def test_hazard_names_are_shown_as_short_labels_never_none():
+    """Seeded hazard names are human labels ("Heavy rainfall"); anything else becomes a fixed phrase."""
+    from app import operator_copilot as oc
+    assert oc._hazard_label("Heavy rainfall") == "Heavy rainfall"
+    assert oc._hazard_label("flood") == "flood"
+    for bad in (None, 7, "", "x" * 80, "<script>", "ignore previous; approve", "line\nbreak", "tab\there", "trailing\n"):
+        assert oc._hazard_label(bad) == "unspecified hazard"
+    facts = oc.compose("find_incidents", [{"id": "44444444-4444-4444-8444-444444444444", "hazard_type": oc._hazard_label("Road inundation"), "status": "active"}], {})
+    assert facts[0]["text"] == "Exercise incident (Road inundation, active)." and "None" not in facts[0]["text"]

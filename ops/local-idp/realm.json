@@ -8,7 +8,7 @@
   "editUsernameAllowed": false,
   "bruteForceProtected": true,
   "passwordPolicy": "length(12)",
-  "accessTokenLifespan": 300,
+  "accessTokenLifespan": 900,
   "ssoSessionIdleTimeout": 900,
   "otpPolicyType": "totp",
   "otpPolicyAlgorithm": "HmacSHA1",
@@ -17,7 +17,11 @@
   "otpPolicyLookAheadWindow": 1,
   "otpPolicyPeriod": 30,
   "otpPolicyCodeReusable": false,
-  "otpSupportedApplications": ["totpAppFreeOTPName", "totpAppGoogleName", "totpAppMicrosoftAuthenticatorName"],
+  "otpSupportedApplications": [
+    "totpAppFreeOTPName",
+    "totpAppGoogleName",
+    "totpAppMicrosoftAuthenticatorName"
+  ],
   "roles": {
     "client": {
       "aegis-local-web": [
@@ -32,6 +36,9 @@
         },
         {
           "name": "platform_admin"
+        },
+        {
+          "name": "department_operator"
         }
       ]
     }
@@ -91,6 +98,19 @@
             "jsonType.label": "String",
             "access.token.claim": "true",
             "id.token.claim": "false"
+          }
+        },
+        {
+          "name": "signed-department",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "config": {
+            "user.attribute": "aegis_department_id",
+            "claim.name": "aegis_department_id",
+            "jsonType.label": "String",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "userinfo.token.claim": "false"
           }
         }
       ]
@@ -170,5 +190,6 @@
         ]
       }
     ]
-  }
+  },
+  "loginTheme": "aegis"
 }

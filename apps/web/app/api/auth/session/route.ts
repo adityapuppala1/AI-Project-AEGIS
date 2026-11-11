@@ -8,7 +8,7 @@ export async function GET() {
   let configured = false;
   try { configured = configuration() !== null; } catch { /* misconfigured provider remains disabled */ }
   return NextResponse.json(operator ?
-    { authenticated: true, configured, subject: operator.subject, agencyId: operator.agencyId, roles: operator.roles, departmentId: operator.departmentId, expiresAt: operator.exp } :
+    { authenticated: true, configured, subject: operator.subject, username: operator.username, displayName: operator.displayName, agencyId: operator.agencyId, roles: operator.roles, departmentId: operator.departmentId, expiresAt: operator.exp } :
     { authenticated: false, configured },
     { headers: { "Cache-Control": "no-store" } });
 }

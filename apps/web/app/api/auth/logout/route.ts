@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { configuration, cookieName, cookieOptions, oidcDocument, sameOrigin } from "../../../../lib/auth-server";
+import { configuration, cookieName, cookieOptions, oidcDocument, readIdToken, sameOrigin } from "../../../../lib/auth-server";
 
 export const runtime = "nodejs";
 export async function POST(request: Request) {
@@ -19,6 +19,8 @@ export async function POST(request: Request) {
       const target = new URL(doc.end_session_endpoint);
       target.searchParams.set("client_id", config.clientId);
       target.searchParams.set("post_logout_redirect_uri", config.origin);
+      const hint = await readIdToken(config);
+      if (hint) target.searchParams.set("id_token_hint", hint);
       logoutUrl = target.toString();
     }
   } catch { /* Local sign-out below still proceeds; the provider session may outlive this app session. */ }
@@ -27,5 +29,6 @@ export async function POST(request: Request) {
   for (const type of ["flow", "session"] as const) {
     response.cookies.set(cookieName(config, type), "", cookieOptions(config, 0));
   }
+  response.cookies.set(cookieName(config, "idt"), "", { ...cookieOptions(config, 0), path: "/api/auth" });
   return response;
 }

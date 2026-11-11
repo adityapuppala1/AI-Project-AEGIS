@@ -17,6 +17,9 @@ export interface OperatorSession {
   agencyId: string;
   roles: Role[];
   departmentId?: string;
+  /** Sign-in name and full name from the verified ID token. Display only: never used for an access decision. */
+  username?: string;
+  displayName?: string;
   exp: number;
 }
 export interface AuthConfig {
@@ -35,7 +38,7 @@ interface OidcDocument {
   jwks_uri: string;
   end_session_endpoint?: string;
 }
-interface AuthFlow { state: string; nonce: string; verifier: string }
+interface AuthFlow { state: string; nonce: string; verifier: string; next?: string }
 const ALL_ROLES: Role[] = ["incident_operator", "incident_checker", "incident_auditor", "department_operator", "platform_admin"];
 
 export function configuration(): AuthConfig | null {
@@ -62,7 +65,13 @@ export function cookieOptions(config: AuthConfig, maxAge: number) {
   return { httpOnly: true, secure: config.origin.startsWith("https:"), sameSite: "lax" as const,
     path: "/", maxAge };
 }
-export function cookieName(config: AuthConfig, type: "flow" | "session") {
+/** A short printable label from an identity-provider claim, or undefined. Display only. */
+export function displayLabel(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const clean = value.replace(/[\u0000-\u001f\u007f<>]/g, "").trim();
+  return clean.length > 0 && clean.length <= 80 ? clean : undefined;
+}
+export function cookieName(config: AuthConfig, type: "flow" | "session" | "idt") {
   return config.origin.startsWith("https:") ? `__Host-aegis-${type}` : `aegis-${type}`;
 }
 
@@ -103,7 +112,7 @@ export async function readFlow(config: AuthConfig): Promise<AuthFlow | null> {
   try {
     const payload = await decryptData(config, raw);
     if (typeof payload.state !== "string" || typeof payload.nonce !== "string" || typeof payload.verifier !== "string") return null;
-    return { state: payload.state, nonce: payload.nonce, verifier: payload.verifier };
+    return { state: payload.state, nonce: payload.nonce, verifier: payload.verifier, ...(typeof payload.next === "string" ? { next: payload.next } : {}) };
   } catch { return null; }
 }
 
@@ -149,7 +158,18 @@ export async function readSession(): Promise<OperatorSession | null> {
     if (payload.roles.some((role) => typeof role !== "string" || !ALL_ROLES.includes(role as Role))) return null;
     const scope = extractScope({ sub: payload.sub, aegis_agency_id: payload.agencyId,
       aegis_roles: payload.roles, aegis_department_id: payload.departmentId, exp: payload.exp });
-    return { accessToken: payload.accessToken, ...scope };
+    const username = displayLabel(payload.username), displayName = displayLabel(payload.displayName);
+    return { accessToken: payload.accessToken, ...scope, ...(username ? { username } : {}), ...(displayName ? { displayName } : {}) };
+  } catch { return null; }
+}
+
+/** The ID token kept (sealed, HttpOnly, sign-in endpoints only) so sign-out can end the provider session in one step. */
+export async function readIdToken(config: AuthConfig): Promise<string | null> {
+  const raw = (await cookies()).get(cookieName(config, "idt"))?.value;
+  if (!raw || raw.length > 4096) return null;
+  try {
+    const payload = await decryptData(config, raw);
+    return typeof payload.idToken === "string" && /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(payload.idToken) ? payload.idToken : null;
   } catch { return null; }
 }
 

@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
+import { safeReturnPath } from "../../../../lib/session-gate";
 import { challenge, configuration, cookieName, cookieOptions, encryptData, oidcDocument, randomBase64Url } from "../../../../lib/auth-server";
 
 export const runtime = "nodejs";
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const config = configuration();
     if (!config) return NextResponse.json({ error: "Identity provider not configured" }, { status: 503 });
@@ -19,7 +20,9 @@ export async function GET() {
     authorize.searchParams.set("nonce", nonce);
     authorize.searchParams.set("code_challenge", challenge(verifier));
     authorize.searchParams.set("code_challenge_method", "S256");
-    const flow = await encryptData(config, { state, nonce, verifier }, 600);
+    // The page to return to travels only inside this encrypted cookie, never through the identity provider.
+    const next = safeReturnPath(request.nextUrl.searchParams.get("next"));
+    const flow = await encryptData(config, { state, nonce, verifier, ...(next ? { next } : {}) }, 600);
     const response = NextResponse.redirect(authorize);
     response.cookies.set(cookieName(config, "flow"), flow, cookieOptions(config, 600));
     response.headers.set("Cache-Control", "no-store");

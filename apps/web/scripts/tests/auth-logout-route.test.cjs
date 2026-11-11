@@ -14,7 +14,7 @@ const { NextResponse } = require('next/server');
 
 const config = { origin: 'http://localhost:3000', clientId: 'aegis-local-web' };
 
-function loadRoute({ configured = true, oidcDocument } = {}) {
+function loadRoute({ configured = true, oidcDocument, idToken = null } = {}) {
   const source = fs.readFileSync(path.join(__dirname, '../../app/api/auth/logout/route.ts'), 'utf8');
   const code = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
   const module = { exports: {} };
@@ -25,6 +25,7 @@ function loadRoute({ configured = true, oidcDocument } = {}) {
       cookieName: (_cfg, type) => `aegis-${type}`,
       cookieOptions: (_cfg, maxAge) => ({ httpOnly: true, secure: false, sameSite: 'lax', path: '/', maxAge }),
       sameOrigin: request => request.headers.get('origin') === config.origin,
+      readIdToken: async () => idToken,
       oidcDocument: oidcDocument ?? (async () => { throw new Error('discovery unavailable'); }),
     };
     throw Error('Unexpected dependency ' + name);
@@ -37,6 +38,8 @@ const post = (origin = config.origin) => new Request('http://localhost:3000/api/
 });
 const clearedCookies = response => response.headers.getSetCookie()
   .filter(c => /^aegis-(flow|session)=;/.test(c) && /Max-Age=0/.test(c));
+const clearedIdCookie = response => response.headers.getSetCookie()
+  .filter(c => /^aegis-idt=;/.test(c) && /Max-Age=0/.test(c) && /Path=\/api\/auth/.test(c));
 
 test('not configured refuses with 503 before any cookie or discovery work', async () => {
   const response = await loadRoute({ configured: false })(post());
@@ -60,7 +63,20 @@ test('local session always clears, and a reachable provider yields a one-time-us
   assert.equal(logoutUrl.origin + logoutUrl.pathname, 'https://aegis-idp.localhost:8443/realms/aegis-exercise/protocol/openid-connect/logout');
   assert.equal(logoutUrl.searchParams.get('client_id'), 'aegis-local-web');
   assert.equal(logoutUrl.searchParams.get('post_logout_redirect_uri'), 'http://localhost:3000');
+  assert.equal(logoutUrl.searchParams.get('id_token_hint'), null, 'no hint is invented when no ID token was kept');
   assert.equal(clearedCookies(response).length, 2);
+  assert.equal(clearedIdCookie(response).length, 1, 'the kept ID token is always cleared');
+});
+
+test('a kept ID token is passed as id_token_hint so the provider signs out without a second confirmation', async () => {
+  const route = loadRoute({
+    idToken: 'aaa.bbb.ccc',
+    oidcDocument: async () => ({ end_session_endpoint: 'https://aegis-idp.localhost:8443/realms/aegis-exercise/protocol/openid-connect/logout' }),
+  });
+  const response = await route(post());
+  const logoutUrl = new URL((await response.json()).logoutUrl);
+  assert.equal(logoutUrl.searchParams.get('id_token_hint'), 'aaa.bbb.ccc');
+  assert.equal(clearedIdCookie(response).length, 1);
 });
 
 test('local session still clears when the provider has no end_session_endpoint', async () => {

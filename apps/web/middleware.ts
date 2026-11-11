@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { buildCsp } from "./lib/csp";
-import { fixtureAgency, gateSession, isFixturePath, isPublicPath, sessionCookieName } from "./lib/session-gate";
+import { fixtureAgency, gateSession, isFixturePath, isPublicPath, safeReturnPath, sessionCookieName } from "./lib/session-gate";
 
 // Two jobs on every request:
 // 1. Sign-in gate. Only the landing page, the sign-in page and the sign-in endpoints are open. Every other page
@@ -12,10 +12,16 @@ import { fixtureAgency, gateSession, isFixturePath, isPublicPath, sessionCookieN
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl, isApi = pathname.startsWith("/api/");
   if (!isPublicPath(pathname)) {
-    const session = await gateSession(request.cookies.get(sessionCookieName())?.value);
+    const cookie = request.cookies.get(sessionCookieName())?.value;
+    const session = await gateSession(cookie);
     if (!session) {
       if (isApi) return NextResponse.json({ error: "Sign-in required", code: "SIGN_IN_REQUIRED" }, { status: 401, headers: { "Cache-Control": "no-store" } });
       const target = request.nextUrl.clone(); target.pathname = "/sign-in"; target.search = "";
+      // Carry only a validated in-app page path, so the visitor returns to the page they asked for.
+      const back = safeReturnPath(pathname);
+      if (back) target.searchParams.set("next", back);
+      // A cookie that no longer opens means the session ended; a visitor with no cookie simply has not signed in.
+      if (cookie) target.searchParams.set("expired", "1");
       return NextResponse.redirect(target, 307);
     }
     if (isFixturePath(pathname) && session.agencyId !== fixtureAgency()) {

@@ -1,0 +1,102 @@
+/* AEGIS look for the local exercise identity provider. Loaded after Keycloak's own styles.css.
+   Colours match the AEGIS sign-in page: deep navy, one saffron accent. The picture is the same India-centred
+   still used on the AEGIS sign-in page (NASA imagery, see research/real-data/LICENCES.md). */
+:root {
+  --aegis-navy: #0b1f5c;
+  --aegis-navy-deep: #050b24;
+  --aegis-saffron: #f08a1c;
+  --keycloak-card-top-color: var(--aegis-saffron);
+  --pf-v5-global--primary-color--100: var(--aegis-navy);
+  --pf-v5-global--primary-color--200: #14308a;
+  --pf-v5-global--link--Color: var(--aegis-navy);
+  --pf-v5-global--link--Color--hover: #14308a;
+}
+
+.login-pf body {
+  background: var(--aegis-navy-deep) url("../img/india-globe-still.webp") no-repeat 30% center / cover fixed;
+}
+
+/* Darken the picture a little so the card and the heading always have contrast. */
+.pf-v5-c-login {
+  background: linear-gradient(90deg, rgba(5, 11, 36, 0.35) 0%, rgba(5, 11, 36, 0.78) 100%);
+  min-height: 100vh;
+}
+
+#kc-header-wrapper {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #ffffff !important;
+}
+
+/* What this page is, in plain words, above the card. */
+#kc-header-wrapper::after {
+  content: "Your agency's sign-in page. AEGIS never sees what you type here.";
+  display: block;
+  margin-top: 0.6rem;
+  font-size: 0.95rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.pf-v5-c-login__main {
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+
+.pf-v5-c-login__main-header {
+  border-top-width: 5px;
+}
+
+.pf-v5-c-button.pf-m-primary {
+  --pf-v5-c-button--m-primary--BackgroundColor: var(--aegis-navy);
+  --pf-v5-c-button--m-primary--hover--BackgroundColor: #14308a;
+  --pf-v5-c-button--m-primary--active--BackgroundColor: #14308a;
+  --pf-v5-c-button--m-primary--focus--BackgroundColor: #14308a;
+  min-height: 46px;
+  font-weight: 700;
+  border-radius: 10px;
+}
+
+.pf-v5-c-form-control {
+  --pf-v5-c-form-control--BorderRadius: 10px;
+}
+
+:focus-visible {
+  outline: 3px solid var(--aegis-saffron);
+  outline-offset: 2px;
+}
+
+/* Exercise label under the form, always present. */
+.pf-v5-c-login__main-body::after {
+  content: "Exercise only. Synthetic data. Local demonstration accounts.";
+  display: block;
+  margin-top: 1.25rem;
+  padding: 0.55rem 0.75rem;
+  border-left: 3px solid var(--aegis-saffron);
+  background: #fff6ea;
+  color: #5a3a06;
+  font-size: 0.85rem;
+  border-radius: 0 8px 8px 0;
+}
+
+/* Wide screens: card on the right, India visible on the left, like the AEGIS sign-in page. */
+@media (min-width: 1100px) {
+  .pf-v5-c-login__container {
+    margin-left: auto;
+    margin-right: 8vw;
+  }
+}
+
+/* Keycloak's dark mode keeps the same picture and accent. */
+.pf-v5-theme-dark .pf-v5-c-login__main-body::after {
+  background: #2a1d07;
+  color: #ffd9a3;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}

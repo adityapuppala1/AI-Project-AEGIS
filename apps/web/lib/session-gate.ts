@@ -40,6 +40,16 @@ export function isPublicPath(pathname: string): boolean {
   return PUBLIC_PAGES.has(pathname) || pathname.startsWith("/api/auth/");
 }
 
+// Where a visitor may be sent back to after signing in. Only a plain in-app page path is accepted: letters, digits,
+// "-" and "/" (so no scheme, host, "//", backslash, dot, query or fragment can get through), never an API route or a
+// public page. Anything else falls back to the default landing place.
+export function safeReturnPath(value: string | null | undefined): string | null {
+  if (typeof value !== "string" || value.length < 2 || value.length > 120) return null;
+  if (!/^(\/[A-Za-z0-9-]+)+$/.test(value)) return null;
+  if (value === "/api" || value.startsWith("/api/") || value.startsWith("/_next") || isPublicPath(value)) return null;
+  return value;
+}
+
 // The seeded exercise records belong to one agency. Operators of any other agency must not see them.
 const FIXTURE_API = ["/api/incidents", "/api/sources", "/api/agency-tasks", "/api/telemetry", "/api/ingestion", "/api/model-lab", "/api/exercise", "/api/policy"];
 const FIXTURE_PAGES = ["/incidents", "/demo", "/model-lab", "/sources", "/ingestion", "/agency-sync", "/response-teams", "/audit"];

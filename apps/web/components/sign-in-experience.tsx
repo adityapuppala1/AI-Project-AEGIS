@@ -33,7 +33,8 @@ const ROLES = [
   { name: "Admin", does: "Opens the administration pages and configures the platform." },
 ];
 
-export function SignInExperience({ failed }: Readonly<{ failed: boolean }>) {
+export function SignInExperience({ failed, expired = false, next = null }: Readonly<{ failed: boolean; expired?: boolean; next?: string | null }>) {
+  const loginHref = next ? `/api/auth/login?next=${encodeURIComponent(next)}` : "/api/auth/login";
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [leaving, setLeaving] = useState(false);
@@ -103,12 +104,13 @@ export function SignInExperience({ failed }: Readonly<{ failed: boolean }>) {
           <h1 id="sign-in-title">Operator sign-in</h1>
           <p className="si-lede">Sign in with your agency account. There is nothing to type on this page: your agency&rsquo;s own sign-in does that part.</p>
 
+          {expired && !failed && <p role="status" className="si-alert"><TriangleAlert size={20} aria-hidden="true" /><span>Your session ended, so you were signed out. Sign in again to continue{next ? " where you left off" : ""}. Sessions last 15 minutes.</span></p>}
           {failed && <p role="alert" className="si-alert"><TriangleAlert size={20} aria-hidden="true" /><span>That sign-in could not be verified, so nobody was signed in. Please try again. If it keeps happening, tell your agency administrator.</span></p>}
 
           <div className="si-state" aria-live="polite">
             {status === "checking" && <p className="si-box si-wait">Checking the secure sign-in service…<span aria-hidden="true" /></p>}
             {status === "ready" && <>
-              <a href="/api/auth/login" className="si-go" onClick={() => setLeaving(true)} aria-busy={leaving}>
+              <a href={loginHref} className="si-go" onClick={() => setLeaving(true)} aria-busy={leaving}>
                 <span>{leaving ? "Opening your agency’s sign-in…" : "Continue to sign in"}</span>
                 <i aria-hidden="true">{leaving ? <span className="si-spin" /> : <ArrowRight size={22} />}</i>
               </a>

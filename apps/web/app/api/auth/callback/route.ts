@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { configuration, cookieName, cookieOptions, encryptData, equalSecret, extractScope, oidcDocument, readFlow, verifyToken } from "../../../../lib/auth-server";
+import { configuration, cookieName, cookieOptions, displayLabel, encryptData, equalSecret, extractScope, oidcDocument, readFlow, verifyToken } from "../../../../lib/auth-server";
+import { safeReturnPath } from "../../../../lib/session-gate";
 
 export const runtime = "nodejs";
 export async function GET(request: NextRequest) {
@@ -50,9 +51,16 @@ export async function GET(request: NextRequest) {
     const encrypted = await encryptData(config, {
       accessToken: tokens.access_token, sub: operator.subject,
       agencyId: operator.agencyId, roles: operator.roles, departmentId: operator.departmentId,
+      // Names are for display only (who is signed in); every access decision uses the signed role and agency.
+      username: displayLabel(idClaims.preferred_username), displayName: displayLabel(idClaims.name),
     }, ttl);
     if (encrypted.length > 3900) return errorResult(401);
-    const response = NextResponse.redirect(config.origin + (operator.roles.includes("department_operator") ? "/department-tasks" : "/"));
+    // Return to the page that was asked for (validated again here), else the role's home page.
+    const home = operator.roles.includes("department_operator") ? "/department-tasks" : "/";
+    const response = NextResponse.redirect(config.origin + (safeReturnPath(flow.next) ?? home));
+    // Kept sealed and HttpOnly, sent only to the sign-in endpoints: lets sign-out end the provider session in one step.
+    const sealedId = await encryptData(config, { idToken: tokens.id_token }, ttl + 3600);
+    if (sealedId.length <= 3900) response.cookies.set(cookieName(config, "idt"), sealedId, { ...cookieOptions(config, ttl + 3600), path: "/api/auth" });
     response.cookies.set(cookieName(config, "flow"), "", cookieOptions(config, 0));
     response.cookies.set(cookieName(config, "session"), encrypted, cookieOptions(config, ttl));
     response.headers.set("Cache-Control", "no-store");

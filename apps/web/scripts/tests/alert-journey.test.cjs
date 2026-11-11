@@ -121,7 +121,7 @@ test('maps on every page load their tiles through the relay', () => {
 test('sign-in page never collects a password and only starts the provider flow', () => {
   const page = read('components/sign-in-experience.tsx');
   assert.ok(!/<input|type="password"|<form/i.test(page), 'no credential fields in AEGIS');
-  assert.ok(page.includes('href="/api/auth/login"'));
+  assert.ok(page.includes('"/api/auth/login"') && page.includes('href={loginHref}'), 'the only action is a link to the sign-in endpoint');
   const callback = read('app/api/auth/callback/route.ts');
   assert.ok(callback.includes('"/sign-in?error=verify"') && !/searchParams\.get\("(returnTo|next|redirect)"\)/.test(callback), 'fixed redirect targets only');
   assert.ok(read('app/api/auth/login/route.ts').includes('code_challenge_method", "S256"'));
@@ -327,4 +327,20 @@ test('sign-in gate accepts only an unexpired cookie sealed with the server key',
     assert.equal(await gate.gateSession(undefined), null);
     assert.ok(gate.isFixturePath('/api/incidents/x/readiness') && gate.isFixturePath('/demo') && !gate.isFixturePath('/api/proposals'));
   } finally { if (before === undefined) delete process.env.BFF_SESSION_KEY_BASE64; else process.env.BFF_SESSION_KEY_BASE64 = before; }
+});
+
+// ---- return-to after sign-in: only a plain in-app page path, kept inside the sealed flow cookie ----
+test('sign-in return path accepts only plain in-app pages and never travels through the provider', () => {
+  const gate = loadTs('lib/session-gate.ts', { jose: require('jose') });
+  for (const ok of ['/incidents', '/admin/go-live', '/handover', '/department-tasks']) assert.equal(gate.safeReturnPath(ok), ok);
+  const bad = ['//evil.example', '/' + String.fromCharCode(92) + 'evil.example', 'https://evil.example', '/incidents?x=1', '/incidents#x', '/a/../b', '/incidents/', '/', '/welcome', '/sign-in',
+    '/api/auth/login', '/api/incidents', '/_next/static/x', '/a b', '/%2F%2Fevil', '/incidents.json', '', null, undefined, 42, '/' + 'a'.repeat(200)];
+  for (const value of bad) assert.equal(gate.safeReturnPath(value), null, String(value));
+  const login = read('app/api/auth/login/route.ts'), callback = read('app/api/auth/callback/route.ts'), middleware = read('middleware.ts');
+  assert.ok(login.includes('safeReturnPath(request.nextUrl.searchParams.get("next"))') && !login.includes('authorize.searchParams.set("next"'), 'validated, then sealed in the flow cookie');
+  assert.ok(callback.includes('safeReturnPath(flow.next)') && callback.includes('config.origin + ('), 'validated again and always prefixed with our own origin');
+  assert.ok(middleware.includes('safeReturnPath(pathname)') && middleware.includes('"expired"'), 'gate passes only a validated path and marks an ended session');
+  const logout = read('app/api/auth/logout/route.ts'), server = read('lib/auth-server.ts');
+  assert.ok(logout.includes('id_token_hint') && server.includes('path: "/api/auth"') === false && callback.includes('path: "/api/auth"'), 'id token cookie is limited to the sign-in endpoints');
+  assert.ok(callback.includes('displayLabel(idClaims.preferred_username)') && !/roles:\s*idClaims/.test(callback), 'names come from the verified ID token and are display only');
 });
