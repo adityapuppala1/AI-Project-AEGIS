@@ -1,19 +1,20 @@
 # Narration scripts
 
-These walkthrough videos were refreshed on 11 November 2026 against the redesigned landing page, sign-in page and sidebar, and the sign-in gate (every page except the landing, welcome and sign-in pages needs a signed-in session). Each video was recorded from the locally running app (Docker, http://localhost:3000) with Playwright (headless Chromium, 1280x720). The voice-over was generated with the `edge-tts` Python package using the Indian English neural voice `en-IN-NeerjaNeural` (only the narration text is sent to Microsoft's speech service), and audio and video were joined with ffmpeg (H.264 + AAC). Each scene's audio is placed at the moment the matching scene appears on screen, and the same sentence is shown as an on-screen caption.
+These walkthrough videos were refreshed on 11 November 2026 against the redesigned app: the India-centred Earth on the landing and sign-in pages, the restyled identity provider form, the new signed-in shell (sidebar, EXERCISE desk strip with IST clock, account menu, "How this page works", two-key maker/checker markers), the About and Users and access pages, one-step sign-out, and department accounts. Each video was recorded from the locally running app (http://localhost:3000) with Playwright (headless Chromium, 1280x720). The voice-over was generated with the `edge-tts` Python package using the Indian English neural voice `en-IN-NeerjaNeural` (only the narration text is sent to Microsoft's speech service), and audio and video were joined with ffmpeg (H.264 + AAC). Each scene's audio is placed at the moment the matching scene appears on screen, and the same sentence is shown as an on-screen caption.
 
-Videos 02 to 09 are signed in with the local demo accounts. In video 02 and 08 the sign-in is done on screen through the local identity provider's own form: the user name is typed visibly, the password box is masked, and no password appears in any frame, caption or narration. The passwords were read from the local credentials file at run time and are not stored in this repository. The `exercise-*` accounts were not used.
+Videos 02 to 09 are signed in with the local demo accounts (demo-maker, demo-checker, demo-dept-control). Sign-in is done on screen through the identity provider's own form: the user name is typed visibly, the password box is masked, and no password appears in any frame, caption or narration. Passwords were read from the local credentials file at run time and are not stored in this repository. The `exercise-*` accounts were not used.
 
-Everything shown is synthetic exercise data from a prototype. AEGIS does not send warnings or dispatch teams, and nothing here is real forecasting accuracy or government approval. The recordings created two synthetic approval records in the local exercise database through the normal UI (one draft that was submitted and approved on camera, plus one earlier test record).
+Everything shown is synthetic exercise data from a prototype. AEGIS does not send warnings or dispatch teams, the India outline is schematic, and nothing here is real forecasting accuracy or government approval. The recordings created one synthetic approval proposal in the local exercise database through the normal UI (video 08: a draft submitted by the maker and approved by the checker).
 
-Not covered: the Department Inbox with a department account (no demo department account exists, so the video shows the role-required message), Hazard Watch, Public Intake, Earth Watch, Copilot, Drills, Handover and Learning pages.
+Not covered: Hazard Watch, Public Intake, Earth Watch, Copilot, Drills, Handover and Learning pages (see docs/screenshots). The Department Inbox was empty for the department account when recorded, and the video says so.
+
 
 ## 01-about-aegis.mp4: About AEGIS (landing page, signed out)
 
-*Shown:* The redesigned public landing page: hero with the hazard selector (cyclone, river flood, earthquake, heatwave), the six steps of how an alert travels, the safeguards and project status sections, and the Sign in button.
+*Shown:* The landing page with the Earth centred on India (schematic saffron outline, INSAT satellites), the hazard picker that flies to Indian regions, the six steps of how an alert travels, the safeguards and project status sections, and Sign in.
 
 1. This is AEGIS, an exercise only decision support prototype for India's disaster agencies. It gathers the evidence, estimates the risk, and makes sure two accountable officers approve an alert before it goes to the official channel.
-2. Everything you will see uses synthetic exercise data. AEGIS does not send warnings. You can follow a cyclone, a river flood, an earthquake or a heatwave. Let us pick river flood, and then earthquake.
+2. Everything you will see uses synthetic exercise data. AEGIS does not send warnings. You can follow a cyclone, a river flood, an earthquake or a heatwave. The hazard picker flies the globe to the matching Indian region. Let us pick river flood, and then earthquake.
 3. Now scroll down to see how an alert travels, in six steps. Step one, sense. Weather satellites and coastal gauges follow a storm forming over the Bay of Bengal, days before landfall.
 4. Step two, predict. Possible storm tracks are compared, and the districts most likely to flood are marked, with the evidence listed. When evidence is thin, AEGIS says so, instead of guessing.
 5. Step three, decide. One officer drafts the alert. A different officer checks it, and approves it or sends it back with a reason. No single person can approve alone, and software cannot approve at all.
@@ -24,21 +25,23 @@ Not covered: the Department Inbox with a department account (no demo department 
 10. The AI reads, compares and explains. It flags stale or conflicting sources, and estimates how unusual a rainfall is, with a range. It never approves, never sends a warning, and never dispatches teams.
 11. Where the project stands: this is a prototype for rehearsal. It is not a live warning system, and it has no government approval. To explore further, choose Sign in at the top. Thank you for watching.
 
-## 02-sign-in.mp4: Sign-in and first view after login
+## 02-sign-in.mp4: Sign-in, the identity provider form and the account menu
 
-*Shown:* The sign-in page, then a real sign-in through the local identity provider with the demo maker account (an incident operator). The user name is typed on screen; the password field is masked and no password is shown or spoken. It ends on the signed-in Command Center.
+*Shown:* The sign-in page, Continue to sign in, the identity provider's own login form (user name typed, password masked), the signed-in Command Center and the account menu (user, role, agency, session time, Users and access, Sign out).
 
 1. This is the AEGIS operator sign-in page. Operators sign in with their agency account, and AEGIS sends them to their own organisation's identity provider.
 2. There are three steps. Leave for your identity provider. Enter your password and second factor there. Then return to AEGIS with a signed role.
 3. Your password never reaches AEGIS. You type it only on your organisation's identity provider. AEGIS checks the provider's signature before it trusts the sign-in. Role and agency come from the signed token, and the maker and the checker must be two different people.
-4. Now let us sign in for real, with the local demo account for an incident operator, the maker. We scroll back up and choose continue with agency sign-in.
-5. This is the identity provider's own login form, a separate system from AEGIS. We type the demo user name. The password box is masked, so what you see is only dots.
+4. Now let us sign in for real, with the local demo account for an incident operator, the maker. We scroll back up and choose Continue to sign in.
+5. This is the identity provider's own login form, a separate system from AEGIS, in the same look. We type the demo user name. The password box is masked, so what you see is only dots.
 6. We submit the form. The provider checks the account, and sends the browser back to AEGIS with a signed sign-in result.
-7. We are now signed in and on the Command Center. The top bar shows our verified role, incident operator, and a sign out button. The session is short and sealed. It expires within fifteen minutes, and is cleared on sign-out.
+7. We are now signed in on the Command Center, inside the new portal shell. A strip says exercise, no live warnings or dispatch, with the time in India.
+8. Top right is the account menu. It shows who is signed in, Demo maker, and the verified role, maker. It also shows the agency, the account, and how many minutes remain in the session. There is a link to Users and access, and a Sign out choice.
+9. The session is short and sealed, and it is cleared on sign-out. Everything here is a synthetic exercise, and AEGIS sends nothing.
 
 ## 03-alert-journey-exercise.mp4: Alert Journey exercise (synthetic cyclone, signed in)
 
-*Shown:* The globe-based Alert Journey exercise at /alert-journey, played in director mode with its three human decision gates (staging plan, checker approval, escalation). Synthetic data only.
+*Shown:* The Alert Journey at /alert-journey in director mode with its three human decision gates (staging plan, checker approval, escalation). Synthetic data only.
 
 1. This is the AEGIS Alert Journey, opened after signing in. It is a synthetic exercise: a made up cyclone, played out from the first signal to people being warned. Nothing in it is real, and nothing is sent. It has five phases, and three points where a human has to decide.
 2. Phase one, sense. Satellites and gauges watch the storm as it forms. In this exercise their readings are synthetic. AEGIS collects them, and shows where each reading came from.
@@ -54,7 +57,7 @@ Not covered: the Department Inbox with a department account (no demo department 
 
 ## 04-live-earth.mp4: Live Earth (opt-in public reference data) and the Flood tab
 
-*Shown:* Alert Journey in live mode: the consent step, public satellite imagery and orbits, public earthquake and storm reports, Hyderabad selected, the Flood tab (river discharge and rainfall extremes as public reference data), and the city scene. The optional statistical forecast button visible on the Flood tab was not used.
+*Shown:* Alert Journey in live mode: consent step, public imagery and orbits, public earthquake and storm reports, Hyderabad selected, the Flood tab and the city scene.
 
 1. Live Earth is an optional mode of the AEGIS Alert Journey. It shows real public reference data, for context only. It is not an AEGIS assessment, and nothing here is used to create alerts.
 2. The page asks first. Only after you agree does the AEGIS server fetch public data on your behalf. Nothing is stored, and the data is never used to create alerts.
@@ -66,10 +69,10 @@ Not covered: the Department Inbox with a department account (no demo department 
 
 ## 05-command-center-tour.mp4: Command Center tour (signed in as the demo maker)
 
-*Shown:* The Command Center after sign-in (top bar role, menu groups, decision path, counters, public reference signals, map and queues), the Incident Registry, and one synthetic case with its geospatial context.
+*Shown:* The Command Center in the new shell (sidebar, desk strip, account menu), decision path, counters, public reference signals, map and queue, the Incident Registry and one synthetic case.
 
 1. This is the AEGIS Command Center, as seen after signing in. Everything here is synthetic exercise data, and a banner says so at the top.
-2. The top bar shows who is signed in. Here it is the incident operator role, taken from the signed sign-in, with a sign out button. On the left, the menu groups the pages as overview, observe, coordinate and govern.
+2. The top right account menu shows who is signed in, and the verified role, maker. On the left, the sidebar groups the pages as overview, observe, coordinate and govern.
 3. At the top is the decision path in three steps. One, observe and verify. Two, focus and draft. Three, approve and rehearse. The counters show five registered incidents, two awaiting human review, and zero public alerts issued, because operational alerting is disabled.
 4. Below are public signals, labelled reference only. These come from public earthquake and natural event feeds, shown for context. They are not an AEGIS assessment and they never create a case.
 5. Further down are the map and the incident queue, and a monitor of how fresh each simulated source is. Scroll on to see the hazard telemetry and the response readiness.
@@ -80,7 +83,7 @@ Not covered: the Department Inbox with a department account (no demo department 
 
 ## 06-exercise-walkthrough.mp4: Exercise Walkthrough (/demo)
 
-*Shown:* The 11-stage guided exercise page: local readiness checks, then stages 2 to 11 selected in turn (ingestion, source freshness, incident, geographic candidates, hazard index, model limits, playbook, checker gate, department acknowledgements, audit trace).
+*Shown:* The 11-stage guided exercise: local readiness checks, then stages 2 to 11 selected in turn.
 
 1. This is the Exercise Walkthrough. It follows one made up urban waterlogging case in Hyderabad through eleven stages. It is a tabletop simulation. It cannot forecast real floods, contact departments, or issue warnings.
 2. First, a set of local checks. They confirm that the exercise database, the sample incidents, the sources and the scripted tasks are present. A pass here does not mean sensors are connected, or that the public is safe.
@@ -96,7 +99,7 @@ Not covered: the Department Inbox with a department account (no demo department 
 
 ## 07-inputs.mp4: Inputs: Source Freshness and DataFusion ingestion
 
-*Shown:* The Source Freshness page (counts by freshness, source registry, source detail and quality notes) and the DataFusion ingestion page (replay steps, accepted and quarantined counts, quarantine reasons, local replay command).
+*Shown:* Source Freshness (counts, registry, detail) and the DataFusion ingestion page (replay steps, counters, quarantine reasons).
 
 1. This video is about inputs: where the evidence comes from. First, Source Freshness. These five sources are database fixtures for the exercise. They are not connected to the India Meteorological Department, N D M A, cameras or municipal devices.
 2. The cards count the sources by freshness. Freshness is only a timestamp check. It does not prove that a signal is accurate or that any equipment is working. Here four sources are stale, because the sample readings are old.
@@ -107,27 +110,31 @@ Not covered: the Department Inbox with a department account (no demo department 
 
 ## 08-approvals-maker-checker.mp4: Approvals: maker drafts, a different checker approves
 
-*Shown:* The Approval Workbench. The maker (demo maker) fills in and saves a draft and submits it. The maker signs out, the identity provider session is cleared, and a different person (demo checker, role incident checker, a different verified identity) signs in, writes a reason and approves. Synthetic exercise records only; nothing is sent.
+*Shown:* The Approval Workbench with the two-key (maker, checker) markers. The maker drafts and submits, signs out in one step from the account menu, and a different person (demo checker) signs in through the provider form, writes a reason and approves. Synthetic records only; nothing is sent.
 
-1. This is the Approval Workbench, where decisions are made and checked. We are signed in as the maker, an incident operator. The page says it is a training environment, and that approvals never issue warnings or dispatch anyone.
+1. This is the Approval Workbench, where decisions are made and checked. We are signed in as the maker, an incident operator. Each proposal shows two keys, maker and checker. The page says it is a training environment, and that approvals never issue warnings or dispatch anyone.
 2. The maker starts a proposal. We choose an exercise incident, road inundation, and an action, prepare a warning draft, which is marked never send. Then we write the rationale, with the evidence and the uncertainty.
 3. We save the draft. The page keeps a cited review brief with it, taken from the saved evidence. The draft is still private, and nothing has been approved.
 4. Now the maker submits the draft for independent review. The status changes to submitted, and the maker step is done. The maker cannot approve their own draft.
-5. The maker signs out. Approval needs a different person, so we go back to the sign-in page.
+5. The maker opens the account menu and chooses Sign out. Sign-out now ends the identity provider session in one step, and returns to the sign-in page.
 6. Now we sign in as a second person, the checker, with their own demo account. Again the password box is masked.
-7. We open the Approval Workbench as the checker. The role at the top is now incident checker. The form for new proposals is disabled for this role, and the submitted draft is waiting for review.
+7. We open the Approval Workbench as the checker. The role at the top is now checker, and the two key markers show the maker key done and the checker key waiting. The form for new proposals is disabled for this role, and the submitted draft is waiting for review.
 8. The checker reads the cited evidence and the rationale. Then they must write a reason for their decision, whether they approve or reject.
-9. The checker approves the draft. All three steps are now done: maker, checker, and simulate. Approval records a simulated decision only. AEGIS still sends no warning and dispatches no team.
+9. The checker approves the draft. Both keys are now turned, maker and checker, and the simulate step remains. Approval records a simulated decision only. AEGIS still sends no warning and dispatches no team.
 
-## 09-team-response.mp4: Team response and governance
+## 09-team-response.mp4: Team response, Department Inbox, Users and access and governance
 
-*Shown:* Team Availability (fictional teams), AgencySync tasks and one task audit trail, the Department Inbox (which correctly refuses the incident operator account because it has no verified department role), Audit360 and the read-only Administration policy.
+*Shown:* Team Availability, AgencySync with a task audit trail, Audit360, Administration, then a department account (demo-dept-control, Department desk) opening the Department Inbox (empty, as shown) and the Users and access page.
 
 1. After a decision, work moves to the teams. This is Team Availability. It shows seven fictional teams and the scripted tasks they hold. This is an exercise board, not real staffing.
 2. Five tasks are open, and three are past their demo due window. The three slot capacity is only a planning setting for this rehearsal. Nothing here assigns, notifies or dispatches anyone.
 3. Now AgencySync. It lists the fictional department tasks, each tied to a case, with its state. Three are prepared, and never sent. Two have scripted acknowledgements, and two have scripted closures.
 4. Selecting a task opens its audit trail. Every message says that nothing was sent. The trail shows who acted, and when, in the scripted exercise.
-5. The Department Inbox is where a department sees its own approved tasks. It needs a verified department role. Our incident operator account does not have one, so the page says so, and shows no tasks. Roles come from the signed sign-in, never from the browser.
+5. Selecting a task opens its audit trail. Every message says that nothing was sent. The trail shows who acted, and when, in the scripted exercise.
 6. Audit360 lets you export one synthetic case as a traceable snapshot with a checksum. It is a demonstration. It is not a legally signed audit, and it leaves out private approval histories.
-7. Finally, the Administration page. It shows the policy in force, set on the server. Independent checker is required, and live warnings and live dispatch are locked off. Nothing on this page can be edited from the browser.
-8. That is the team response side. Tasks are scripted, every step is audited, and the controls that would send a real warning or dispatch a real team are locked off. This is a prototype for rehearsal.
+7. The Administration page shows the policy in force, set on the server. Independent checker is required, and live warnings and live dispatch are locked off. Nothing on this page can be edited from the browser.
+8. Now a department account. The maker signs out from the account menu, and returns to the sign-in page.
+9. We sign in as the demo account for the control room department. The user name is typed, and the password box is masked.
+10. The Department Inbox now opens, because this account has a verified department role and a department, the control room. It shows only that department's approved tasks. Right now there are none, and the page says an empty inbox does not mean no work exists. Tasks appear only after an independent checker approves a proposal.
+11. Last, Users and access, under Administration. It shows who is signed in, the role, the department, and what each of the five roles can and cannot do. It is read only. Accounts are managed in the agency's identity provider, never in AEGIS.
+12. That is the team response side. Tasks are scripted, every step is audited, and the controls that would send a real warning or dispatch a real team are locked off. This is a prototype for rehearsal.

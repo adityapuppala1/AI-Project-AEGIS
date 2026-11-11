@@ -23,6 +23,8 @@ Taken from the running local app on 11 November 2026. All data shown is syntheti
 | ![Command Center](docs/screenshots/command-center.png) | ![Live Earth](docs/screenshots/live-earth.png) |
 | **Alert Journey: exercise story** | **Flood tab** |
 | ![Exercise story](docs/screenshots/alert-journey-exercise.png) | ![Flood tab](docs/screenshots/flood-tab.png) |
+| **Account menu: who is signed in** | **Users and access** |
+| ![Account menu](docs/screenshots/account-menu.png) | ![Users and access](docs/screenshots/users-access.png) |
 | **Approvals (two-person check)** | **Source freshness** |
 | ![Approvals](docs/screenshots/approvals.png) | ![Sources](docs/screenshots/sources.png) |
 | **AgencySync tasks** | **Audit trail** |
