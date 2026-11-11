@@ -85,7 +85,7 @@ More detail: [architecture decisions](docs/ARCHITECTURE.md) · [security and gov
 
 **You need:** Windows 10/11, [Docker Desktop](https://www.docker.com/products/docker-desktop/) with WSL2, Git and
 PowerShell. Step-by-step guide with the demo data, sign-in setup, demo accounts and troubleshooting:
-**[docs/INSTALL.md](docs/INSTALL.md)**.
+**[docs/INSTALL.md](docs/INSTALL.md)**. Presenting it: **[docs/DEMO_GUIDE.md](docs/DEMO_GUIDE.md)**.
 
 ```powershell
 git clone https://github.com/adityapuppala1/AI-Project-AEGIS.git
@@ -95,7 +95,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\start-windows.ps1       # bui
 powershell -ExecutionPolicy Bypass -File .\scripts\prepare-local-idp.ps1 -GenerateLocalSecrets
 # one-time sign-in setup: docs/INSTALL.md step 4 (five commands, one certificate prompt)
 powershell -ExecutionPolicy Bypass -File .\scripts\start-windows.ps1 -SignIn -NoBuild
-powershell -ExecutionPolicy Bypass -File .\scripts\new-demo-accounts.ps1   # demo-maker, -checker, -auditor, -admin
+powershell -ExecutionPolicy Bypass -File .\scripts\update-local-idp.ps1    # sign-in page look, department role
+powershell -ExecutionPolicy Bypass -File .\scripts\new-demo-accounts.ps1   # maker, checker, auditor, admin, two department desks
 ```
 
 Open http://localhost:3000. The landing page and the sign-in page are public; **everything else needs a sign-in**.

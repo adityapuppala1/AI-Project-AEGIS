@@ -79,33 +79,40 @@ Notes:
   *Manage user certificates → Trusted Root Certification Authorities*. Firefox keeps its own list and may still warn.
 - More background and the review notes: [LOCAL_IDP_REVIEW.md](LOCAL_IDP_REVIEW.md).
 
-## Step 5: create the demo accounts
+## Step 5: finish the identity provider setup and create the demo accounts
 
 ```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\update-local-idp.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\new-demo-accounts.ps1
 ```
 
-| Account | Role | What it can do |
+The first script gives the provider's sign-in pages the AEGIS look, sets 15-minute tokens and adds the department
+role. It is safe to run again, and it is also what brings an older install up to date. The second creates the accounts:
+
+| Account | Shown in the app as | What it can do |
 |---|---|---|
-| `demo-maker` | incident operator | Works cases, drafts proposals and submits them |
-| `demo-checker` | incident checker | Approves or rejects another person's proposal |
-| `demo-auditor` | incident auditor | Reads the audit trail |
-| `demo-admin` | platform admin | Administration pages |
+| `demo-maker` | Maker | Works cases, drafts proposals and submits them |
+| `demo-checker` | Checker | Approves or rejects another person's proposal |
+| `demo-auditor` | Auditor | Reads the audit trail |
+| `demo-admin` | Administrator | Administration pages |
+| `demo-dept-control` | Department desk (control room) | Opens the Department Inbox for that desk |
+| `demo-dept-infra` | Department desk (infrastructure) | Opens the Department Inbox for that desk |
 
 The passwords are generated on your laptop and saved to
 `%LOCALAPPDATA%\AEGIS\local-idp\demo-credentials.txt` (user name, password, role). Open that file in Notepad to read
 them. They are never printed or committed. Running the script again leaves existing accounts unchanged.
 
-All four accounts belong to the one demo agency. The department-operator role is not set up in the local identity
-provider, so the department inbox is shown through the coordinator view.
+All accounts belong to the one demo agency. The signed-in user's name and role are shown at the top right of every
+page; the full list of what each role may do is under Administration, "Users and access". Accounts are created and
+removed in the identity provider, never inside AEGIS.
 
 ## Step 6: sign in and look around
 
 1. Open http://localhost:3000 and choose **Operator sign in**.
 2. Sign in as `demo-maker`. You land on the Command Center.
 3. Good places to start: **Guided exercise** (`/demo`), **Alert Journey** (story and Live Earth), **Approvals**.
-4. To see the two-person approval, submit a proposal as `demo-maker`, sign out, then sign in as `demo-checker` in a
-   private window and decide it. A maker can never approve their own proposal.
+4. To see the two-person approval, submit a proposal as `demo-maker`, sign out from the account menu (top right),
+   then sign in as `demo-checker` and decide it. A maker can never approve their own proposal.
 
 ## What the demo data contains
 

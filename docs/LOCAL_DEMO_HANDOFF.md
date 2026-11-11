@@ -18,6 +18,41 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Round 9: India globe, account menu, uniform portal, department accounts — 11 November 2026 (Windows laptop)
+
+Branch `feat/landing-ux-security-hardening` (commits `019ea46`, `278565e`, `16db0fd`, then docs/media). `main` not
+moved in this round. Compose services left **running** (overlays local-idp + public-earth + proactive + timesfm).
+
+**Completed and verified by execution on the Windows laptop (not a Linux runner):**
+- Landing and sign-in pages share one India-centred Earth (`components/globe`); see the globe section below.
+- Sign-in: verified name in the session (display only), validated return path, ended-session notice, one-step
+  sign-out. Browser run: `/incidents` signed out -> `/sign-in?next=%2Fincidents` -> provider form -> back on
+  `/incidents` as demo-maker with 15 minutes left; after sign-out the next sign-in shows the form again; a stale
+  cookie on `/handover` gives `/sign-in?next=%2Fhandover&expired=1` with the notice.
+- Local identity provider: `scripts/update-local-idp.ps1` (run from a reverted state: five items "updated", second run
+  all "already set"); department role, attribute and token mapper; AEGIS-styled provider pages
+  (`ops/local-idp/theme`); `demo-dept-control` signs in, lands on `/department-tasks` with department "Control room".
+- Signed-in portal: one shell and kit, account menu, `/about`, `/admin/users`, page help on all 25 shell routes,
+  plain labels instead of raw codes, session-ended dialog, 404/error pages, page titles, print styles, Radix
+  primitives (5 packages, exact versions).
+- Checks: API pytest 786 passed / 28 skipped; `app.model_lab --check` PASS; `npm run typecheck` clean; web tests
+  208 pass; `npm audit --omit=dev` 0 vulnerabilities; crawl of 28 routes as admin at 1440 and 390, light and dark:
+  no page errors, no horizontal overflow.
+
+**Not done / open:**
+- About half the pages still use the shared `.panel`/`.control` CSS classes instead of the components (watch,
+  earth-watch, connectors, public-intake, model-lab, agency-sync, team availability, audit, spatial analysis, admin,
+  help, playbooks, ingestion). Converted tables have no sorting or phone card layout; they scroll sideways.
+- 399 new or reworded English strings have no Telugu or Hindi text; they are listed in
+  `lib/translations-pending.ts` and fall back to English. The translation tests now accept "translated or pending".
+- Not seen working: the two-minute expiry warning, `error.tsx`/`global-error.tsx`. No screen-reader or measured
+  contrast pass. Some controls are under 30px tall at phone width on `/`, `/watch`, `/earth-watch`,
+  `/admin/connectors`. `/drills` shows a file name from the API's note text. The gate's 403 for another agency is
+  still plain text.
+- The India outline is Natural Earth's India-point-of-view edition, not Survey of India data; pages say "schematic".
+- Install steps still not run end to end on a clean computer. Earlier open items (API port fixture reads, TimesFM
+  back-test, NDMA figures, Semgrep/SonarQube/image scan) are unchanged.
+
 ## Round 8: install guide, demo accounts script, new videos and screenshots, published to main — 11 November 2026 (Windows laptop)
 
 Branch `feat/landing-ux-security-hardening`, then fast-forwarded to `main` on the owner's instruction ("Push to main
