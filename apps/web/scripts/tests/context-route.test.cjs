@@ -1,3 +1,4 @@
+const { apiAuth, isApiAuth } = require('./api-auth-stub.cjs');
 // Isolated route loader; never changes deployed fetch or authentication.
 const test = require('node:test');
 const assert = require('node:assert/strict');
@@ -12,7 +13,7 @@ function load(file, deps) {
  return mod.exports;
 }
 const errors = load('../../lib/context-errors.ts',()=>{throw Error('Unexpected import');});
-const {GET} = load('../../app/api/incidents/[id]/readiness/route.ts',name=>name==='next/server'?{NextResponse}:errors);
+const {GET} = load('../../app/api/incidents/[id]/readiness/route.ts',name=>isApiAuth(name)?apiAuth:name==='next/server'?{NextResponse}:errors);
 const id='22222222-2222-4222-8222-222222222222';
 async function requestWith(fetcher) {
  const before=global.fetch;global.fetch=fetcher;

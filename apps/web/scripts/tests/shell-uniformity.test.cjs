@@ -46,6 +46,44 @@ test('codeLabel gives reviewed labels for known codes and never shows a raw code
   assert.equal(labels.isMachineCode('Database answered'), false);
 });
 
+test('connector test results read as plain words; the raw code stays in a title attribute only', () => {
+  // Every message the API connector tests can return (services/api/app/connectors.py `_result`).
+  const api = read('../../services/api/app/connectors.py');
+  const codes = [...new Set(api.split(/\r?\n/).filter(line => line.includes('_result(')).flatMap(line => [...line.matchAll(/"([a-z_]+)"\)/g)].map(match => match[1])))];
+  for (const expected of ['secret_missing', 'network_error', 'exporter_valid_exercise_only', 'upstream_status', 'reachable']) assert.ok(codes.includes(expected) || expected === 'reachable', expected);
+  for (const code of [...codes, 'reachable']) {
+    assert.ok(labels.KNOWN_LABEL_CODES.includes(code), 'reviewed label for connector result ' + code);
+    const text = labels.codeLabel(code);
+    assert.ok(!labels.isMachineCode(text) && !text.includes('_'), code + ' -> ' + text);
+  }
+  assert.equal(labels.codeLabel('secret_missing'), 'The key for this connector has not been entered');
+  assert.equal(labels.codeLabel('network_error'), 'Could not reach the service');
+  assert.equal(labels.codeLabel('exporter_valid_exercise_only'), 'Exercise alert file checked; nothing is ever sent');
+  const page = read('components/connector-admin.tsx');
+  assert.match(page, /<span title=\{test\.message\}>\{t\(codeLabel\(test\.message\)\)\}<\/span>/);
+  assert.doesNotMatch(page, /\$\{test\.message\}/, 'the raw code is never rendered as text');
+});
+
+test('go-live names documents by plain title; file paths are secondary text or technical details only', () => {
+  assert.equal(labels.documentTitle('docs/GDACS_INQUIRY_DRAFT.md'), 'GDACS inquiry draft');
+  assert.equal(labels.documentTitle('docs/SOMETHING_NEW.md'), 'Something new document');
+  assert.equal(labels.documentText('Confirm against the official texts (see docs/GOVT_DEPLOYMENT_READINESS.md).'),
+    'Confirm against the official texts (see the government deployment readiness notes).');
+  assert.deepEqual(labels.documentParts('A draft is in docs/GDACS_INQUIRY_DRAFT.md.'),
+    [{ text: 'A draft is in ' }, { path: 'docs/GDACS_INQUIRY_DRAFT.md', title: 'the GDACS inquiry draft' }, { text: '.' }]);
+  const page = read('app/admin/go-live/page.tsx');
+  const prose = page.replace(/const SOURCE_DOCUMENTS = \[[^\]]*\]/, '');
+  for (const match of prose.matchAll(/(?:docs|research)\/[\w./-]+\.md/g)) {
+    // Remaining paths are inside SECTIONS data, which reaches the screen only through documentText/WithDocuments.
+    const line = prose.slice(prose.lastIndexOf('\n', match.index) + 1, prose.indexOf('\n', match.index));
+    assert.match(line, /^\s*\{ (?:id|name): /, 'document path outside the checklist data: ' + line.trim().slice(0, 80));
+    assert.ok(labels.DOCUMENT_TITLES[match[0]], 'reviewed title for ' + match[0]);
+  }
+  assert.match(page, /description=\{documentText\(section\.summary\)\}/);
+  assert.match(page, /cell: item => <WithDocuments text=\{item\.how\}\/>/);
+  assert.match(page, /<summary[^>]*>Technical details: file names<\/summary>/);
+});
+
 test('record ids are shortened for display, and names give initials', () => {
   const id = '3f2a9c1e-1111-4111-8111-00000000a1b2';
   assert.equal(labels.shortId(id), '3f2a9c1e…a1b2');
@@ -105,7 +143,10 @@ test('the permission matrix repeats the role lists written in the route rules', 
   assert.deepEqual(cap('read_pause'), listed(/route === "pause_get"\) return \[([^\]]+)\]/.exec(proactive)[1]));
   assert.deepEqual(cap('set_pause'), listed(/route === "pause_set"\) return \[([^\]]+)\]/.exec(proactive)[1]));
   assert.deepEqual(cap('read_scheduler'), listed(/route === "scheduler"\) return \[([^\]]+)\]/.exec(proactive)[1]));
-  assert.match(proactive, /const PUBLIC_ROUTES = new Set<ProactiveRoute>\(\["watch", "watch_history", "triggers_config"\]\)/, 'reading the watch needs no particular role');
+  assert.match(proactive, /const WATCH_READS = new Set<ProactiveRoute>\(\["watch", "watch_history", "triggers_config"\]\)/, 'watch reads are named');
+  assert.match(proactive, /if \(WATCH_READS\.has\(route\)\) return EVERY_ROLE;/, 'watch reads need a session with any listed role');
+  assert.deepEqual(listed(/const EVERY_ROLE: Role\[\] = \[([^\]]+)\]/.exec(proactive)[1]), sorted(roles.ROLE_IDS));
+  assert.doesNotMatch(proactive, /PUBLIC_ROUTES/, 'no proactive route is forwarded without a session');
   assert.deepEqual(cap('read_watch'), sorted(roles.ROLE_IDS));
   const proposals = read('lib/proposal-proxy.ts');
   assert.match(proposals, /\? "incident_operator" : "incident_checker";/, 'maker operations versus approve/reject');

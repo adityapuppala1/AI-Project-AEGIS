@@ -15,11 +15,17 @@ from collections import deque
 from typing import Literal
 from uuid import uuid4
 
-from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 
+from app.security import EXERCISE_RECORD_ROLES, Operator, scoped_operator  # noqa: E402
+
 router = APIRouter(prefix="/v1/public-intake", tags=["public-intake"])
+# Submission (POST /reports) keeps its own public, opt-in rules. Reading the status and the quarantine queue now
+# needs a verified operator; the queue is also limited to the exercise agency (docs/PUBLIC_INTAKE_SECURITY.md).
+INTAKE_STATUS_READ = scoped_operator(EXERCISE_RECORD_ROLES, fixture_agency=False)
+INTAKE_QUEUE_READ = scoped_operator(EXERCISE_RECORD_ROLES)
 
 MAX_BODY_BYTES = 4096
 PER_MINUTE = 5
@@ -159,7 +165,7 @@ async def _read_capped_body(request: Request) -> bytes:
 
 
 @router.get("/status")
-def intake_status():
+def intake_status(_operator: Operator = Depends(INTAKE_STATUS_READ)):
     return {"classification": CLASSIFICATION, "enabled": enabled(), "quarantine_only": True,
             "accepts_contact_details": False, "creates_cases": False, "notifies_responders": False,
             "notice": "Reports are unverified, held for human review and never become cases automatically."}
@@ -204,7 +210,7 @@ async def submit_report(request: Request):
 
 
 @router.get("/reports")
-async def read_reports(limit: int = Query(default=50, ge=1, le=100)):
+async def read_reports(limit: int = Query(default=50, ge=1, le=100), _operator: Operator = Depends(INTAKE_QUEUE_READ)):
     _require_enabled()
     try:
         data = await run_in_threadpool(list_reports, limit)

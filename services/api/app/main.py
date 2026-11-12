@@ -3,13 +3,20 @@ import os
 from datetime import datetime, timezone
 from uuid import UUID
 from typing import Literal
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field, ConfigDict
+
+from app.security import EXERCISE_RECORD_ROLES, Operator, scoped_operator
 
 # Interactive API documentation is off unless explicitly switched on for local development (AEGIS_API_DOCS=1).
 _DOCS_ON = os.environ.get("AEGIS_API_DOCS") == "1"
 app = FastAPI(title="AEGIS Exercise API", version="0.1.0", docs_url="/docs" if _DOCS_ON else None,
               redoc_url=None, openapi_url="/openapi.json" if _DOCS_ON else None)
+
+# Every data route needs a verified operator, an explicit role list and the exercise-agency check.
+# Only /health, /v1/exercise/system/readiness and the /v1/live/public-warning stub stay open
+# (tests/test_route_auth_inventory.py enforces this).
+EXERCISE_READ = scoped_operator(EXERCISE_RECORD_ROLES)
 
 class Observation(BaseModel):
     source_id: str = Field(min_length=1, max_length=100)
@@ -30,7 +37,7 @@ def health():
     return {"status": "ok", "mode": "exercise"}
 
 @app.post("/v1/exercise/risk", response_model=RiskResult)
-def exercise_risk(event: Observation):
+def exercise_risk(event: Observation, _operator: Operator = Depends(EXERCISE_READ)):
     if event.observed_at.tzinfo is None:
         raise HTTPException(422, "observed_at must contain timezone")
     # Training/demo UX score only, not a forecast or calibrated probability.
@@ -42,12 +49,12 @@ def deny_live_warning():
     raise HTTPException(status_code=403, detail="Live public warnings are not available in this exercise environment")
 
 @app.get("/v1/exercise/incidents")
-def exercise_incidents():
+def exercise_incidents(_operator: Operator = Depends(EXERCISE_READ)):
     from app.db import list_incidents
     return list_incidents()
 
 @app.get("/v1/exercise/telemetry")
-def exercise_telemetry():
+def exercise_telemetry(_operator: Operator = Depends(EXERCISE_READ)):
     """Deterministic synthetic fixture. Never interpret as live measurements."""
     rainfall = [6, 9, 13, 12, 18, 23, 29, 35, 31, 43, 47, 52]
     water = [18, 19, 23, 28, 32, 39, 44, 49, 56, 62, 68, 74]
@@ -110,6 +117,7 @@ def search_exercise_incidents(
     direction: Literal["asc", "desc"] = "desc",
     page: int = Query(default=1, ge=1, le=10000),
     page_size: int = Query(default=10, ge=1, le=50),
+    _operator: Operator = Depends(EXERCISE_READ),
 ):
     from app.db import query_incidents
     return query_incidents(
@@ -120,8 +128,8 @@ def search_exercise_incidents(
 
 
 @app.get("/v1/exercise/incidents/{incident_id}")
-def read_exercise_incident_workspace(incident_id: UUID):
-    """Public, synthetic-only incident workspace. No operational case data."""
+def read_exercise_incident_workspace(incident_id: UUID, _operator: Operator = Depends(EXERCISE_READ)):
+    """Synthetic-only incident workspace for signed-in exercise-agency operators. No operational case data."""
     from app.intelligence_store import incident_workspace
     workspace = incident_workspace(incident_id)
     if workspace is None:
@@ -130,7 +138,7 @@ def read_exercise_incident_workspace(incident_id: UUID):
 
 
 @app.get("/v1/exercise/sources")
-def read_exercise_sources():
+def read_exercise_sources(_operator: Operator = Depends(EXERCISE_READ)):
     """Synthetic feed observability; never represents real data connectivity."""
     from app.source_store import list_exercise_sources
     return list_exercise_sources()
@@ -140,6 +148,7 @@ def read_exercise_sources():
 def read_exercise_source_history(
     source_id: UUID,
     limit: int = Query(default=24, ge=1, le=48),
+    _operator: Operator = Depends(EXERCISE_READ),
 ):
     """Read bounded synthetic sample history, restricted to the demo agency."""
     from app.source_store import source_history
@@ -150,7 +159,7 @@ def read_exercise_source_history(
 
 
 @app.get("/v1/exercise/ingestion/status")
-def read_exercise_ingestion_status():
+def read_exercise_ingestion_status(_operator: Operator = Depends(EXERCISE_READ)):
     """Safe synthetic replay counters; no write endpoint is exposed."""
     from app.ingestion_store import ingestion_overview
     return ingestion_overview()
@@ -160,6 +169,7 @@ def read_exercise_ingestion_status():
 def exercise_geospatial_candidates(
     incident_id: UUID,
     radius_m: int = Query(default=3000, ge=100, le=5000),
+    _operator: Operator = Depends(EXERCISE_READ),
 ):
     """PostGIS proximity exploration of fictional sources and assets only."""
     from app.spatial_store import spatial_candidates
@@ -170,7 +180,7 @@ def exercise_geospatial_candidates(
 
 
 @app.get("/v1/exercise/model-lab/report")
-def synthetic_model_evaluation_report():
+def synthetic_model_evaluation_report(_operator: Operator = Depends(EXERCISE_READ)):
     """Read-only, versioned offline baseline report; NOT a real forecast API."""
     from app.model_lab import saved_report
     return saved_report()
@@ -180,6 +190,7 @@ def synthetic_model_evaluation_report():
 def read_exercise_readiness(
     incident_id: UUID,
     radius_m: int = Query(default=3000, ge=100, le=5000),
+    _operator: Operator = Depends(EXERCISE_READ),
 ):
     """Read-only evidence checklist; no hazard forecasting or live operations."""
     from app.assessment_adapter import ContextUnavailable, exercise_readiness
@@ -224,6 +235,7 @@ def list_synthetic_agency_tasks(
     incident_id: UUID | None = None,
     state: Literal["prepared", "acknowledged", "closed"] | None = None,
     limit: int = Query(default=50, ge=1, le=50),
+    _operator: Operator = Depends(EXERCISE_READ),
 ):
     """Read-only fictional AgencySync exercise tasks; never dispatches."""
     from app.agency_sync_store import agency_task_board
@@ -231,7 +243,7 @@ def list_synthetic_agency_tasks(
 
 
 @app.get("/v1/exercise/agency-tasks/{task_id}")
-def synthetic_agency_task_history(task_id: UUID):
+def synthetic_agency_task_history(task_id: UUID, _operator: Operator = Depends(EXERCISE_READ)):
     """Scripted exercise acknowledgements, not real inter-agency messages."""
     from app.agency_sync_store import agency_task_detail
     detail = agency_task_detail(task_id)
@@ -241,8 +253,8 @@ def synthetic_agency_task_history(task_id: UUID):
 
 
 @app.get("/v1/exercise/incidents/{incident_id}/audit")
-def export_synthetic_incident_audit(incident_id: UUID):
-    """Unsigned, public-fixture Audit360 bundle; never includes private approvals."""
+def export_synthetic_incident_audit(incident_id: UUID, _operator: Operator = Depends(EXERCISE_READ)):
+    """Unsigned fixture Audit360 bundle for signed-in exercise-agency operators; never includes private approvals."""
     from app.audit360 import export_exercise_case
     result = export_exercise_case(incident_id)
     if result is None:
@@ -251,7 +263,7 @@ def export_synthetic_incident_audit(incident_id: UUID):
 
 
 @app.get("/v1/exercise/policy")
-def current_exercise_policy_profile():
+def current_exercise_policy_profile(_operator: Operator = Depends(EXERCISE_READ)):
     """Read-only policy documentation; no browser-operable authorization toggle."""
     from app.policy_profile import exercise_policy_profile
     return exercise_policy_profile()
@@ -267,7 +279,7 @@ class GroundedQuestionRequest(BaseModel):
 
 
 @app.post("/v1/exercise/incidents/{incident_id}/review-focus")
-def exercise_review_focus(incident_id: UUID, payload: ReviewFocusRequest):
+def exercise_review_focus(incident_id: UUID, payload: ReviewFocusRequest, _operator: Operator = Depends(EXERCISE_READ)):
     """Read-only local selection preview on the public synthetic fixture scope."""
     from app.assessment_adapter import ContextUnavailable, exercise_readiness
     from app.local_copilot import review_focus
@@ -281,7 +293,7 @@ def exercise_review_focus(incident_id: UUID, payload: ReviewFocusRequest):
 
 
 @app.post("/v1/exercise/incidents/{incident_id}/grounded-guide")
-def exercise_grounded_guide(incident_id: UUID, payload: GroundedQuestionRequest):
+def exercise_grounded_guide(incident_id: UUID, payload: GroundedQuestionRequest, _operator: Operator = Depends(EXERCISE_READ)):
     """Answer bounded free-form questions from validated synthetic context only."""
     from app.assessment_adapter import ContextUnavailable, exercise_readiness
     from app.grounded_assistant import answer_question

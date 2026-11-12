@@ -2,6 +2,9 @@ from app.grounded_assistant import answer_question
 from fastapi.testclient import TestClient
 from app.main import app
 from app import assessment_adapter
+import pytest
+# Formerly open read routes now need a verified exercise-agency operator (tests/conftest.py).
+pytestmark = pytest.mark.usefixtures("exercise_reader")
 
 
 def context():

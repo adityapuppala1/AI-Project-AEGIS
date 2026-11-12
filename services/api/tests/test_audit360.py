@@ -9,6 +9,8 @@ from fastapi.testclient import TestClient
 from app.main import app
 from app import audit360, agency_sync_store
 from app.intelligence_store import DEMO_AGENCY
+# Formerly open read routes now need a verified exercise-agency operator (tests/conftest.py).
+pytestmark = pytest.mark.usefixtures("exercise_reader")
 
 CASE = UUID("22222222-2222-4222-8222-222222222222")
 client = TestClient(app)

@@ -19,7 +19,10 @@ const RESERVED = new Set(["__proto__", "constructor", "prototype"]);
 const SETTING_KEY = /^[a-z][a-z0-9_]{0,59}$/;
 const SECRET_KEY = /^[a-z][a-z0-9_]{0,39}$/;
 const CODE = /^[a-z][a-z0-9_]{1,40}$/;
-const PUBLIC_ROUTES = new Set<ProactiveRoute>(["watch", "watch_history", "triggers_config"]);
+// Watch reads used to pass without a session; the API now needs a verified operator for them too
+// (docs/SECURITY_ASSESSMENT.md), so every route forwards the session token server-side.
+const WATCH_READS = new Set<ProactiveRoute>(["watch", "watch_history", "triggers_config"]);
+const EVERY_ROLE: Role[] = ["incident_operator", "incident_checker", "incident_auditor", "department_operator", "response_team", "platform_admin"];
 
 function failure(status: number, error: string, code?: string) {
   return NextResponse.json({ error, ...(code ? { code } : {}) }, { status, headers: { "Cache-Control": "no-store" } });
@@ -28,6 +31,7 @@ const hasRole = (roles: Role[], ...expected: Role[]) => roles.some(role => expec
 
 function rolesFor(route: ProactiveRoute): Role[] {
   if (route === "connectors" || route === "connector_save" || route === "connector_test" || route === "connector_audit") return ["platform_admin"];
+  if (WATCH_READS.has(route)) return EVERY_ROLE;  // read_watch row in lib/roles.ts
   if (route === "watch_refresh") return ["incident_operator", "platform_admin"];
   // Kill switch: any signed-in operator may read it; only platform_admin may change it.
   if (route === "pause_get") return ["incident_operator", "incident_checker", "incident_auditor", "department_operator", "platform_admin"];
@@ -144,15 +148,14 @@ const GENERIC: Record<number, string> = {
 };
 
 export async function proxyProactive(request: Request, route: ProactiveRoute, id?: string): Promise<NextResponse> {
-  const isPublic = PUBLIC_ROUTES.has(route);
   const isWrite = request.method !== "GET";
   let session: Awaited<ReturnType<typeof readSession>> = null;
-  if (!isPublic || isWrite) {
+  {
     let config: ReturnType<typeof configuration>;
     try { config = configuration(); } catch { return failure(503, "Identity provider configuration invalid"); }
     if (!config) return failure(503, "Identity provider not configured");
     session = await readSession();
-    if (!session) return failure(401, "Secure operator sign-in required");
+    if (!session) return failure(401, "Secure operator sign-in required", "SIGN_IN_REQUIRED");
     if (isWrite && !sameOrigin(request, config)) return failure(403, "Invalid request origin");
     if (!hasRole(session.roles, ...rolesFor(route))) return failure(403, "Insufficient role");
   }

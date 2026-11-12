@@ -49,6 +49,36 @@ def require_role(operator: Operator, allowed: set[str]) -> None:
         raise HTTPException(status_code=403, detail="Insufficient agency role")
 
 
+FIXTURE_AGENCY_DETAIL = "Exercise records are limited to the exercise agency"
+# Explicit role lists for the formerly open read routes (docs/SECURITY_ASSESSMENT.md). They mirror the web
+# matrix in apps/web/lib/roles.ts; a new role must be added here on purpose, never by default.
+EXERCISE_RECORD_ROLES = frozenset({"incident_operator", "incident_checker", "incident_auditor",
+                                   "department_operator", "response_team", "platform_admin"})
+
+
+def scoped_operator(allowed: frozenset[str], *, fixture_agency: bool = True):
+    """Dependency: a verified operator holding one of `allowed`; with `fixture_agency`, only the exercise agency.
+
+    A valid token from another agency gets 403 with a fixed message (never an empty result), so a
+    caller cannot mistake "not your agency" for "no records".
+    """
+    roles = frozenset(allowed)
+    if not roles or not roles <= ALLOWED_ROLES:
+        raise ValueError("scoped_operator needs an explicit, known role list")
+
+    def dependency(operator: Operator = Depends(get_operator)) -> Operator:
+        require_role(operator, set(roles))
+        if fixture_agency:
+            from app.intelligence_store import DEMO_AGENCY
+            if operator.agency_id != DEMO_AGENCY:
+                raise HTTPException(status_code=403, detail=FIXTURE_AGENCY_DETAIL)
+        return operator
+
+    dependency.allowed_roles = roles  # read by the route inventory test
+    dependency.fixture_agency = fixture_agency
+    return dependency
+
+
 @lru_cache(maxsize=4)
 def _jwk_client(url: str) -> jwt.PyJWKClient:
     # Cache the JWKS response for five minutes, but never cache individual

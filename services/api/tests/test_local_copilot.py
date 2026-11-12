@@ -6,6 +6,8 @@ from app import local_copilot as copilot, assessment_adapter
 from app.assessment import evaluate_readiness
 from app.main import app
 from test_assessment import demo_inputs, INCIDENT_ID
+# Formerly open read routes now need a verified exercise-agency operator (tests/conftest.py).
+pytestmark = pytest.mark.usefixtures("exercise_reader")
 
 @pytest.fixture(autouse=True)
 def disabled(monkeypatch):

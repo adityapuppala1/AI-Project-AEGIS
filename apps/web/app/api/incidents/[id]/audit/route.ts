@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { apiAuthHeaders, signInRequired } from "../../../../../lib/api-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -7,10 +8,12 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!UUID.test(id)) return NextResponse.json({ error: "Invalid exercise case ID" }, { status: 400 });
+  const auth = await apiAuthHeaders();
+  if (!auth) return signInRequired();
   try {
     const base = process.env.API_INTERNAL_URL || "http://localhost:8000";
     const response = await fetch(base + "/v1/exercise/incidents/" + id + "/audit", {
-      cache: "no-store", signal: AbortSignal.timeout(7500),
+      headers: auth, cache: "no-store", signal: AbortSignal.timeout(7500),
     });
     if (response.status === 404) return NextResponse.json({ error: "Exercise case not found" }, { status: 404 });
     if (!response.ok) throw new Error("Audit snapshot unavailable");

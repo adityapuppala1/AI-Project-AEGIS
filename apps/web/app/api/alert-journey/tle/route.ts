@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { apiAuthHeaders, signInRequired } from "../../../../lib/api-auth";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
@@ -16,10 +17,10 @@ const cache = new Map<string, { at: number; body: string }>();
 const lastFailure = new Map<string, number>();
 const headers = (state: string) => ({ "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "private, max-age=1800", "X-Aegis-Relay": state });
 
-async function publicFeedsEnabled(): Promise<boolean> {
+async function publicFeedsEnabled(auth: { Authorization: string }): Promise<boolean> {
   try {
     const base = process.env.API_INTERNAL_URL || "http://localhost:8000";
-    const response = await fetch(base + "/v1/public-reference/earth-watch/status", { cache: "no-store", signal: AbortSignal.timeout(8000) });
+    const response = await fetch(base + "/v1/public-reference/earth-watch/status", { headers: auth, cache: "no-store", signal: AbortSignal.timeout(8000) });
     if (!response.ok) return false;
     const payload = await response.json() as { enabled?: unknown; display_only?: unknown };
     return payload.enabled === true && payload.display_only === true;
@@ -61,7 +62,9 @@ async function fromSatnogs(group: string): Promise<string | null> {
 export async function GET(request: Request) {
   const group = new URL(request.url).searchParams.get("group") ?? "";
   if (!Object.hasOwn(GROUPS, group)) return NextResponse.json({ error: "Unknown satellite group" }, { status: 404 });
-  if (!(await publicFeedsEnabled())) return NextResponse.json({ error: "disabled" }, { status: 503 });
+  const auth = await apiAuthHeaders();
+  if (!auth) return signInRequired();
+  if (!(await publicFeedsEnabled(auth))) return NextResponse.json({ error: "disabled" }, { status: 503 });
   const hit = cache.get(group), now = Date.now();
   if (hit && now - hit.at < TTL_MS) return new NextResponse(hit.body, { headers: headers("cached") });
   const failedAt = lastFailure.get(group) ?? 0;

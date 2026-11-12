@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { apiAuthHeaders, signInRequired } from "../../../lib/api-auth";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
@@ -21,8 +22,10 @@ const base = () => process.env.API_INTERNAL_URL || "http://localhost:8000";
 const fail = (status: number, error: string, extra: Record<string, string> = {}) => NextResponse.json({ error }, { status, headers: { ...HEADERS, ...extra } });
 
 export async function GET() {
+  const auth = await apiAuthHeaders();
+  if (!auth) return signInRequired();
   try {
-    const response = await fetch(base() + "/v1/public-intake/reports?limit=50", { cache: "no-store", signal: AbortSignal.timeout(8000) });
+    const response = await fetch(base() + "/v1/public-intake/reports?limit=50", { headers: auth, cache: "no-store", signal: AbortSignal.timeout(8000) });
     if (response.status === 503) return fail(503, "disabled");
     if (!response.ok) throw new Error("queue unavailable");
     const payload: unknown = await response.json();

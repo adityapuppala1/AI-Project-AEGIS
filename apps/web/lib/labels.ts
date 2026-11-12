@@ -38,7 +38,53 @@ const LABELS: Record<string, string> = {
   proactive_disabled: "Proactive automation is switched off in this deployment", scheduler_disabled: "The scheduler is switched off in this deployment",
   upstream_unavailable: "The service did not answer", not_configured: "Not set up", kill_switch_engaged: "The kill switch is engaged",
   template: "Fixed template", local_model_rephrase_of_cited_facts: "Local model rephrasing of cited facts",
+  // Connector test results (services/api/app/connectors.py `_result` messages; shown on /admin/connectors)
+  reachable: "The service answered", upstream_status: "The service answered with an error",
+  secret_missing: "The key for this connector has not been entered", network_error: "Could not reach the service",
+  exporter_valid_exercise_only: "Exercise alert file checked; nothing is ever sent", connector_key_missing: "The server's connector vault key is not set",
+  connector_secret_unreadable: "The stored key could not be read; enter it again", invalid_response: "The service sent an answer AEGIS could not read",
+  no_send_path: "This connector cannot send anything, by design", terms_not_accepted: "The source's terms have not been confirmed",
+  test_failed: "The test did not pass", timeout: "The service took too long to answer", token_request_failed: "The service refused the sign-in for its key",
 };
+
+/**
+ * Plain titles for the documents that administrator pages name. Show the title; add the file path as secondary text
+ * only where an administrator needs it to find the file (see `documentParts`).
+ */
+export const DOCUMENT_TITLES: Record<string, string> = {
+  "docs/GDACS_INQUIRY_DRAFT.md": "GDACS inquiry draft",
+  "docs/GOVT_DEPLOYMENT_READINESS.md": "Government deployment readiness notes",
+  "docs/OIDC_IDENTITY_AND_AUTHORIZATION.md": "Sign-in and roles guide",
+  "docs/PROACTIVE_IMPLEMENTATION_CONTRACT.md": "Hazard watch design contract",
+  "research/real-data/LICENCES.md": "Public data licences register",
+};
+const DOCUMENT_PATH = /(?:docs|research)\/[\w./-]+\.md/g;
+/** The plain title for a document path; unknown paths read as "<file words> document", never the raw path. */
+export function documentTitle(path: string): string {
+  if (Object.prototype.hasOwnProperty.call(DOCUMENT_TITLES, path)) return DOCUMENT_TITLES[path];
+  const base = path.split("/").pop() ?? path;
+  return sentenceCase(base.replace(/\.md$/i, "")) + " document";
+}
+/** "the <title>" for use inside a sentence ("the public data licences register"); acronyms keep their capitals. */
+export function documentPhrase(path: string): string {
+  return "the " + documentTitle(path).replace(/^([A-Z])(?=[a-z])/, letter => letter.toLowerCase());
+}
+/** Prose with every document path replaced by its plain title. */
+export function documentText(text: string): string {
+  return text.replace(DOCUMENT_PATH, documentPhrase);
+}
+/** Splits prose into text and document parts, so a page can show the title with the path as secondary text. */
+export function documentParts(text: string): Array<{ text: string } | { path: string; title: string }> {
+  const parts: Array<{ text: string } | { path: string; title: string }> = [];
+  let last = 0;
+  for (const match of text.matchAll(DOCUMENT_PATH)) {
+    if (match.index! > last) parts.push({ text: text.slice(last, match.index) });
+    parts.push({ path: match[0], title: documentPhrase(match[0]) });
+    last = match.index! + match[0].length;
+  }
+  if (last < text.length) parts.push({ text: text.slice(last) });
+  return parts;
+}
 
 // Short tokens that read better in capitals inside a fallback label.
 const ACRONYMS = new Set(["api", "cap", "sla", "id", "oidc", "sso", "mfa", "usgs", "nasa", "imd", "cwc", "sms", "url", "db", "utc", "ist", "gis", "ai", "csv", "json", "pdf", "http", "https", "tls", "ndma", "sdma"]);

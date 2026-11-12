@@ -1,3 +1,4 @@
+const { apiAuth, isApiAuth } = require('./api-auth-stub.cjs');
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -9,7 +10,7 @@ function load(file) {
   const source = fs.readFileSync(path.join(__dirname, '../..', file), 'utf8');
   const code = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
   const mod = { exports: {} };
-  new Function('require', 'module', 'exports', code)(name => name === 'next/server' ? { NextResponse } : require(name), mod, mod.exports);
+  new Function('require', 'module', 'exports', code)(name => isApiAuth(name) ? apiAuth : name === 'next/server' ? { NextResponse } : require(name), mod, mod.exports);
   return mod.exports;
 }
 const route = load('app/api/public-intake/route.ts');

@@ -10,6 +10,8 @@ Security test results and open findings: `docs/SECURITY_ASSESSMENT.md`.
 ## What the code already does
 
 - OIDC sign-in with signed agency and role claims; maker and checker must be different people; audit trail on decisions.
+- Every API data route needs a verified operator token with an explicit role list and agency check; only health, readiness
+  and a refusal stub answer without one (12 November 2026, enforced by a route-inventory test).
 - No send path: AEGIS exports a private Draft CAP only. Live warning, dispatch and notification are disabled by design.
 - Secrets only in the host `.env` and an encrypted connector vault; no secret is shown in the browser.
 - Public data is display-only, off by default (`-PublicEarth`), never written to the database or used by workflows.

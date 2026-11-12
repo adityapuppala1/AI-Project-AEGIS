@@ -18,6 +18,20 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Round 12: sign-in required on the API port; Alert Journey touch targets — 12 November 2026 (Windows laptop)
+
+Branch `feat/landing-ux-security-hardening` @ `0cb6e64` plus uncommitted changes (not committed). Compose running
+(local-idp + public-earth + proactive + timesfm). Verified by execution on the Windows laptop, not a Linux runner:
+- 25 formerly open API routes now need a verified operator, an explicit role list and (for records) the exercise
+  agency; curl without a token: all 25 return 401; `/health` and readiness 200; live-warning stub 403. Details:
+  `docs/SECURITY_ASSESSMENT.md` addendum. Inventory test `test_route_auth_inventory.py`.
+- API `pytest -q`: 1156 passed, 30 skipped; `model_lab --check` PASS. Web `typecheck` clean; Node tests 286 pass.
+- Browser crawl of 27 navigation routes as six demo accounts before and after: 0 routes differ (162 compared).
+  flowcheck and loopcheck (proposal `84693c80…`) passed. `verify-demo-ready.ps1`: GO (with warnings: uncommitted tree).
+- Alert Journey at 390x844 and 844x390, both modes: 0 pointer controls under 44 px, 0 overlaps (timeline marks are
+  markers only on phones; desktop unchanged). Connector result codes and go-live document names use `lib/labels.ts`.
+- Pending: commit; signed-in cross-agency test with a real second-agency token (test doubles only so far).
+
 ## Round 11: pending items closed, scans, forecast back-test — 12 November 2026 (Windows laptop)
 
 Branch `feat/landing-ux-security-hardening`. Compose services left **running** (overlays local-idp + public-earth +

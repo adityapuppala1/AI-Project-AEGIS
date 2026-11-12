@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { apiAuthHeaders, signInRequired } from "../../../../../lib/api-auth";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -9,10 +10,12 @@ export async function POST(request: NextRequest, {params}: {params: Promise<{id:
   if (!uuid.test(id)) return json({error:"Invalid exercise case"},400);
   const body=await request.json().catch(()=>null);
   if (!body || typeof body!=="object" || Array.isArray(body) || Object.keys(body).length) return json({error:"Preview takes no instructions or configuration"},400);
+  const auth = await apiAuthHeaders();
+  if (!auth) return signInRequired();
   try {
     const base=process.env.API_INTERNAL_URL || "http://localhost:8000";
     const response=await fetch(base+"/v1/exercise/incidents/"+id+"/review-focus", {
-      method:"POST",headers:{"Content-Type":"application/json"},body:"{}",cache:"no-store",signal:AbortSignal.timeout(25000),
+      method:"POST",headers:{ ...auth,"Content-Type":"application/json"},body:"{}",cache:"no-store",signal:AbortSignal.timeout(25000),
     });
     if (response.status===404) return json({error:"Synthetic context not found"},404);
     if (!response.ok) throw Error("Unavailable");

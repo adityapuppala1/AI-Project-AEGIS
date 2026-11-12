@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { apiAuthHeaders, signInRequired } from "../../../../../lib/api-auth";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 const UUID = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
@@ -10,10 +11,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   if (!/^\d{1,2}$/.test(limit) || Number(limit) < 1 || Number(limit) > 48) {
     return NextResponse.json({ error: "Invalid history limit" }, { status: 400 });
   }
+  const auth = await apiAuthHeaders();
+  if (!auth) return signInRequired();
   try {
     const base = process.env.API_INTERNAL_URL || "http://localhost:8000";
     const response = await fetch(base + "/v1/exercise/sources/" + id + "/history?limit=" + limit, {
-      cache: "no-store", signal: AbortSignal.timeout(6000),
+      headers: auth, cache: "no-store", signal: AbortSignal.timeout(6000),
     });
     if (response.status === 404) return NextResponse.json({ error: "Exercise source not found" }, { status: 404 });
     if (!response.ok) throw new Error("Source history service unavailable");

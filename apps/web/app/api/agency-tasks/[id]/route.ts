@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { isSyntheticTaskPayload } from "../../../../lib/agency-sync";
+import { apiAuthHeaders, signInRequired } from "../../../../lib/api-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -8,10 +9,12 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!UUID.test(id)) return NextResponse.json({ error: "Invalid synthetic task ID" }, { status: 400 });
+  const auth = await apiAuthHeaders();
+  if (!auth) return signInRequired();
   try {
     const base = process.env.API_INTERNAL_URL || "http://localhost:8000";
     const response = await fetch(base + "/v1/exercise/agency-tasks/" + id, {
-      cache: "no-store", signal: AbortSignal.timeout(6000),
+      headers: auth, cache: "no-store", signal: AbortSignal.timeout(6000),
     });
     if (response.status === 404) return NextResponse.json({ error: "Synthetic task not found" }, { status: 404 });
     if (!response.ok) throw new Error("Exercise task detail unavailable");

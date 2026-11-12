@@ -5,6 +5,8 @@ from fastapi.testclient import TestClient
 from app.main import app
 from app import source_store
 from app.source_health import classify_source
+# Formerly open read routes now need a verified exercise-agency operator (tests/conftest.py).
+pytestmark = pytest.mark.usefixtures("exercise_reader")
 
 NOW = datetime(2026, 10, 16, 12, 0, tzinfo=timezone.utc)
 client = TestClient(app)

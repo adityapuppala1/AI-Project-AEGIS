@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isSyntheticTaskPayload } from "../../../lib/agency-sync";
+import { apiAuthHeaders, signInRequired } from "../../../lib/api-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -16,13 +17,15 @@ export async function GET(request: NextRequest) {
       !/^[1-9]\d?$/.test(limit) || Number(limit) > 50) {
     return NextResponse.json({ error: "Invalid synthetic task filter" }, { status: 400 });
   }
+  const auth = await apiAuthHeaders();
+  if (!auth) return signInRequired();
   try {
     const query = new URLSearchParams({ limit });
     if (incident) query.set("incident_id", incident);
     if (state) query.set("state", state);
     const base = process.env.API_INTERNAL_URL || "http://localhost:8000";
     const response = await fetch(base + "/v1/exercise/agency-tasks?" + query.toString(), {
-      cache: "no-store", signal: AbortSignal.timeout(6000),
+      headers: auth, cache: "no-store", signal: AbortSignal.timeout(6000),
     });
     if (!response.ok) throw new Error("Exercise task service unavailable");
     const data: unknown = await response.json();

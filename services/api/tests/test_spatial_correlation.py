@@ -7,6 +7,8 @@ from app import spatial_store
 from app.main import app
 from app.intelligence_store import DEMO_AGENCY
 from app.spatial_rules import distance_band, explanation, MAX_CANDIDATES
+# Formerly open read routes now need a verified exercise-agency operator (tests/conftest.py).
+pytestmark = pytest.mark.usefixtures("exercise_reader")
 
 client = TestClient(app)
 INCIDENT = "22222222-2222-4222-8222-222222222222"

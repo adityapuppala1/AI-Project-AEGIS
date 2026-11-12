@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { apiAuthHeaders, signInRequired } from "../../../../../lib/api-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -11,11 +12,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       Number(radius) < 100 || Number(radius) > 5000) {
     return NextResponse.json({ error: "Invalid exercise incident or radius" }, { status: 400 });
   }
+  const auth = await apiAuthHeaders();
+  if (!auth) return signInRequired();
   try {
     const base = process.env.API_INTERNAL_URL || "http://localhost:8000";
     const response = await fetch(
       base + "/v1/exercise/incidents/" + id + "/correlation?radius_m=" + radius,
-      { cache: "no-store", signal: AbortSignal.timeout(6000) },
+      { headers: auth, cache: "no-store", signal: AbortSignal.timeout(6000) },
     );
     if (response.status === 404) {
       return NextResponse.json({ error: "Synthetic incident not found" }, { status: 404 });

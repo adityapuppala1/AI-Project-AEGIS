@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+import { apiAuthHeaders, signInRequired } from "../../../../lib/api-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 const fields = new Set(["search", "status", "sort", "direction", "page", "page_size"]);
 
 export async function GET(request: NextRequest) {
+  const auth = await apiAuthHeaders();
+  if (!auth) return signInRequired();
   try {
     // Explicit parameter allowlist: never pass arbitrary client parameters to the API.
     const input = request.nextUrl.searchParams;
@@ -15,7 +18,7 @@ export async function GET(request: NextRequest) {
     }
     const base = process.env.API_INTERNAL_URL || "http://localhost:8000";
     const response = await fetch(base + "/v1/exercise/incidents/query?" + params.toString(), {
-      cache: "no-store",
+      headers: auth, cache: "no-store",
       signal: AbortSignal.timeout(6000),
     });
     const data: unknown = await response.json();

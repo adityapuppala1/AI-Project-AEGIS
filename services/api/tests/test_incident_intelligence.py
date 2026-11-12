@@ -2,6 +2,9 @@ from uuid import UUID
 from fastapi.testclient import TestClient
 from app import intelligence_store
 from app.main import app
+import pytest
+# Formerly open read routes now need a verified exercise-agency operator (tests/conftest.py).
+pytestmark = pytest.mark.usefixtures("exercise_reader")
 
 client = TestClient(app)
 INCIDENT_ID = "22222222-2222-4222-8222-222222222222"

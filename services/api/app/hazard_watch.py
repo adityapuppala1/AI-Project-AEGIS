@@ -23,7 +23,7 @@ from uuid import uuid4
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app import connectors, impact, proactive_store
-from app.security import Operator, get_operator, require_role
+from app.security import EXERCISE_RECORD_ROLES, Operator, get_operator, require_role, scoped_operator
 
 CONFIG_PATH = Path(__file__).parent / "fixtures" / "hazard_triggers.v1.json"
 FEED_CONFIG_PATH = Path(__file__).parent / "fixtures" / "feed_triggers.v1.json"
@@ -564,12 +564,16 @@ def watch_view() -> dict:
 router = APIRouter(prefix="/v1/proactive", tags=["proactive"], dependencies=[Depends(connectors.require_proactive)])
 
 
+# Watch reads mirror the web read_watch row (every signed-in role) and are limited to the exercise agency.
+WATCH_READ = scoped_operator(EXERCISE_RECORD_ROLES)
+
+
 def _unavailable():
     return HTTPException(status_code=503, detail="proactive_store_unavailable")
 
 
 @router.get("/watch")
-def get_watch():
+def get_watch(_operator: Operator = Depends(WATCH_READ)):
     try:
         return watch_view()
     except Exception:
@@ -577,7 +581,7 @@ def get_watch():
 
 
 @router.get("/watch/history")
-def get_watch_history(days: int = Query(default=7, ge=1, le=30)):
+def get_watch_history(days: int = Query(default=7, ge=1, le=30), _operator: Operator = Depends(WATCH_READ)):
     try:
         rows = proactive_store.get_store().trigger_history(days)
     except Exception:
@@ -604,10 +608,10 @@ def post_watch_refresh(operator: Operator = Depends(get_operator)):
 
 
 @router.get("/triggers/config")
-def get_trigger_config():
+def get_trigger_config(_operator: Operator = Depends(WATCH_READ)):
     return effective_config()
 
 
 @router.get("/triggers/impact-config")
-def get_impact_config():
+def get_impact_config(_operator: Operator = Depends(WATCH_READ)):
     return {"impact": impact.load_config(), "feeds": load_feed_config()}

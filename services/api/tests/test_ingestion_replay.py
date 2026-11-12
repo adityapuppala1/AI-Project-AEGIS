@@ -6,6 +6,9 @@ from fastapi.testclient import TestClient
 from app.main import app
 from app import ingestion_store
 from app.replay import load_bundled_fixture
+import pytest
+# Formerly open read routes now need a verified exercise-agency operator (tests/conftest.py).
+pytestmark = pytest.mark.usefixtures("exercise_reader")
 
 client = TestClient(app)
 CLOCK = datetime(2026, 10, 16, 18, 0, tzinfo=timezone.utc)

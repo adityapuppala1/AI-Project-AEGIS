@@ -1,8 +1,5 @@
 """Read-only HTTP smoke plus refusal of live warnings; no login or DB resets."""
 import argparse
-import hashlib
-import json
-import math
 from urllib.error import HTTPError
 from urllib.request import ProxyHandler, Request, build_opener
 
@@ -17,16 +14,6 @@ for base in (args.api, args.web):
         parser.error("This smoke script accepts loopback services only")
 opener = build_opener(ProxyHandler({}))
 case = "22222222-2222-4222-8222-222222222222"
-
-
-def canonical_value(value):
-    if isinstance(value, dict):
-        return {key: canonical_value(item) for key, item in value.items()}
-    if isinstance(value, list):
-        return [canonical_value(item) for item in value]
-    if isinstance(value, float) and math.isfinite(value) and value.is_integer():
-        return int(value)
-    return value
 
 
 def check(base, path, expected=(200,), method="GET"):
@@ -44,14 +31,22 @@ def check(base, path, expected=(200,), method="GET"):
     return body
 
 
-for path in ["/health", "/v1/exercise/system/readiness", "/v1/exercise/incidents",
-             "/v1/exercise/incidents/query", "/v1/exercise/sources",
+# Only health and the readiness diagnostic are open on the API port. Exercise-record reads need a verified
+# operator token (docs/SECURITY_ASSESSMENT.md); this script holds no credential, so it checks the refusal.
+for path in ["/health", "/v1/exercise/system/readiness"]:
+    check(args.api, path)
+for path in ["/v1/exercise/incidents", "/v1/exercise/incidents/query", "/v1/exercise/sources",
              "/v1/exercise/ingestion/status", "/v1/exercise/model-lab/report",
-             "/v1/exercise/agency-tasks", "/v1/exercise/policy",
+             "/v1/exercise/agency-tasks", "/v1/exercise/policy", "/v1/exercise/telemetry",
              f"/v1/exercise/incidents/{case}",
              f"/v1/exercise/incidents/{case}/correlation",
-             f"/v1/exercise/incidents/{case}/readiness"]:
-    check(args.api, path)
+             f"/v1/exercise/incidents/{case}/readiness",
+             f"/v1/exercise/incidents/{case}/audit",
+             "/v1/public-reference/earth-watch/status", "/v1/public-intake/status",
+             "/v1/public-intake/reports"]:
+    check(args.api, path, (401,))
+# Pages other than "/" redirect an anonymous visitor to /sign-in; urllib follows that, so 200 means the redirect
+# target rendered, not that data was shown.
 for path in ["/", "/demo", "/incidents", f"/incidents/{case}", "/sources",
              "/ingestion", "/model-lab", "/approvals", "/agency-sync", "/audit",
              "/playbooks", "/admin", "/help"]:
@@ -61,12 +56,8 @@ for base, prefix in [(args.api, "/v1/exercise"), (args.web, "/api")]:
                    "/proposals/77777777-7777-4777-8777-777777777777/cap-draft"]:
         check(base, prefix + suffix, (401, 503))
 check(args.api, "/v1/live/public-warning", (403,), "POST")
-bundle = json.loads(check(args.web, f"/api/incidents/{case}/audit"))
-expected = bundle.pop("manifest_sha256")
-bundle.pop("exported_at")
-bundle.pop("integrity_note")
-actual = hashlib.sha256(json.dumps(canonical_value(bundle), ensure_ascii=True,
-                                   sort_keys=True, separators=(",", ":")).encode()).hexdigest()
-if actual != expected:
-    raise SystemExit("FAIL public audit checksum")
-print("PASS public audit checksum; human/browser/IdP gates remain separate")
+# The audit export needs a signed-in session in the web app and a token on the API, so its checksum is verified by
+# services/api tests and a signed-in browser check, not by this anonymous script.
+check(args.web, f"/api/incidents/{case}/audit", (401,))
+check(args.api, f"/v1/exercise/incidents/{case}/audit", (401,))
+print("PASS anonymous refusals; signed-in data, audit checksum, browser and IdP gates remain separate")

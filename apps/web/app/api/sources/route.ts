@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
+import { apiAuthHeaders, signInRequired } from "../../../lib/api-auth";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
+  const auth = await apiAuthHeaders();
+  if (!auth) return signInRequired();
   try {
     const endpoint = (process.env.API_INTERNAL_URL || "http://localhost:8000") + "/v1/exercise/sources";
-    const response = await fetch(endpoint, { cache: "no-store", signal: AbortSignal.timeout(6000) });
+    const response = await fetch(endpoint, { headers: auth, cache: "no-store", signal: AbortSignal.timeout(6000) });
     if (!response.ok) throw new Error("Source service unavailable");
     const payload: unknown = await response.json();
     if (!payload || typeof payload !== "object" ||

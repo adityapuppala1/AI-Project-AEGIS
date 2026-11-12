@@ -1,6 +1,7 @@
+const { apiAuth, isApiAuth } = require('./api-auth-stub.cjs');
 const test=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');const path=require('node:path');const ts=require('typescript');const {NextRequest,NextResponse}=require('next/server');
 const code=ts.transpileModule(fs.readFileSync(path.join(__dirname,'../../app/api/incidents/[id]/review-focus/route.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
-const mod={exports:{}};new Function('require','module','exports',code)(name=>{assert.equal(name,'next/server');return {NextResponse};},mod,mod.exports);
+const mod={exports:{}};new Function('require','module','exports',code)(name=>{if(isApiAuth(name))return apiAuth;assert.equal(name,'next/server');return {NextResponse};},mod,mod.exports);
 const id='22222222-2222-4222-8222-222222222222';
 const fixture=()=>({version:'aegis.exercise.review-focus.v1',incident_id:id,source:'synthetic_exercise',operational_actions_enabled:false,needs_accountable_human_review:true,status:'template_fallback',reason:'disabled',model:null});
 async function run(value,body={},origin='http://localhost:3000'){
@@ -8,8 +9,8 @@ async function run(value,body={},origin='http://localhost:3000'){
  global.fetch=async(url,options)=>{calls.push({url,options});if(value instanceof Error)throw value;return new Response(JSON.stringify(value));};
  try{return {result:await mod.exports.POST(new NextRequest('http://localhost:3000/api/incidents/'+id+'/review-focus',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify(body)}),{params:Promise.resolve({id})}),calls};}finally{global.fetch=before;}
 }
-test('fallback preview preserves classification without caching or credentials',async()=>{
- const {result,calls}=await run(fixture());assert.equal(result.status,200);assert.deepEqual(await result.json(),fixture());assert.equal(result.headers.get('cache-control'),'no-store');assert.equal(calls[0].options.body,'{}');assert.equal(calls[0].options.headers.Authorization,undefined);
+test('fallback preview preserves classification without caching; only the session bearer goes to the API',async()=>{
+ const {result,calls}=await run(fixture());assert.equal(result.status,200);assert.deepEqual(await result.json(),fixture());assert.equal(result.headers.get('cache-control'),'no-store');assert.equal(calls[0].options.body,'{}');assert.equal(calls[0].options.headers.Authorization,'Bearer unit-only-token');assert.equal(calls[0].options.headers.Cookie,undefined);
 });
 test('local model classification is accepted',async()=>{
  const {result}=await run({...fixture(),status:'model_assisted_selection',model:'tinyllama:1.1b'});assert.equal(result.status,200);

@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
+import { apiAuthHeaders, signInRequired } from "../../../../lib/api-auth";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
+  const auth = await apiAuthHeaders();
+  if (!auth) return signInRequired();
   try {
     const internal = process.env.API_INTERNAL_URL || "http://localhost:8000";
     const response = await fetch(internal + "/v1/exercise/model-lab/report", {
-      cache: "no-store", signal: AbortSignal.timeout(6000),
+      headers: auth, cache: "no-store", signal: AbortSignal.timeout(6000),
     });
     if (!response.ok) throw new Error("Model report unavailable");
     const report: unknown = await response.json();

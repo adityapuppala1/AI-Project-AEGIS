@@ -111,13 +111,17 @@ def test_refresh_with_one_failing_connector(monkeypatch, proactive):
     assert proactive.runs == {} and proactive.audit == []  # refresh creates no run, case, proposal or task
 
 
-def test_watch_marks_stale_and_is_public(proactive):
-    app.dependency_overrides.clear()
+def test_watch_marks_stale_and_needs_a_verified_operator(proactive, monkeypatch):
     row = ev('heavy_rain', 1)
     row['retrieved_at'] = NOW - timedelta(hours=25)
     row['sha256'] = 'a' * 64
     proactive.evidence.append(row)
     assert client.get('/v1/proactive/watch').json()['evidence'][0]['stale'] is True
+    app.dependency_overrides.clear()
+    monkeypatch.setenv('OIDC_ISSUER', 'https://idp.example.test')
+    monkeypatch.setenv('OIDC_AUDIENCE', 'aegis-api')
+    monkeypatch.setenv('OIDC_JWKS_URL', 'https://idp.example.test/jwks')
+    assert client.get('/v1/proactive/watch').status_code == 401
 
 
 # --- Jev ---------------------------------------------------------------------------------------

@@ -261,3 +261,34 @@ details summary{cursor:pointer;color:var(--mu);font-size:11.5px} details ul{marg
 /* The way back into the app must be the most obvious control on a full-screen page. */
 .aj-root .btn.home { background: #f08a1c; color: #050b24; border-color: transparent; font-weight: 700; padding-inline: .8rem; }
 .aj-root .btn.home:hover { background: #ffa23f; }
+
+/* Phones, portrait and landscape (up to 900 CSS px wide): every pointer control gets a hit area of at least 44 x 44
+   CSS px. Desktop widths keep the original layout and the 3D scene is untouched. The dock rows wrap instead of
+   overlapping; the engine re-reads the dock height (--dockH) so the side panel stays clear of it. */
+@media (max-width: 900px) {
+  .aj-root :is(.btn, .tab, .chip, .mini, .cam, .evc, .ph-chip, .pc, .gs, .gx, .link, .sg, .inc, .livechip, .phtoggle,
+    .speed button, .seg button, .langs button, .opt) { min-height: 44px; min-width: 44px; }
+  .aj-root :is(.btn, .livechip, .phtoggle, .chip, .evc, .pc, .mini, .link) { display: inline-flex; align-items: center; justify-content: center; }
+  .aj-root a.brand { min-height: 44px; min-width: 44px; padding-inline: 4px; }
+  .aj-root .search { padding-block: 0; }
+  .aj-root .search input, .aj-root #askForm input, .aj-root .osearch, .aj-root .why input { min-height: 44px; }
+  .aj-root .drow { flex-wrap: wrap; row-gap: 6px; }
+  .aj-root .ctl { flex-wrap: wrap; }
+  /* The top bar scrolls sideways instead of squeezing its 44 px controls on top of each other. */
+  .aj-root #top { overflow-x: auto; scrollbar-width: none; }
+  .aj-root #top > * { flex: none; }
+  /* Collapse handle: an invisible extension makes the 22 px tab a 44 px target without moving the panel. */
+  .aj-root .grab::before { content: ""; position: absolute; top: 0; bottom: 0; left: -22px; right: 0; }
+  /* Timeline marks are too close together on a phone for 44 px targets that do not overlap, so here they are
+     markers only: a tap on the track (52 px tall) moves to that time, and the 44 px previous/next-event buttons
+     step through the same events. They stay keyboard-focusable, and on wider screens they stay clickable. */
+  .aj-root .mk { pointer-events: none; }
+  .aj-root .marks .mk:hover { transform: translateX(-50%); }
+}
+/* Phone in landscape: keep the side panel and the dive prompt between the top bar and the (taller) dock. */
+@media (max-width: 900px) and (max-height: 500px) {
+  .aj-root #kpis { top: 62px; }
+  .aj-root #side { top: 112px; height: auto; }
+  .aj-root #diveHint { bottom: auto; top: 160px; left: 30%; }
+  .aj-root #compass { top: auto; right: auto; left: 12px; bottom: calc(var(--dockH) + 10px); }
+}

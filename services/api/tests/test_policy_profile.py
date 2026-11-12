@@ -4,6 +4,9 @@ from fastapi.testclient import TestClient
 from app.main import app
 from app.policy_profile import PROFILE_VERSION, exercise_policy_profile
 from app.governance import may_execute_live_action
+import pytest
+# Formerly open read routes now need a verified exercise-agency operator (tests/conftest.py).
+pytestmark = pytest.mark.usefixtures("exercise_reader")
 
 client = TestClient(app)
 

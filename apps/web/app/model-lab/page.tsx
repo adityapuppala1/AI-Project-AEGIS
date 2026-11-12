@@ -2,16 +2,19 @@ import { AppShell } from "../../components/app-shell";
 import { ModelLabDashboard } from "../../components/model-lab-dashboard";
 import { ErrorState, Panel, buttonClass } from "../../components/ui";
 import type { ModelReport } from "../../lib/model-lab";
+import { apiAuthHeaders } from "../../lib/api-auth";
 
 export const metadata = { title: "Model Evaluation Lab" };
 
 export const dynamic = "force-dynamic";
 export default async function ModelLabPage() {
   let report: ModelReport | null = null;
-  try {
+  // Server-side only: the session token is attached here and never reaches the browser.
+  const auth = await apiAuthHeaders();
+  if (auth) try {
     const base = process.env.API_INTERNAL_URL || "http://localhost:8000";
     const response = await fetch(base + "/v1/exercise/model-lab/report", {
-      cache: "no-store", signal: AbortSignal.timeout(6000),
+      headers: auth, cache: "no-store", signal: AbortSignal.timeout(6000),
     });
     if (response.ok) {
       const candidate = await response.json() as ModelReport;

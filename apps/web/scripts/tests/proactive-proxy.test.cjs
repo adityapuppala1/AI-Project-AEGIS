@@ -112,16 +112,24 @@ test('run payloads validate ids, steps and cancel rationale', async () => {
   });
 });
 
-test('public watch reads need no session, are cleaned and not cached; backend errors stay generic', async () => {
+test('watch reads need a session, forward its token, are cleaned and not cached; backend errors stay generic', async () => {
   const good = { id, connector_id: 'open_meteo', hazard: 'flood', observed_at: '2026-01-01T00:00:00Z', lat: 17, lon: 78, value: 1, unit: 'mm', stale: false };
   await withFetch(json({ generated_at: '2026-01-01T00:00:00Z', config_version: 'v1', disclaimer: 'x', evidence: [good, { ...good, id: 'bad' }], triggers: [] }), async calls => {
-    const result = await loadProxy(null)(req('GET', '/api/proactive/watch'), 'watch');
-    assert.equal(result.status, 200);
-    assert.equal(result.headers.get('cache-control'), 'no-store');
-    assert.equal((await result.json()).evidence.length, 1);
-    assert.equal(calls[0].options.headers.Authorization, undefined);
-    assert.equal((await loadProxy(null)(req('GET', '/x?days=99'), 'watch_history')).status, 400);
-    assert.equal((await loadProxy(null)(req('POST', '/x', {}), 'watch')).status, 401);
+    for (const route of ['watch', 'watch_history', 'triggers_config']) {
+      const refused = await loadProxy(null)(req('GET', '/api/proactive/watch'), route);
+      assert.equal(refused.status, 401);
+      assert.deepEqual(await refused.json(), { error: 'Secure operator sign-in required', code: 'SIGN_IN_REQUIRED' });
+    }
+    assert.equal(calls.length, 0, 'no API call without a session');
+    for (const roles of [['response_team'], ['department_operator'], ['incident_auditor']]) {
+      const result = await loadProxy({ accessToken: 'unit-only-token', roles })(req('GET', '/api/proactive/watch'), 'watch');
+      assert.equal(result.status, 200);
+      assert.equal(result.headers.get('cache-control'), 'no-store');
+      assert.equal((await result.json()).evidence.length, 1);
+    }
+    assert.equal(calls[0].options.headers.Authorization, 'Bearer unit-only-token');
+    assert.equal((await loadProxy(auditor)(req('GET', '/x?days=99'), 'watch_history')).status, 400);
+    assert.equal((await loadProxy(auditor)(req('POST', '/x', {}), 'watch')).status, 405);
   });
   await withFetch(() => new Response(JSON.stringify({ detail: 'version_mismatch', trace: 'SECRET stack at db.py:12' }), { status: 409 }), async () => {
     const result = await loadProxy(admin)(req('PUT', '/x', save), 'connector_save', 'nasa_firms');

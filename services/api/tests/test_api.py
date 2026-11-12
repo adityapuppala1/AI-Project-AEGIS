@@ -1,6 +1,9 @@
 from datetime import datetime, timezone
 from fastapi.testclient import TestClient
 from app.main import app
+import pytest
+# Formerly open read routes now need a verified exercise-agency operator (tests/conftest.py).
+pytestmark = pytest.mark.usefixtures("exercise_reader")
 
 client = TestClient(app)
 

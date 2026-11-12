@@ -7,6 +7,8 @@ from fastapi.testclient import TestClient
 from app import assessment_adapter
 from app.assessment import evaluate_readiness
 from app.main import app
+# Formerly open read routes now need a verified exercise-agency operator (tests/conftest.py).
+pytestmark = pytest.mark.usefixtures("exercise_reader")
 
 INCIDENT_ID = "22222222-2222-4222-8222-222222222222"
 client = TestClient(app)

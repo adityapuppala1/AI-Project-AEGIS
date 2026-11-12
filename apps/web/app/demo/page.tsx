@@ -1,17 +1,21 @@
 import { AppShell } from "../../components/app-shell";
 import { DemoJourney } from "../../components/demo-journey";
 import { RiskExercisePanel } from "../../components/risk-exercise-panel";
+import { apiAuthHeaders } from "../../lib/api-auth";
 
 export const metadata = { title: "Exercise Walkthrough" };
 
 export const dynamic = "force-dynamic";
 const CASE = "22222222-2222-4222-8222-222222222222";
 
-async function getExerciseData(path: string): Promise<Record<string, unknown> | null> {
+async function getExerciseData(path: string, auth: { Authorization: string } | null): Promise<Record<string, unknown> | null> {
+  // Server-side only: the session token is attached here and never reaches the browser. Without a session the
+  // data routes are not called (the readiness diagnostic is open and needs no token).
+  if (!auth && path !== "/v1/exercise/system/readiness") return null;
   try {
     const base = process.env.API_INTERNAL_URL || "http://localhost:8000";
     const response = await fetch(base + path, {
-      cache: "no-store", signal: AbortSignal.timeout(6000),
+      headers: auth ?? undefined, cache: "no-store", signal: AbortSignal.timeout(6000),
     });
     const body: unknown = await response.json();
     if (!body || typeof body !== "object" || Array.isArray(body)) return null;
@@ -25,13 +29,14 @@ async function getExerciseData(path: string): Promise<Record<string, unknown> | 
   } catch { return null; }
 }
 export default async function ExerciseWalkthroughPage() {
+  const auth = await apiAuthHeaders();
   const [preflight, incident, assessment, agency, sources, model] = await Promise.all([
-    getExerciseData("/v1/exercise/system/readiness"),
-    getExerciseData("/v1/exercise/incidents/" + CASE),
-    getExerciseData("/v1/exercise/incidents/" + CASE + "/readiness?radius_m=3000"),
-    getExerciseData("/v1/exercise/agency-tasks?limit=50"),
-    getExerciseData("/v1/exercise/sources"),
-    getExerciseData("/v1/exercise/model-lab/report"),
+    getExerciseData("/v1/exercise/system/readiness", auth),
+    getExerciseData("/v1/exercise/incidents/" + CASE, auth),
+    getExerciseData("/v1/exercise/incidents/" + CASE + "/readiness?radius_m=3000", auth),
+    getExerciseData("/v1/exercise/agency-tasks?limit=50", auth),
+    getExerciseData("/v1/exercise/sources", auth),
+    getExerciseData("/v1/exercise/model-lab/report", auth),
   ]);
   const trustedTasks = agency?.source === "synthetic_exercise" &&
     agency.outbound_messages_sent === false &&

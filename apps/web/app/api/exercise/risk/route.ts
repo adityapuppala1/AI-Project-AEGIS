@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { apiAuthHeaders, signInRequired } from "../../../../lib/api-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -6,6 +7,8 @@ const DRAINAGE = new Set(["good", "moderate", "limited"]);
 const ZONED_DATE = /(Z|[+-]\d{2}:\d{2})$/i;
 
 export async function POST(request: NextRequest) {
+  const auth = await apiAuthHeaders();
+  if (!auth) return signInRequired();
   try {
     if (Number(request.headers.get("content-length") ?? "0") > 1024) return NextResponse.json({ error: "Oversized exercise input" }, { status: 413 });
     const raw = await request.text();
@@ -28,7 +31,7 @@ export async function POST(request: NextRequest) {
     }
     const base = process.env.API_INTERNAL_URL || "http://localhost:8000";
     const response = await fetch(base + "/v1/exercise/risk", {
-      method: "POST", headers: { "Content-Type": "application/json" },
+      method: "POST", headers: { ...auth, "Content-Type": "application/json" },
       body: JSON.stringify(data), cache: "no-store", signal: AbortSignal.timeout(6000),
     });
     if (!response.ok) throw new Error("Illustrative index unavailable");

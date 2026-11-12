@@ -7,6 +7,8 @@ from fastapi.testclient import TestClient
 
 from app import public_intake
 from app.main import app
+# Formerly open read routes now need a verified exercise-agency operator (tests/conftest.py).
+pytestmark = pytest.mark.usefixtures("exercise_reader")
 
 client = TestClient(app)
 ROOT = Path(__file__).resolve().parents[3]

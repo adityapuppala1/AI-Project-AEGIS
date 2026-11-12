@@ -18,6 +18,7 @@ import { ageParts, connectorStatus, isReady, missingRequired } from "../lib/proa
 import type { AuditRow, Connector, ConnectorStatus, ConnectorsPayload, TestResult } from "../lib/proactive";
 import { buildSampleAudit, buildSampleConnectors } from "../lib/proactive-sample";
 import { formatIst } from "../lib/earth-watch";
+import { codeLabel } from "../lib/labels";
 
 type Notice = { tone: "ok" | "error"; text: string };
 type Settings = Record<string, string | number | boolean>;
@@ -220,7 +221,7 @@ function ConnectorCard({ connector, masterKey, preview, now, onToast, onSaved }:
       </div>}
 
       {test && <p className={`text-xs ${test.ok ? "text-emerald-800 dark:text-emerald-300" : "text-rose-700 dark:text-rose-300"}`}>
-        {test.ok ? t("Test passed") : t("Test failed")} · HTTP {test.status_code ?? "n/a"} · {test.latency_ms ?? "n/a"} ms{test.message ? ` · ${test.message}` : ""}{test.at ? ` · ${formatIst(test.at)}` : ""}</p>}
+        {test.ok ? t("Test passed") : t("Test failed")} · HTTP {test.status_code ?? "n/a"} · {test.latency_ms ?? "n/a"} ms{test.message ? <> · <span title={test.message}>{t(codeLabel(test.message))}</span></> : ""}{test.at ? ` · ${formatIst(test.at)}` : ""}</p>}
 
       <div>
         <Button size="sm" type="button" aria-expanded={auditOpen} aria-controls={`${base}-audit`} onClick={toggleAudit}>

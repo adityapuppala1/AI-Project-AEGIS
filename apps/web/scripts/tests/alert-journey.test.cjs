@@ -1,3 +1,4 @@
+const { apiAuth, isApiAuth } = require('./api-auth-stub.cjs');
 // Alert Journey: screening maths, the client host allow-list, the orbit relay and the Content-Security-Policy.
 const test = require('node:test');
 const assert = require('node:assert/strict');
@@ -22,7 +23,7 @@ function installEngine(names, g = {}) {
 function loadTs(file, requireMap = {}) {
   const code = ts.transpileModule(read(file), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
   const mod = { exports: {} };
-  new Function('require', 'module', 'exports', 'process', code)(name => requireMap[name] ?? require(name), mod, mod.exports, { env: { NODE_ENV: 'production' } });
+  new Function('require', 'module', 'exports', 'process', code)(name => isApiAuth(name) ? apiAuth : requireMap[name] ?? require(name), mod, mod.exports, { env: { NODE_ENV: 'production' } });
   return mod.exports;
 }
 

@@ -3,22 +3,28 @@ import argparse
 from concurrent.futures import ThreadPoolExecutor
 import json
 import math
+import os
 from pathlib import Path
 import statistics
 import time
 import threading
 from urllib.parse import urlparse
-from urllib.request import ProxyHandler, build_opener
+from urllib.request import ProxyHandler, Request, build_opener
 
 CASE = "22222222-2222-4222-8222-222222222222"
 # Local rehearsal targets, declared before measurement; no forecasting metrics.
 ROUTES = [
     ("api_health", "api", "/health", 250),
+    ("readiness", "api", "/v1/exercise/system/readiness", 750),
     ("incident_registry", "api", "/v1/exercise/incidents/query", 750),
     ("assessment", "api", f"/v1/exercise/incidents/{CASE}/readiness", 1000),
     ("case_audit", "api", f"/v1/exercise/incidents/{CASE}/audit", 1500),
     ("guided_demo", "web", "/demo", 2000),
 ]
+# Exercise-record reads need a verified operator token (docs/SECURITY_ASSESSMENT.md). This script never stores or
+# mints one: if the operator exports a token they obtained themselves in AEGIS_BENCHMARK_BEARER, the protected routes
+# are measured with it; otherwise they are skipped and listed as such in the report.
+PROTECTED = {"incident_registry", "assessment", "case_audit"}
 
 
 def main():
@@ -37,7 +43,13 @@ def main():
             parser.error("Only local HTTP services without URL credentials are supported")
     results = []
     started = time.perf_counter()
+    bearer = os.environ.get("AEGIS_BENCHMARK_BEARER", "").strip()
+    skipped = []
     for name, service, route, target in ROUTES:
+        if name in PROTECTED and not bearer:
+            skipped.append(name)
+            continue
+        headers = {"Authorization": "Bearer " + bearer} if name in PROTECTED else {}
         url = getattr(args, service).rstrip("/") + route
         clients = threading.local()
         def initialize_client():
@@ -48,7 +60,7 @@ def main():
         def request(_):
             begin = time.perf_counter()
             try:
-                with clients.opener.open(url, timeout=10) as response:
+                with clients.opener.open(Request(url, headers=headers), timeout=10) as response:
                     response.read()
                     ok = response.status == 200
             except Exception:
@@ -71,7 +83,8 @@ def main():
               "http_connection_reuse": False,
               "concurrency": args.concurrency,
               "duration_seconds": round(time.perf_counter() - started, 2),
-              "production_capacity_established": False, "routes": results}
+              "production_capacity_established": False, "routes": results,
+              "skipped_without_operator_token": skipped}
     output = json.dumps(report, indent=2)
     if args.output:
         args.output.write_text(output + "\n", encoding="utf-8")

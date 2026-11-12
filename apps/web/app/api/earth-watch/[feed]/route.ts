@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { apiAuthHeaders, signInRequired } from "../../../../lib/api-auth";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
@@ -58,10 +59,12 @@ function cleanLayers(value: unknown) {
 export async function GET(_request: Request, { params }: { params: Promise<{ feed: string }> }) {
   const { feed } = await params;
   if (!FEEDS.has(feed)) return NextResponse.json({ error: "Unknown public reference feed" }, { status: 404, headers: HEADERS });
+  const auth = await apiAuthHeaders();
+  if (!auth) return signInRequired();
   try {
     const base = process.env.API_INTERNAL_URL || "http://localhost:8000";
     const response = await fetch(base + "/v1/public-reference/earth-watch/" + feed, {
-      cache: "no-store", signal: AbortSignal.timeout(30000),
+      headers: auth, cache: "no-store", signal: AbortSignal.timeout(30000),
     });
     if (response.status === 503) return NextResponse.json({ error: "disabled" }, { status: 503, headers: HEADERS });
     if (!response.ok) throw new Error("Public feed unavailable");

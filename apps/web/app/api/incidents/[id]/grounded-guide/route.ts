@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { apiAuthHeaders, signInRequired } from "../../../../../lib/api-auth";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -13,10 +14,12 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       typeof body.question !== "string" || body.question.trim().length < 3 || body.question.length > 300) {
     return json({ error: "A bounded question is required" }, 400);
   }
+  const auth = await apiAuthHeaders();
+  if (!auth) return signInRequired();
   try {
     const base = process.env.API_INTERNAL_URL || "http://localhost:8000";
     const response = await fetch(`${base}/v1/exercise/incidents/${id}/grounded-guide`, {
-      method: "POST", headers: { "Content-Type": "application/json" },
+      method: "POST", headers: { ...auth, "Content-Type": "application/json" },
       body: JSON.stringify({ question: body.question }), cache: "no-store", signal: AbortSignal.timeout(8000),
     });
     if (response.status === 404) return json({ error: "Synthetic context not found" }, 404);

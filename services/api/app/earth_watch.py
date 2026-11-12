@@ -15,9 +15,14 @@ from datetime import datetime, timezone
 from urllib.parse import urlparse
 from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
+
+from app.security import EXERCISE_RECORD_ROLES, Operator, scoped_operator
 
 router = APIRouter(prefix="/v1/public-reference/earth-watch", tags=["public-reference"])
+# Public reference data, not agency records: a verified operator with an explicit role is required, without
+# the exercise-agency check (docs/SECURITY_ASSESSMENT.md).
+EARTH_WATCH_READ = scoped_operator(EXERCISE_RECORD_ROLES, fixture_agency=False)
 
 MAX_BYTES = 12_000_000
 MAX_RECORDS = 500
@@ -295,14 +300,14 @@ def clear_cache() -> None:
 
 
 @router.get("/status")
-def earth_watch_status():
+def earth_watch_status(_operator: Operator = Depends(EARTH_WATCH_READ)):
     return {"classification": "public_reference", "enabled": enabled(),
             "feeds": sorted(FEEDS), "display_only": True, "writes_to_database": False,
             "notice": "Public reference data only; not an AEGIS assessment, warning or dispatch input."}
 
 
 @router.get("/{feed}")
-def earth_watch_feed(feed: str):
+def earth_watch_feed(feed: str, _operator: Operator = Depends(EARTH_WATCH_READ)):
     if feed not in FEEDS:
         raise HTTPException(status_code=404, detail="Unknown public reference feed")
     if not enabled():

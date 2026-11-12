@@ -52,7 +52,7 @@ listens on all network interfaces.
 | 8 | Low | Citizen-intake limit is shared by all callers (one script could fill the daily quota) | **Open.** The feature is off by default and already needs a security review before it is enabled |
 | 9 | Low | Database password has a built-in fallback value in `compose.yaml` if the variable is unset | **Open.** The database is not reachable from outside Docker. Make the variable mandatory before any shared deployment |
 | 10 | Info | API interactive documentation was reachable on the API port | **Fixed.** Off unless `AEGIS_API_DOCS=1` |
-| 11 | Info | Some read routes answer without sign-in | By design: they return synthetic exercise fixtures only. Each needs re-confirmation before real data is ever loaded |
+| 11 | Info | Some read routes answer without sign-in | **Closed 12 November 2026** (see the addendum below): every API data route needs a verified operator token, an explicit role list and the exercise-agency check |
 | 12 | Info | Malformed input to the risk calculator returned "unavailable" (503) instead of "bad request" | **Fixed** (400) |
 
 ZAP warnings left as they are: `style-src 'unsafe-inline'` (needed by the map and 3D libraries; scripts are strict);
@@ -97,3 +97,31 @@ AES-256-GCM connector vault; relay allow-list (HTTPS only, fixed hosts, no redir
 - **Semgrep** (289 rules, 229 files of API and server-side web code): 3 `use-defused-xml` findings, assessed as not
   exploitable (generated XML only, or DOCTYPE/ENTITY rejected before parsing).
 - Still not run: SonarQube, an active attack scan, signed-in testing across two agencies.
+
+## Addendum, 12 November 2026 (later): sign-in required on the API port
+
+Finding 11 is closed. Before this change 25 API routes answered on `127.0.0.1:8000` with no token at all, so anyone
+on the laptop could read the exercise records directly, bypassing the web app's sign-in gate:
+
+| Routes | Now requires |
+|---|---|
+| `POST /v1/exercise/risk`; `GET /v1/exercise/incidents`, `/incidents/query`, `/incidents/{id}`, `/incidents/{id}/correlation`, `/incidents/{id}/readiness`, `/incidents/{id}/audit`; `POST /incidents/{id}/review-focus`, `/incidents/{id}/grounded-guide`; `GET /v1/exercise/telemetry`, `/sources`, `/sources/{id}/history`, `/ingestion/status`, `/model-lab/report`, `/agency-tasks`, `/agency-tasks/{id}`, `/policy` | Verified operator, explicit role list (all six roles, mirroring `read_exercise_records`), exercise agency only |
+| `GET /v1/proactive/watch`, `/watch/history`, `/triggers/config`, `/triggers/impact-config` | Same (mirrors `read_watch`); still 404 unless the proactive switch is on |
+| `GET /v1/public-intake/reports` (quarantine queue) | Same |
+| `GET /v1/public-reference/earth-watch/status`, `/{feed}`; `GET /v1/public-intake/status` | Verified operator and explicit role list; no agency check (public reference data and a static status, not agency records) |
+
+Rule: a valid token from another agency gets **403** "Exercise records are limited to the exercise agency" (never an
+empty result, so "not your agency" cannot be mistaken for "no records"); a token without a listed role gets 403;
+no token gets 401. The role lists are explicit in `services/api/app/security.py` (`EXERCISE_RECORD_ROLES`,
+`scoped_operator`), so a new role gains nothing by default.
+
+Still open on the API port, by design: `GET /health`, `GET /v1/exercise/system/readiness` (fixed diagnostic codes and
+fixture counts, used by the start and verify scripts), the `POST /v1/live/public-warning` 403 stub, and the opt-in
+public intake submission (`POST /v1/public-intake/reports`, off unless `-PublicIntake`; its own controls in
+`docs/PUBLIC_INTAKE_SECURITY.md`). `services/api/tests/test_route_auth_inventory.py` walks every registered route and
+fails if any other route lacks the operator dependency.
+
+Remaining risks: the API port is still published on loopback, so a process on the laptop that obtains a valid
+token (for example from a browser session it can read) can call the API directly; the readiness diagnostic reveals
+fixture counts; the web BFF and the API share one exercise agency, so cross-agency isolation is tested with test
+doubles only; the inventory test checks that the dependency is present, not that each role list is the right one.

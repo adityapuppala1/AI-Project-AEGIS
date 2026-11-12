@@ -4,6 +4,8 @@ import pytest
 from fastapi.testclient import TestClient
 from app import earth_watch
 from app.main import app
+# Formerly open read routes now need a verified exercise-agency operator (tests/conftest.py).
+pytestmark = pytest.mark.usefixtures("exercise_reader")
 
 client = TestClient(app)
 

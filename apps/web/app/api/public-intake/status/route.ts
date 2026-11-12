@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
+import { apiAuthHeaders, signInRequired } from "../../../../lib/api-auth";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export async function GET() {
+  const auth = await apiAuthHeaders();
+  if (!auth) return signInRequired();
   try {
     const base = process.env.API_INTERNAL_URL || "http://localhost:8000";
-    const response = await fetch(base + "/v1/public-intake/status", { cache: "no-store", signal: AbortSignal.timeout(6000) });
+    const response = await fetch(base + "/v1/public-intake/status", { headers: auth, cache: "no-store", signal: AbortSignal.timeout(6000) });
     if (!response.ok) throw new Error("status unavailable");
     const payload: unknown = await response.json();
     if (!payload || typeof payload !== "object" || Array.isArray(payload)) throw new Error("unexpected");

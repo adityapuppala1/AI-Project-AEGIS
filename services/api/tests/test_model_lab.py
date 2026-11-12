@@ -11,6 +11,8 @@ from app.model_lab import (
     score, sigmoid, validate_dataset,
 )
 from app.model_scenarios import generate
+# Formerly open read routes now need a verified exercise-agency operator (tests/conftest.py).
+pytestmark = pytest.mark.usefixtures("exercise_reader")
 
 client = TestClient(app)
 

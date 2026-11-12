@@ -17,7 +17,8 @@ Invoke-AegisLocalOperation -Name "replay-windows.ps1" -Action {
     throw "Exercise replay failed. Inspect: docker compose logs --tail=100 api db"
   }
   Write-Host "Synthetic ingestion summary:"
-  Invoke-RestMethod -Uri "http://localhost:8000/v1/exercise/ingestion/status" -Method Get -TimeoutSec 10 |
-    ConvertTo-Json -Depth 5
+  # The HTTP status route needs a signed-in operator token now; read the same summary inside the API container.
+  docker compose exec -T api python -c "import json; from app.ingestion_store import ingestion_overview; print(json.dumps(ingestion_overview(), indent=2, default=str))"
+  if ($LASTEXITCODE -ne 0) { Write-Host "Ingestion summary unavailable; open http://localhost:3000/ingestion after signing in." }
   Write-Host "Explore: http://localhost:3000/ingestion"
 }

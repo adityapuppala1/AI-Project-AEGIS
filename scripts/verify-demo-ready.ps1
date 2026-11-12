@@ -33,16 +33,25 @@ Invoke-AegisLocalOperation -Name "verify-demo-ready.ps1" -Action {
   if ($health -and $health.status -eq "ok" -and $health.mode -eq "exercise") { Pass "Exercise API healthy" } else { Fail "Exercise API not healthy" }
   $ready = Get-Json "http://localhost:8000/v1/exercise/system/readiness"
   if ($ready -and $ready.status -eq "ready" -and $ready.mode -eq "synthetic_exercise") { Pass "Schema and fixture preflight ready" } else { Fail "Readiness preflight not ready" }
-  foreach ($page in @("/", "/demo", "/incidents", "/sources", "/approvals", "/department-tasks", "/audit", "/earth-watch", "/response-teams", "/help")) {
+  # Only the landing page is public. Every other page sends a visitor without a session to sign-in (307), which is
+  # the correct answer for this anonymous script; signed-in rendering is checked with -Browser or a browser crawl.
+  if ((Get-Code "http://localhost:3000/") -eq 200) { Pass "Landing page / [200]" } else { Fail "Landing page / is not answering 200" }
+  foreach ($page in @("/demo", "/incidents", "/sources", "/approvals", "/department-tasks", "/audit", "/earth-watch", "/response-teams", "/help")) {
     $code = Get-Code "http://localhost:3000$page"
-    if ($code -eq 200) { Pass "Page $page [200]" } else { Fail "Page $page returned $code" }
+    if ($code -eq 307) { Pass "Page $page sends an anonymous visitor to sign-in [307]" } else { Fail "Page $page returned $code to an anonymous visitor (expected 307 to sign-in)" }
+  }
+  # The API answers exercise-record reads only to a verified operator token (docs/SECURITY_ASSESSMENT.md). This
+  # script holds no credential, so it checks the refusal; health and readiness above stay open.
+  foreach ($path in @("/v1/exercise/incidents", "/v1/exercise/sources", "/v1/exercise/agency-tasks", "/v1/exercise/model-lab/report", "/v1/exercise/policy", "/v1/public-intake/reports")) {
+    $code = Get-Code "http://localhost:8000$path"
+    if ($code -eq 401) { Pass "API $path refuses an anonymous caller [401]" } else { Fail "API $path returned $code without a token (expected 401)" }
   }
   if ((Get-Code "http://localhost:8000/v1/live/public-warning" "POST") -eq 403) { Pass "Live public warning blocked [403]" } else { Fail "Live public warning is not blocked" }
 
   # 2. Which opt-in profiles are running
-  $earth = Get-Json "http://localhost:3000/api/earth-watch/status"
-  $intake = Get-Json "http://localhost:3000/api/public-intake/status"
-  $earthOn = [bool]($earth -and $earth.enabled); $intakeOn = [bool]($intake -and $intake.enabled)
+  # Read from the running API container's switches (read-only); the status routes need a signed-in operator.
+  $apiEnv = @(docker inspect ai-project-aegis-api-1 --format "{{range .Config.Env}}{{println .}}{{end}}" 2>$null)
+  $earthOn = [bool]($apiEnv -contains "AEGIS_PUBLIC_EARTH_FEEDS=1"); $intakeOn = [bool]($apiEnv -contains "AEGIS_PUBLIC_INTAKE=1")
   if ($earthOn) { Write-Host "INFO: Earth Watch (public feeds) is ON" } else { Write-Host "INFO: Earth Watch is OFF (default synthetic profile)" }
   if ($intakeOn) { Warn "Public intake is ON. Decision D4: do not show it to an audience unless asked; restart without -PublicIntake" } else { Pass "Public intake is OFF" }
 

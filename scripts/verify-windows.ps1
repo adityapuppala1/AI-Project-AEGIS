@@ -53,40 +53,19 @@ Invoke-AegisLocalOperation -Name "verify-windows.ps1" -Action {
   }
 
   $incident = "22222222-2222-4222-8222-222222222222"
-  $case = Get-Json "http://localhost:8000/v1/exercise/incidents/$incident"
-  Assert-True ($case.source -eq "synthetic_exercise" -and $case.operational_actions_enabled -eq $false) "Incident intelligence synthetic only"
-
-  $spatial = Get-Json "http://localhost:8000/v1/exercise/incidents/$incident/correlation?radius_m=3000"
-  Assert-True ($spatial.analysis_kind -eq "geographic_proximity_only" -and $spatial.validated_risk_model -eq $false) "Spatial proximity does not claim flood risk"
-
-  $assessment = Get-Json "http://localhost:8000/v1/exercise/incidents/$incident/readiness?radius_m=3000"
-  Assert-True ($assessment.real_world_risk_probability -eq $null -and $assessment.needs_accountable_human_review -eq $true) "Assessment has no real flood probability or autonomous decision"
-
-  $source = Get-Json "http://localhost:8000/v1/exercise/sources"
-  Assert-True ($source.source -eq "synthetic_exercise" -and $source.real_connectors_enabled -eq $false) "Source monitor remains simulated"
-
-  $model = Get-Json "http://localhost:8000/v1/exercise/model-lab/report"
-  Assert-True ($model.source -eq "synthetic_generated_fixture" -and $model.calibrated_real_world_probability -eq $false) "Model lab remains offline synthetic"
-
-  $agencyTasks = Get-Json "http://localhost:8000/v1/exercise/agency-tasks?limit=50"
-  Assert-True ($agencyTasks.source -eq "synthetic_exercise" -and $agencyTasks.outbound_messages_sent -eq $false) "No real department messages sent"
-  Assert-True ($agencyTasks.returned -ge 7 -and $agencyTasks.acknowledgements_are_scripted -eq $true) "Fictional task board seeded"
-  $task = Get-Json "http://localhost:8000/v1/exercise/agency-tasks/f6000000-0000-4000-8000-000000000001"
-  Assert-True ($task.source -eq "synthetic_exercise" -and $task.events.Count -ge 2) "Scripted acknowledgement audit trail"
-
-  $audit = Get-Json "http://localhost:8000/v1/exercise/incidents/$incident/audit"
-  Assert-True ($audit.source -eq "synthetic_exercise" -and $audit.contains_real_agency_records -eq $false) "Audit360 exports public exercise fixtures only"
-  Assert-True ($audit.manifest_sha256.Length -eq 64 -and $audit.outbound_messages_sent -eq $false) "Audit360 checksum and no messages"
-
-  $policy = Get-Json "http://localhost:8000/v1/exercise/policy"
-  Assert-True ($policy.policy_version -eq "aegis.exercise.policy.v1" -and $policy.live_public_warning_enabled -eq $false) "Versioned policy disables real warnings"
-
-  $exampleInput = @{ source_id = "AEGIS-EXERCISE-ONLY"; rainfall_mm_hour = 35; water_index = 45; drainage_condition = "moderate"; observed_at = (Get-Date).ToUniversalTime().ToString("o") } | ConvertTo-Json
-  $teachingIndex = Invoke-RestMethod -Uri "http://localhost:8000/v1/exercise/risk" -Method POST -ContentType "application/json" -Body $exampleInput -TimeoutSec 10
-  Assert-True ($teachingIndex.kind -eq "synthetic_rule_demo" -and $teachingIndex.requires_human_verification -eq $true) "Illustrative risk index is explicitly synthetic"
-
-  $ingest = Get-Json "http://localhost:8000/v1/exercise/ingestion/status"
-  Assert-True ($ingest.mode -eq "synthetic_exercise" -and $ingest.live_ingestion_enabled -eq $false) "No external ingestion route"
+  # Exercise-record reads need a verified operator token since the API sign-in change (docs/SECURITY_ASSESSMENT.md).
+  # This script holds no credential and mints no token, so it checks that each read refuses an anonymous caller.
+  # The content assertions (synthetic-only flags, no real probability, scripted acknowledgements) are covered by
+  # services/api tests and by a signed-in browser check; they are not repeated here without a token.
+  $signInRequired = @(
+    "/v1/exercise/incidents", "/v1/exercise/incidents/query", "/v1/exercise/incidents/$incident",
+    "/v1/exercise/incidents/$incident/correlation?radius_m=3000", "/v1/exercise/incidents/$incident/readiness?radius_m=3000",
+    "/v1/exercise/sources", "/v1/exercise/model-lab/report", "/v1/exercise/agency-tasks?limit=50",
+    "/v1/exercise/agency-tasks/f6000000-0000-4000-8000-000000000001", "/v1/exercise/incidents/$incident/audit",
+    "/v1/exercise/policy", "/v1/exercise/ingestion/status", "/v1/exercise/telemetry"
+  )
+  foreach ($path in $signInRequired) { Check-Status ("http://localhost:8000" + $path) @("401") ("$path requires sign-in") }
+  Check-Status "http://localhost:8000/v1/exercise/risk" @("401") "Illustrative risk index requires sign-in" "POST"
 
   Check-Status "http://localhost:3000/" @("200") "Command Center page"
   Check-Status "http://localhost:3000/incidents" @("200") "Incident Registry page"

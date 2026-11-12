@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { apiAuthHeaders, signInRequired } from "../../../../lib/api-auth";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
@@ -59,13 +60,13 @@ function resolveTarget(raw: string | null, method: "GET" | "POST"): URL | null {
   return url;
 }
 
-async function publicFeedsEnabled(): Promise<boolean> {
+async function publicFeedsEnabled(auth: { Authorization: string }): Promise<boolean> {
   const now = Date.now();
   if (now - gate.at < 30_000) return gate.enabled;
   let enabled = false;
   try {
     const base = process.env.API_INTERNAL_URL || "http://localhost:8000";
-    const response = await fetch(base + "/v1/public-reference/earth-watch/status", { cache: "no-store", signal: AbortSignal.timeout(8000) });
+    const response = await fetch(base + "/v1/public-reference/earth-watch/status", { headers: auth, cache: "no-store", signal: AbortSignal.timeout(8000) });
     if (response.ok) {
       const payload = await response.json() as { enabled?: unknown; display_only?: unknown };
       enabled = payload.enabled === true && payload.display_only === true;
@@ -171,7 +172,12 @@ async function handle(request: Request, method: "GET" | "POST") {
   if (!withinRate(request)) return refuse(429, "Too many requests");
   const rule = RULES[url.hostname];
   // OpenStreetMap base tiles belong to the base product (the map on every page); every other source needs the switch.
-  if (!rule.open && !(await publicFeedsEnabled())) return refuse(503, "disabled");
+  if (!rule.open) {
+    // The switch is read from the API with the signed-in operator's token (server-side only).
+    const auth = await apiAuthHeaders();
+    if (!auth) return signInRequired();
+    if (!(await publicFeedsEnabled(auth))) return refuse(503, "disabled");
+  }
   let body: string | undefined;
   if (method === "POST") {
     if (Number(request.headers.get("content-length") ?? "0") > MAX_BODY) return refuse(413, "Query too large");
