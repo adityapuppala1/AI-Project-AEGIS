@@ -50,13 +50,14 @@ export async function GET(request: NextRequest) {
     if (ttl <= 0) return errorResult(401);
     const encrypted = await encryptData(config, {
       accessToken: tokens.access_token, sub: operator.subject,
-      agencyId: operator.agencyId, roles: operator.roles, departmentId: operator.departmentId,
+      agencyId: operator.agencyId, roles: operator.roles, departmentId: operator.departmentId, teamId: operator.teamId,
       // Names are for display only (who is signed in); every access decision uses the signed role and agency.
       username: displayLabel(idClaims.preferred_username), displayName: displayLabel(idClaims.name),
     }, ttl);
     if (encrypted.length > 3900) return errorResult(401);
     // Return to the page that was asked for (validated again here), else the role's home page.
-    const home = operator.roles.includes("department_operator") ? "/department-tasks" : "/";
+    const home = operator.roles.includes("response_team") ? "/my-team"
+      : operator.roles.includes("department_operator") ? "/department-tasks" : "/";
     const response = NextResponse.redirect(config.origin + (safeReturnPath(flow.next) ?? home));
     // Kept sealed and HttpOnly, sent only to the sign-in endpoints: lets sign-out end the provider session in one step.
     const sealedId = await encryptData(config, { idToken: tokens.id_token }, ttl + 3600);

@@ -186,6 +186,11 @@ def transition(
                     if not changed:
                         return current.status.value
                 elif operation in {"acknowledge_task", "close_task"}:
+                    if operation == "close_task":
+                        # Response loop: a task cannot close while a team request on it is still active.
+                        from app.response_store import task_has_active_requests
+                        if task_has_active_requests(cur, proposal_id, task_id or ""):
+                            raise DecisionError("Stand down or finish the task's team requests before closing it")
                     receipt, changed = advance_task(payload.get("simulation"), task_id or "", operation, actor, reason or "")
                     if not changed:
                         return current.status.value

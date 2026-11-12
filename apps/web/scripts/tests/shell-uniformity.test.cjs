@@ -114,6 +114,15 @@ test('the permission matrix repeats the role lists written in the route rules', 
   assert.deepEqual(cap('read_proposals'), listed(/else if \(!hasRole\(session\.roles, ([^)]+)\)\)/.exec(proposals)[1]));
   assert.match(read('lib/department-proxy.ts'), /session\.roles\.includes\("department_operator"\)/);
   assert.deepEqual(cap('department_inbox'), ['department_operator']);
+  const response = read('lib/response-proxy.ts');
+  const responseReaders = listed(/const READERS: Role\[\] = \[([^\]]+)\]/.exec(response)[1]);
+  assert.match(response, /if \(view !== "department"\) return failure\(403, "Verified department role required"\);/, 'requests and suggestions are desk-only');
+  assert.match(response, /const kinds = view === "team" \? TEAM_KINDS : DESK_KINDS;/, 'teams answer, desks also stand down');
+  assert.deepEqual(cap('request_team'), ['department_operator']);
+  assert.deepEqual(cap('team_respond'), ['response_team']);
+  assert.deepEqual(cap('read_team_requests'), sorted([...responseReaders, 'department_operator', 'response_team']));
+  assert.ok(!cap('read_team_requests').includes('platform_admin'), 'administrators see nothing here, as on the server');
+  assert.deepEqual(cap('read_pause'), listed(/route === "pause_get"\) return \[([^\]]+)\]/.exec(proactive)[1]));
   // Every row names an existing rule file and uses known roles and groups.
   for (const item of roles.CAPABILITIES) {
     assert.ok(fs.existsSync(path.join(root, item.rule)), item.rule);

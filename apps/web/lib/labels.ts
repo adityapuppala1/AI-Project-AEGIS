@@ -13,7 +13,7 @@ const LABELS: Record<string, string> = {
   hand_to_human: "Hand to a person", not_comparable: "Not comparable",
   // Roles (the plain words used across the app)
   incident_operator: "Maker", incident_checker: "Checker", incident_auditor: "Auditor", platform_admin: "Administrator",
-  department_operator: "Department desk",
+  department_operator: "Department desk", response_team: "Response team",
   // Departments
   control_room: "Control room", infrastructure: "Infrastructure", communications: "Communications",
   // Hazards and measurements

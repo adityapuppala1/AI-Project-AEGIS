@@ -66,6 +66,9 @@ from app.exercise_workflows import router as exercise_workflow_router
 app.include_router(exercise_workflow_router)
 from app.department_tasks import router as department_tasks_router
 app.include_router(department_tasks_router)
+# Team response loop rehearsal (docs/RESPONSE_LOOP.md): in-app only, no transport of any kind.
+from app.response_routes import router as response_router
+app.include_router(response_router)
 # Display-only public reference feeds; disabled unless AEGIS_PUBLIC_EARTH_FEEDS=1.
 from app.earth_watch import router as earth_watch_router
 app.include_router(earth_watch_router)

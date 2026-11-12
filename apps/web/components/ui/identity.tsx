@@ -3,7 +3,7 @@
 import type { CSSProperties } from "react";
 import {
   Activity, Building2, CloudLightning, CloudRain, Droplets, Flame, KeyRound, Mountain, PenLine, ScrollText, ShieldCheck, SlidersHorizontal, Sun,
-  ThermometerSun, Tornado, TriangleAlert, Waves, Wind, X, type LucideIcon,
+  ThermometerSun, Tornado, TriangleAlert, Users, Waves, Wind, X, type LucideIcon,
 } from "lucide-react";
 import { useT } from "../language-provider";
 import { ROLE_INFO, isRoleId, type RoleId, type RoleTone } from "../../lib/roles";
@@ -11,7 +11,7 @@ import { hazardStyle, type HazardIcon } from "../../lib/hazards";
 import { codeLabel, initials } from "../../lib/labels";
 import { CHAIN, type ChainStep } from "../../lib/navigation";
 
-export const ROLE_ICON: Record<RoleTone, LucideIcon> = { maker: PenLine, checker: ShieldCheck, auditor: ScrollText, department: Building2, admin: SlidersHorizontal };
+export const ROLE_ICON: Record<RoleTone, LucideIcon> = { maker: PenLine, checker: ShieldCheck, auditor: ScrollText, department: Building2, team: Users, admin: SlidersHorizontal };
 
 /** A role, the same everywhere: plain label, its icon and its colour (never colour alone). Unknown roles get a neutral chip. */
 export function RoleChip({ role, className = "" }: Readonly<{ role: string; className?: string }>) {

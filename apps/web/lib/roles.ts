@@ -3,11 +3,11 @@
 // own server-side check. Each row names the file whose rule it describes, and scripts/tests/roles.test.cjs compares
 // the rows with those files so the description cannot drift from the real rules. No React or DOM imports.
 
-export const ROLE_IDS = ["incident_operator", "incident_checker", "incident_auditor", "department_operator", "platform_admin"] as const;
+export const ROLE_IDS = ["incident_operator", "incident_checker", "incident_auditor", "department_operator", "response_team", "platform_admin"] as const;
 export type RoleId = (typeof ROLE_IDS)[number];
 export const isRoleId = (value: unknown): value is RoleId => typeof value === "string" && (ROLE_IDS as readonly string[]).includes(value);
 
-export type RoleTone = "maker" | "checker" | "auditor" | "department" | "admin";
+export type RoleTone = "maker" | "checker" | "auditor" | "department" | "team" | "admin";
 export interface RoleInfo { id: RoleId; label: string; tone: RoleTone; summary: string }
 
 export const ROLE_INFO: Record<RoleId, RoleInfo> = {
@@ -15,11 +15,12 @@ export const ROLE_INFO: Record<RoleId, RoleInfo> = {
   incident_checker: { id: "incident_checker", label: "Checker", tone: "checker", summary: "Approves or rejects what a different person submitted. Cannot draft or submit." },
   incident_auditor: { id: "incident_auditor", label: "Auditor", tone: "auditor", summary: "Reads proposals, decisions and their audit trail. Cannot change anything." },
   department_operator: { id: "department_operator", label: "Department desk", tone: "department", summary: "Works the approved tasks of one department. Sees no other department's tasks." },
+  response_team: { id: "response_team", label: "Response team", tone: "team", summary: "Answers requests for its own synthetic team inside AEGIS. Sees no other team's requests, proposals or audit." },
   platform_admin: { id: "platform_admin", label: "Administrator", tone: "admin", summary: "Sets up connectors and holds the kill switch. Cannot draft, submit or approve proposals." },
 };
 
 // When a person holds several roles, the menu leads with the one that carries the most responsibility.
-const PRECEDENCE: RoleId[] = ["platform_admin", "incident_checker", "incident_operator", "incident_auditor", "department_operator"];
+const PRECEDENCE: RoleId[] = ["platform_admin", "incident_checker", "incident_operator", "incident_auditor", "department_operator", "response_team"];
 export function knownRoles(roles: readonly string[] | null | undefined): RoleId[] {
   const held = (roles ?? []).filter(isRoleId);
   return PRECEDENCE.filter(role => held.includes(role));
@@ -46,13 +47,16 @@ export const CAPABILITIES: Capability[] = [
   { id: "make_proposal", group: "Decide", label: "Draft and submit a proposal, simulate it, prepare tasks and run bounded assistance", roles: ["incident_operator"], rule: "lib/proposal-proxy.ts" },
   { id: "check_proposal", group: "Decide", label: "Approve or reject a submitted proposal (never one's own)", roles: ["incident_checker"], rule: "lib/proposal-proxy.ts" },
   { id: "department_inbox", group: "Hand over and reach", label: "Work the Department Inbox (own department only)", roles: ["department_operator"], rule: "lib/department-proxy.ts" },
+  { id: "request_team", group: "Hand over and reach", label: "Request a synthetic team, record for it, stand it down or mark it handled (own department's acknowledged tasks)", roles: ["department_operator"], rule: "lib/response-proxy.ts" },
+  { id: "team_respond", group: "Hand over and reach", label: "Answer requests for one's own synthetic team (accept, decline, report)", roles: ["response_team"], rule: "lib/response-proxy.ts" },
+  { id: "read_team_requests", group: "Hand over and reach", label: "Read team requests and reports (team: own team; desk: own department; readers: the agency)", roles: ["incident_operator", "incident_checker", "incident_auditor", "department_operator", "response_team"], rule: "lib/response-proxy.ts" },
   { id: "read_assist", group: "Hand over and reach", label: "Read the shift handover brief and ask the copilot (read-only)", roles: READERS, rule: "lib/assist-proxy.ts" },
   { id: "read_learning", group: "Learn", label: "Read post-event learning and drills", roles: READERS, rule: "lib/learning-proxy.ts" },
   { id: "propose_threshold", group: "Learn", label: "Propose a threshold change, start and run a drill", roles: ["incident_operator"], rule: "lib/learning-proxy.ts" },
   { id: "respond_drill", group: "Learn", label: "Respond in a drill", roles: ["incident_operator", "incident_checker"], rule: "lib/learning-proxy.ts" },
   { id: "review_threshold", group: "Learn", label: "Review a threshold proposal (never one's own)", roles: ["incident_checker", "platform_admin"], rule: "lib/learning-proxy.ts" },
   { id: "apply_threshold", group: "Learn", label: "Apply an approved threshold overlay", roles: ["platform_admin"], rule: "lib/learning-proxy.ts" },
-  { id: "read_pause", group: "Administer", label: "See whether the kill switch is engaged", roles: ALL, rule: "lib/proactive-proxy.ts" },
+  { id: "read_pause", group: "Administer", label: "See whether the kill switch is engaged", roles: ALL.filter(role => role !== "response_team"), rule: "lib/proactive-proxy.ts" },
   { id: "set_pause", group: "Administer", label: "Engage or release the kill switch", roles: ["platform_admin"], rule: "lib/proactive-proxy.ts" },
   { id: "connectors", group: "Administer", label: "View, change and test connector settings", roles: ["platform_admin"], rule: "lib/proactive-proxy.ts" },
 ];

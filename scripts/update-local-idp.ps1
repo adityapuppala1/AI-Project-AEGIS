@@ -4,6 +4,7 @@
 #   2. The department_operator role exists.
 #   3. A department can be recorded on an account (administrators only) and is signed into the access token.
 #   4. The provider's own sign-in pages use the AEGIS look (ops/local-idp/theme; styles only).
+#   5-7. The response_team role, an aegis_team_id account attribute (administrators only) and its access-token mapper.
 # It never creates, changes or deletes an account and never prints a secret.
 # Run:  powershell -ExecutionPolicy Bypass -File .\scripts\update-local-idp.ps1
 $ErrorActionPreference = 'Stop'
@@ -72,5 +73,36 @@ Invoke-AegisLocalOperation -Name 'update-local-idp.ps1' -Action {
     Invoke-Idp 'cat > /tmp/aegis-mapper.json; $K create clients/$CID/protocol-mappers/models -r aegis-exercise -f /tmp/aegis-mapper.json >/dev/null 2>&1; code=$?; rm -f /tmp/aegis-mapper.json; exit $code' ($mapper | ConvertTo-Json -Depth 8 -Compress) | Out-Null
   }
   Say 'Department is signed into the access token' $needMapper
+
+  # 5. Response team role (docs/RESPONSE_LOOP.md). Exercise only: teams answer inside AEGIS, nobody is contacted.
+  $needTeamRole = -not ($roles -contains 'response_team')
+  if ($needTeamRole) { Invoke-Idp '$K create clients/$CID/roles -r aegis-exercise -s name=response_team >/dev/null 2>&1' | Out-Null }
+  Say 'Role response_team exists' $needTeamRole
+
+  # 6. Team attribute on accounts: administrators only, the five fixture team ids. Re-read the profile (step 3a may have changed it).
+  $profile = (Invoke-Idp '$K get users/profile -r aegis-exercise') -join "`n" | ConvertFrom-Json
+  $needTeamAttribute = -not (@($profile.attributes | ForEach-Object { $_.name }) -contains 'aegis_team_id')
+  if ($needTeamAttribute) {
+    $attribute = [PSCustomObject]@{
+      name = 'aegis_team_id'; displayName = 'AEGIS synthetic response team'; multivalued = $false
+      validations = [PSCustomObject]@{ options = [PSCustomObject]@{ options = @('syn-team-rescue-01', 'syn-team-rescue-02', 'syn-team-health-01', 'syn-team-fire-01', 'syn-team-municipal-01') } }
+      permissions = [PSCustomObject]@{ view = @('admin'); edit = @('admin') }
+    }
+    $profile.attributes = @($profile.attributes) + $attribute
+    Invoke-Idp 'cat > /tmp/aegis-profile.json; $K update users/profile -r aegis-exercise -f /tmp/aegis-profile.json >/dev/null; code=$?; rm -f /tmp/aegis-profile.json; exit $code' ($profile | ConvertTo-Json -Depth 32 -Compress) | Out-Null
+  }
+  Say 'Accounts can carry a response team (administrators only)' $needTeamAttribute
+
+  # 7. Sign the team into the access token, never the ID token.
+  $needTeamMapper = -not ($mappers -contains 'signed-team')
+  if ($needTeamMapper) {
+    $mapper = [PSCustomObject]@{
+      name = 'signed-team'; protocol = 'openid-connect'; protocolMapper = 'oidc-usermodel-attribute-mapper'
+      config = [PSCustomObject]@{ 'user.attribute' = 'aegis_team_id'; 'claim.name' = 'aegis_team_id'; 'jsonType.label' = 'String'
+        'access.token.claim' = 'true'; 'id.token.claim' = 'false'; 'userinfo.token.claim' = 'false' }
+    }
+    Invoke-Idp 'cat > /tmp/aegis-mapper.json; $K create clients/$CID/protocol-mappers/models -r aegis-exercise -f /tmp/aegis-mapper.json >/dev/null 2>&1; code=$?; rm -f /tmp/aegis-mapper.json; exit $code' ($mapper | ConvertTo-Json -Depth 8 -Compress) | Out-Null
+  }
+  Say 'Response team is signed into the access token' $needTeamMapper
   Write-Host 'Done. Sign out and in again to pick up the changes.'
 }

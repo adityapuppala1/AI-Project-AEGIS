@@ -39,6 +39,9 @@
         },
         {
           "name": "department_operator"
+        },
+        {
+          "name": "response_team"
         }
       ]
     }
@@ -107,6 +110,19 @@
           "config": {
             "user.attribute": "aegis_department_id",
             "claim.name": "aegis_department_id",
+            "jsonType.label": "String",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "userinfo.token.claim": "false"
+          }
+        },
+        {
+          "name": "signed-team",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "config": {
+            "user.attribute": "aegis_team_id",
+            "claim.name": "aegis_team_id",
             "jsonType.label": "String",
             "access.token.claim": "true",
             "id.token.claim": "false",

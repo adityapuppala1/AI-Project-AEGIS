@@ -10,13 +10,17 @@ import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { EncryptJWT, createRemoteJWKSet, jwtDecrypt, jwtVerify, type JWTPayload } from "jose";
 
-export type Role = "incident_operator" | "incident_checker" | "incident_auditor" | "department_operator" | "platform_admin";
+import { isResponseTeamId } from "./response-teams";
+
+export type Role = "incident_operator" | "incident_checker" | "incident_auditor" | "department_operator" | "response_team" | "platform_admin";
 export interface OperatorSession {
   accessToken: string;
   subject: string;
   agencyId: string;
   roles: Role[];
   departmentId?: string;
+  /** Signed aegis_team_id (response_team only), one of lib/response-teams.ts. */
+  teamId?: string;
   /** Sign-in name and full name from the verified ID token. Display only: never used for an access decision. */
   username?: string;
   displayName?: string;
@@ -39,7 +43,7 @@ interface OidcDocument {
   end_session_endpoint?: string;
 }
 interface AuthFlow { state: string; nonce: string; verifier: string; next?: string }
-const ALL_ROLES: Role[] = ["incident_operator", "incident_checker", "incident_auditor", "department_operator", "platform_admin"];
+const ALL_ROLES: Role[] = ["incident_operator", "incident_checker", "incident_auditor", "department_operator", "response_team", "platform_admin"];
 
 export function configuration(): AuthConfig | null {
   const issuer = process.env.OIDC_ISSUER?.trim();
@@ -140,7 +144,12 @@ export function extractScope(payload: JWTPayload): Omit<OperatorSession, "access
   if (departmentId !== undefined || roles.includes("department_operator")) {
     if (typeof departmentId !== "string" || !["control_room", "infrastructure", "communications"].includes(departmentId)) throw new Error("Department scope invalid");
   }
-  return { subject, agencyId: agency, ...(typeof departmentId === "string" ? { departmentId } : {}), roles: [...new Set(roles)] as Role[], exp };
+  const teamId = payload.aegis_team_id;
+  if (teamId !== undefined || roles.includes("response_team")) {
+    if (!isResponseTeamId(teamId)) throw new Error("Team scope invalid");
+  }
+  return { subject, agencyId: agency, ...(typeof departmentId === "string" ? { departmentId } : {}),
+    ...(typeof teamId === "string" ? { teamId } : {}), roles: [...new Set(roles)] as Role[], exp };
 }
 
 export async function readSession(): Promise<OperatorSession | null> {
@@ -157,7 +166,7 @@ export async function readSession(): Promise<OperatorSession | null> {
     if (payload.exp <= Date.now()/1000) return null;
     if (payload.roles.some((role) => typeof role !== "string" || !ALL_ROLES.includes(role as Role))) return null;
     const scope = extractScope({ sub: payload.sub, aegis_agency_id: payload.agencyId,
-      aegis_roles: payload.roles, aegis_department_id: payload.departmentId, exp: payload.exp });
+      aegis_roles: payload.roles, aegis_department_id: payload.departmentId, aegis_team_id: payload.teamId, exp: payload.exp });
     const username = displayLabel(payload.username), displayName = displayLabel(payload.displayName);
     return { accessToken: payload.accessToken, ...scope, ...(username ? { username } : {}), ...(displayName ? { displayName } : {}) };
   } catch { return null; }

@@ -22,10 +22,26 @@ class Operator:
     agency_id: UUID
     roles: frozenset[str]
     department_id: str | None = None
+    team_id: str | None = None  # Signed aegis_team_id; only set for response_team tokens (docs/RESPONSE_LOOP.md).
 
 
 SYSTEM_SUBJECT_PREFIX = "system:"
-ALLOWED_ROLES = frozenset({"incident_operator", "incident_checker", "incident_auditor", "department_operator", "platform_admin"})
+ALLOWED_ROLES = frozenset({"incident_operator", "incident_checker", "incident_auditor", "department_operator",
+                           "response_team", "platform_admin"})
+
+
+def _fixture_team_ids() -> frozenset[str]:
+    # Read the synthetic team fixture only; an unreadable fixture refuses every team token.
+    import json
+    from pathlib import Path
+    try:
+        data = json.loads((Path(__file__).parent / "fixtures" / "synthetic_teams.v1.json").read_text(encoding="utf-8"))
+        return frozenset(str(team["id"]) for team in data["teams"])
+    except (OSError, ValueError, KeyError, TypeError):
+        return frozenset()
+
+
+TEAM_IDS = _fixture_team_ids()
 
 
 def require_role(operator: Operator, allowed: set[str]) -> None:
@@ -91,7 +107,11 @@ def decode_operator_token(token: str) -> Operator:
     if department is not None or "department_operator" in roles:
         if not isinstance(department, str) or department not in {"control_room", "infrastructure", "communications"}:
             raise HTTPException(status_code=403, detail="Invalid department scope")
-    return Operator(subject=subject, agency_id=agency_id, roles=roles, department_id=department)
+    team = claims.get("aegis_team_id")
+    if team is not None or "response_team" in roles:
+        if not isinstance(team, str) or team not in TEAM_IDS:
+            raise HTTPException(status_code=403, detail="Invalid team scope")
+    return Operator(subject=subject, agency_id=agency_id, roles=roles, department_id=department, team_id=team)
 
 
 def get_operator(credentials: HTTPAuthorizationCredentials | None = Depends(_bearer)) -> Operator:
