@@ -154,8 +154,8 @@ export default function install(g) {
       if (sf.state === 'busy') h += '<p class="muted">Working… The first run loads the model and can take up to a minute.</p>';
       else if (sf.state === 'done') h += '<div id="sfChart"></div><small class="muted"><b style="color:#b79bff">Purple</b>: pattern model, middle estimate with its 10–90% range. <b style="color:#38e1ff">Blue</b>: the GloFAS river model for the same days.' + (sf.out.holdout ? ' Check on the last ' + sf.out.holdout.points + ' known days: average error <b>' + sf.out.holdout.modelError.toFixed(1) + ' m³/s</b>, against ' + sf.out.holdout.repeatLastError.toFixed(1) + ' for simply repeating the last value; ' + sf.out.holdout.insideRange + ' of ' + sf.out.holdout.points + ' days fell inside the range. One slice of history, not accuracy.' : '') + '</small>';
       else if (sf.state === 'error') h += '<p class="muted">' + esc(SFMSG[sf.code] || 'The statistical forecast is not available right now.') + '</p>';
-      if (sf.state !== 'busy') h += '<button class="btn" id="sfRun" type="button" style="display:block;margin-top:8px">' + (sf.state === 'done' ? 'Run again' : 'Run a 30-day statistical forecast') + '</button>';
-      h += '<small class="muted" style="display:block;margin-top:6px">A general pattern model that knows nothing about rivers or weather and was not trained on Indian hydrology. It can miss extremes. Shown for comparison only: not an AEGIS assessment, never used for alerts.</small></div>';
+      if (sf.state !== 'busy') h += '<button class="btn" id="sfRun" type="button" style="display:block;margin-top:8px">' + (sf.state === 'done' ? 'Run again' : 'Run a 14-day statistical forecast') + '</button>';
+      h += '<small class="muted" style="display:block;margin-top:6px">A general pattern model that knows nothing about rivers or weather and was not trained on Indian hydrology. It can miss extremes. Shown for comparison only: not an AEGIS assessment, never used for alerts.</small><small style="display:block;margin-top:6px"><b>Known limits (back-test on 17 Indian river cells, modelled data):</b> rising flood peaks were usually forecast at about half their real height, and the shaded band is a typical spread that misses most peaks. Beyond two weeks it was no better than the seasonal average, so only 14 days are shown. In dry months a flat line did better.</small></div>';
     }
     h += '<div class="card"><div class="k">RAINFALL EXTREMES · ERA5 ' + (ar ? ar.years[0] + '–' + ar.years[ar.years.length - 1] : '') + '</div>';
     if (!ar) h += '<p class="muted">' + (d.archiveErr ? 'History unavailable: ' + esc(d.archiveErr) : 'Loading 34 years of reanalysis…') + '</p>';
@@ -172,11 +172,11 @@ export default function install(g) {
       d.statForecast = { state: 'busy' }; again();
       L.floodRecent(place.lat, place.lon).then(function (series) {
         if (series.length < 60) { var short = new Error('short'); short.code = 'too_short'; throw short; }
-        return L.statForecast('river_discharge', series, 30);
+        return L.statForecast('river_discharge', series, 14);
       }).then(function (out) { d.statForecast = { state: 'done', out: out }; again(); }).catch(function (e) { d.statForecast = { state: 'error', code: e && e.code }; again(); });
     };
     if (d.statForecast && d.statForecast.state === 'done' && fl && fl.days.length && host.querySelector('#sfChart')) {
-      var so = d.statForecast.out, sx = so.point.map(function (_, i) { return i + 1; }), t0 = Date.now(), gf = fl.days.filter(function (x) { return x.t >= t0 - 864e5; }).slice(0, 30);
+      var so = d.statForecast.out, sx = so.point.map(function (_, i) { return i + 1; }), t0 = Date.now(), gf = fl.days.filter(function (x) { return x.t >= t0 - 864e5; }).slice(0, 14);
       plot(host.querySelector('#sfChart'), { h: 150, xmin: 1, xmax: 30, ymax: Math.max.apply(null, so.q90.concat(gf.map(function (x) { return x.q; }))) * 1.12, yfmt: function (v) { return v < 10 ? v.toFixed(1) : Math.round(v); }, xticks: [[1, '+1d'], [10, '+10d'], [20, '+20d'], [30, '+30d']],
         series: [{ type: 'band', xs: sx, hi: so.q90, lo: so.q10, color: '#b79bff' }, { type: 'line', xs: sx, ys: so.point, color: '#b79bff', width: 2 }, { type: 'line', xs: gf.map(function (_, i) { return i + 1; }), ys: gf.map(function (x) { return x.q; }), color: '#38e1ff', width: 2, dash: [5, 4] }] });
     }

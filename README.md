@@ -27,6 +27,8 @@ Taken from the running local app on 11 November 2026. All data shown is syntheti
 | ![Account menu](docs/screenshots/account-menu.png) | ![Users and access](docs/screenshots/users-access.png) |
 | **Approvals (two-person check)** | **Source freshness** |
 | ![Approvals](docs/screenshots/approvals.png) | ![Sources](docs/screenshots/sources.png) |
+| **Team response at the desk** | **Team response on the incident** |
+| ![Desk](docs/screenshots/department-team-response.png) | ![Incident](docs/screenshots/incident-team-response.png) |
 | **AgencySync tasks** | **Audit trail** |
 | ![AgencySync](docs/screenshots/agency-sync.png) | ![Audit](docs/screenshots/audit.png) |
 

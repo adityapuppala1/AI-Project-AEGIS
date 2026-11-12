@@ -18,6 +18,51 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Round 11: pending items closed, scans, forecast back-test — 12 November 2026 (Windows laptop)
+
+Branch `feat/landing-ux-security-hardening`. Compose services left **running** (overlays local-idp + public-earth +
+proactive + timesfm).
+
+**Completed and verified by execution on the Windows laptop (not a Linux runner):**
+- Team response loop: opt-in PostGIS tests (unique active request, capacity under the team lock, atomic timeline and
+  audit) passed in the isolated verification database `aegis_verification_57878ac` (4 passed with the department
+  test). The identity provider shows `aegis_team_id` and `aegis_department_id` as administrator-only attributes,
+  registration off, unmanaged attributes disabled.
+- UI: remaining pages moved to the shared kit (9 files still use raw panel/control classes for link cards and shell
+  chrome, down from about 55); 15 tables sort and stack into cards on phones; touch targets at 390px are at least
+  44px except inside the 3D Alert Journey; `/no-access` page for another agency's fixture pages (still a 403, tested
+  on the middleware; not seen live because no demo account belongs to another agency); raw file name on Drills
+  replaced; alert count shown on the collapsed rail. Crawl of 29 routes as admin at 1440 and 390, light and dark: no
+  page errors, no horizontal overflow.
+- Seen working for the first time: the two-minute session warning and the session-ended dialog (session reply mocked
+  to expire in 100 seconds), and `app/error.tsx` (render error forced with a mocked reply).
+- Image scan (Trivy, high and critical): web image had 1 critical and 17 high, all in the bundled npm tool and Alpine
+  packages; after `apk upgrade` and removing npm from the runtime image: 0. API image had 7 fixable high (Debian and
+  Python build tools); after `apt-get upgrade` and newer setuptools/wheel: 0 fixable, 47 high remain with no fix
+  published by Debian.
+- Semgrep (`p/security-audit`, `p/owasp-top-ten`, 289 rules, 229 files: API and server-side web code): 3 findings,
+  all `use-defused-xml`. Two files only build or re-read XML the app generated; `earth_watch.py` rejects DOCTYPE and
+  ENTITY declarations before parsing. No change made.
+- TimesFM back-test: `docs/STATISTICAL_FORECAST_BACKTEST.md` (17 river cells, 1,411 forecasts, modelled discharge).
+  The Flood tab now requests and shows 14 days instead of 30 and states the measured limits.
+- Checks after the final rebuild: API pytest 920 passed / 30 skipped; `app.model_lab --check` PASS; typecheck clean;
+  web tests 240 pass; `npm audit --omit=dev` 0; browser sign-in flow (return path, one-step sign-out, department
+  landing, expired notice) passed.
+
+**Owner decisions taken on 12 November 2026 ("take the best decision"):**
+- New interface strings stay in English with the pending register (555 strings) until native review; no machine
+  translation.
+- The India outline keeps its "schematic" label and the NDMA figures stay "to be confirmed" until official sources
+  are supplied.
+- The proactive kill switch does not block team requests (it belongs to the optional proactive feature).
+- Accepted for the local demo, still required before any real deployment: the API port (127.0.0.1 only) answers
+  synthetic exercise reads without sign-in.
+
+**Not done:**
+- Install steps on a clean computer; SonarQube; videos of the team response loop (screenshots added instead);
+  Alert Journey controls under 44px; `/admin/connectors` and `/admin/go-live` still show a few status codes and
+  document names; gauge-data and GloFAS comparison for the statistical forecast.
+
 ## Round 10: team response loop (rehearsal) — 12 November 2026 (Windows laptop)
 
 Branch `feat/landing-ux-security-hardening` (commits `dcd151c`, `e4dbdd2`, then docs). `main` not moved. Compose

@@ -85,3 +85,15 @@ AES-256-GCM connector vault; relay allow-list (HTTPS only, fixed hosts, no redir
 3. Add Semgrep or SonarQube, `npm audit`, `pip-audit` and an image scan to CI, failing the build on high findings.
 4. Make the database password mandatory, run containers with read-only file systems, and move secrets to a vault.
 5. Commission the CERT-In empanelled audit before any hosting decision (see `docs/GOVT_DEPLOYMENT_READINESS.md`).
+
+## Addendum, 12 November 2026
+
+- **Team response loop** (`docs/RESPONSE_LOOP.md`): independent review of the backend commit found no critical or
+  high issue. Fixed: the kill-switch read now has an explicit role list (a response-team token gets 403); a missing
+  row returns the fixed 404; a test keeps the browser and API team lists equal. Browser checks confirmed team
+  isolation (other team sees nothing, 404 on write), role refusals and stale-version refusal.
+- **Container images (Trivy, high and critical):** web image 18 findings before, 0 after patching the Dockerfile; API
+  image 7 fixable before, 0 fixable after; 47 high remain in Debian packages with no published fix.
+- **Semgrep** (289 rules, 229 files of API and server-side web code): 3 `use-defused-xml` findings, assessed as not
+  exploitable (generated XML only, or DOCTYPE/ENTITY rejected before parsing).
+- Still not run: SonarQube, an active attack scan, signed-in testing across two agencies.

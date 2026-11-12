@@ -37,7 +37,14 @@ request takes up to a minute to load the model, and later ones take well under a
   On that one slice the model's average error was 2.7 m³/s against 3.9 for repeating the last value, but only 1 of
   30 days fell inside its 10–90 % range, so the range was far too narrow there.
 
+## Back-test (12 November 2026)
+
+See [STATISTICAL_FORECAST_BACKTEST.md](STATISTICAL_FORECAST_BACKTEST.md): 17 Indian river cells, 1,411 forecasts on
+modelled discharge. Better than repeating the last value overall and in the wet seasons, worse in the dry seasons,
+no better than the seasonal average beyond two weeks, and rising flood peaks forecast at about half their real
+height. The chart therefore shows 14 days and states these limits. Rehearsal statistics, not accuracy.
+
 ## Not done
 
-- No back-test across many rivers, seasons or flood events. Do that before anyone relies on it.
+- No test on gauge observations and no comparison with GloFAS forecasts. Do that before anyone relies on it.
 - Rainfall is accepted by the API but has no button yet. No covariates (forecast rain is not fed to the model).
