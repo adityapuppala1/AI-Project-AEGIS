@@ -5,7 +5,7 @@ import { Activity, AlertTriangle, ArrowRight, BarChart3, Binary, BrainCircuit, C
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { ModelReport } from "../lib/model-lab";
 import { useT } from "./language-provider";
-import { InlineHelp, ResponsiveTable, StatStrip, StatTile } from "./ui";
+import { InlineHelp, ResponsiveTable, SortableTable, StatStrip, StatTile, buttonClass, Panel } from "./ui";
 
 const fraction = (value: number) => (value * 100).toFixed(1) + "%";
 
@@ -45,12 +45,8 @@ export function ModelLabDashboard({ report }: { report: ModelReport }) {
     </InlineHelp>
 
     <section className="mt-5 grid items-start gap-5 xl:grid-cols-[minmax(0,1.25fr)_minmax(315px,.9fr)]">
-      <article className="panel min-w-0 overflow-hidden">
-        <div className="panel-heading">
-          <div><h2 className="flex items-center gap-2 t-title"><FlaskConical size={19} className="text-accent"/> Illustrative score reliability</h2>
-            <p className="mt-1 text-xs leading-5 text-muted">Synthetic holdout only · small bins do not establish calibration</p></div>
-          <span className="rounded-full bg-elevated px-3 py-1 text-[11px] font-semibold text-muted">5 score bins</span>
-        </div>
+      <Panel as="article" className="min-w-0 overflow-hidden" bodyClassName="p-0" icon={FlaskConical} title="Illustrative score reliability" description="Synthetic holdout only · small bins do not establish calibration"
+        actions={<span className="rounded-full bg-elevated px-3 py-1 text-[11px] font-semibold text-muted">5 score bins</span>}>
         <div className="h-[280px] w-full px-2 pb-4 pt-5 sm:px-5">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={bins} margin={{ top: 6, right: 12, bottom: 8, left: -15 }}>
@@ -67,20 +63,16 @@ export function ModelLabDashboard({ report }: { report: ModelReport }) {
         <details className="border-t border-stroke px-5 py-4">
           <summary className="cursor-pointer text-sm font-semibold">Show underlying score-bin table</summary>
           <div className="mt-3">
-            <ResponsiveTable label={t("Score-bin table")} caption="Generated holdout scores versus synthetic labels by bin" className="[&>table]:min-w-[400px] [&>table]:text-left [&>table]:text-xs">
-              <thead className="text-muted"><tr><th className="p-2">Score bin</th><th className="p-2">Cases</th><th className="p-2">Mean score</th><th className="p-2">Generated positives</th></tr></thead>
-              <tbody className="divide-y divide-stroke">{metrics.illustrative_calibration_bins.map(value => <tr key={value.bin}>
-                <td className="p-2 tabular-nums">{value.interval.join("–")}</td>
-                <td className="p-2 tabular-nums">{value.count}</td>
-                <td className="p-2 tabular-nums">{value.mean_score === null ? "N/A" : fraction(value.mean_score)}</td>
-                <td className="p-2 tabular-nums">{value.positive_fraction === null ? "N/A" : fraction(value.positive_fraction)}</td>
-              </tr>)}</tbody>
-            </ResponsiveTable>
+            <SortableTable label={t("Score-bin table")} caption="Generated holdout scores versus synthetic labels by bin" minWidth="24rem" rows={metrics.illustrative_calibration_bins} rowKey={value => String(value.bin)} columns={[
+              { key: "bin", label: "Score bin", sortValue: value => value.interval[0], cell: value => value.interval.join("–") },
+              { key: "count", label: "Cases", numeric: true, sortValue: value => value.count, cell: value => value.count },
+              { key: "mean", label: "Mean score", numeric: true, sortValue: value => value.mean_score, cell: value => value.mean_score === null ? "N/A" : fraction(value.mean_score) },
+              { key: "pos", label: "Generated positives", numeric: true, sortValue: value => value.positive_fraction, cell: value => value.positive_fraction === null ? "N/A" : fraction(value.positive_fraction) },
+            ]}/>
           </div>
         </details>
-      </article>
-      <article className="panel overflow-hidden" aria-label="Synthetic holdout confusion matrix">
-        <div className="panel-heading"><h2 className="flex items-center gap-2 t-title"><Binary size={18} className="text-accent"/> Classification breakdown</h2></div>
+      </Panel>
+      <Panel as="article" className="overflow-hidden" aria-label="Synthetic holdout confusion matrix" bodyClassName="p-0" icon={Binary} title="Classification breakdown">
         <div className="p-5">
           <p className="text-xs leading-5 text-muted">Threshold: {report.model_configuration.threshold}. Counts compare model outputs against artificially generated labels.</p>
           <ResponsiveTable className="mt-4 [&>table]:min-w-0 [&>table]:text-center [&>table]:text-xs" label={t("Confusion matrix table")} caption="Synthetic holdout confusion matrix">
@@ -97,11 +89,11 @@ export function ModelLabDashboard({ report }: { report: ModelReport }) {
             <div><dt className="text-muted">Constant-baseline Brier</dt><dd className="mt-1 text-lg font-bold tabular-nums">{metrics.constant_baseline_brier.toFixed(3)}</dd></div>
           </dl>
         </div>
-      </article>
+      </Panel>
     </section>
 
     <div className="mt-5 grid gap-5 xl:grid-cols-2">
-      <article className="panel p-4">
+      <Panel as="article">
         <p className="eyebrow">Dataset provenance</p>
         <h2 className="mt-3 text-base font-bold">Reproducible event-group holdout</h2>
         <div className="mt-4 space-y-3 text-sm leading-6 text-muted">
@@ -111,8 +103,8 @@ export function ModelLabDashboard({ report }: { report: ModelReport }) {
         </div>
         <p className="mt-4 break-all rounded-lg bg-elevated px-3 py-2 font-mono text-[11px] text-muted" title="Synthetic dataset SHA-256">Dataset SHA-256: {report.dataset_sha256}</p>
         <p className="mt-3 text-[11px] font-semibold text-muted">Model: {report.model_version}</p>
-      </article>
-      <article className="panel p-4">
+      </Panel>
+      <Panel as="article">
         <p className="eyebrow">Human-controlled decision boundary</p>
         <h2 className="mt-3 flex items-center gap-2 text-base font-bold"><ShieldCheck className="text-accent" size={20}/> Not operationally qualified</h2>
         <div className="mt-4 space-y-3">
@@ -122,10 +114,10 @@ export function ModelLabDashboard({ report }: { report: ModelReport }) {
           A synthetic holdout is useful for verifying software reproducibility, evaluation logic and transparent UX—but it cannot validate a flood model. Real deployment requires an independent, permissioned historical dataset; temporal and geographic holdout; calibration; uncertainty analysis; security review; and accountable agency approval.
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
-          <Link href="/incidents" className="control control-sm"><Database size={15}/> Exercise incidents <ArrowRight size={15}/></Link>
-          <Link href="/playbooks" className="control control-sm"><CheckCircle2 size={15}/> Response playbooks <ArrowRight size={15}/></Link>
+          <Link href="/incidents" className={buttonClass({ size: "sm" })}><Database size={15}/> Exercise incidents <ArrowRight size={15}/></Link>
+          <Link href="/playbooks" className={buttonClass({ size: "sm" })}><CheckCircle2 size={15}/> Response playbooks <ArrowRight size={15}/></Link>
         </div>
-      </article>
+      </Panel>
     </div>
   </>;
 }

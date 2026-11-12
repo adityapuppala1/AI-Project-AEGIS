@@ -98,3 +98,15 @@ test('components/ui is exported from the index and has no raw hex colours', () =
   }
   for (const file of fs.readdirSync(dir)) assert.doesNotMatch(fs.readFileSync(path.join(dir, file), 'utf8'), /#[0-9a-fA-F]{6}\b/, file + ' uses a raw hex colour');
 });
+
+test('sortRows sorts numbers and text, keeps missing values last in both directions, is stable and never mutates', () => {
+  const rows = [{ id: 'a', n: 10, s: 'item 10' }, { id: 'b', n: 2, s: 'item 2' }, { id: 'c', n: null, s: 'Item 1' }, { id: 'd', n: 2, s: undefined }, { id: 'e', n: 7, s: '' }];
+  const snapshot = JSON.stringify(rows);
+  const ids = (direction, key) => kit.sortRows(rows, row => row[key], direction).map(row => row.id).join('');
+  assert.equal(ids('asc', 'n'), 'bdeac', 'numeric, ties keep their order, missing last');
+  assert.equal(ids('desc', 'n'), 'aebdc', 'descending still puts the missing value last');
+  assert.equal(ids('asc', 's'), 'cbade', 'embedded numbers order naturally (item 2 before item 10); empty and missing last');
+  assert.equal(ids(null, 'n'), 'abcde', 'no direction keeps the original order');
+  assert.equal(JSON.stringify(rows), snapshot, 'the input is not changed');
+  assert.deepEqual(kit.sortRows([{ v: NaN }, { v: 1 }], row => row.v, 'asc').map(row => row.v), [1, NaN]);
+});

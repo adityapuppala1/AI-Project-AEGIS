@@ -69,5 +69,23 @@ export const ariaSort = (direction: SortDirection | null): "ascending" | "descen
 export const nextSort = (direction: SortDirection | null): SortDirection | null =>
   direction === null ? "asc" : direction === "asc" ? "desc" : null;
 
+/**
+ * Stable sort of rows by one key. Numbers compare numerically, other values as text with embedded numbers in order
+ * (item 2 before item 10). Missing values (null, undefined, NaN) always sort last, in both directions. A null direction
+ * returns the rows in their original order. Never mutates the input.
+ */
+export function sortRows<T>(rows: readonly T[], value: (row: T) => string | number | null | undefined, direction: SortDirection | null): T[] {
+  if (direction === null) return [...rows];
+  const sign = direction === "asc" ? 1 : -1;
+  const missing = (v: unknown): boolean => v === null || v === undefined || (typeof v === "number" && Number.isNaN(v)) || v === "";
+  return rows.map((row, index) => ({ row, index, key: value(row) })).sort((a, b) => {
+    const am = missing(a.key), bm = missing(b.key);
+    if (am || bm) return am && bm ? a.index - b.index : am ? 1 : -1;
+    const order = typeof a.key === "number" && typeof b.key === "number" ? a.key - b.key
+      : String(a.key).localeCompare(String(b.key), "en", { numeric: true, sensitivity: "base" });
+    return order === 0 ? a.index - b.index : order * sign;
+  }).map(entry => entry.row);
+}
+
 export const STEP_STATUSES = ["pending", "current", "done", "blocked"] as const;
 export type StepStatus = (typeof STEP_STATUSES)[number];

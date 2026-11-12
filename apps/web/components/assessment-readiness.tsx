@@ -8,7 +8,7 @@ import { contextErrorMessage } from "../lib/context-errors";
 import { ExerciseReviewBrief, type ReviewBrief } from "./exercise-review-brief";
 import { AlertTriangle, ArrowRight, BrainCircuit, CheckCircle2, CircleHelp, ClipboardCheck, RefreshCw, ShieldAlert } from "lucide-react";
 import { useT } from "./language-provider";
-import { DataFreshness, ErrorState, InlineHelp, Panel, SegmentedControl, SkeletonRegion, Skeleton, StatTile, StatusPill } from "./ui";
+import { DataFreshness, ErrorState, InlineHelp, Panel, SegmentedControl, SkeletonRegion, Skeleton, StatTile, StatusPill, Button, buttonClass } from "./ui";
 
 type Freshness = "fresh" | "delayed" | "stale" | "no_data" | "clock_anomaly";
 type Readiness = {
@@ -149,9 +149,9 @@ export function AssessmentReadiness({ incidentId }: { incidentId: string }) {
     description={t("Synthetic evidence checks, not a flood prediction")}
     actions={<>
       <InlineHelp label={t("About this checklist")}>{t("A deterministic checklist of simulated inputs. It does not forecast anything, and approval is still required from an independent human reviewer.")}</InlineHelp>
-      <button type="button" className="control control-sm" disabled={busy} onClick={() => setRevision(n => n + 1)}>
+      <Button size="sm" type="button" disabled={busy} onClick={() => setRevision(n => n + 1)}>
         <RefreshCw size={16} aria-hidden="true" className={busy ? "animate-spin" : ""}/> {t("Recheck")}
-      </button>
+      </Button>
     </>}>
     <div className="flex gap-3 border-b border-amber-500/25 bg-amber-500/10 px-5 py-4 text-xs leading-6 text-amber-800 dark:text-amber-200">
       <ShieldAlert className="mt-0.5 shrink-0" size={19} aria-hidden="true"/>
@@ -242,10 +242,10 @@ export function AssessmentReadiness({ incidentId }: { incidentId: string }) {
           <Link href="/playbooks" className="mt-2 inline-flex min-h-9 items-center gap-1 font-semibold text-accent">{t("Read referenced playbook")} <ArrowRight size={14} aria-hidden="true"/></Link>
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-3">
-          <button type="button" className="control control-sm" onClick={() => void copyExerciseReview()}>
+          <Button size="sm" type="button" onClick={() => void copyExerciseReview()}>
             {t("Copy synthetic review rationale")}
-          </button>
-          <Link href="/approvals" className="control control-sm"><ClipboardCheck size={16} aria-hidden="true"/> {t("Open verified exercise approvals")} <ArrowRight size={15} aria-hidden="true"/></Link>
+          </Button>
+          <Link href="/approvals" className={buttonClass({ size: "sm" })}><ClipboardCheck size={16} aria-hidden="true"/> {t("Open verified exercise approvals")} <ArrowRight size={15} aria-hidden="true"/></Link>
           {copyResult && <span role="status" className="text-xs text-muted">{copyResult}</span>}
         </div>
       </div>

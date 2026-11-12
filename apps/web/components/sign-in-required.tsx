@@ -2,7 +2,7 @@
 
 import { LogIn, ShieldAlert } from "lucide-react";
 import { useT } from "./language-provider";
-import { EmptyState } from "./ui";
+import { EmptyState, buttonClass } from "./ui";
 import type { SessionInfo } from "../lib/use-operator-session";
 
 /**
@@ -17,5 +17,5 @@ export function SignInRequired({ session }: Readonly<{ session: SessionInfo }>) 
   }
   return <EmptyState icon={LogIn} title={t("Sign in to continue")}
     body={t("This page shows records for your agency. Sign in with your operator account to see them.")}
-    actions={<a className="control" href="/api/auth/login"><LogIn size={16} aria-hidden="true"/>{t("Operator sign in")}</a>}/>;
+    actions={<a className={buttonClass()} href="/api/auth/login"><LogIn size={16} aria-hidden="true"/>{t("Operator sign in")}</a>}/>;
 }

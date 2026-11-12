@@ -1,6 +1,6 @@
 "use client";
 
-import { RecordRef } from "./ui";
+import { RecordRef, Button, Panel } from "./ui";
 import { PermissionState, SkeletonRows } from "./ui";
 import { pageRoles } from "../lib/roles";
 import { SignInRequired } from "./sign-in-required";
@@ -155,7 +155,7 @@ function ConnectorCard({ connector, masterKey, preview, now, onToast, onSaved }:
   const plainField = (field: Connector["fields"][number]) => {
     const id = `${base}-s-${field.name}`; const value = settings[field.name]; const hint = `${id}-hint`;
     return <div key={field.name}>
-      <label htmlFor={id} className="mb-1 flex items-center text-xs font-bold">{field.label}{field.required && required}</label>
+      <label htmlFor={id} className={`mb-1 flex items-center text-xs font-bold ${typeof value === "boolean" ? "max-sm:min-h-11" : ""}`}>{field.label}{field.required && required}</label>
       {typeof value === "boolean" ? <input id={id} type="checkbox" className="h-6 w-6 accent-[rgb(var(--accent))]" checked={value} disabled={readOnly} aria-describedby={hint}
           onChange={event => setSettings(current => ({ ...current, [field.name]: event.target.checked }))}/>
         : <input id={id} className="field" type={typeof value === "number" ? "number" : "text"} value={value === undefined ? "" : String(value)} disabled={readOnly} aria-describedby={hint} maxLength={512}
@@ -166,25 +166,16 @@ function ConnectorCard({ connector, masterKey, preview, now, onToast, onSaved }:
   const fixed = Object.entries(connector.settings).filter(([key]) => !connector.fields.some(field => !field.secret && field.name === key));
   const hasAdvanced = optionalPlain.length > 0 || fixed.length > 0 || connector.hosts.length > 0 || connector.licence !== "";
 
-  return <section id={base} className="panel min-w-0 scroll-mt-24" aria-labelledby={`${base}-title`}>
-    <div className="panel-heading !items-start">
-      <div className="flex min-w-0 items-start gap-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent"><Icon size={20} aria-hidden="true"/></span>
-        <div className="min-w-0">
-          <h2 id={`${base}-title`} className="t-title">{connector.name}</h2>
-          <div className="mt-1.5 flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-elevated px-2.5 py-1 text-[11px] font-semibold text-muted ring-1 ring-stroke">{connector.category || t("other")}</span>
-            <StatusPill connector={connector}/>
-            {preview && <SampleBadge/>}
-          </div>
-        </div>
-      </div>
+  return <Panel id={base} className="min-w-0 scroll-mt-24" aria-labelledby={`${base}-title`} titleId={`${base}-title`} bodyClassName="p-0" icon={Icon} title={connector.name}
+    actions={<>
+      <span className="rounded-full bg-elevated px-2.5 py-1 text-[11px] font-semibold text-muted ring-1 ring-stroke">{connector.category || t("other")}</span>
+      <StatusPill connector={connector}/>
+      {preview && <SampleBadge/>}
       <label className="inline-flex min-h-9 items-center gap-2 text-sm font-semibold" htmlFor={`${base}-enabled`}>
         <input id={`${base}-enabled`} type="checkbox" role="switch" className="h-5 w-5 accent-[rgb(var(--accent))]" checked={enabled} disabled={readOnly || busy !== ""}
           aria-describedby={`${base}-can`} onChange={event => setEnabled(event.target.checked)}/>
         {enabled ? t("Enabled") : t("Disabled")}
-      </label>
-    </div>
+      </label></>}>
     <div className="space-y-4 p-5">
       <p id={`${base}-can`} className="text-xs leading-5"><strong>{t("Can")}:</strong> {t(meta.can)} <strong className="ml-1">{t("Cannot")}:</strong> {t(meta.cannot)}</p>
       <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted"><KeyRound size={13} aria-hidden="true"/>{t(meta.where)}
@@ -208,14 +199,8 @@ function ConnectorCard({ connector, masterKey, preview, now, onToast, onSaved }:
                 if (event.target.value) next[field.name] = event.target.value; else { delete next[field.name]; setShown(s => ({ ...s, [field.name]: false })); }
                 return next;
               })}/>
-            {typed && <button type="button" className="control !px-2.5" aria-pressed={!!shown[field.name]} aria-label={shown[field.name] ? t("Hide what you typed") : t("Show what you typed")}
-              onClick={() => setShown(s => ({ ...s, [field.name]: !s[field.name] }))}>{shown[field.name] ? <EyeOff size={16} aria-hidden="true"/> : <Eye size={16} aria-hidden="true"/>}</button>}
-            <button type="button" className="control" disabled={!field.set || busy !== ""} aria-pressed={pendingClear}
-              onClick={() => setSecrets(current => {
-                const next = { ...current };
-                if (next[field.name] === null) delete next[field.name]; else next[field.name] = null;
-                return next;
-              })}>{pendingClear ? t("Undo clear") : t("Clear")}</button>
+            {typed && <Button className="!px-2.5" type="button" aria-pressed={!!shown[field.name]} aria-label={shown[field.name] ? t("Hide what you typed") : t("Show what you typed")} onClick={() => setShown(s => ({ ...s, [field.name]: !s[field.name] }))}>{shown[field.name] ? <EyeOff size={16} aria-hidden="true"/> : <Eye size={16} aria-hidden="true"/>}</Button>}
+            <Button type="button" disabled={!field.set || busy !== ""} aria-pressed={pendingClear} onClick={() => setSecrets(current => { const next = { ...current }; if (next[field.name] === null) delete next[field.name]; else next[field.name] = null; return next; })}>{pendingClear ? t("Undo clear") : t("Clear")}</Button>
           </div>
           <p id={hint} className="mt-1 text-[11px] text-muted">{pendingClear ? t("Will be cleared when you save.") : t("Write-only. The stored value is never shown; leave blank to keep it.")}</p>
         </div>;
@@ -223,8 +208,8 @@ function ConnectorCard({ connector, masterKey, preview, now, onToast, onSaved }:
       {secretsPending && !masterKey && <p className="text-xs text-rose-700 dark:text-rose-300">{t("The master key is not configured, so secrets cannot be saved.")}</p>}
 
       {hasAdvanced && <div>
-        <button type="button" className="control control-sm" aria-expanded={advanced} aria-controls={`${base}-advanced`} onClick={() => setAdvanced(v => !v)}>
-          {t("Advanced settings")}<ChevronDown size={14} aria-hidden="true" className={advanced ? "rotate-180" : ""}/></button>
+        <Button size="sm" type="button" aria-expanded={advanced} aria-controls={`${base}-advanced`} onClick={() => setAdvanced(v => !v)}>
+          {t("Advanced settings")}<ChevronDown size={14} aria-hidden="true" className={advanced ? "rotate-180" : ""}/></Button>
         {advanced && <div id={`${base}-advanced`} className="mt-3 space-y-4 rounded-lg border border-stroke p-3">
           {optionalPlain.map(plainField)}
           {fixed.length > 0 && <dl className="grid gap-x-4 gap-y-1 text-xs sm:grid-cols-2" aria-label={t("Fixed settings")}>
@@ -238,8 +223,8 @@ function ConnectorCard({ connector, masterKey, preview, now, onToast, onSaved }:
         {test.ok ? t("Test passed") : t("Test failed")} · HTTP {test.status_code ?? "n/a"} · {test.latency_ms ?? "n/a"} ms{test.message ? ` · ${test.message}` : ""}{test.at ? ` · ${formatIst(test.at)}` : ""}</p>}
 
       <div>
-        <button type="button" className="control control-sm" aria-expanded={auditOpen} aria-controls={`${base}-audit`} onClick={toggleAudit}>
-          <History size={14} aria-hidden="true"/>{t("Audit (last 50)")}<ChevronDown size={14} aria-hidden="true" className={auditOpen ? "rotate-180" : ""}/></button>
+        <Button size="sm" type="button" aria-expanded={auditOpen} aria-controls={`${base}-audit`} onClick={toggleAudit}>
+          <History size={14} aria-hidden="true"/>{t("Audit (last 50)")}<ChevronDown size={14} aria-hidden="true" className={auditOpen ? "rotate-180" : ""}/></Button>
         {auditOpen && <div id={`${base}-audit`} className="mt-3 max-h-72 overflow-y-auto pr-1" tabIndex={0} aria-label={`${connector.name} ${t("Audit (last 50)")}`}>
           {audit === null ? <p className="text-xs text-muted" role="status">{t("Loading audit…")}</p>
             : audit.length === 0 ? <p className="text-xs text-muted">{t("No audit entries yet.")}</p>
@@ -248,18 +233,18 @@ function ConnectorCard({ connector, masterKey, preview, now, onToast, onSaved }:
       </div>
 
       <div className="sticky bottom-0 z-10 -mx-5 -mb-5 flex flex-wrap items-center gap-3 rounded-b-xl border-t border-stroke bg-surface px-5 py-3">
-        {!readOnly && <button type="button" className={dirty ? "control control-primary" : "control"} onClick={save} disabled={preview || !dirty || busy !== "" || (secretsPending && !masterKey)}>
-          {busy === "save" ? <Loader2 size={16} className="animate-spin" aria-hidden="true"/> : <Save size={16} aria-hidden="true"/>}{t("Save")}</button>}
-        <button type="button" className="control" onClick={runTest} disabled={busy !== ""}>
-          {busy === "test" ? <Loader2 size={16} className="animate-spin" aria-hidden="true"/> : <Activity size={16} aria-hidden="true"/>}{t("Test connection")}</button>
+        {!readOnly && <Button type="button" variant={dirty ? "primary" : "secondary"} onClick={save} disabled={preview || !dirty || busy !== "" || (secretsPending && !masterKey)}>
+          {busy === "save" ? <Loader2 size={16} className="animate-spin" aria-hidden="true"/> : <Save size={16} aria-hidden="true"/>}{t("Save")}</Button>}
+        <Button type="button" onClick={runTest} disabled={busy !== ""}>
+          {busy === "test" ? <Loader2 size={16} className="animate-spin" aria-hidden="true"/> : <Activity size={16} aria-hidden="true"/>}{t("Test connection")}</Button>
         {dirty && <>
           <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-800 dark:text-amber-300"><span className="status-dot bg-amber-500" aria-hidden="true"/>{t("Unsaved changes")}</span>
-          <button type="button" className="control control-sm" onClick={discard} disabled={busy !== ""}><Undo2 size={14} aria-hidden="true"/>{t("Discard changes")}</button>
+          <Button size="sm" type="button" onClick={discard} disabled={busy !== ""}><Undo2 size={14} aria-hidden="true"/>{t("Discard changes")}</Button>
         </>}
         {preview && <span className="text-[11px] text-muted">{t("Saving is switched off in the sample preview.")}</span>}
       </div>
     </div>
-  </section>;
+  </Panel>;
 }
 
 function Ring({ ready, total }: Readonly<{ ready: number; total: number }>) {
@@ -295,7 +280,7 @@ function SetupHeader({ payload, preview }: Readonly<{ payload: ConnectorsPayload
     return list;
   }, [payload, counted, t]);
   const keyOk = payload.master_key_configured;
-  return <section className="panel p-4 mb-5" aria-labelledby="setup-progress">
+  return <Panel className="mb-5" aria-labelledby="setup-progress">
     <div className="flex flex-wrap items-center gap-5">
       <Ring ready={ready} total={counted.length}/>
       <div className="min-w-0 flex-1 basis-56">
@@ -310,11 +295,11 @@ function SetupHeader({ payload, preview }: Readonly<{ payload: ConnectorsPayload
       <h3 className="text-sm font-bold">{t("Next actions")}</h3>
       {actions.length === 0 ? <p className="mt-2 flex items-center gap-2 text-xs text-emerald-800 dark:text-emerald-300"><CheckCircle2 size={14} aria-hidden="true"/>{t("Everything that can be ready is ready.")}</p>
         : <ol className="mt-2 grid gap-1.5 sm:grid-cols-2">{actions.slice(0, 6).map((action, index) => <li key={action.key} className="reveal-in text-xs" style={{ "--i": index } as React.CSSProperties}>
-          {action.href ? <a href={action.href} className="flex items-center gap-2 rounded-lg border border-stroke px-3 py-2 hover:bg-elevated"><CircleDashed size={14} className="shrink-0 text-muted" aria-hidden="true"/>{action.text}</a>
+          {action.href ? <a href={action.href} className="flex min-h-11 items-center gap-2 rounded-lg border border-stroke px-3 py-2 hover:bg-elevated"><CircleDashed size={14} className="shrink-0 text-muted" aria-hidden="true"/>{action.text}</a>
             : <span className="flex items-center gap-2 rounded-lg border border-rose-500/30 bg-rose-500/5 px-3 py-2"><AlertTriangle size={14} className="shrink-0" aria-hidden="true"/>{action.text}</span>}</li>)}
           {actions.length > 6 && <li className="px-3 py-2 text-xs text-muted">{t("and more below")}</li>}</ol>}
     </div>
-  </section>;
+  </Panel>;
 }
 
 function Toast({ notice, onClose }: Readonly<{ notice: Notice | null; onClose: () => void }>) {
@@ -357,7 +342,7 @@ export function ConnectorAdmin() {
   const showBody = isAdmin;
 
   return <AppShell title="Connectors" description="Configure the data and decision connectors used by Hazard Watch. Secrets are write-only and AEGIS never sends warnings.">
-    {isAdmin && <div className="panel mb-4 flex flex-wrap items-center gap-3 p-3">
+    {isAdmin && <Panel as="div" className="mb-4" bodyClassName="flex flex-wrap items-center gap-3 p-3">
       <button type="button" role="switch" aria-checked={preview} aria-describedby="preview-help" onClick={() => { setPreview(value => !value); setNotice(null); nowRef.current = Date.now(); }}
         className="inline-flex min-h-10 items-center gap-3 rounded-lg px-1 text-sm font-semibold">
         <span className={`relative h-6 w-11 shrink-0 rounded-full border transition-colors ${preview ? "border-amber-600 bg-amber-500" : "border-stroke bg-elevated"}`} aria-hidden="true">
@@ -365,9 +350,9 @@ export function ConnectorAdmin() {
         <FlaskConical size={16} aria-hidden="true"/>{t("Show an illustration with sample connectors")}</button>
       <p id="preview-help" className="min-w-0 flex-1 basis-60 text-xs text-muted">{t("An illustration only: eight made-up connectors in different states. It reads nothing from this server and cannot save.")}</p>
       {preview && <SampleBadge/>}
-    </div>}
+    </Panel>}
 
-    {session === null && <div className="panel p-4"><SkeletonRows rows={2} label={t("Checking operator session…")} /></div>}
+    {session === null && <Panel as="div"><SkeletonRows rows={2} label={t("Checking operator session…")} /></Panel>}
     {session !== null && !session.authenticated && <SignInRequired session={session}/>}
     {session !== null && session.authenticated && !isAdmin && <PermissionState needs={pageRoles("/admin/connectors") ?? []} roles={session.roles}
       what={t("Connector keys and switches are set by an administrator. Nothing about them is shown to other roles.")} where={{ href: "/admin", label: t("Open Administration") }} />}
@@ -375,8 +360,8 @@ export function ConnectorAdmin() {
     {showBody && <>
       {!preview && error && <ErrorState message={error} className="mb-4" />}
       {!preview && loading && !payload && <div role="status" aria-busy="true"><span className="sr-only">{t("Loading connectors…")}</span>
-        <div aria-hidden="true" className="space-y-5"><div className="panel p-4 flex items-center gap-5"><div className="shimmer h-20 w-20 !rounded-full"/><div className="flex-1 space-y-3"><div className="shimmer h-4 w-1/2"/><div className="shimmer h-3 w-3/4"/></div></div>
-          <div className="grid gap-5 xl:grid-cols-2">{[0, 1].map(i => <div key={i} className="panel p-4"><div className="shimmer h-5 w-1/3"/><div className="shimmer mt-4 h-10 w-full"/><div className="shimmer mt-3 h-10 w-full"/></div>)}</div></div></div>}
+        <div aria-hidden="true" className="space-y-5"><Panel as="div" bodyClassName="p-4 flex items-center gap-5"><div className="shimmer h-20 w-20 !rounded-full"/><div className="flex-1 space-y-3"><div className="shimmer h-4 w-1/2"/><div className="shimmer h-3 w-3/4"/></div></Panel>
+          <div className="grid gap-5 xl:grid-cols-2">{[0, 1].map(i => <Panel as="div" key={i}><div className="shimmer h-5 w-1/3"/><div className="shimmer mt-4 h-10 w-full"/><div className="shimmer mt-3 h-10 w-full"/></Panel>)}</div></div></div>}
       {!preview && isAdmin && <ProactivePauseControl/>}
       {view && <>
         <SetupHeader payload={view} preview={preview}/>

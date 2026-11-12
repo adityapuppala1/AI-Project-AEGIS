@@ -8,7 +8,7 @@ import { ReviewFocusDetails, type Focus } from "../../components/local-review-fo
 import { ExerciseDraftBuffer } from "../../lib/exercise-draft-buffer";
 import { AppShell } from "../../components/app-shell";
 import { useT } from "../../components/language-provider";
-import { Button, ErrorState, HazardGlyph, Panel, PermissionState, RecordRef, RoleChip, SkeletonRows, StatusPill, Stepper, TwoKey, keysForStatus, type Step } from "../../components/ui";
+import { Button, ErrorState, HazardGlyph, Panel, PermissionState, RecordRef, RoleChip, SkeletonRows, StatusPill, Stepper, TwoKey, keysForStatus, type Step, buttonClass } from "../../components/ui";
 import { ExerciseReviewBrief, type ReviewBrief } from "../../components/exercise-review-brief";
 
 function workflowSteps(status: string, simulated: boolean): { id: string; label: string; status: "done" | "current" | "pending" | "blocked" }[] {
@@ -155,10 +155,10 @@ export default function ApprovalWorkbench() {
   }
 
   return <AppShell title="Approval Workbench" description="Authenticated exercise proposals, controlled submissions and independent checker decisions.">
-    {!auth && loading && <section className="panel p-4"><SkeletonRows rows={3} label={t("Checking operator session...")} /></section>}
+    {!auth && loading && <Panel><SkeletonRows rows={3} label={t("Checking operator session...")} /></Panel>}
     {!auth && !loading && <ErrorState title={t("Session verification unavailable")} message={t("Unsaved text is hidden until your identity is verified.")} onRetry={() => void reload()} />}
 
-    {auth && !auth.authenticated && <section className="panel p-4">
+    {auth && !auth.authenticated && <Panel>
       <div className="mx-auto max-w-xl text-center">
         <LockKeyhole className="mx-auto mb-4 text-accent" size={35}/>
         <h2 className="text-xl font-bold">Verified operator sign-in required</h2>
@@ -166,9 +166,9 @@ export default function ApprovalWorkbench() {
           {auth.configured ? "Sign in with your approved AEGIS identity provider to access scoped incident proposals." :
           "The trusted identity provider is not configured yet. This page intentionally cannot create or approve proposals using pretend identities."}
         </p>
-        {auth.configured && <a href="/api/auth/login" className="control control-primary mt-5">Sign in securely</a>}
+        {auth.configured && <a href="/api/auth/login" className={buttonClass({ variant: "primary", className: "mt-5" })}>Sign in securely</a>}
       </div>
-    </section>}
+    </Panel>}
 
     {auth?.authenticated && refused && <PermissionState needs={pageRoles("/approvals") ?? []} roles={auth.roles}
       what={t("Proposals are read by the people who make, check and audit them. Administrators set up the node but take no part in a decision.")}
@@ -261,17 +261,17 @@ export default function ApprovalWorkbench() {
                   <ol className="mt-1 list-decimal pl-5">{proposal.proposal.assistance_run.completed_steps.map(item => <li key={item.step}>{t(codeLabel(item.step))}</li>)}</ol>
                   <p>No submission, approval, dispatch or acknowledgement is performed by this run.</p>
                 </div>}
-                {canMake && proposal.maker_subject === auth.subject && (!proposal.proposal.assistance_run || proposal.proposal.assistance_run.status === "cancelled") && <button type="button" className="control mt-2" disabled={busy} onClick={() => void change(proposal, "start_assistance")}>{proposal.proposal.assistance_run ? "Start a new bounded run" : "Start bounded assistance"}</button>}
+                {canMake && proposal.maker_subject === auth.subject && (!proposal.proposal.assistance_run || proposal.proposal.assistance_run.status === "cancelled") && <Button className="mt-2" type="button" disabled={busy} onClick={() => void change(proposal, "start_assistance")}>{proposal.proposal.assistance_run ? "Start a new bounded run" : "Start bounded assistance"}</Button>}
                 {canMake && proposal.maker_subject === auth.subject && proposal.proposal.assistance_run?.status === "running" && <div className="mt-2 flex flex-wrap gap-2">
-                  <button type="button" className="control" disabled={busy} onClick={() => void change(proposal, "advance_assistance")}>Run next bounded step</button>
+                  <Button type="button" disabled={busy} onClick={() => void change(proposal, "advance_assistance")}>Run next bounded step</Button>
                   <input className="field max-w-sm" aria-label={`Cancellation rationale for ${proposal.id}`} maxLength={2000} placeholder="Cancellation rationale (required)" value={reviewReasons[`${proposal.id}:assistance`] || ""} onChange={event => setReviewReasons(value => ({...value,[`${proposal.id}:assistance`]:event.target.value}))}/>
-                  <button type="button" className="control" disabled={busy || (reviewReasons[`${proposal.id}:assistance`] || "").trim().length < 10} onClick={() => void change(proposal, "cancel_assistance")}>Cancel run</button>
+                  <Button type="button" disabled={busy || (reviewReasons[`${proposal.id}:assistance`] || "").trim().length < 10} onClick={() => void change(proposal, "cancel_assistance")}>Cancel run</Button>
                 </div>}
               </section>}
               {proposal.status === "approved" && canMake && proposal.proposal.response_draft && !proposal.proposal.simulation &&
-                <button type="button" className="control mt-3" disabled={busy} onClick={() => void change(proposal, "prepare_tasks")}>
+                <Button className="mt-3" type="button" disabled={busy} onClick={() => void change(proposal, "prepare_tasks")}>
                   Prepare scripted department tasks
-                </button>}
+                </Button>}
               {proposal.proposal.simulation && <div className="mt-3 text-sm text-muted">
                 <p>Operator-recorded simulation only · no messages sent · no real department acknowledgements.</p>
                 <details className="mt-2"><summary className="cursor-pointer font-semibold">Scripted task progress</summary>
@@ -284,10 +284,9 @@ export default function ApprovalWorkbench() {
                     <label htmlFor={`task-${proposal.id}-${task.id}`} className="text-xs font-semibold">Scripted task rationale for {t(codeLabel(task.department))} (required)</label>
                     <textarea id={`task-${proposal.id}-${task.id}`} className="field mt-1 !h-20 resize-y py-2" maxLength={2000}
                       value={reviewReasons[`${proposal.id}:${task.id}`] || ""} onChange={event => setReviewReasons(value => ({ ...value, [`${proposal.id}:${task.id}`]: event.target.value }))}/>
-                    <button type="button" className="control mt-2" aria-label={`${task.state === "prepared" ? "Record scripted acknowledgement" : "Close scripted task"} for ${codeLabel(task.department)}`} disabled={busy || (reviewReasons[`${proposal.id}:${task.id}`] || "").trim().length < 10}
-                      onClick={() => void change(proposal, task.state === "prepared" ? "acknowledge_task" : "close_task", task.id)}>
+                    <Button className="mt-2" type="button" aria-label={`${task.state === "prepared" ? "Record scripted acknowledgement" : "Close scripted task"} for ${codeLabel(task.department)}`} disabled={busy || (reviewReasons[`${proposal.id}:${task.id}`] || "").trim().length < 10} onClick={() => void change(proposal, task.state === "prepared" ? "acknowledge_task" : "close_task", task.id)}>
                       {task.state === "prepared" ? "Record scripted acknowledgement" : "Close scripted task"}
-                    </button>
+                    </Button>
                     {task.state === "prepared" && <div className="mt-3">
                       <label className="block text-xs font-semibold" htmlFor={`assign-${proposal.id}-${task.id}`}>Reassign rehearsal task</label>
                       <select id={`assign-${proposal.id}-${task.id}`} className="field mt-1" disabled={busy}
@@ -296,31 +295,30 @@ export default function ApprovalWorkbench() {
                         <option value="">Choose a different desk</option>
                         {["control_room", "infrastructure", "communications"].filter(department => department !== (task.assigned_department || task.id)).map(department => <option key={department} value={department}>{t(codeLabel(department))}</option>)}
                       </select>
-                      <button type="button" className="control mt-2" disabled={busy || !assignmentTargets[`${proposal.id}:${task.id}`] || (reviewReasons[`${proposal.id}:${task.id}`] || "").trim().length < 10}
-                        onClick={() => void change(proposal, "reassign_task", task.id)}>Reassign with rationale</button>
+                      <Button className="mt-2" type="button" disabled={busy || !assignmentTargets[`${proposal.id}:${task.id}`] || (reviewReasons[`${proposal.id}:${task.id}`] || "").trim().length < 10} onClick={() => void change(proposal, "reassign_task", task.id)}>Reassign with rationale</Button>
                       <p className="mt-1 text-xs">Unacknowledged tasks only. The original synthetic target remains unchanged.</p>
                     </div>}
                   </div>}
                 </li>)}</ul></details>
                 {proposal.proposal.simulation.sla_policy && <p className="mt-2 text-xs">Synthetic rehearsal targets only; no operational SLA, escalation, notification or department participation.</p>}
               </div>}
-              <p className="mt-3"><a className="control control-quiet control-sm" href={`/api/proposals/${proposal.id}/audit`} target="_blank" rel="noreferrer">Open private proposal audit JSON</a></p>
+              <p className="mt-3"><a className={buttonClass({ variant: "quiet", size: "sm" })} href={`/api/proposals/${proposal.id}/audit`} target="_blank" rel="noreferrer">Open private proposal audit JSON</a></p>
               {proposal.status === "approved" && proposal.action_type === "prepare_warning" && proposal.proposal.response_draft && <div className="mt-3 text-sm">
-                <a className="control" href={`/api/proposals/${proposal.id}/cap-draft`}>Download exercise CAP XML draft</a>
+                <a className={buttonClass()} href={`/api/proposals/${proposal.id}/cap-draft`}>Download exercise CAP XML draft</a>
                 <p className="mt-2 text-xs text-muted">Private exercise artifact only. Unknown hazard severity; no verified footprint. Never transmit or use for operations.</p>
               </div>}
               {proposal.status === "draft" && canMake && proposal.maker_subject === auth.subject &&
-                <button type="button" className="control mt-3" disabled={busy} onClick={() => void change(proposal, "submit")}>
+                <Button className="mt-3" type="button" disabled={busy} onClick={() => void change(proposal, "submit")}>
                   Submit for independent review
-                </button>}
+                </Button>}
               {proposal.status === "submitted" && canReview && proposal.maker_subject !== auth.subject && <div className="mt-4 rounded-lg border border-stroke bg-elevated/30 p-3">
                 <label htmlFor={`review-${proposal.id}`} className="field-label">Checker rationale (required)</label>
                 <textarea id={`review-${proposal.id}`} className="field mt-2 !h-20 resize-y py-2" maxLength={2000}
                   value={reviewReasons[proposal.id] || ""} onChange={event => setReviewReasons(value => ({ ...value, [proposal.id]: event.target.value }))}
                   placeholder="Record why you accept or reject this exercise proposal..." />
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <button type="button" className="control control-primary" disabled={busy || !(reviewReasons[proposal.id]?.trim())} onClick={() => void change(proposal, "approve")}><Check size={16}/> Approve draft</button>
-                  <button type="button" className="control control-danger" disabled={busy || !(reviewReasons[proposal.id]?.trim())} onClick={() => void change(proposal, "reject")}><X size={16}/> Reject draft</button>
+                  <Button variant="primary" type="button" disabled={busy || !(reviewReasons[proposal.id]?.trim())} onClick={() => void change(proposal, "approve")}><Check size={16}/> Approve draft</Button>
+                  <Button variant="danger" type="button" disabled={busy || !(reviewReasons[proposal.id]?.trim())} onClick={() => void change(proposal, "reject")}><X size={16}/> Reject draft</Button>
                 </div>
                 {!(reviewReasons[proposal.id]?.trim()) && <p className="mt-2 text-xs text-muted">{t("Disabled: a checker rationale is required before approving or rejecting.")}</p>}
               </div>}

@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import Link from "next/link";
 import { useT } from "./language-provider";
-import { ErrorState, Panel, StatusPill } from "./ui";
+import { ErrorState, Panel, StatusPill, Button, buttonClass } from "./ui";
 import { codeLabel } from "../lib/labels";
 import { ArrowLeft, ArrowRight, BookOpenCheck, ClipboardCheck, Compass, Database, FlaskConical, RadioTower, ShieldAlert, UsersRound, Workflow, Archive, Calculator } from "lucide-react";
 
@@ -149,11 +149,11 @@ export function DemoJourney({ snapshot }: { snapshot: Snapshot }) {
          snapshot.assessmentState === "insufficient_simulated_context" ? "Insufficient demo context" : "Unavailable", "Never a validated flood prediction"],
         ["AgencySync", snapshot.taskCount === null ? "Unavailable" : snapshot.taskCount + " scripted tasks",
           snapshot.scriptedAcknowledgements === null ? "No field contacts" : snapshot.scriptedAcknowledgements + " simulated acknowledgements"],
-      ].map(([heading,value,caption]) => <article className="panel p-3 sm:p-4" key={heading}>
+      ].map(([heading,value,caption]) => <Panel as="article" bodyClassName="p-3 sm:p-4" key={heading}>
         <h2 className="text-xs font-semibold text-muted">{heading}</h2>
         <p className="mt-1.5 text-sm font-semibold sm:text-[15px]">{value}</p>
         <p className="mt-1 text-[11px] leading-4 text-muted">{caption}</p>
-      </article>)}
+      </Panel>)}
     </section>
     <Panel className="mt-4" title="Local dependency diagnostics" description="Bounded exercise-stack checks only. These do not establish field sensor, agency, or public-safety readiness.">
       {snapshot.dependencies.length ? <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -179,7 +179,7 @@ export function DemoJourney({ snapshot }: { snapshot: Snapshot }) {
           </button>)}
         </div>
       </nav>
-      <article className="panel p-4 min-w-0">
+      <Panel as="article" className="min-w-0">
         <div className="flex items-center justify-between gap-3">
           <span className="eyebrow">Stage {active+1} / {steps.length}</span>
           <span className="rounded-full bg-elevated px-3 py-1 text-[11px] font-semibold text-muted">{t("No live actions")}</span>
@@ -195,19 +195,16 @@ export function DemoJourney({ snapshot }: { snapshot: Snapshot }) {
           <p className="mt-1 text-muted">{current.playbook} · AEGIS-URBAN-FLOOD-EXERCISE-v0.1</p>
         </div>
         <div className="mt-6">
-          <Link href={current.href} className="control control-primary">
+          <Link href={current.href} className={buttonClass({ variant: "primary" })}>
             {current.link} <ArrowRight size={16}/>
           </Link>
         </div>
         <div className="mt-7 flex flex-wrap items-center justify-between gap-3 border-t border-stroke pt-5">
-          <button type="button" onClick={() => setActive(index => Math.max(0,index-1))}
-            disabled={active===0} className="control control-sm"><ArrowLeft size={15}/> Previous</button>
+          <Button size="sm" type="button" onClick={() => setActive(index => Math.max(0,index-1))} disabled={active===0}><ArrowLeft size={15}/> Previous</Button>
           <span className="text-xs text-muted">Navigation does not approve, notify or mutate data.</span>
-          <button type="button" className="control control-sm"
-            disabled={active === steps.length-1}
-            onClick={() => setActive(index => Math.min(steps.length-1,index+1))}>Next stage <ArrowRight size={15}/></button>
+          <Button size="sm" type="button" disabled={active === steps.length-1} onClick={() => setActive(index => Math.min(steps.length-1,index+1))}>Next stage <ArrowRight size={15}/></Button>
         </div>
-      </article>
+      </Panel>
     </div>
     <p className="mt-5 text-xs leading-6 text-muted">
       The demo uses only seeded exercise incidents and reads the actual local API where available.

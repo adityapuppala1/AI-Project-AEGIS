@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useT } from "./language-provider";
 import { useRouter } from "next/navigation";
 import { Command, LayoutDashboard, LifeBuoy, Search, X, Activity, SearchX, FileText } from "lucide-react";
-import { EmptyState, ErrorState, Skeleton } from "./ui";
+import { EmptyState, ErrorState, Skeleton, Button, IconButton } from "./ui";
 import type { Incident } from "../lib/types";
 import { allPages } from "../lib/navigation";
 
@@ -128,10 +128,9 @@ export function GlobalSearch() {
     if (event.key === "Enter" && options[active]) { event.preventDefault();navigate(options[active].href); }
   }
   return <>
-    <button type="button" ref={trigger} className="control gap-2 px-3 text-muted"
-      aria-label="Open global search. Shortcut Control K" onClick={() => setOpen(true)}>
+    <Button className="min-w-11 gap-2 px-3 text-muted" type="button" ref={trigger} aria-label="Open global search. Shortcut Control K" onClick={() => setOpen(true)}>
       <Search size={17} aria-hidden="true"/><span className="hidden text-xs sm:inline">{t("Search anything")}</span><kbd className="hidden rounded border border-stroke px-1.5 py-0.5 text-[10px] lg:inline">Ctrl K</kbd>
-    </button>
+    </Button>
     {open && <div className="fixed inset-0 z-[100] flex items-start justify-center px-3 pt-[8vh] sm:pt-[14vh]">
       <button type="button" className="absolute inset-0 bg-[#17131f]/78 backdrop-blur-sm" aria-label="Close global search" onClick={close}/>
       <section role="dialog" ref={dialog} onKeyDown={trapFocus} aria-modal="true" aria-label="AEGIS global search" className="relative z-10 w-full max-w-[650px] overflow-hidden rounded-lg border border-stroke bg-surface shadow-2xl">
@@ -142,7 +141,7 @@ export function GlobalSearch() {
             aria-activedescendant={options[active] ? "aegis-command-" + active : undefined}
             placeholder="Search navigation, incidents, documentation..." aria-label="Universal search term"
             value={query} maxLength={120} onChange={event => setQuery(event.target.value)} onKeyDown={handleInputKey}/>
-          <button type="button" className="control control-sm control-icon" aria-label="Close global search" onClick={close}><X size={15}/></button>
+          <IconButton size="sm" icon={X} label="Close global search" onClick={close}/>
         </div>
         <div id="aegis-global-results" role="listbox" aria-label="Matching pages and synthetic incidents" className="max-h-[min(65vh,420px)] overflow-y-auto p-2">
           {GROUPS.map(group => {

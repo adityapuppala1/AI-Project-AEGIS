@@ -266,7 +266,7 @@ export function AppShell({ children, title, description, actions, breadcrumbs }:
                     return <Tip key={href} text={t(label) + (needs ? ` (${t("needs")} ${needs})` : badge ? ` (${badge} ${t("waiting")})` : "")} side="right" disabled={!mini}>
                       <Link href={href} aria-current={active ? "page" : undefined} data-locked={locked || undefined} title={needs ? `${t("needs")} ${needs}` : undefined} className={`rail-link ${active ? "nav-active" : ""}`}
                         onClick={() => { if (href === pathname) setMenuOpen(false); }}>
-                        <Icon size={17} aria-hidden="true" className="shrink-0" /><span className="rail-text">{t(label)}</span>
+                        <Icon size={17} aria-hidden="true" className="shrink-0" />{badge > 0 && <span className="rail-dot" aria-hidden="true">{badge > 9 ? "9+" : badge}</span>}<span className="rail-text">{t(label)}</span>
                         {locked
                           ? <span className="rail-meta"><Lock size={11} aria-hidden="true" /><span className="sr-only">{t("needs")} {needs}</span><span aria-hidden="true">{shortNeeds(needs)}</span></span>
                           : badge > 0

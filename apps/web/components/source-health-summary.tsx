@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AlertTriangle, ArrowRight, RadioTower, ShieldAlert } from "lucide-react";
 import { useT } from "./language-provider";
-import { DataFreshness, StatusPill } from "./ui";
+import { DataFreshness, StatusPill, buttonClass, Panel } from "./ui";
 import type { SourceOverview } from "../lib/source-health";
 
 export function SourceHealthSummary() {
@@ -25,7 +25,7 @@ export function SourceHealthSummary() {
   }, []);
   const attention = overview ? overview.counts.delayed + overview.counts.stale +
     overview.counts.no_data + overview.counts.clock_anomaly : 0;
-  return <section className="panel mt-5 flex flex-wrap items-center justify-between gap-4 p-4" aria-label="Exercise source timeliness summary">
+  return <Panel className="mt-5" bodyClassName="flex flex-wrap items-center justify-between gap-4 p-4" aria-label="Exercise source timeliness summary">
     <div className="flex items-start gap-3">
       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent"><RadioTower size={20}/></span>
       <div>
@@ -40,6 +40,6 @@ export function SourceHealthSummary() {
           {overview && <StatusPill tone={attention > 0 ? "warning" : "success"}>{attention > 0 ? t("Needs attention") : t("Within demo window")}</StatusPill>}</p>
       </div>
     </div>
-    <Link href="/sources" className="control control-sm">Inspect sources <ArrowRight size={15}/></Link>
-  </section>;
+    <Link href="/sources" className={buttonClass({ size: "sm" })}>Inspect sources <ArrowRight size={15}/></Link>
+  </Panel>;
 }

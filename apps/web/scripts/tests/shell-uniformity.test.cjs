@@ -232,3 +232,12 @@ test('prose from the API has machine codes read as plain words', () => {
   assert.equal(labels.plainText('Nothing to change here.'), 'Nothing to change here.');
   assert.equal(labels.plainText('See catalogue/known_events.csv rows.'), 'See catalogue/known_events.csv rows.', 'file names are not rewritten');
 });
+
+test('humanText turns file names in API notes into plain words, and leaves plainText unchanged', () => {
+  assert.equal(labels.humanText('Event references cite research/real-data/catalogue/known_events.csv rows.'), 'Event references cite the public catalogue of known events rows.');
+  assert.equal(labels.humanText('Loaded from exercise_scenarios.v1.json.'), 'Loaded from the exercise scenario list.');
+  assert.equal(labels.humanText('Read some_new-table.csv first.'), 'Read some new table file first.');
+  assert.equal(labels.humanText('Replayed from known_events for heavy_rain.'), 'Replayed from known events for heavy rain.');
+  assert.equal(labels.humanText('Nothing to change here.'), 'Nothing to change here.');
+  assert.doesNotMatch(labels.humanText('See catalogue/known_events.csv and a.json'), /\.(csv|json)/);
+});

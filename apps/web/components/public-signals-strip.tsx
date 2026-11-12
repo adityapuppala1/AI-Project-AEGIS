@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Globe2 } from "lucide-react";
-import { StatusPill } from "./ui";
+import { StatusPill, Panel } from "./ui";
 import { ageLabel, feedFreshness, fetchEarthFeed, formatIst, summarizeSignals, type Freshness, type RecordFeed } from "../lib/earth-watch";
 
 const REFRESH_MS = 300_000;
@@ -63,7 +63,7 @@ export function PublicSignalsStrip() {
   const oldest = Math.min(...feeds.map(feed => Date.parse(feed.fetched_at)));
   const strongest = summary.strongest;
 
-  return <section className="panel mt-5 p-4" aria-label="Public reference signals">
+  return <Panel className="mt-5" aria-label="Public reference signals">
     <div className="flex flex-wrap items-center justify-between gap-3">
       <div className="flex flex-wrap items-center gap-3">
         <h2 className="flex items-center gap-2 text-sm font-bold">
@@ -84,5 +84,5 @@ export function PublicSignalsStrip() {
         <dd className="mt-1 text-sm font-semibold">{strongest ? `${strongest.title} · ${formatIst(strongest.observed_at)}` : "None reported in this window"}</dd></div>
     </dl>
     <p className="mt-3 text-[11px] leading-5 text-muted">Public NASA and USGS reference data. It is not an AEGIS assessment, does not create cases, approvals, tasks or warnings, and no markers does not mean safe.</p>
-  </section>;
+  </Panel>;
 }

@@ -77,7 +77,7 @@ export function OperatorCopilot() {
             {busy && <Button icon={CircleStop} onClick={() => { controller.current?.abort(); setBusy(false); setMessage(t("Request cancelled.")); }}>{t("Cancel")}</Button>}
           </div>
           <p className="mb-1.5 mt-4 text-xs font-semibold text-muted">{t("Examples")}</p>
-          <div className="flex flex-col items-start gap-1.5">{EXAMPLES.map(example => <button key={example} type="button" className="control control-quiet control-sm !justify-start text-left" onClick={() => { setQuestion(example); setInvalid(false); }}>{t(example)}</button>)}</div>
+          <div className="flex flex-col items-start gap-1.5">{EXAMPLES.map(example => <Button variant="quiet" size="sm" className="!justify-start text-left" key={example} type="button" onClick={() => { setQuestion(example); setInvalid(false); }}>{t(example)}</Button>)}</div>
         </form>
       </Panel>
       <Panel title={t("Answer")} icon={FileText} actions={<StatusPill tone="info" icon={ShieldCheck}>{t("Read-only assistant; answers cite records; cannot act")}</StatusPill>} bodyClassName="p-0">

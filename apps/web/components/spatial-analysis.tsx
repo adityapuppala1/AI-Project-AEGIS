@@ -1,5 +1,5 @@
 "use client";
-import { ErrorState } from "./ui";
+import { ErrorState, Button, Panel } from "./ui";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AlertTriangle, ArrowRight, Compass, Database, MapPinned, RefreshCw, ShieldAlert, ShieldCheck } from "lucide-react";
@@ -60,18 +60,8 @@ export function SpatialAnalysis({ incidentId }: { incidentId: string }) {
   }, [incidentId, radius, version]);
   const staleCandidates = data?.nearby_sources.filter(item => item.freshness !== "fresh").length ?? 0;
 
-  return <section className="panel mt-5 overflow-hidden" aria-label="Fictional geospatial proximity analysis">
-    <div className="panel-heading">
-      <div>
-        <h3 className="flex items-center gap-2 t-title">
-          <Compass size={18} className="text-accent"/> Spatial Correlation Explorer
-        </h3>
-        <p className="mt-1 text-xs text-muted">PostGIS geodesic distances · fictional sources/assets · no actual impact determination</p>
-      </div>
-      <button type="button" className="control control-sm" onClick={() => setVersion(v=>v+1)} disabled={loading}>
-        <RefreshCw size={15} className={loading ? "animate-spin" : ""}/> Refresh
-      </button>
-    </div>
+  return <Panel level={3} className="mt-5 overflow-hidden" aria-label="Fictional geospatial proximity analysis" bodyClassName="p-0" icon={Compass} title="Spatial Correlation Explorer" description="PostGIS geodesic distances · fictional sources/assets · no actual impact determination"
+    actions={<Button size="sm" type="button" onClick={() => setVersion(v=>v+1)} disabled={loading}><RefreshCw size={15} className={loading ? "animate-spin" : ""}/> Refresh</Button>}>
     <div className="flex flex-wrap items-center gap-3 border-b border-stroke px-4 py-3 sm:px-5">
       <label htmlFor={"radius-"+incidentId} className="text-xs font-semibold text-muted">Analysis radius</label>
       <select id={"radius-"+incidentId} className="field !w-[150px]" value={radius}
@@ -141,5 +131,5 @@ export function SpatialAnalysis({ incidentId }: { incidentId: string }) {
       </div>
     </>}
     {loading && <p className="p-6 text-sm text-muted">Evaluating bounded geospatial candidates from the synthetic database...</p>}
-  </section>;
+  </Panel>;
 }

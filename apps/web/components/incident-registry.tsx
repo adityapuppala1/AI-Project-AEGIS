@@ -1,6 +1,6 @@
 "use client";
 
-import { RecordRef } from "./ui";
+import { RecordRef, Button, buttonClass } from "./ui";
 import { useEffect, useMemo, useState, type KeyboardEvent } from "react";
 import Link from "next/link";
 import { ArrowRight, ChevronLeft, ChevronRight, ClipboardList, Eye, FlaskConical, Link2, MapPin, RefreshCw, SearchX } from "lucide-react";
@@ -167,9 +167,9 @@ export function IncidentRegistry() {
         className="min-w-0 overflow-hidden"
         actions={<>
           <StatusPill tone="sample" icon={FlaskConical}>{t("Exercise data")}</StatusPill>
-          <button type="button" className="control" disabled={pending} onClick={() => setReload(n => n + 1)}>
+          <Button type="button" disabled={pending} onClick={() => setReload(n => n + 1)}>
             <RefreshCw size={16} aria-hidden="true" className={pending ? "animate-spin" : ""}/> {t("Refresh")}
-          </button>
+          </Button>
         </>}>
         <div className="flex flex-col gap-3 border-b border-stroke p-4 sm:p-5">
           <SearchField label={t("Search hazard or incident ID")} placeholder={t("Search hazard or incident ID...")} value={query} onChange={value => setQuery(value.slice(0, 120))}/>
@@ -181,8 +181,8 @@ export function IncidentRegistry() {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <button type="button" className="control control-sm" onClick={() => { clearFilters(); setSort("created_at"); setDirection("desc"); setPageSize(10); }}>{t("Reset")}</button>
-            <button type="button" className="control control-sm" onClick={() => void copyViewLink()}><Link2 size={14} aria-hidden="true"/> {t("Copy view link")}</button>
+            <Button size="sm" type="button" onClick={() => { clearFilters(); setSort("created_at"); setDirection("desc"); setPageSize(10); }}>{t("Reset")}</Button>
+            <Button size="sm" type="button" onClick={() => void copyViewLink()}><Link2 size={14} aria-hidden="true"/> {t("Copy view link")}</Button>
             {viewNotice && <span role="status" className="text-xs text-muted">{viewNotice}</span>}
           </div>
         </div>
@@ -197,7 +197,7 @@ export function IncidentRegistry() {
         {pending && !result && <div className="px-5 py-4"><SkeletonRows rows={6} label={t("Loading exercise incidents…")}/></div>}
         {!pending && !error && items.length === 0 && <EmptyState icon={SearchX} title={t("No incidents match")}
           body={t("Try changing the search term or status filter. No match does not mean an area is safe; it only means no synthetic record fits these filters.")}
-          actions={<button type="button" className="control control-sm" onClick={clearFilters}>{t("Clear filters")}</button>}/>}
+          actions={<Button size="sm" type="button" onClick={clearFilters}>{t("Clear filters")}</Button>}/>}
         {items.length > 0 && <>
           <div onKeyDown={moveRowFocus} className="hidden md:block">
             <ResponsiveTable label={t("Exercise incident list")} caption={t("Exercise incident list; column headings sort the records")}>
@@ -237,12 +237,12 @@ export function IncidentRegistry() {
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-stroke px-5 py-4">
           <p className="text-xs text-muted">{t("Page")} {result?.page ?? page} {t("of")} {totalPages}</p>
           <div className="flex items-center gap-2">
-            <button type="button" className="control" onClick={() => setPage(n => Math.max(1, n - 1))} disabled={pending || page <= 1}>
+            <Button type="button" onClick={() => setPage(n => Math.max(1, n - 1))} disabled={pending || page <= 1}>
               <ChevronLeft size={16} aria-hidden="true"/> {t("Previous")}
-            </button>
-            <button type="button" className="control" onClick={() => setPage(n => Math.min(totalPages, n + 1))} disabled={pending || page >= totalPages}>
+            </Button>
+            <Button type="button" onClick={() => setPage(n => Math.min(totalPages, n + 1))} disabled={pending || page >= totalPages}>
               {t("Next")} <ChevronRight size={16} aria-hidden="true"/>
-            </button>
+            </Button>
           </div>
         </div>
       </Panel>
@@ -257,7 +257,7 @@ export function IncidentRegistry() {
               { label: t("Created"), value: <DataFreshness observedAt={selected.created_at} staleAfterHours={24 * 365}/> },
             ]}/>
             <p className="text-xs leading-5 text-muted">{t("Synthetic exercise record. Opening a case shows evidence, chronology and readiness only; it cannot send warnings or dispatch responders.")}</p>
-            <Link href={"/incidents/" + selected.id} className="control w-full justify-center">{t("Open case")} <ArrowRight size={15} aria-hidden="true"/></Link>
+            <Link href={"/incidents/" + selected.id} className={buttonClass({ className: "w-full justify-center" })}>{t("Open case")} <ArrowRight size={15} aria-hidden="true"/></Link>
           </div> : <EmptyState title={t("No case selected")} body={t("Results will appear here once records load.")}/>}
         </Panel>
       </aside>

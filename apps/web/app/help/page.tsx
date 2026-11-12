@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ArrowRight, BookOpenCheck, BrainCircuit, Database, Keyboard, LifeBuoy, LockKeyhole, RadioTower, ShieldCheck } from "lucide-react";
 import { AppShell } from "../../components/app-shell";
 import { useT } from "../../components/language-provider";
-import { SearchField, Stepper, Tabs, TabPanel, type Step } from "../../components/ui";
+import { SearchField, Stepper, Tabs, TabPanel, type Step, Panel } from "../../components/ui";
 
 type Guide = {
   title: string;
@@ -80,9 +80,8 @@ export default function HelpPage() {
         <p className="mt-1 text-xs text-muted">{item.detail}</p>
       </Link>)}
     </section>
-    <section className="panel overflow-hidden" id="help-articles">
-      <div className="panel-heading"><div><h2 className="t-title">Support articles & FAQs</h2><p className="mt-1 text-xs text-muted">Browse curated answers; no chatbot hallucinations</p></div>
-        <span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">{visible.length} articles</span></div>
+    <Panel className="overflow-hidden" id="help-articles" bodyClassName="p-0" title="Support articles & FAQs" description="Browse curated answers; no chatbot hallucinations"
+      actions={<span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">{visible.length} articles</span>}>
       <Tabs className="px-4" idPrefix="help" label={t("Help article categories")} value={category} onChange={setCategory}
         tabs={categories.map(c => ({ value: c, label: t(c) }))}/>
       <TabPanel idPrefix="help" value={category} active className="divide-y divide-stroke px-4 sm:px-5"><div aria-live="polite" className="divide-y divide-stroke">
@@ -101,11 +100,11 @@ export default function HelpPage() {
           </div>; })}
         {visible.length === 0 && <p className="p-8 text-center text-sm text-muted">No help articles match. Try another query or select All topics.</p>}
       </div></TabPanel>
-    </section>
-    <section className="panel p-4 mt-5" aria-label={t("Troubleshooting steps")}>
+    </Panel>
+    <Panel className="mt-5" aria-label={t("Troubleshooting steps")}>
       <h2 className="t-title">{t("If the app shows unavailable")}</h2>
       <Stepper className="mt-4" label={t("Troubleshooting steps")} steps={TROUBLE.map(([id, label]): Step => ({ id, label: t(label), status: "pending" }))}/>
-    </section>
+    </Panel>
     <div className="mt-5 flex flex-wrap items-start gap-3 rounded-lg border border-amber-500/20 bg-amber-500/5 p-4 text-xs leading-6 text-muted">
       <ShieldCheck className="mt-1 shrink-0 text-amber-500" size={18}/>
       <span>Emergency procedures must be approved by the responsible agency. These help articles describe a synthetic hackathon application and are not public emergency instructions.</span>

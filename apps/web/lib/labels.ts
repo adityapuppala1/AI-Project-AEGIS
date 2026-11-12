@@ -14,6 +14,9 @@ const LABELS: Record<string, string> = {
   // Roles (the plain words used across the app)
   incident_operator: "Maker", incident_checker: "Checker", incident_auditor: "Auditor", platform_admin: "Administrator",
   department_operator: "Department desk", response_team: "Response team",
+  // Response teams: the kind of team and what it can do (docs/RESPONSE_LOOP.md)
+  rescue: "Rescue", health: "Health", municipal: "Municipal", flood_rescue: "Flood rescue", search_rescue: "Search and rescue",
+  evacuation: "Evacuation", medical: "Medical", fire_response: "Fire response",
   // Departments
   control_room: "Control room", infrastructure: "Infrastructure", communications: "Communications",
   // Hazards and measurements
@@ -68,6 +71,22 @@ export function plainText(text: string): string {
   return text.replace(/(?<![/.\w])[a-z][a-z0-9]*(?:_[a-z0-9]+)+(?!\w|\.\w)/g, code => codeLabel(code).toLowerCase());
 }
 
+/** Plain words for the data files the API names in its notes. Anything not listed is read as "<words> file". */
+export const FILE_LABELS: Record<string, string> = {
+  "known_events.csv": "the public catalogue of known events",
+  "exercise_scenarios.v1.json": "the exercise scenario list",
+};
+/**
+ * Prose for people: file names and paths become plain words ("research/real-data/catalogue/known_events.csv" ->
+ * "the public catalogue of known events"), then machine codes are read as words (plainText). Use this for API notes
+ * shown on screen; plainText alone leaves file names untouched.
+ */
+export function humanText(text: string): string {
+  const named = text.replace(/(?:[\w.-]+\/)*([\w-]+(?:\.[\w-]+)*\.(?:csv|json|md|py|ya?ml|txt))\b/g, (_all, base: string) =>
+    FILE_LABELS[base] ?? base.replace(/\.[a-z]+$/, "").replace(/\.v\d+$/, "").replace(/[_-]+/g, " ") + " file");
+  return plainText(named);
+}
+
 // Team response loop (docs/RESPONSE_LOOP.md). Separate tables because the same word can mean different things as a
 // state, a report kind or a code (for example "other" for a decline and for a request for support).
 export const RESPONSE_STATE_LABELS: Record<string, string> = {
@@ -98,6 +117,15 @@ export const RELAY_ACTION_LABELS: Record<string, string> = {
   completed: "Record: team completed", situation_report: "Record a situation report", needs_support: "Record a request for support",
   stood_down: "Stand the team down", desk_handled: "Mark handled",
 };
+/** The sentences the browser shows for a failed team-response call when the server gave none (lib/response-client.ts). Reviewed English; shown through t(). */
+export const RESPONSE_FAILURE_TEXTS = {
+  signedOut: "Your session ended. Sign in again.",
+  forbidden: "Your role cannot do this.",
+  changed: "This request changed. The list has been refreshed.",
+  invalid: "Check the note (10 to 1000 characters) and the choice, then try again.",
+  unavailable: "The team response service did not answer. Refresh before retrying; the action may have completed.",
+  unconfirmed: "The action could not be confirmed. Refresh before retrying; it may have completed.",
+} as const;
 const pick = (table: Record<string, string>, key: string | null | undefined): string | null =>
   typeof key === "string" && Object.prototype.hasOwnProperty.call(table, key) ? table[key] : null;
 export const responseStateLabel = (state: string | null | undefined): string => pick(RESPONSE_STATE_LABELS, state) ?? codeLabel(state);
@@ -108,7 +136,7 @@ export function reportCodeLabel(kind: string | null | undefined, code: string | 
   if (code === "other") return pick(OTHER_CODE_LABELS, kind) ?? "Something else";
   return pick(REPORT_CODE_LABELS, code) ?? codeLabel(code);
 }
-const RESPONSE_TEXTS: string[] = [RESPONSE_STATE_LABELS, REPORT_KIND_LABELS, AUTHORITY_LABELS, REPORT_CODE_LABELS, OTHER_CODE_LABELS, RESPONSE_ACTION_LABELS, RELAY_ACTION_LABELS].flatMap(table => Object.values(table));
+const RESPONSE_TEXTS: string[] = [RESPONSE_FAILURE_TEXTS, RESPONSE_STATE_LABELS, REPORT_KIND_LABELS, AUTHORITY_LABELS, REPORT_CODE_LABELS, OTHER_CODE_LABELS, RESPONSE_ACTION_LABELS, RELAY_ACTION_LABELS].flatMap(table => Object.values(table));
 
 /** True when the code has a reviewed label (rather than the generic fallback). */
 export const hasLabel = (code: string): boolean => Object.prototype.hasOwnProperty.call(LABELS, code);

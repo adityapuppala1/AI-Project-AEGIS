@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Button, buttonClass, Panel } from "./ui";
 import { useEffect, useRef, useState, type KeyboardEvent, type RefObject } from "react";
 import {
   AlertTriangle, Building2, CheckCircle2, Circle, Clock, Database, Droplets, Eye, FileSearch, Flame, FlaskConical, Mountain, Plug, RefreshCw, ShieldAlert, Users,
@@ -110,10 +111,10 @@ export function WatchSkeleton() {
   const t = useT();
   return <div role="status" aria-busy="true"><span className="sr-only">{t("Checking Hazard Watch…")}</span>
     <div aria-hidden="true" className="space-y-5">
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">{Array.from({ length: 6 }, (_, i) => <div key={i} className="panel p-4"><div className="shimmer h-3 w-16"/><div className="shimmer mt-3 h-8 w-12"/><div className="shimmer mt-3 h-1.5 w-full"/></div>)}</div>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">{Array.from({ length: 6 }, (_, i) => <Panel as="div" key={i}><div className="shimmer h-3 w-16"/><div className="shimmer mt-3 h-8 w-12"/><div className="shimmer mt-3 h-1.5 w-full"/></Panel>)}</div>
       <div className="grid gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-        <div className="panel overflow-hidden"><div className="shimmer m-4 h-5 w-32"/><div className="shimmer mx-4 mb-4 h-72 sm:h-96"/></div>
-        <div className="panel p-4">{Array.from({ length: 5 }, (_, i) => <div key={i} className="flex items-center gap-3 py-3"><div className="shimmer h-9 w-9"/><div className="flex-1 space-y-2"><div className="shimmer h-3 w-3/4"/><div className="shimmer h-2 w-1/2"/></div></div>)}</div>
+        <Panel as="div" className="overflow-hidden" bodyClassName="p-0"><div className="shimmer m-4 h-5 w-32"/><div className="shimmer mx-4 mb-4 h-72 sm:h-96"/></Panel>
+        <Panel as="div">{Array.from({ length: 5 }, (_, i) => <div key={i} className="flex items-center gap-3 py-3"><div className="shimmer h-9 w-9"/><div className="flex-1 space-y-2"><div className="shimmer h-3 w-3/4"/><div className="shimmer h-2 w-1/2"/></div></div>)}</Panel>
       </div>
     </div></div>;
 }
@@ -125,7 +126,7 @@ function Tile({ icon: Icon, label, children, fill, color, href }: Readonly<{ ico
     <div className="mt-2 text-2xl font-bold leading-none">{children}</div>
     {fill !== undefined && <div className="mt-3 h-1.5 rounded-full bg-elevated" aria-hidden="true"><div className="bar-grow h-1.5 rounded-full" style={{ width: `${Math.round(Math.max(0, Math.min(1, fill)) * 100)}%`, background: color ?? "rgb(var(--accent))" }}/></div>}
   </>;
-  return href ? <Link href={href} className="panel metric-card block p-4 hover:border-accent/40">{body}</Link> : <div className="panel metric-card p-4">{body}</div>;
+  return href ? <Link href={href} className="panel metric-card block p-4 hover:border-accent/40">{body}</Link> : <Panel as="div" className="metric-card">{body}</Panel>;
 }
 
 export function SummaryStrip({ watch, now, sample }: Readonly<{ watch: WatchPayload; now: number; sample: boolean }>) {
@@ -169,7 +170,7 @@ export function FilterBar({ hazards, hazardFilter, onToggleHazard, stateFilter, 
         {(["all", "candidate", "watch", "clear"] as const).map(state => <button key={state} type="button" aria-pressed={stateFilter === state} onClick={() => onState(state)}
           className={`min-h-9 rounded-lg border px-3 text-xs font-semibold hover:bg-elevated ${stateFilter === state ? "border-accent bg-accent/10" : "border-stroke bg-surface"}`}>{state === "all" ? t("All states") : t(state)}</button>)}
       </div>
-      <button type="button" className="control control-sm" onClick={onClear} disabled={!active}><X size={14} aria-hidden="true"/>{t("Clear filters")}</button>
+      <Button size="sm" type="button" onClick={onClear} disabled={!active}><X size={14} aria-hidden="true"/>{t("Clear filters")}</Button>
     </div>
   </div>;
 }
@@ -220,13 +221,13 @@ export function SetupChecklist({ evidenceCount, refreshed, triggerCount, onPrevi
 }>) {
   const t = useT();
   const steps = [
-    { title: t("Enable a connector"), body: t("A platform admin switches on at least one data connector, such as Open-Meteo."), done: evidenceCount > 0, action: <Link href="/admin/connectors" className="control control-sm"><Plug size={14} aria-hidden="true"/>{t("Open connectors")}</Link> },
+    { title: t("Enable a connector"), body: t("A platform admin switches on at least one data connector, such as Open-Meteo."), done: evidenceCount > 0, action: <Link href="/admin/connectors" className={buttonClass({ size: "sm" })}><Plug size={14} aria-hidden="true"/>{t("Open connectors")}</Link> },
     { title: t("Press Refresh evidence"), body: t("An incident operator or platform admin fetches evidence once. Nothing runs in the background."), done: refreshed || evidenceCount > 0,
-      action: <button type="button" className="control control-sm" onClick={onRefresh} disabled={!canRefresh || refreshing}><RefreshCw size={14} aria-hidden="true"/>{t("Refresh evidence")}</button> },
+      action: <Button size="sm" type="button" onClick={onRefresh} disabled={!canRefresh || refreshing}><RefreshCw size={14} aria-hidden="true"/>{t("Refresh evidence")}</Button> },
     { title: t("Review the queue"), body: t("Triggers appear in the queue. A person reviews each one; AEGIS never sends warnings."), done: triggerCount > 0, action: null },
   ];
   const current = steps.findIndex(step => !step.done);
-  return <section className="panel p-4" aria-labelledby="setup-title">
+  return <Panel aria-labelledby="setup-title">
     <h2 id="setup-title" className="flex items-center gap-2 t-title"><ShieldAlert size={18} className="text-accent" aria-hidden="true"/>{t("No triggers yet")}</h2>
     <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">{t("An empty queue does not mean an area is safe. It only means no evidence has been turned into a trigger yet.")}</p>
     <ol className="mt-5 space-y-3" aria-label={t("Setup checklist")}>
@@ -238,10 +239,10 @@ export function SetupChecklist({ evidenceCount, refreshed, triggerCount, onPrevi
       </li>)}
     </ol>
     <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-stroke pt-4">
-      <button type="button" className="control control-primary" onClick={onPreview}><FlaskConical size={16} aria-hidden="true"/>{t("Preview with sample data")}</button>
+      <Button variant="primary" type="button" onClick={onPreview}><FlaskConical size={16} aria-hidden="true"/>{t("Preview with sample data")}</Button>
       <p className="text-xs text-muted">{t("Shows invented sample data so you can try the whole flow offline. It never calls the API.")}</p>
     </div>
-  </section>;
+  </Panel>;
 }
 
 // ---------- schematic fallback map ----------
@@ -255,7 +256,7 @@ export function FallbackMap({ triggers, selectedId, onSelect, onRetry }: Readonl
   return <div className="p-4">
     <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-stroke bg-elevated px-3 py-2 text-xs" role="status">
       <span className="flex items-center gap-2"><AlertTriangle size={14} aria-hidden="true"/>{t("The map could not load. Every trigger is listed in the queue beside it.")}</span>
-      <button type="button" className="control control-sm" onClick={onRetry}><RefreshCw size={14} aria-hidden="true"/>{t("Retry map")}</button>
+      <Button size="sm" type="button" onClick={onRetry}><RefreshCw size={14} aria-hidden="true"/>{t("Retry map")}</Button>
     </div>
     <svg viewBox={`0 0 ${W} ${H}`} className="mt-3 w-full rounded-lg border border-stroke bg-elevated" role="img" aria-label={t("Schematic mini-map of trigger locations around Hyderabad. Not to scale. Shapes show state: circle clear, square watch, diamond candidate.")}>
       {[1, 2, 3].map(i => <g key={i} stroke="rgb(var(--stroke))" strokeWidth="1"><line x1={W * i / 4} y1="0" x2={W * i / 4} y2={H}/><line x1="0" y1={H * i / 4} x2={W} y2={H * i / 4}/></g>)}
@@ -321,11 +322,10 @@ export function TriggerDetail({ trigger, evidenceById, now, sample, run, heading
       <h2 id="trigger-detail" ref={headingRef} tabIndex={-1} className="text-lg font-bold outline-offset-4">{t(style.label)} · {locationLabel(trigger)}</h2>
       <StateChip state={trigger.state}/>
       {sample && <SampleChip/>}
-      <button type="button" className="control control-sm ml-auto" onClick={onClose}><X size={14} aria-hidden="true"/>{t("Close detail")}</button>
+      <Button size="sm" className="ml-auto" type="button" onClick={onClose}><X size={14} aria-hidden="true"/>{t("Close detail")}</Button>
     </div>
     <div className="grid gap-5 lg:grid-cols-2">
-      <section className="panel min-w-0" aria-labelledby="live-title">
-        <div className="panel-heading"><h3 id="live-title" className="t-title">{t("Live")} <span className="text-xs font-normal text-muted">{t("latest observed evidence")}</span></h3>{sample && <SampleChip/>}</div>
+      <Panel level={3} className="min-w-0" titleId="live-title" aria-labelledby="live-title" bodyClassName="p-0" title={<>{t("Live")} <span className="text-xs font-normal text-muted">{t("latest observed evidence")}</span></>} actions={sample && <SampleChip/>}>
         <div className="p-5">
           {!freshest ? <p className="text-sm text-muted">{t("No cited evidence records are in the current watch window.")}</p> : <>
             <Big value={freshest.value} unit={unit}/>
@@ -339,15 +339,14 @@ export function TriggerDetail({ trigger, evidenceById, now, sample, run, heading
               {isStale(item, now) && <p className="mt-1 font-semibold text-amber-700 dark:text-amber-300">{t("Stale: older than the freshness window")}</p>}
             </li>)}</ul>}
           </>}
-          <button type="button" className="control mt-4" aria-expanded={drawer} aria-controls="evidence-drawer" onClick={onDrawer}><FileSearch size={16} aria-hidden="true"/>{t("Evidence drawer")} ({trigger.evidence_ids.length})</button>
+          <Button className="mt-4" type="button" aria-expanded={drawer} aria-controls="evidence-drawer" onClick={onDrawer}><FileSearch size={16} aria-hidden="true"/>{t("Evidence drawer")} ({trigger.evidence_ids.length})</Button>
           {drawer && <div id="evidence-drawer" className="mt-3 rounded-lg border border-stroke p-3 text-xs">
             <p className="font-bold">{t("Cited records")}</p>
             <ul className="mt-2 space-y-1">{trigger.evidence_ids.map(id => <li key={id} className="break-all"><code>{id}</code>{evidenceById.has(id) ? "" : ` · ${t("not in current window")}`}</li>)}</ul>
           </div>}
         </div>
-      </section>
-      <section className="panel min-w-0" aria-labelledby="predicted-title">
-        <div className="panel-heading"><h3 id="predicted-title" className="t-title">{t("Predicted")} <span className="text-xs font-normal text-muted">{t("forecast-derived and synthetic")}</span></h3>{sample && <SampleChip/>}</div>
+      </Panel>
+      <Panel level={3} className="min-w-0" titleId="predicted-title" aria-labelledby="predicted-title" bodyClassName="p-0" title={<>{t("Predicted")} <span className="text-xs font-normal text-muted">{t("forecast-derived and synthetic")}</span></>} actions={sample && <SampleChip/>}>
         <div className="space-y-4 p-5 text-xs">
           {forecast === null ? <p className="text-sm text-muted">{t("No forecast value supplied.")}</p> : <div>
             <Big value={forecast} unit={forecastUnit}/>
@@ -370,7 +369,7 @@ export function TriggerDetail({ trigger, evidenceById, now, sample, run, heading
               ? <ul className="mt-1 space-y-1">{run.variants.map(variant => <li key={variant.id}>{variant.label}: {variant.threshold_delta > 0 ? "+" : ""}{variant.threshold_delta} → <strong>{t(variant.resulting_state)}</strong> ({variant.score.toFixed(2)})</li>)}</ul>
               : <p className="text-muted">{t("Start a bounded run to simulate threshold variants.")}</p>}</div>
         </div>
-      </section>
+      </Panel>
     </div>
   </section>;
 }

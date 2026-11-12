@@ -159,3 +159,14 @@ test('the response screens carry the rehearsal statement, use the shared kit, an
   assert.match(read('components/incident-intelligence.tsx'), /<IncidentTeamResponse incidentId=\{incident\.id\}\/>/);
   assert.match(read('components/incident-team-response.tsx'), /if \(!allowed \|\| status === "refused"\) return null;/, 'other roles see nothing extra and no error panel');
 });
+
+test('team kinds, capabilities and the failure sentences have reviewed labels', () => {
+  const labels = load('lib/labels.ts');
+  const expected = { rescue: 'Rescue', health: 'Health', municipal: 'Municipal', flood_rescue: 'Flood rescue', search_rescue: 'Search and rescue', evacuation: 'Evacuation', medical: 'Medical', fire_response: 'Fire response' };
+  for (const [code, text] of Object.entries(expected)) { assert.ok(labels.hasLabel(code), code + ' has a reviewed label'); assert.equal(labels.codeLabel(code), text); assert.ok(labels.KNOWN_LABEL_TEXTS.includes(text), text + ' is registered for translation'); }
+  const client = load('lib/response-client.ts');
+  assert.equal(client.failureMessage(401, null), labels.RESPONSE_FAILURE_TEXTS.signedOut);
+  assert.equal(client.failureMessage(0, null), labels.RESPONSE_FAILURE_TEXTS.unavailable);
+  assert.equal(client.failureMessage(409, { detail: 'Server sentence kept.' }), 'Server sentence kept.', 'a server sentence is shown as received');
+  for (const text of Object.values(labels.RESPONSE_FAILURE_TEXTS)) assert.ok(labels.KNOWN_LABEL_TEXTS.includes(text), 'registered: ' + text);
+});

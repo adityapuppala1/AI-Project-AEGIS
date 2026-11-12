@@ -30,7 +30,7 @@ export function SegmentedControl<V extends string>({ options, value, onChange, l
       const on = index === selected; const Icon = option.icon;
       return <button key={option.value} ref={node => { refs.current[index] = node; }} type="button" role="radio" aria-checked={on} tabIndex={on ? 0 : -1}
         onClick={() => onChange(option.value)} onKeyDown={event => onKeyDown(event, index)}
-        className={`inline-flex min-h-9 items-center gap-1.5 rounded-md px-3 text-xs font-semibold transition-colors ${on ? "bg-surface text-accent shadow-sm ring-1 ring-accent/40" : "text-muted hover:text-ink"}`}>
+        className={`inline-flex min-h-9 min-w-9 max-sm:min-w-11 items-center justify-center gap-1.5 rounded-md px-3 text-xs font-semibold transition-colors ${on ? "bg-surface text-accent shadow-sm ring-1 ring-accent/40" : "text-muted hover:text-ink"}`}>
         {Icon && <Icon size={14} aria-hidden="true" />}{option.label}</button>;
     })}
   </div>;
@@ -44,7 +44,7 @@ export function FilterChips<V extends string>({ options, selected, onToggle, lab
     {options.map(option => {
       const on = selected.has(option.value); const Icon = option.icon;
       return <button key={option.value} type="button" aria-pressed={on} onClick={() => onToggle(option.value)}
-        className={`inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3 text-xs font-semibold hover:bg-elevated ${on ? "border-accent bg-accent/10" : "border-stroke bg-surface"}`}>
+        className={`inline-flex min-h-9 min-w-9 max-sm:min-w-11 items-center justify-center gap-1.5 rounded-full border px-3 text-xs font-semibold hover:bg-elevated ${on ? "border-accent bg-accent/10" : "border-stroke bg-surface"}`}>
         {Icon && <Icon size={14} aria-hidden="true" />}{option.label}{option.count !== undefined && <span className="text-muted">{option.count}</span>}</button>;
     })}
   </div>;

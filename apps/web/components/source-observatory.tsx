@@ -1,6 +1,6 @@
 "use client";
 
-import { DataTable } from "./ui";
+import { SortableTable, Button } from "./ui";
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import Link from "next/link";
 import { Activity, AlertTriangle, ArrowRight, Clock3, Database, Gauge, RadioTower, RefreshCw, Search, ShieldAlert, ShieldCheck, WifiOff } from "lucide-react";
@@ -157,9 +157,9 @@ export function SourceObservatory() {
         </p>
         {overview && <DataFreshness observedAt={overview.as_of} staleAfterHours={1}/>}
       </div>
-      <button type="button" className="control" onClick={refresh} disabled={loading}>
+      <Button type="button" onClick={refresh} disabled={loading}>
         <RefreshCw size={16} className={loading ? "animate-spin" : ""}/> Refresh source status
-      </button>
+      </Button>
     </div>
     <StatStrip label={t("Simulated source freshness summary")} className="xl:grid-cols-5">
       {([
@@ -173,12 +173,8 @@ export function SourceObservatory() {
     </StatStrip>
 
     <div className="mt-5 grid items-start gap-5 2xl:grid-cols-[minmax(0,1.1fr)_minmax(370px,1fr)]">
-      <section className="panel min-w-0 overflow-hidden">
-        <div className="panel-heading">
-          <div><h2 className="flex items-center gap-2 t-title"><RadioTower size={18} className="text-accent"/> Exercise Source Registry</h2>
-            <p className="mt-1 text-xs text-muted">Select a simulated feed to review its latest readings.</p></div>
-          <Link href="/help" className="inline-flex min-h-9 items-center gap-1 text-xs font-semibold text-accent hover:underline">Data guidance <ArrowRight size={14} aria-hidden="true"/></Link>
-        </div>
+      <Panel className="min-w-0 overflow-hidden" bodyClassName="p-0" icon={RadioTower} title="Exercise Source Registry" description="Select a simulated feed to review its latest readings."
+          actions={<Link href="/help" className="inline-flex min-h-9 items-center gap-1 text-xs font-semibold text-accent hover:underline">Data guidance <ArrowRight size={14} aria-hidden="true"/></Link>}>
         <div className="flex flex-wrap items-center gap-3 border-b border-stroke p-4">
           <SearchField label={t("Search synthetic sources")} value={query} onChange={setQuery} placeholder={t("Search sources or status...")} className="min-w-[190px] flex-1"/>
           <label><span className="sr-only">Sort synthetic sources</span>
@@ -209,14 +205,13 @@ export function SourceObservatory() {
           </button>)}
           {!loading && sources.length === 0 && <EmptyState icon={Search} title={t("No matching exercise feeds")}
             body={t("Try clearing the search or filter. An empty list does not mean the sources are healthy.")}
-            actions={<button type="button" className="control control-sm" onClick={() => { setQuery(""); setFilter("all"); }}>{t("Clear filters")}</button>}/>}
+            actions={<Button size="sm" type="button" onClick={() => { setQuery(""); setFilter("all"); }}>{t("Clear filters")}</Button>}/>}
         </div>
         <p className="border-t border-stroke px-5 py-3 text-xs text-muted">{sources.length} matching · All records are synthetic</p>
-      </section>
+      </Panel>
 
-      <section className="panel min-w-0 overflow-hidden" aria-label="Selected source details">
-        <div className="panel-heading"><h2 className="flex items-center gap-2 t-title"><Database size={18} className="text-accent"/> Source Detail & Trends</h2>
-          <span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">Read-only</span></div>
+      <Panel className="min-w-0 overflow-hidden" aria-label="Selected source details" bodyClassName="p-0" icon={Database} title="Source Detail & Trends"
+          actions={<span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">Read-only</span>}>
         {!selected ? <EmptyState icon={Database} title={t("Select an exercise source")} body={t("Choose a feed from the registry to review its latest synthetic readings.")}/> : <>
           <div className="space-y-3 p-5">
             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -264,19 +259,16 @@ export function SourceObservatory() {
             {history && history.samples.length > 0 && <details className="mt-4 rounded-lg border border-stroke p-3">
               <summary className="cursor-pointer text-xs font-semibold">Show accessible sample table ({history.samples.length} readings)</summary>
               <div className="mt-3 max-h-64 overflow-auto">
-                <DataTable label="Synthetic reading values and observation times" minWidth="20.625rem">
-                  <thead><tr><th scope="col">Observed</th><th scope="col" className="num">Value ({selected.metric_unit})</th><th scope="col">Quality</th></tr></thead>
-                  <tbody>{history.samples.map(sample => <tr key={sample.id}>
-                    <td>{timestamp(sample.observed_at)}</td>
-                    <td className="num">{sample.value}</td>
-                    <td>{sample.quality_status === "synthetic_curated" ? "Curated fixture" : "Unverified fixture"}</td>
-                  </tr>)}</tbody>
-                </DataTable>
+                <SortableTable label="Synthetic reading values and observation times" minWidth="20.625rem" rows={history.samples} rowKey={sample => sample.id} columns={[
+                  { key: "observed", label: "Observed", sortValue: sample => sample.observed_at, cell: sample => timestamp(sample.observed_at) },
+                  { key: "value", label: "Value (" + selected.metric_unit + ")", numeric: true, sortValue: sample => sample.value, cell: sample => sample.value },
+                  { key: "quality", label: "Quality", sortValue: sample => sample.quality_status, cell: sample => sample.quality_status === "synthetic_curated" ? "Curated fixture" : "Unverified fixture" },
+                ]}/>
               </div>
             </details>}
           </div>
         </>}
-      </section>
+      </Panel>
     </div>
     <p className="mt-5 flex items-start gap-2 rounded-lg border border-stroke bg-elevated/40 p-4 text-xs leading-6 text-muted">
       <ShieldCheck size={17} className="mt-1 shrink-0 text-accent"/>

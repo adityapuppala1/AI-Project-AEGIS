@@ -17,9 +17,7 @@ import { PublicSignalsNearCase } from "./public-signals-near-case";
 import { SituationBriefButton } from "./situation-brief-button";
 import { IncidentTeamResponse } from "./incident-team-response";
 import { useT } from "./language-provider";
-import {
-  CopyButton, DataFreshness, EmptyState, KeyValueList, Panel, StatStrip, StatTile, StatusPill, TabPanel, Tabs,
-} from "./ui";
+import { CopyButton, DataFreshness, EmptyState, KeyValueList, Panel, StatStrip, StatTile, StatusPill, TabPanel, Tabs, buttonClass } from "./ui";
 import type { IncidentWorkspace, IncidentEvent, IncidentEvidence } from "../lib/incident-intelligence";
 
 type View = "overview" | "evidence" | "timeline" | "readiness";
@@ -67,9 +65,9 @@ export function IncidentIntelligence({ workspace }: { workspace: IncidentWorkspa
         <ArrowLeft size={16} aria-hidden="true"/> {t("Incident Registry")}
       </Link>
       <div className="flex flex-wrap items-center gap-2">
-        <Link href="/agency-sync" className="control">{t("Fictional agency tasks")} <ArrowRight size={15} aria-hidden="true"/></Link>
-        <Link href="/audit" className="control">{t("Audit360 export")} <ArrowRight size={15} aria-hidden="true"/></Link>
-        <Link href="/approvals" className="control">
+        <Link href="/agency-sync" className={buttonClass()}>{t("Fictional agency tasks")} <ArrowRight size={15} aria-hidden="true"/></Link>
+        <Link href="/audit" className={buttonClass()}>{t("Audit360 export")} <ArrowRight size={15} aria-hidden="true"/></Link>
+        <Link href="/approvals" className={buttonClass()}>
           <ClipboardCheck size={16} aria-hidden="true"/> {t("Exercise Approval Workbench")} <ArrowRight size={15} aria-hidden="true"/>
         </Link>
       </div>
@@ -83,7 +81,7 @@ export function IncidentIntelligence({ workspace }: { workspace: IncidentWorkspa
       </p>
     </div>
 
-    <section className="panel p-4 mb-5" aria-label={t("Case overview")}>
+    <Panel className="mb-5" aria-label={t("Case overview")}>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="eyebrow">{t("Incident reference · Hyderabad training area")}</p>
@@ -98,7 +96,7 @@ export function IncidentIntelligence({ workspace }: { workspace: IncidentWorkspa
         <CopyButton value={incident.id} label={t("Copy case ID")}/>
       </div>
       <p className="mt-5 break-all rounded-lg bg-elevated/60 px-3 py-2 font-mono text-xs text-muted">{incident.id}</p>
-    </section>
+    </Panel>
 
     <StatStrip label={t("Evidence and intelligence summary")} className="xl:!grid-cols-4">
       <StatTile index={0} icon={Database} label={t("Evidence records")} value={workspace.evidence.length} tone="info" hint={t("Mock source references")}/>
@@ -120,7 +118,7 @@ export function IncidentIntelligence({ workspace }: { workspace: IncidentWorkspa
             <span className="mt-1 block">{t("Map tiles are loaded from a public provider; no restricted geography is shown.")}</span>
           </div>
         </Panel>
-        <section className="panel p-4" aria-label={t("Operator interpretation")}>
+        <Panel aria-label={t("Operator interpretation")}>
           <p className="eyebrow">{t("Decision-support guidance")}</p>
           <h3 className="mt-3 text-lg font-bold">{t("Verify evidence before action")}</h3>
           <p className="mt-2 text-sm leading-6 text-muted">
@@ -137,10 +135,10 @@ export function IncidentIntelligence({ workspace }: { workspace: IncidentWorkspa
               <span><strong className="block text-sm">{label}</strong><span className="mt-1 block text-xs leading-5 text-muted">{detail}</span></span>
             </li>)}
           </ol>
-          <Link href="/playbooks" className="control mt-6 w-full">
+          <Link href="/playbooks" className={buttonClass({ className: "mt-6 w-full" })}>
             {t("View exercise response playbooks")} <ArrowRight size={16} aria-hidden="true"/>
           </Link>
-        </section>
+        </Panel>
       </div>
       <SpatialAnalysis incidentId={incident.id}/>
       <IncidentTeamResponse incidentId={incident.id}/>

@@ -9,7 +9,7 @@ import {
 import { AppShell } from "./app-shell";
 import { useT } from "./language-provider";
 import { FieldTeams } from "./field-teams";
-import { DataFreshness, EmptyState, ErrorState, SegmentedControl, SkeletonCards, StatStrip, StatTile, StatusPill, type Tone } from "./ui";
+import { DataFreshness, EmptyState, ErrorState, SegmentedControl, SkeletonCards, StatStrip, StatTile, StatusPill, type Tone, Button, buttonClass, Panel } from "./ui";
 import { isSyntheticTaskPayload, type ExerciseAgencyTaskBoard } from "../lib/agency-sync";
 import { DEMO_CAPACITY, summarizeTeams, type TeamKind, type TeamStatus, type TeamSummary } from "../lib/team-availability";
 
@@ -91,23 +91,23 @@ export function TeamAvailability() {
     <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
       <p className="flex flex-wrap items-center gap-2 text-xs text-muted" role="status">{board && <DataFreshness observedAt={board.as_of} staleAfterHours={1}/>}{board ? `${teams.length} fictional teams · ${totals.open} open scripted tasks · ${totals.overdue} past their demo due window` : "Awaiting the exercise task registry"}</p>
       <div className="flex gap-2">
-        <Link href="/agency-sync" className="control control-sm">Task details <ArrowRight size={14}/></Link>
-        <button type="button" className="control control-sm" onClick={() => setRevision(value => value + 1)} disabled={loading}>
-          <RefreshCw size={15} className={loading ? "animate-spin" : ""}/> Refresh</button>
+        <Link href="/agency-sync" className={buttonClass({ size: "sm" })}>Task details <ArrowRight size={14}/></Link>
+        <Button size="sm" type="button" onClick={() => setRevision(value => value + 1)} disabled={loading}>
+          <RefreshCw size={15} className={loading ? "animate-spin" : ""}/> Refresh</Button>
       </div>
     </div>
     {loading && !board && <SkeletonCards count={3} label={t("Loading fictional team load")}/>}
     {board && teams.length > 0 && <SegmentedControl className="mb-4" label={t("Filter teams by status")} value={statusFilter} onChange={setStatusFilter}
       options={[{ value: "all", label: t("All teams") }, { value: "available", label: t("Available") }, { value: "engaged", label: t("Engaged") }, { value: "at_capacity", label: t("At planning capacity") }]}/>}
-    {board && teams.length === 0 && <div className="panel"><EmptyState icon={UsersRound} title={t("No scripted exercise tasks yet")}
-      body={t("No team load can be shown. An empty board does not mean any team is free or staffed.")}/></div>}
-    {board && teams.length > 0 && shown.length === 0 && <div className="panel"><EmptyState icon={UsersRound} title={t("No teams match this status")}
-      body={t("Choose another status to see the other fictional teams.")}/></div>}
+    {board && teams.length === 0 && <Panel as="div" bodyClassName="p-0"><EmptyState icon={UsersRound} title={t("No scripted exercise tasks yet")}
+      body={t("No team load can be shown. An empty board does not mean any team is free or staffed.")}/></Panel>}
+    {board && teams.length > 0 && shown.length === 0 && <Panel as="div" bodyClassName="p-0"><EmptyState icon={UsersRound} title={t("No teams match this status")}
+      body={t("Choose another status to see the other fictional teams.")}/></Panel>}
     <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-label="Fictional team load">
       {shown.map((team, index) => {
         const Icon = ICONS[team.kind];
         const total = Math.max(1, team.prepared + team.acknowledged + team.closed);
-        return <article key={team.label} className="panel p-4 reveal-in min-w-0" style={{ "--i": index } as React.CSSProperties}>
+        return <Panel as="article" className="reveal-in min-w-0" key={team.label} style={{ "--i": index } as React.CSSProperties}>
           <div className="flex items-start gap-4">
             <Gauge team={team} animate={animate}/>
             <div className="min-w-0 flex-1">
@@ -131,7 +131,7 @@ export function TeamAvailability() {
             <div><dt className="text-muted">Closed</dt><dd className="font-bold tabular-nums">{team.closed}</dd></div>
           </dl>
           <p className="mt-3 flex items-center gap-1.5 border-t border-stroke pt-3 text-[11px] text-muted"><Clock3 size={13} aria-hidden="true"/>Next demo due: {when(team.nextDueAt)}</p>
-        </article>;
+        </Panel>;
       })}
     </section>
     <FieldTeams/>

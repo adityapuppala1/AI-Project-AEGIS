@@ -39,7 +39,7 @@ function RequestCard({ request, onSaved, onStale }: Readonly<{ request: Response
   const headingId = `request-${request.id}`;
   // If the request moved on (a desk stood it down, say) the form for the old step is dropped.
   const formKind = open && kinds.includes(open) ? open : null;
-  return <article aria-labelledby={headingId} className="panel space-y-3 p-4">
+  return <Panel as="article" bodyClassName="space-y-3 p-4" aria-labelledby={headingId}>
     <div className="flex flex-wrap items-center justify-between gap-2">
       <HazardGlyph value={request.incident.hazard_label} label={request.incident.hazard_label ? t(request.incident.hazard_label) : undefined} />
       <span className="flex flex-wrap items-center gap-2"><RecordRef id={request.incident.id} kind="incident" /><StateBadge state={request.state} /></span>
@@ -62,7 +62,7 @@ function RequestCard({ request, onSaved, onStale }: Readonly<{ request: Response
       <summary className="min-h-11 cursor-pointer py-2 text-xs font-semibold text-muted">{t("Report history")} ({request.reports.length})</summary>
       <div className="pt-2"><ReportHistory reports={request.reports} /></div>
     </details>
-  </article>;
+  </Panel>;
 }
 
 function MyTeamBody({ team, state }: Readonly<{ team: (typeof RESPONSE_TEAMS)[number]; state: ReturnType<typeof useResponseRequests> }>) {
@@ -84,8 +84,8 @@ function MyTeamBody({ team, state }: Readonly<{ team: (typeof RESPONSE_TEAMS)[nu
     {stale && <ErrorState className="mb-4" message={t(message)} onRetry={() => void refresh()} />}
     {status === "loading" && <SkeletonRows rows={2} label={t("Loading your team's requests…")} />}
     {status === "error" && <ErrorState message={t(message)} onRetry={() => void refresh()} />}
-    {status === "ready" && requests.length === 0 && <div className="panel"><EmptyState icon={ClipboardList} title={t("No requests for your team")}
-      body={t("A request appears here, and as a number on the menu, when a department desk asks your team for help on an approved task.")} /></div>}
+    {status === "ready" && requests.length === 0 && <Panel as="div" bodyClassName="p-0"><EmptyState icon={ClipboardList} title={t("No requests for your team")}
+      body={t("A request appears here, and as a number on the menu, when a department desk asks your team for help on an approved task.")} /></Panel>}
     {status === "ready" && requests.length > 0 && <div className="space-y-5">
       <section aria-labelledby="needs-answer">
         <h2 id="needs-answer" className="t-title mb-2">{t("Needs your answer")} <span className="tnum text-muted">({groups.answer.length})</span></h2>

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type { ButtonHTMLAttributes, ReactNode, Ref } from "react";
 import { LoaderCircle, type LucideIcon } from "lucide-react";
 
 export type ButtonVariant = "secondary" | "primary" | "quiet" | "danger";
@@ -19,7 +19,7 @@ type Common = { variant?: ButtonVariant; size?: ButtonSize; icon?: LucideIcon; l
  * The one button. Variants: secondary (default), primary (one per view), quiet, danger. Sizes: md, sm.
  * `loading` shows a spinner, sets aria-busy and blocks further clicks. Text is already translated by the caller.
  */
-export function Button({ variant, size, icon: Icon, loading = false, className, children, disabled, type = "button", ...rest }: Common & ButtonHTMLAttributes<HTMLButtonElement>) {
+export function Button({ variant, size, icon: Icon, loading = false, className, children, disabled, type = "button", ...rest }: Common & ButtonHTMLAttributes<HTMLButtonElement> & { ref?: Ref<HTMLButtonElement> }) {
   const iconSize = size === "sm" ? 14 : 16;
   return <button type={type} className={buttonClass({ variant, size, className })} disabled={disabled || loading} aria-busy={loading || undefined} data-loading={loading || undefined} {...rest}>
     {loading ? <LoaderCircle size={iconSize} aria-hidden="true" className="spin" /> : Icon ? <Icon size={iconSize} aria-hidden="true" /> : null}{children}</button>;

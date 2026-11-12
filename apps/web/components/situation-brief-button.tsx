@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Check, FileDown, Loader2 } from "lucide-react";
 import type { IncidentWorkspace } from "../lib/incident-intelligence";
 import { useT } from "./language-provider";
-import { useToast } from "./ui";
+import { useToast, Button } from "./ui";
 import { briefFileName, buildSituationBrief, type BriefReadiness } from "../lib/situation-brief";
 
 type Phase = "idle" | "working" | "done" | "partial" | "failed";
@@ -40,10 +40,10 @@ export function SituationBriefButton({ workspace }: { workspace: IncidentWorkspa
   }
 
   return <div className="inline-flex flex-wrap items-center gap-3">
-    <button type="button" className="control" onClick={() => void download()} disabled={phase === "working"}>
+    <Button type="button" onClick={() => void download()} disabled={phase === "working"}>
       {phase === "working" ? <Loader2 size={16} className="animate-spin"/> : phase === "done" || phase === "partial" ? <Check size={16}/> : <FileDown size={16}/>}
       Download situation brief
-    </button>
+    </Button>
     <span className="text-xs text-muted" role="status">
       {phase === "done" && "Saved as Markdown. Synthetic, template-only."}
       {phase === "partial" && "Saved without the context checklist, which could not be loaded."}

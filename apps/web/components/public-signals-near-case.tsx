@@ -1,6 +1,6 @@
 "use client";
 
-import { DataTable } from "./ui";
+import { SortableTable, Button, Panel, buttonClass } from "./ui";
 import { ErrorState } from "./ui";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -87,12 +87,8 @@ export function PublicSignalsNearCase({ lat, lon }: { lat: number; lon: number }
     : feeds.some(feed => feedFreshness(feed, now) === "aging") ? "aging" : "fresh";
   const oldest = feeds.length ? Math.min(...feeds.map(feed => Date.parse(feed.fetched_at))) : null;
 
-  return <section className="panel mb-5 overflow-hidden" aria-label="Public signals near this case">
-    <div className="panel-heading">
-      <div><h3 className="flex items-center gap-2 t-title"><Radar size={18} className="text-accent"/> Public signals near this case</h3>
-        <p className="mt-1 text-xs text-muted">Context only · USGS and NASA reports within a chosen radius</p></div>
-      <span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">Not evidence</span>
-    </div>
+  return <Panel level={3} className="mb-5 overflow-hidden" aria-label="Public signals near this case" bodyClassName="p-0" icon={Radar} title="Public signals near this case" description="Context only · USGS and NASA reports within a chosen radius"
+    actions={<span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">Not evidence</span>}>
     <div className="flex items-start gap-3 border-b border-stroke bg-amber-500/5 px-5 py-3 text-xs leading-5 text-amber-800 dark:text-amber-200" role="note">
       <ShieldAlert size={16} className="mt-0.5 shrink-0"/>
       <p>These public reports are not part of this synthetic case, are never stored with it and cannot change its assessment or approvals.
@@ -102,14 +98,14 @@ export function PublicSignalsNearCase({ lat, lon }: { lat: number; lon: number }
     {gate === "error" && <ErrorState message={"Public context is unavailable. The case itself is unaffected."} className="m-4" />}
     {gate === "disabled" && <div className="flex flex-wrap items-center justify-between gap-3 p-5">
       <p className="max-w-xl text-sm text-muted">Public feeds are switched off in this synthetic profile. Start the optional display-only profile to see NASA and USGS reports around this case.</p>
-      <Link href="/earth-watch" className="control control-sm"><Globe2 size={15}/> About Earth Watch <ArrowRight size={14}/></Link>
+      <Link href="/earth-watch" className={buttonClass({ size: "sm" })}><Globe2 size={15}/> About Earth Watch <ArrowRight size={14}/></Link>
     </div>}
     {gate === "enabled" && <div className="grid gap-5 p-5 lg:grid-cols-[minmax(0,300px)_1fr]">
       <div>
         <Radar2D signals={nearby} radiusKm={radius}/>
         <div className="mt-3 flex justify-center gap-2" role="group" aria-label="Search radius">
-          {RADII.map(value => <button key={value} type="button" aria-pressed={radius === value}
-            className={`control text-xs ${radius === value ? "!border-accent !text-accent" : ""}`} onClick={() => setRadius(value)}>{value} km</button>)}
+          {RADII.map(value => <Button key={value} type="button" size="sm" aria-pressed={radius === value}
+            className={radius === value ? "!border-accent !text-accent" : ""} onClick={() => setRadius(value)}>{value} km</Button>)}
         </div>
       </div>
       <div className="min-w-0">
@@ -122,17 +118,16 @@ export function PublicSignalsNearCase({ lat, lon }: { lat: number; lon: number }
         {nearby.length === 0 ? <p className="rounded-lg border border-dashed border-stroke p-5 text-center text-xs text-muted">
           No public reports within {radius} km. Try a larger radius. This is not an absence of hazards.</p>
           : <div className="max-h-[300px] overflow-auto rounded-lg border border-stroke">
-            <DataTable label={`Public reports within ${radius} kilometres, nearest first`} minWidth="26.25rem">
-              <thead><tr><th scope="col">Report</th><th scope="col" className="num">Distance</th><th scope="col">Direction</th><th scope="col">Observed</th></tr></thead>
-              <tbody>{nearby.slice(0, 40).map(({ record, km, bearing }) => <tr key={record.id}>
-                <td><span aria-hidden="true" className="mr-2 inline-block h-2.5 w-2.5 rounded-full" style={{ background: categoryStyle(record.category).color }}/>{record.title}
-                  <span className="block text-[10px]">{record.source} · {record.kind}</span></td>
-                <td className="num">{km < 10 ? km.toFixed(1) : Math.round(km)} km</td>
-                <td><span className="inline-flex items-center gap-1"><Compass size={12} aria-hidden="true"/>{compassLabel(bearing)}</span></td>
-                <td>{formatIst(record.observed_at)}</td></tr>)}</tbody>
-            </DataTable></div>}
+            <SortableTable label={"Public reports within " + radius + " kilometres, nearest first"} minWidth="26.25rem" defaultSort={{ key: "distance", direction: "asc" }}
+              rows={nearby.slice(0, 40)} rowKey={item => item.record.id} columns={[
+                { key: "report", label: "Report", sortValue: ({ record }) => record.title, cell: ({ record }) => <><span aria-hidden="true" className="mr-2 inline-block h-2.5 w-2.5 rounded-full" style={{ background: categoryStyle(record.category).color }}/>{record.title}
+                  <span className="block text-[10px]">{record.source} · {record.kind}</span></> },
+                { key: "distance", label: "Distance", numeric: true, sortValue: ({ km }) => km, cell: ({ km }) => (km < 10 ? km.toFixed(1) : Math.round(km)) + " km" },
+                { key: "direction", label: "Direction", sortValue: ({ bearing }) => bearing, cell: ({ bearing }) => <span className="inline-flex items-center gap-1"><Compass size={12} aria-hidden="true"/>{compassLabel(bearing)}</span> },
+                { key: "observed", label: "Observed", sortValue: ({ record }) => record.observed_at, cell: ({ record }) => formatIst(record.observed_at) },
+              ]}/></div>}
         <Link href="/earth-watch" className="mt-2 inline-flex min-h-11 items-center gap-1 text-xs font-semibold text-accent">Open the full Earth Watch map <ArrowRight size={14}/></Link>
       </div>
     </div>}
-  </section>;
+  </Panel>;
 }

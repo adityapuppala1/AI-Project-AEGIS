@@ -26,7 +26,17 @@ export async function middleware(request: NextRequest) {
     }
     if (isFixturePath(pathname) && session.agencyId !== fixtureAgency()) {
       if (isApi) return NextResponse.json({ error: "No records for your agency", code: "OUT_OF_SCOPE" }, { status: 403, headers: { "Cache-Control": "no-store" } });
-      return new NextResponse("No exercise records are available for your agency.", { status: 403, headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" } });
+      // A styled in-app page, still a 403 and still behind the gate; it names no record and carries no data.
+      const denied = request.nextUrl.clone(); denied.pathname = "/no-access"; denied.search = "";
+      const deniedNonce = btoa(crypto.randomUUID() + crypto.randomUUID());
+      const deniedPolicy = buildCsp(deniedNonce, process.env.NODE_ENV !== "production");
+      const deniedHeaders = new Headers(request.headers);
+      deniedHeaders.set("x-nonce", deniedNonce);
+      deniedHeaders.set("Content-Security-Policy", deniedPolicy);
+      const refusal = NextResponse.rewrite(denied, { status: 403, request: { headers: deniedHeaders } });
+      refusal.headers.set("Content-Security-Policy", deniedPolicy);
+      refusal.headers.set("Cache-Control", "no-store");
+      return refusal;
     }
   }
   if (isApi) return NextResponse.next();

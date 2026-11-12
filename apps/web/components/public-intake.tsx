@@ -1,6 +1,6 @@
 "use client";
 
-import { ErrorState } from "./ui";
+import { ErrorState, Button, Panel } from "./ui";
 import { useCallback, useEffect, useState } from "react";
 import {
   AlertTriangle, CircleHelp, Droplets, Flame, Inbox, Loader2, Mountain, PhoneCall, RefreshCw, Send, ShieldAlert, Wind, Waves,
@@ -106,18 +106,17 @@ export function PublicIntake() {
       </div>
     </div>
 
-    {gate === "checking" && <p className="panel p-4 text-sm text-muted" role="status">{t("Checking whether public intake is enabled…")}</p>}
+    {gate === "checking" && <Panel as="div" bodyClassName="p-4 text-sm text-muted" role="status">{t("Checking whether public intake is enabled…")}</Panel>}
     {gate === "error" && <ErrorState message={t("Intake status is unavailable. The rest of AEGIS is unaffected.")} />}
-    {gate === "disabled" && <section className="panel p-4">
+    {gate === "disabled" && <Panel>
       <h2 className="flex items-center gap-2 t-title"><Inbox size={18} className="text-accent"/> {t("Public intake is switched off")}</h2>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">{t("The base AEGIS stack accepts no public input. To rehearse intake, restart with the optional profile. Reports go to an isolated quarantine table only.")}</p>
       <pre className="mt-4 overflow-x-auto rounded-lg bg-elevated p-4 text-xs" tabIndex={0} aria-label="Start command"><code>powershell -ExecutionPolicy Bypass -File scripts/start-windows.ps1 -NoBuild -PublicIntake</code></pre>
-    </section>}
+    </Panel>}
 
     {gate === "enabled" && <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,1fr)]">
-      <section className="panel min-w-0" aria-label={t("Report what you see")}>
-        <div className="panel-heading"><h2 className="flex items-center gap-2 t-title"><Send size={18} className="text-accent"/> {t("Report what you see")}</h2>
-          <span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">{t("Unverified")}</span></div>
+      <Panel className="min-w-0" aria-label={t("Report what you see")} bodyClassName="p-0" icon={Send} title={t("Report what you see")}
+        actions={<span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">{t("Unverified")}</span>}>
         {receipt ? <div className="p-6 text-center" role="status">
           <svg viewBox="0 0 64 64" className="mx-auto h-20 w-20" aria-hidden="true">
             <circle cx="32" cy="32" r="28" fill="none" stroke="#34b4a6" strokeWidth="4" opacity=".35"/>
@@ -125,7 +124,7 @@ export function PublicIntake() {
           </svg>
           <h3 className="mt-3 text-lg font-bold">{receipt.duplicate ? t("Already received") : t("Received for human review")}</h3>
           <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted">{t("It is unverified, creates no case and notifies no responder.")}{receipt.id && <>{t(" Reference")} <code className="rounded bg-elevated px-1.5 py-0.5 text-xs">{receipt.id.slice(0, 8)}</code></>}</p>
-          <button type="button" className="control mt-5" onClick={() => setReceipt(null)}>{t("Send another report")}</button>
+          <Button className="mt-5" type="button" onClick={() => setReceipt(null)}>{t("Send another report")}</Button>
         </div> : <form className="space-y-5 p-5" onSubmit={event => void submit(event)} noValidate>
           <fieldset>
             <legend className="mb-2 text-xs font-bold text-muted">{t("What are you reporting?")}</legend>
@@ -165,16 +164,14 @@ export function PublicIntake() {
               {errors.lon && <span role="alert" className="mt-1 block text-[11px] font-normal text-rose-600">{t(errors.lon)}</span>}</label>
           </div>
           {formError && <ErrorState message={t(formError)} />}
-          <button type="submit" className="control control-primary" disabled={submitting}>
+          <Button variant="primary" type="submit" disabled={submitting}>
             {submitting ? <Loader2 size={16} className="animate-spin"/> : <Send size={16}/>} {submitting ? t("Sending…") : t("Send to quarantine")}
-          </button>
+          </Button>
         </form>}
-      </section>
+      </Panel>
 
-      <section className="panel min-w-0" aria-label={t("Quarantine queue")}>
-        <div className="panel-heading"><div><h2 className="flex items-center gap-2 t-title"><Inbox size={18} className="text-accent"/> {t("Quarantine queue")}</h2>
-          <p className="mt-1 text-xs text-muted">{total} {t("stored · read-only · not cases")}</p></div>
-          <button type="button" className="control control-sm" onClick={() => void loadQueue()} disabled={loading}><RefreshCw size={15} className={loading ? "animate-spin" : ""}/> {t("Refresh")}</button></div>
+      <Panel className="min-w-0" aria-label={t("Quarantine queue")} bodyClassName="p-0" icon={Inbox} title={t("Quarantine queue")} description={`${total} ${t("stored · read-only · not cases")}`}
+        actions={<Button size="sm" type="button" onClick={() => void loadQueue()} disabled={loading}><RefreshCw size={15} className={loading ? "animate-spin" : ""}/> {t("Refresh")}</Button>}>
         {queueError && <ErrorState message={queueError} className="m-4" />}
         <div className="max-h-[560px] divide-y divide-stroke overflow-y-auto">
           {reports.map((report, index) => {
@@ -192,7 +189,7 @@ export function PublicIntake() {
           })}
           {!loading && reports.length === 0 && !queueError && <p className="p-8 text-center text-xs text-muted">{t("No reports are in quarantine yet.")}</p>}
         </div>
-      </section>
+      </Panel>
     </div>}
   </AppShell>;
 }

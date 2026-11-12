@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { BrainCircuit, Calculator, ShieldAlert } from "lucide-react";
-import { ErrorState, InlineHelp, StatusPill } from "./ui";
+import { ErrorState, InlineHelp, StatusPill, Button, Panel } from "./ui";
 import { useT } from "./language-provider";
 
 interface ExerciseResult {
@@ -47,11 +47,8 @@ export function RiskExercisePanel() {
       setError(cause instanceof Error ? cause.message : "Unavailable");
     } finally { setBusy(false); }
   }
-  return <section id="synthetic-risk" className="panel mt-5 overflow-hidden" aria-label="Illustrative hazard-index calculator">
-    <div className="panel-heading"><div>
-      <h2 className="flex items-center gap-2 t-title"><BrainCircuit size={18} className="text-accent"/> Rule-based Hazard Index · Training</h2>
-      <p className="mt-1 text-xs text-muted">Explore the original deterministic teaching formula with synthetic inputs only.</p>
-    </div><span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">Not trained AI</span></div>
+  return <Panel id="synthetic-risk" className="mt-5 overflow-hidden" aria-label="Illustrative hazard-index calculator" bodyClassName="p-0" icon={BrainCircuit} title="Rule-based Hazard Index · Training" description="Explore the original deterministic teaching formula with synthetic inputs only."
+    actions={<span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">Not trained AI</span>}>
     <div role="note" className="flex items-start gap-3 border-b border-amber-500/20 bg-amber-500/10 p-4 text-xs leading-6 text-amber-800 dark:text-amber-200">
       <ShieldAlert size={18} className="mt-1 shrink-0"/>
       <p><strong>Not a disaster prediction.</strong> The calculated 0–100 index is an illustrative rule output, not a flood probability, forecast, public warning or severity assessment. No observation is saved.</p>
@@ -73,9 +70,9 @@ export function RiskExercisePanel() {
             <option value="limited">Limited (exercise)</option>
           </select>
         </label>
-        <button type="submit" className="control control-sm" disabled={busy}>
+        <Button size="sm" type="submit" disabled={busy}>
           <Calculator size={15}/> {busy ? "Calculating demo index…" : "Calculate synthetic index"}
-        </button>
+        </Button>
       </form>
       <div className="rounded-lg border border-stroke bg-elevated/40 p-5">
         <p className="eyebrow">Demonstration-only result</p>
@@ -88,5 +85,5 @@ export function RiskExercisePanel() {
         <InlineHelp label={t("About this index")}>{t("A deterministic teaching rule over synthetic inputs. It is not trained AI and cannot validate a real flood forecast.")}</InlineHelp>
       </div>
     </div>
-  </section>;
+  </Panel>;
 }

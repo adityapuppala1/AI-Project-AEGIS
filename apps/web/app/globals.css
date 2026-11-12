@@ -159,6 +159,11 @@ code, kbd, samp, .mono { font-family: ui-monospace, "Cascadia Mono", Consolas, m
 .rail-link:hover { background: rgb(var(--elevated)); color: rgb(var(--ink)); }
 .rail-link:focus-visible, .rail-group:focus-visible { outline: 2px solid rgb(var(--accent)); outline-offset: 0; }
 .rail-link[data-locked] { color: rgb(var(--muted) / .85); }
+/* Response-alert count on the icon itself, shown only in the icon-only rail (the full count stays in the link name via .rail-meta). */
+.rail-dot { display: none; }
+@media (min-width: 64rem) {
+  .command-rail[data-mini] .rail-dot { position: absolute; top: .2rem; left: calc(50% + .1rem); display: inline-flex; min-width: 1rem; height: 1rem; align-items: center; justify-content: center; padding: 0 .2rem; border-radius: 99px; background: rgb(var(--brand-fill)); color: rgb(var(--brand-ink)); font-size: .625rem; font-weight: 700; line-height: 1; box-shadow: 0 0 0 2px rgb(var(--surface)); }
+}
 .rail-meta { margin-left: auto; display: inline-flex; flex: none; align-items: center; gap: .2rem; font-size: .68rem; font-weight: 600; color: rgb(var(--muted)); }
 .nav-active {
   background: rgb(var(--elevated));
@@ -386,6 +391,7 @@ code, kbd, samp, .mono { font-family: ui-monospace, "Cascadia Mono", Consolas, m
   .control, .control-sm { min-height: 2.75rem; }
   .control-icon, .control-icon.control-sm { width: 2.75rem; }
   .record-ref > a, .record-ref > span { padding-block: .8rem; }
+  .record-ref > a { display: inline-flex; align-items: center; min-height: 2.75rem; }
   .record-ref > button { width: 2.75rem; height: 2.75rem; }
   .page-help-toggle { min-height: 2.75rem; }
   .field { height: 2.75rem; }
@@ -396,6 +402,10 @@ code, kbd, samp, .mono { font-family: ui-monospace, "Cascadia Mono", Consolas, m
 
 /* Phones: every button in a page is at least a 44px target (map library controls keep their own size). */
 @media (max-width: 40rem) {
+  /* Links, labels and summaries that carry a small fixed height (min-h-8 to min-h-10) are lifted to the same 44px target; a checkbox is reached through its label. */
+  main :is(a, label, summary)[class*="min-h-8"], main :is(a, label, summary)[class*="min-h-9"], main :is(a, label)[class*="min-h-10"],
+  main label:has(input[type="checkbox"]), main label:has(input[type="radio"]) { min-height: 2.75rem; }
+  main summary:not(.page-help-toggle) { padding-block: .95rem; }
   main button:not([class*="maplibregl"]), main select { min-height: 2.75rem; }
   main button:not([class*="maplibregl"]):not(.control):not([role="radio"]):not([role="tab"]):not([role="switch"]) { min-width: 2.75rem; }
 }

@@ -7,7 +7,7 @@ import Link from "next/link";
 import { CheckCircle2, CircleDashed, ExternalLink, KeyRound, LockKeyhole, PlugZap, ShieldAlert, ToggleLeft, XCircle } from "lucide-react";
 
 import { AppShell } from "../../../components/app-shell";
-import { DataTable, Panel } from "../../../components/ui";
+import { SortableTable, Panel, buttonClass } from "../../../components/ui";
 
 type Kind = "secret" | "setting" | "switch" | "key" | "agreement" | "none";
 type Check = "session" | "earth" | "intake";
@@ -113,23 +113,20 @@ export default function GoLivePage() {
         <li>Open the Connectors page and enter the API keys from section 4. Use each connector&rsquo;s Test button.</li>
       </ol>
       <div className="mt-4 flex flex-wrap gap-2">
-        <Link className="control control-primary" href="/admin/connectors"><KeyRound size={16}/>Open Connectors (enter API keys)</Link>
-        <Link className="control" href="/admin"><PlugZap size={16}/>Administration (policy preview)</Link>
-        <Link className="control" href="/alert-journey"><ExternalLink size={16}/>Alert Journey</Link>
+        <Link className={buttonClass({ variant: "primary" })} href="/admin/connectors"><KeyRound size={16}/>Open Connectors (enter API keys)</Link>
+        <Link className={buttonClass()} href="/admin"><PlugZap size={16}/>Administration (policy preview)</Link>
+        <Link className={buttonClass()} href="/alert-journey"><ExternalLink size={16}/>Alert Journey</Link>
       </div>
     </Panel>
     {SECTIONS.map(section => <Panel key={section.id} id={"gl-" + section.id} className="mb-4" title={section.title} description={section.summary} bodyClassName="p-0">
-        <DataTable label={section.title} minWidth="62rem">
-          <thead><tr><th scope="col">Item</th><th scope="col">Type</th><th scope="col">Needed</th><th scope="col">Where to set it</th><th scope="col">How to get it</th><th scope="col">Status</th></tr></thead>
-          <tbody>{section.items.map(item => { const Icon = KIND_ICON[item.kind]; return <tr key={item.name}>
-            <td className="min-w-[200px] font-semibold">{/^[A-Z_·s-]+$/.test(item.name) || item.name.startsWith("-") ? <code className="break-words text-[11px]">{item.name}</code> : <span className="break-words">{item.name}</span>}{item.link && <div className="mt-1"><Link className="text-accent underline" href={item.link.href}>{item.link.label}</Link></div>}</td>
-            <td className="whitespace-nowrap"><span className="inline-flex items-center gap-1"><Icon size={14}/>{KIND_LABEL[item.kind]}</span></td>
-            <td className="min-w-[140px]">{item.needed}</td>
-            <td className="min-w-[160px]">{item.where}</td>
-            <td className="min-w-[240px] whitespace-normal">{item.how}</td>
-            <td className="min-w-[150px]">{item.kind === "none" ? <span className="text-xs text-muted">Nothing to set</span> : item.where.startsWith("Not ") ? <span className="text-xs text-muted">Not available</span> : item.where.startsWith("Connectors page") ? <Link className="text-xs text-accent underline" href="/admin/connectors">Check on Connectors</Link> : <ProbePill state={item.check ? probes[item.check] : undefined}/>}</td>
-          </tr>; })}</tbody>
-        </DataTable>
+        <SortableTable label={section.title} minWidth="62rem" rows={section.items} rowKey={item => item.name} columns={[
+          { key: "item", label: "Item", className: "min-w-[200px] font-semibold", sortValue: item => item.name, cell: item => <>{/^[A-Z_·s-]+$/.test(item.name) || item.name.startsWith("-") ? <code className="break-words text-[11px]">{item.name}</code> : <span className="break-words">{item.name}</span>}{item.link && <div className="mt-1"><Link className="text-accent underline" href={item.link.href}>{item.link.label}</Link></div>}</> },
+          { key: "type", label: "Type", className: "whitespace-nowrap", sortValue: item => KIND_LABEL[item.kind], cell: item => { const Icon = KIND_ICON[item.kind]; return <span className="inline-flex items-center gap-1"><Icon size={14}/>{KIND_LABEL[item.kind]}</span>; } },
+          { key: "needed", label: "Needed", className: "min-w-[140px]", sortValue: item => item.needed, cell: item => item.needed },
+          { key: "where", label: "Where to set it", className: "min-w-[160px]", sortValue: item => item.where, cell: item => item.where },
+          { key: "how", label: "How to get it", className: "min-w-[240px] whitespace-normal", cell: item => item.how },
+          { key: "status", label: "Status", className: "min-w-[150px]", cell: item => <>{item.kind === "none" ? <span className="text-xs text-muted">Nothing to set</span> : item.where.startsWith("Not ") ? <span className="text-xs text-muted">Not available</span> : item.where.startsWith("Connectors page") ? <Link className="text-xs text-accent underline" href="/admin/connectors">Check on Connectors</Link> : <ProbePill state={item.check ? probes[item.check] : undefined}/>}</> },
+        ]}/>
     </Panel>)}
     <p className="mb-8 text-xs text-muted">Sources for this checklist: <code>.env.example</code>, the Compose files, <code>docs/PROACTIVE_IMPLEMENTATION_CONTRACT.md</code>, <code>docs/OIDC_IDENTITY_AND_AUTHORIZATION.md</code> and <code>research/real-data/LICENCES.md</code>. Licence terms change; re-check before a real deployment.</p>
   </AppShell>;

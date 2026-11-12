@@ -99,7 +99,7 @@
 .wl .wl-fix { display: grid; gap: .05rem; font-size: .82rem; line-height: 1.35; color: #c3d0ee; font-variant-numeric: tabular-nums; text-shadow: 0 1px 6px var(--night), 0 0 14px var(--night); }
 .wl-fix b { color: #fff; font-size: .95rem; font-weight: 650; }
 .wl-fix > .wl-clock { display: none; }
-.wl .wl-credit { font-size: .78rem; color: #c3d0ee; text-shadow: 0 1px 6px var(--night), 0 0 14px var(--night); }
+.wl .wl-credit { margin-top: -.3rem; font-size: .78rem; color: #c3d0ee; text-shadow: 0 1px 6px var(--night), 0 0 14px var(--night); }
 .wl-key { display: none; padding: .7rem .9rem; background: rgb(7 18 54 / .74); border: 1px solid rgb(255 255 255 / .18); border-radius: .8rem; font-size: .9rem; line-height: 1.35; color: var(--night-soft); backdrop-filter: blur(8px); animation: wl-key .45s var(--ease) both; }
 .wl-key b { display: block; color: #fff; font-weight: 700; font-size: .98rem; margin-bottom: .35rem; }
 .wl-key ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .3rem; }

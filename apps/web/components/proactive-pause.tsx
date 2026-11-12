@@ -1,6 +1,6 @@
 "use client";
 
-import { RecordRef } from "./ui";
+import { RecordRef, Button } from "./ui";
 import { useCallback, useEffect, useState } from "react";
 import { Loader2, OctagonPause, Play } from "lucide-react";
 import { useT } from "./language-provider";
@@ -60,10 +60,10 @@ export function ProactivePauseControl() {
         <textarea id="pause-reason" className="field min-h-20 w-full" maxLength={500} value={reason} onChange={event => setReason(event.target.value)}/>
         <div className="flex flex-wrap gap-2">
           {state.paused
-            ? <button type="button" className="control control-primary" disabled={!valid || saving} onClick={() => void change(false)}>
-                {saving ? <Loader2 size={16} className="animate-spin" aria-hidden="true"/> : <Play size={16} aria-hidden="true"/>}{t("Resume proactive automation")}</button>
-            : <button type="button" className="control" disabled={!valid || saving} onClick={() => void change(true)}>
-                {saving ? <Loader2 size={16} className="animate-spin" aria-hidden="true"/> : <OctagonPause size={16} aria-hidden="true"/>}{t("Pause proactive automation")}</button>}
+            ? <Button variant="primary" type="button" disabled={!valid || saving} onClick={() => void change(false)}>
+                {saving ? <Loader2 size={16} className="animate-spin" aria-hidden="true"/> : <Play size={16} aria-hidden="true"/>}{t("Resume proactive automation")}</Button>
+            : <Button type="button" disabled={!valid || saving} onClick={() => void change(true)}>
+                {saving ? <Loader2 size={16} className="animate-spin" aria-hidden="true"/> : <OctagonPause size={16} aria-hidden="true"/>}{t("Pause proactive automation")}</Button>}
         </div>
       </div>}
       <p className="text-xs" role="status" aria-live="polite">{message}</p>

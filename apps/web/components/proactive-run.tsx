@@ -1,7 +1,7 @@
 "use client";
 
 import { codeLabel } from "../lib/labels";
-import { DataTable } from "./ui";
+import { SortableTable, Button, Panel, buttonClass } from "./ui";
 import { useCallback, useEffect, useState } from "react";
 import { Ban, Check, CheckCircle2, Copy, Download, FileText, Gavel, Loader2, Play, ShieldAlert, StepForward, UserCheck, type LucideIcon } from "lucide-react";
 import { useT } from "./language-provider";
@@ -153,13 +153,10 @@ export function ProactiveRunPanel({ triggerEventId, triggerKey = null, canOperat
   const judgment = run?.judgment ?? null;
   const active = run?.status === "running";
   const BandIcon = judgment ? BAND_ICON[judgment.decision_band] : ShieldAlert;
-  return <section className="panel min-w-0" aria-labelledby="proactive-run-title">
-    <div className="panel-heading">
-      <h3 id="proactive-run-title" className="flex items-center gap-2 t-title"><Gavel size={18} className="text-accent" aria-hidden="true"/>{t("Bounded run")}</h3>
-      {sample && <SampleChip/>}
-      {!run && <button type="button" className="control control-primary" onClick={start} disabled={!canOperate || busy} aria-describedby="run-reason">
-        {busy ? <Loader2 size={16} className="animate-spin" aria-hidden="true"/> : <Play size={16} aria-hidden="true"/>}{t("Start bounded run")}</button>}
-    </div>
+  return <Panel level={3} className="min-w-0" aria-labelledby="proactive-run-title" titleId="proactive-run-title" bodyClassName="p-0" icon={Gavel} title={t("Bounded run")}
+    actions={<>{sample && <SampleChip/>}
+      {!run && <Button variant="primary" type="button" onClick={start} disabled={!canOperate || busy} aria-describedby="run-reason">
+        {busy ? <Loader2 size={16} className="animate-spin" aria-hidden="true"/> : <Play size={16} aria-hidden="true"/>}{t("Start bounded run")}</Button>}</>}>
     <div className="space-y-4 p-5">
       {!run && !canOperate && <p id="run-reason" className="text-xs text-muted">{disabledReason}</p>}
       {!run && canOperate && <p id="run-reason" className="text-xs text-muted">{sample ? t("Sample walkthrough: each step reveals a pre-computed result. Nothing is requested or saved.") : t("A bounded run gathers cited evidence, simulates threshold variants, asks the judge to pick among fixed options and drafts an Exercise CAP file. It stops at a human.")}</p>}
@@ -184,11 +181,12 @@ export function ProactiveRunPanel({ triggerEventId, triggerKey = null, canOperat
         </div>}
 
         {run.variants.length > 0 && <div className="reveal-in overflow-x-auto">
-          <DataTable label={t("Threshold variants")} minWidth="18rem">
-            <thead><tr><th scope="col">{t("Variant")}</th><th scope="col" className="num">{t("Threshold change")}</th><th scope="col">{t("Outcome")}</th><th scope="col" className="num">{t("Score")}</th></tr></thead>
-            <tbody>{run.variants.map(variant => <tr key={variant.id}><td>{variant.label}</td>
-              <td className="num">{variant.threshold_delta > 0 ? "+" : ""}{variant.threshold_delta}</td><td>{t(variant.resulting_state)}</td><td className="num">{variant.score.toFixed(2)}</td></tr>)}</tbody>
-          </DataTable>
+          <SortableTable label={t("Threshold variants")} minWidth="18rem" rows={run.variants} rowKey={variant => variant.id} columns={[
+            { key: "variant", label: t("Variant"), sortValue: variant => variant.label, cell: variant => variant.label },
+            { key: "delta", label: t("Threshold change"), numeric: true, sortValue: variant => variant.threshold_delta, cell: variant => (variant.threshold_delta > 0 ? "+" : "") + variant.threshold_delta },
+            { key: "outcome", label: t("Outcome"), sortValue: variant => t(variant.resulting_state), cell: variant => t(variant.resulting_state) },
+            { key: "score", label: t("Score"), numeric: true, sortValue: variant => variant.score, cell: variant => variant.score.toFixed(2) },
+          ]}/>
         </div>}
 
         {judgment && <div className="reveal-in space-y-3 rounded-lg border border-stroke p-4" aria-label={t("Judgment")} role="group">
@@ -214,9 +212,9 @@ export function ProactiveRunPanel({ triggerEventId, triggerKey = null, canOperat
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h4 className="flex items-center gap-2 text-sm font-bold"><FileText size={16} aria-hidden="true"/>{t("Exercise CAP preview")}</h4>
             <div className="flex flex-wrap gap-2">
-              <button type="button" className="control control-sm" onClick={copyCap} disabled={!capFull}>{copied ? <Check size={14} aria-hidden="true"/> : <Copy size={14} aria-hidden="true"/>}{copied ? t("Copied") : t("Copy")}</button>
-              {sample ? <button type="button" className="control control-sm" onClick={downloadSample}><Download size={14} aria-hidden="true"/>{t("Download CAP draft")}</button>
-                : <a className="control control-sm" href={`/api/proactive/runs/${run.id}/cap`} download={capFilename(run.id)}><Download size={14} aria-hidden="true"/>{t("Download CAP draft")}</a>}
+              <Button size="sm" type="button" onClick={copyCap} disabled={!capFull}>{copied ? <Check size={14} aria-hidden="true"/> : <Copy size={14} aria-hidden="true"/>}{copied ? t("Copied") : t("Copy")}</Button>
+              {sample ? <Button size="sm" type="button" onClick={downloadSample}><Download size={14} aria-hidden="true"/>{t("Download CAP draft")}</Button>
+                : <a className={buttonClass({ size: "sm" })} href={`/api/proactive/runs/${run.id}/cap`} download={capFilename(run.id)}><Download size={14} aria-hidden="true"/>{t("Download CAP draft")}</a>}
             </div>
           </div>
           <p className="break-all text-[11px] text-muted">SHA-256 {run.cap.sha256}</p>
@@ -231,18 +229,18 @@ export function ProactiveRunPanel({ triggerEventId, triggerKey = null, canOperat
         <RunTimeline runId={run.id} refreshKey={`${run.completed_steps.length}-${run.status}`} sample={sample}/>
 
         {active && <div className="flex flex-wrap items-center gap-3">
-          <button type="button" className="control control-primary" onClick={advance} disabled={busy || !run.next_step}>
-            {busy ? <Loader2 size={16} className="animate-spin" aria-hidden="true"/> : <StepForward size={16} aria-hidden="true"/>}{t("Advance")}</button>
-          <button type="button" className="control" onClick={() => setCancelling(open => !open)} aria-expanded={cancelling} aria-controls="run-cancel"><Ban size={16} aria-hidden="true"/>{t("Cancel run")}</button>
+          <Button variant="primary" type="button" onClick={advance} disabled={busy || !run.next_step}>
+            {busy ? <Loader2 size={16} className="animate-spin" aria-hidden="true"/> : <StepForward size={16} aria-hidden="true"/>}{t("Advance")}</Button>
+          <Button type="button" onClick={() => setCancelling(open => !open)} aria-expanded={cancelling} aria-controls="run-cancel"><Ban size={16} aria-hidden="true"/>{t("Cancel run")}</Button>
         </div>}
         {cancelling && active && <div id="run-cancel" className="space-y-2">
           <label htmlFor="run-cancel-reason" className="field-label">{t("Cancellation rationale (10 to 2000 characters)")}</label>
           <textarea id="run-cancel-reason" className="field !h-24 py-2" value={rationale} maxLength={2000} onChange={event => setRationale(event.target.value)} aria-describedby="run-cancel-hint"/>
           <p id="run-cancel-hint" className="text-[11px] text-muted">{rationale.trim().length}/2000 · {t("Recorded in the run audit.")}</p>
-          <button type="button" className="control control-primary" onClick={cancel} disabled={busy || rationale.trim().length < 10}><Check size={16} aria-hidden="true"/>{t("Confirm cancellation")}</button>
+          <Button variant="primary" type="button" onClick={cancel} disabled={busy || rationale.trim().length < 10}><Check size={16} aria-hidden="true"/>{t("Confirm cancellation")}</Button>
         </div>}
       </>}
       <div aria-live="polite" role="status" className="min-h-4 text-xs text-rose-700 dark:text-rose-300">{message}</div>
     </div>
-  </section>;
+  </Panel>;
 }

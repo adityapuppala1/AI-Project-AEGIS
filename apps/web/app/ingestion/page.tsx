@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Activity, AlertTriangle, ArrowRight, CheckCircle2, ClipboardList, Database, LockKeyhole, RefreshCw, GitMerge, ShieldCheck, TerminalSquare, XCircle } from "lucide-react";
 import { AppShell } from "../../components/app-shell";
 import { useT } from "../../components/language-provider";
-import { DataFreshness, ErrorState, InlineHelp, Panel, StatStrip, StatTile, Stepper } from "../../components/ui";
+import { DataFreshness, ErrorState, InlineHelp, Panel, StatStrip, StatTile, Stepper, Button, buttonClass } from "../../components/ui";
 import { REASON_LABELS, type IngestionOverview, type QuarantineReason } from "../../lib/ingestion";
 
 const REASONS = Object.keys(REASON_LABELS) as QuarantineReason[];
@@ -43,7 +43,7 @@ export default function IngestionPage() {
     {error && <ErrorState className="mb-4" message={error + ". " + t("Any previous counts may be out of date.")} onRetry={refresh}/>}
     <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
       <span className="flex flex-wrap items-center gap-2 text-xs text-muted">{data ? "Measured from local exercise database · " + dateLabel(data.generated_at) : "Awaiting exercise database status"}{data && <DataFreshness observedAt={data.generated_at} staleAfterHours={1}/>}</span>
-      <button type="button" className="control" onClick={refresh} disabled={loading}><RefreshCw size={16} className={loading ? "animate-spin" : ""}/> Refresh summary</button>
+      <Button type="button" onClick={refresh} disabled={loading}><RefreshCw size={16} className={loading ? "animate-spin" : ""}/> Refresh summary</Button>
     </div>
     <StatStrip label={t("Synthetic replay metrics")} className="sm:grid-cols-3 xl:grid-cols-3">
       <StatTile index={0} label={t("Accepted unique events")} icon={CheckCircle2} tone="success" value={data?.accepted_events ?? "—"} hint={t("Stored only after validation")}/>
@@ -63,17 +63,16 @@ export default function IngestionPage() {
       </InlineHelp>
     </Panel>
     <div className="mt-5 grid items-start gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(330px,1fr)]">
-      <section className="panel overflow-hidden">
-        <div className="panel-heading"><div><h2 className="flex items-center gap-2 t-title"><ClipboardList size={18} className="text-accent"/> Quarantine reasons</h2><p className="mt-1 text-xs text-muted">Counts never display rejected raw payloads.</p></div><span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">Read only</span></div>
+      <Panel className="overflow-hidden" bodyClassName="p-0" icon={ClipboardList} title="Quarantine reasons" description="Counts never display rejected raw payloads."
+        actions={<span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">Read only</span>}>
         <div className="divide-y divide-stroke">
           {REASONS.map(reason => <div className="flex items-center justify-between gap-3 px-5 py-4" key={reason}>
             <span className="flex items-center gap-3"><AlertTriangle size={17} className="shrink-0 text-muted" aria-hidden="true"/><span className="text-sm">{REASON_LABELS[reason]}</span></span>
             <strong className="tabular-nums">{data ? data.quarantine_reasons[reason] ?? 0 : "—"}</strong>
           </div>)}
         </div>
-      </section>
-      <section className="panel">
-        <div className="panel-heading"><h2 className="flex items-center gap-2 t-title"><TerminalSquare size={18} className="text-accent"/> Reproducible local replay</h2></div>
+      </Panel>
+      <Panel bodyClassName="p-0" icon={TerminalSquare} title="Reproducible local replay">
         <div className="space-y-4 p-5">
           <p className="text-sm leading-6 text-muted">Run the reviewed synthetic fixture in your Windows Docker terminal. Repeating it should not create duplicate accepted events or repeated quarantine rows.</p>
           <div className="rounded-lg border border-stroke bg-elevated p-4">
@@ -81,10 +80,10 @@ export default function IngestionPage() {
             <code className="break-all font-mono text-xs text-ink">docker compose exec api python -m app.replay</code>
           </div>
           <p className="text-xs leading-6 text-muted"><strong>No Run button:</strong> replay is intentionally restricted to a locally authorized terminal command, not exposed as a public API.</p>
-          <Link href="/sources" className="control control-sm w-full"><Database size={16}/> Examine resulting source history <ArrowRight size={15}/></Link>
-          <Link href="/help" className="control control-sm w-full"><Activity size={16}/> Read source quality guidance <ArrowRight size={15}/></Link>
+          <Link href="/sources" className={buttonClass({ size: "sm", className: "w-full" })}><Database size={16}/> Examine resulting source history <ArrowRight size={15}/></Link>
+          <Link href="/help" className={buttonClass({ size: "sm", className: "w-full" })}><Activity size={16}/> Read source quality guidance <ArrowRight size={15}/></Link>
         </div>
-      </section>
+      </Panel>
     </div>
   </AppShell>;
 }

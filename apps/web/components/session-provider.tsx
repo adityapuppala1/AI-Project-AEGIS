@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { buttonClass, Button, IconButton } from "./ui";
 import { usePathname } from "next/navigation";
 import { Clock, LogIn, X } from "lucide-react";
 import { useT } from "./language-provider";
@@ -78,14 +79,14 @@ export function SessionProvider({ children }: Readonly<{ children: ReactNode }>)
     {(stayed || (warning && !ended && !dismissed)) && <div role="status" className="float session-notice no-print">
       <Clock size={16} aria-hidden="true" className="shrink-0 text-amber-700 dark:text-amber-300" />
       <span>{stayed ? t("Your session ended. This page can no longer load or save anything.") : t("Your session ends in about two minutes. Finish or copy what you are writing.")}</span>
-      <a className="control control-sm" href={again}>{t("Sign in again")}</a>
-      {!stayed && <button type="button" className="control control-quiet control-sm control-icon" aria-label={t("Dismiss")} onClick={() => setDismissed(true)}><X size={15} aria-hidden="true" /></button>}
+      <a className={buttonClass({ size: "sm" })} href={again}>{t("Sign in again")}</a>
+      {!stayed && <IconButton variant="quiet" size="sm" icon={X} label={t("Dismiss")} onClick={() => setDismissed(true)}/>}
     </div>}
     <Dialog open={ended} onOpenChange={open => { if (!open) stay(); }} title={t("Your session ended")}
       description={t("For safety AEGIS signs you out after a while. Sign in again and you will come back to this page. Anything you typed but did not save stays on this page until you leave it, so copy it first if you need it.")}
       footer={<>
-        <button type="button" className="control control-quiet" onClick={stay}>{t("Stay on this page")}</button>
-        <a className="control control-primary" href={again}><LogIn size={16} aria-hidden="true" />{t("Sign in again")}</a>
+        <Button variant="quiet" type="button"  onClick={stay}>{t("Stay on this page")}</Button>
+        <a className={buttonClass({ variant: "primary" })} href={again}><LogIn size={16} aria-hidden="true" />{t("Sign in again")}</a>
       </>} />
   </SessionContext.Provider>;
 }

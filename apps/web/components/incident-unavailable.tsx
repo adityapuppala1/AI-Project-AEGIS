@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { AppShell } from "./app-shell";
 import { useT } from "./language-provider";
-import { ErrorState, Panel } from "./ui";
+import { ErrorState, Panel, buttonClass } from "./ui";
 
 export type IncidentIssue = "unreachable" | "unparseable" | "unexpected";
 
@@ -20,7 +20,7 @@ export function IncidentUnavailable({ issue }: Readonly<{ issue: IncidentIssue }
     <Panel title={t("Incident workspace temporarily unavailable")} className="p-0">
       <div className="space-y-4 p-5">
         <ErrorState message={message}/>
-        <Link className="control" href="/incidents"><ArrowLeft size={16} aria-hidden="true"/> {t("Return to incident registry")}</Link>
+        <Link className={buttonClass()} href="/incidents"><ArrowLeft size={16} aria-hidden="true"/> {t("Return to incident registry")}</Link>
       </div>
     </Panel>
   </AppShell>;

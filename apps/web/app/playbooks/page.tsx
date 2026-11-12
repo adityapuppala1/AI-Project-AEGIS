@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArrowRight, BookOpenCheck, CheckCircle2, ShieldAlert } from "lucide-react";
 import { AppShell } from "../../components/app-shell";
 import { useT } from "../../components/language-provider";
-import { EmptyState, SearchField, StatStrip, StatTile } from "../../components/ui";
+import { EmptyState, SearchField, StatStrip, StatTile, buttonClass, Panel } from "../../components/ui";
 
 // Versioned teaching reference, not an official emergency response SOP.
 const PLAYBOOK = "AEGIS-URBAN-FLOOD-EXERCISE-v0.1";
@@ -37,14 +37,10 @@ export default function PlaybooksPage() {
       <StatTile label={t("Shown")} value={shown.length} icon={CheckCircle2}/>
     </StatStrip>
     <SearchField label={t("Search playbook steps")} value={query} onChange={setQuery} className="mb-4"/>
-    <section className="panel overflow-hidden">
-      <div className="panel-heading">
-        <div><h2 className="flex items-center gap-2 t-title"><BookOpenCheck size={19} className="text-accent"/> Urban Flood Exercise · Referenced Steps</h2>
-          <p className="mt-1 font-mono text-xs text-muted">{PLAYBOOK}</p></div>
-        <span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">Draft · Unapproved</span>
-      </div>
-      <div className="grid gap-3 p-5 md:grid-cols-2">
+    <Panel className="overflow-hidden" bodyClassName="p-0" icon={BookOpenCheck} title="Urban Flood Exercise · Referenced Steps" description={PLAYBOOK}
+      actions={<span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">Draft · Unapproved</span>}>
         {shown.length === 0 && <div className="md:col-span-2"><EmptyState title={t("No playbook steps match")} body={t("No match does not mean a step is unnecessary; clear the search to see all steps.")}/></div>}
+      <div className="grid gap-3 p-5 md:grid-cols-2">
         {shown.map((step,index) => <details className="group rounded-lg border border-stroke bg-elevated/40 p-4" key={step.id} open={index === 0 && !query}>
           <summary className="flex cursor-pointer flex-wrap items-center gap-3 text-sm font-semibold">
             <CheckCircle2 size={18} className="shrink-0 text-accent"/>
@@ -56,16 +52,16 @@ export default function PlaybooksPage() {
           </ul>
         </details>)}
       </div>
-    </section>
-    <section className="panel p-4 mt-5" aria-label="Exercise playbook cross references">
+    </Panel>
+    <Panel className="mt-5" aria-label="Exercise playbook cross references">
       <h3 className="text-sm font-bold">Continue the cited tabletop workflow</h3>
       <p className="mt-2 text-xs leading-6 text-muted">The incident review checklist cites this version and source/evidence UUIDs, while AgencySync task rows reference the same version. These links are explanatory—not operational authorization.</p>
       <div className="mt-4 flex flex-wrap gap-3">
-        <Link href="/demo" className="control control-sm">Guided walkthrough <ArrowRight size={15}/></Link>
-        <Link href="/incidents/22222222-2222-4222-8222-222222222222" className="control control-sm">Synthetic case evidence <ArrowRight size={15}/></Link>
-        <Link href="/agency-sync" className="control control-sm">Scripted task audit <ArrowRight size={15}/></Link>
-        <Link href="/approvals" className="control control-sm">Human approval gate <ArrowRight size={15}/></Link>
+        <Link href="/demo" className={buttonClass({ size: "sm" })}>Guided walkthrough <ArrowRight size={15}/></Link>
+        <Link href="/incidents/22222222-2222-4222-8222-222222222222" className={buttonClass({ size: "sm" })}>Synthetic case evidence <ArrowRight size={15}/></Link>
+        <Link href="/agency-sync" className={buttonClass({ size: "sm" })}>Scripted task audit <ArrowRight size={15}/></Link>
+        <Link href="/approvals" className={buttonClass({ size: "sm" })}>Human approval gate <ArrowRight size={15}/></Link>
       </div>
-    </section>
+    </Panel>
   </AppShell>;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { ErrorState } from "./ui";
+import { ErrorState, Button, Panel } from "./ui";
 import { relayTileRequest } from "../lib/tile-relay";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { GeoJSONSource, Map as MapLibreMap, Popup } from "maplibre-gl";
@@ -278,17 +278,17 @@ export function EarthWatch() {
       <p><strong>{t("Public reference data, not an AEGIS assessment.")}</strong>{t(" NASA and USGS reports are delayed, incomplete and sometimes preliminary. Nothing here creates a case, evidence, approval, task or warning. No markers does not mean an area is safe.")}</p>
     </div>
 
-    {gate === "checking" && <p className="panel p-4 text-sm text-muted" role="status">Checking whether public Earth feeds are enabled…</p>}
+    {gate === "checking" && <Panel as="div" bodyClassName="p-4 text-sm text-muted" role="status">Checking whether public Earth feeds are enabled…</Panel>}
     {gate === "error" && <ErrorState message={"Earth Watch status is unavailable. The rest of AEGIS is unaffected."} />}
-    {gate === "disabled" && <section className="panel p-4">
+    {gate === "disabled" && <Panel>
       <h2 className="flex items-center gap-2 t-title"><Globe2 size={18} className="text-accent"/> Public feeds are switched off</h2>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">The base AEGIS stack stays fully synthetic. To view USGS earthquakes, NASA EONET events and NASA satellite imagery,
         restart the API with the optional display-only profile. Data is fetched on demand, held in memory only and never written to the database.</p>
       <pre className="mt-4 overflow-x-auto rounded-lg bg-elevated p-4 text-xs" tabIndex={0} aria-label="Start command"><code>powershell -ExecutionPolicy Bypass -File scripts/start-windows.ps1 -NoBuild -PublicEarth</code></pre>
-    </section>}
+    </Panel>}
 
     {gate === "enabled" && <>
-      <section aria-label="Feed heartbeat" className="panel mb-5 flex flex-wrap items-center gap-3 p-4">
+      <Panel className="mb-5" bodyClassName="flex flex-wrap items-center gap-3 p-4" aria-label="Feed heartbeat">
         <span className="inline-flex items-center gap-2 text-sm font-bold">
           <span aria-hidden="true" className="h-2.5 w-2.5 rounded-full bg-emerald-500 motion-safe:animate-pulse"/> {t("Public feeds")}
         </span>
@@ -299,14 +299,14 @@ export function EarthWatch() {
         <span className="ml-auto text-xs text-muted">
           {nextAt ? `Next refresh in ${countdownLabel(nextAt - now)}` : "Loading feeds…"}
         </span>
-        <button type="button" className="control" onClick={manualRefresh} disabled={refreshing}>
+        <Button type="button" onClick={manualRefresh} disabled={refreshing}>
           <RefreshCw size={16} className={refreshing ? "animate-spin" : ""}/> {t("Refresh feeds")}
-        </button>
-      </section>
+        </Button>
+      </Panel>
       {(errors.earthquakes || errors.events) && <ErrorState message={"A feed refresh failed. Previously fetched data is shown and labelled with its fetch time; nothing is invented."} className="mb-4" />}
 
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.6fr)_minmax(320px,1fr)]">
-        <section className="panel min-w-0 overflow-hidden" aria-label="Earth Watch map">
+        <Panel className="min-w-0 overflow-hidden" bodyClassName="p-0" aria-label="Earth Watch map">
           <div className="flex flex-wrap items-end gap-3 border-b border-stroke p-4">
             <label className="text-xs font-semibold text-muted">{t("Imagery source")}
               <select className="field mt-1 min-w-[190px]" value={baseId} onChange={event => { setBaseId(event.target.value); setPickedDate(null); }}>
@@ -319,11 +319,11 @@ export function EarthWatch() {
                 min={meta?.start} max={meta?.latest}
                 onChange={event => { if (meta && dateAvailable(event.target.value, meta.ranges)) setPickedDate(event.target.value); }}/>
             </label>
-            <button type="button" className="control" disabled={!meta || baseId === "streets"} onClick={() => setPickedDate(null)}>{t("Latest available")}</button>
+            <Button type="button" disabled={!meta || baseId === "streets"} onClick={() => setPickedDate(null)}>{t("Latest available")}</Button>
             <div className="ml-auto flex gap-2" role="group" aria-label="Region">
-              {(["india", "global"] as Region[]).map(value => <button key={value} type="button" aria-pressed={region === value}
-                className={`control ${region === value ? "!border-accent !text-accent" : ""}`} onClick={() => setRegion(value)}>
-                {value === "india" ? t("India & neighbours") : t("Global")}</button>)}
+              {(["india", "global"] as Region[]).map(value => <Button key={value} type="button" aria-pressed={region === value}
+                className={region === value ? "!border-accent !text-accent" : ""} onClick={() => setRegion(value)}>
+                {value === "india" ? t("India & neighbours") : t("Global")}</Button>)}
             </div>
           </div>
           <div className="relative">
@@ -336,11 +336,10 @@ export function EarthWatch() {
             {Object.entries(CATEGORY_STYLE).map(([key, style]) => <li key={key} className="flex items-center gap-1.5">
               <span aria-hidden="true" className="h-2.5 w-2.5 rounded-full" style={{ background: style.color }}/>{style.label}</li>)}
           </ul>
-        </section>
+        </Panel>
 
-        <aside className="panel min-w-0 overflow-hidden" aria-label="Public hazard reports">
-          <div className="panel-heading"><h2 className="flex items-center gap-2 t-title"><Layers size={18} className="text-accent"/> {t("Hazard layers")}</h2>
-            <span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">{t("Read-only")}</span></div>
+        <Panel as="aside" className="min-w-0 overflow-hidden" aria-label="Public hazard reports" bodyClassName="p-0" icon={Layers} title={t("Hazard layers")}
+          actions={<span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">{t("Read-only")}</span>}>
           <div className="space-y-3 border-b border-stroke p-4 text-sm">
             <label className="flex min-h-11 cursor-pointer items-center gap-2"><input type="checkbox" className="h-5 w-5 accent-teal-600" checked={showQuakes} onChange={event => setShowQuakes(event.target.checked)}/> USGS earthquakes <small className="text-muted">M2.5+ · 7 days</small></label>
             <label className="flex min-h-11 cursor-pointer items-center gap-2"><input type="checkbox" className="h-5 w-5 accent-teal-600" checked={showEvents} onChange={event => setShowEvents(event.target.checked)}/> NASA EONET events <small className="text-muted">open · 30 days</small></label>
@@ -368,15 +367,15 @@ export function EarthWatch() {
               No matching reports are loaded. Check feed status, region or layer filters. This does not indicate an absence of hazards.</p>}
           </div>
           {records.length > visibleList.length && <p className="border-t border-stroke px-4 py-3 text-xs text-muted">Showing the {visibleList.length} most recent of {records.length}.</p>}
-        </aside>
+        </Panel>
       </div>
 
       <section className="mt-5 grid gap-4 md:grid-cols-3" aria-label="Sources and limitations">
-        {[quakes, events, imagery].map(feed => feed && <article key={feed.feed} className="panel p-4 text-xs leading-6 text-muted">
+        {[quakes, events, imagery].map(feed => feed && <Panel as="article" className="text-xs leading-6 text-muted" key={feed.feed}>
           <h3 className="text-sm font-bold text-foreground">{feed.attribution}</h3>
           <ul className="mt-2 list-disc space-y-1 pl-4">{feed.limitations.map(item => <li key={item}>{item}</li>)}</ul>
           {feed.warning && <p className="mt-2 text-amber-700 dark:text-amber-300">{feed.warning}</p>}
-        </article>)}
+        </Panel>)}
       </section>
     </>}
   </AppShell>;

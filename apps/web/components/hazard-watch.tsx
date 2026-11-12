@@ -1,6 +1,6 @@
 "use client";
 
-import { DataTable } from "./ui";
+import { SortableTable, Button, Panel } from "./ui";
 import { ErrorState } from "./ui";
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { AlertTriangle, Box, FlaskConical, Layers, Loader2, OctagonPause, Radar, RefreshCw, ShieldAlert, Table2 } from "lucide-react";
@@ -26,16 +26,18 @@ function Timeline({ history, hazard, sample }: Readonly<{ history: HistoryPayloa
   const [asTable, setAsTable] = useState(false);
   const buckets = useMemo(() => dayBuckets((history?.rows ?? []).filter(row => row.hazard === hazard), history?.days ?? 7, Date.now()), [history, hazard]);
   const max = Math.max(1, ...buckets.map(bucket => bucket.watch + bucket.candidate));
-  return <section aria-labelledby="timeline-title" className="panel min-w-0 p-4">
+  return <Panel className="min-w-0" aria-labelledby="timeline-title">
     <div className="flex flex-wrap items-center justify-between gap-2">
       <h4 id="timeline-title" className="text-xs font-bold">{t("7-day trigger timeline")}</h4>
       {sample && <SampleChip/>}
-      <button type="button" className="control control-sm" aria-pressed={asTable} onClick={() => setAsTable(value => !value)}><Table2 size={14} aria-hidden="true"/>{asTable ? t("Show chart") : t("Show table")}</button>
+      <Button size="sm" type="button" aria-pressed={asTable} onClick={() => setAsTable(value => !value)}><Table2 size={14} aria-hidden="true"/>{asTable ? t("Show chart") : t("Show table")}</Button>
     </div>
     {!history ? <p className="mt-2 text-[11px] text-muted">{t("History unavailable.")}</p>
-      : asTable ? <DataTable label={t("7-day trigger timeline")} minWidth="18rem" className="mt-2">
-        <thead><tr><th scope="col">{t("Day")}</th><th scope="col" className="num">{t("watch")}</th><th scope="col" className="num">{t("candidate")}</th></tr></thead>
-        <tbody>{buckets.map(bucket => <tr key={bucket.day}><td>{bucket.day}</td><td>{bucket.watch}</td><td>{bucket.candidate}</td></tr>)}</tbody></DataTable>
+      : asTable ? <SortableTable label={t("7-day trigger timeline")} minWidth="18rem" className="mt-2" rows={buckets} rowKey={bucket => bucket.day} columns={[
+        { key: "day", label: t("Day"), sortValue: bucket => bucket.day, cell: bucket => bucket.day },
+        { key: "watch", label: t("watch"), numeric: true, sortValue: bucket => bucket.watch, cell: bucket => bucket.watch },
+        { key: "candidate", label: t("candidate"), numeric: true, sortValue: bucket => bucket.candidate, cell: bucket => bucket.candidate },
+      ]}/>
       : <svg viewBox="0 0 280 90" className="mt-2 w-full" role="img" aria-label={t("Bar chart of watch and candidate events per day for this hazard over seven days")}>
         {buckets.map((bucket, index) => {
           const x = 8 + index * 38, watchH = bucket.watch / max * 60, candH = bucket.candidate / max * 60;
@@ -46,7 +48,7 @@ function Timeline({ history, hazard, sample }: Readonly<{ history: HistoryPayloa
           </g>;
         })}
       </svg>}
-  </section>;
+  </Panel>;
 }
 
 export function HazardWatch() {
@@ -158,7 +160,7 @@ export function HazardWatch() {
         {watch && !sample && watch.disclaimer !== DISCLAIMER ? ` ${watch.disclaimer}` : ""}</p>
     </div>
 
-    <div className="panel mb-5 flex flex-wrap items-center gap-3 p-3">
+    <Panel as="div" className="mb-5" bodyClassName="flex flex-wrap items-center gap-3 p-3">
       <button type="button" role="switch" aria-checked={sample} onClick={toggleSample} aria-describedby="sample-help"
         className="inline-flex min-h-10 items-center gap-3 rounded-lg px-1 text-sm font-semibold">
         <span className={`relative h-6 w-11 shrink-0 rounded-full border transition-colors ${sample ? "border-amber-600 bg-amber-500" : "border-stroke bg-elevated"}`} aria-hidden="true">
@@ -166,15 +168,15 @@ export function HazardWatch() {
         <FlaskConical size={16} aria-hidden="true"/>{t("Preview with sample data")}</button>
       <p id="sample-help" className="min-w-0 flex-1 basis-60 text-xs text-muted">{t("Client-side only. Shows invented data so the whole flow can be tried offline. It never calls or writes the API and is not remembered.")}</p>
       {sample && <SampleChip/>}
-    </div>
+    </Panel>
 
     {effectiveGate === "checking" && <WatchSkeleton/>}
     {effectiveGate === "error" && <ErrorState message={t("Hazard Watch is unavailable. The rest of AEGIS is unaffected.")} />}
-    {effectiveGate === "disabled" && <section className="panel p-4">
+    {effectiveGate === "disabled" && <Panel>
       <h2 className="flex items-center gap-2 t-title"><Radar size={18} className="text-accent" aria-hidden="true"/>{t("Hazard Watch is switched off")}</h2>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">{t("The base AEGIS stack stays fully synthetic. Start the optional proactive profile to enable the watch.")}</p>
       <pre className="mt-4 overflow-x-auto rounded-lg bg-elevated p-4 text-xs" tabIndex={0} aria-label="Start command"><code>powershell -ExecutionPolicy Bypass -File scripts/start-windows.ps1 -NoBuild -Proactive</code></pre>
-    </section>}
+    </Panel>}
 
     {effectiveGate === "enabled" && watch && <>
       {!sample && watch.paused === true && <div role="status" className="mb-5 flex items-start gap-3 rounded-lg border border-rose-500/30 bg-rose-500/10 p-4 text-sm text-rose-800 dark:text-rose-200">
@@ -182,13 +184,13 @@ export function HazardWatch() {
         <p><strong>{t("Proactive automation is paused.")}</strong> {t("A platform administrator engaged the kill switch. New runs, run steps and evidence refresh are blocked; you can still read the watch, open existing drafts and cancel runs.")}</p>
       </div>}
       <SummaryStrip watch={watch} now={now} sample={sample}/>
-      <section aria-label={t("Watch heartbeat")} className="panel mb-5 flex flex-wrap items-center gap-3 p-4">
+      <Panel className="mb-5" bodyClassName="flex flex-wrap items-center gap-3 p-4" aria-label={t("Watch heartbeat")}>
         <span className="inline-flex items-center gap-2 text-sm font-bold"><Radar size={16} className="text-accent" aria-hidden="true"/>{t("Hazard Watch")}</span>
         <span className="text-xs text-muted">{t("Updated")} {formatIst(watch.generated_at)} · {t("config")} {watch.config_version}</span>
         {sample && <SampleChip/>}
         <span className="ml-auto flex items-center gap-3">
-          <button type="button" className="control" onClick={refresh} disabled={sample || !canRefresh || refreshing || watch.paused === true} aria-describedby="refresh-reason">
-            {refreshing ? <Loader2 size={16} className="animate-spin" aria-hidden="true"/> : <RefreshCw size={16} aria-hidden="true"/>}{t("Refresh evidence")}</button>
+          <Button type="button" onClick={refresh} disabled={sample || !canRefresh || refreshing || watch.paused === true} aria-describedby="refresh-reason">
+            {refreshing ? <Loader2 size={16} className="animate-spin" aria-hidden="true"/> : <RefreshCw size={16} aria-hidden="true"/>}{t("Refresh evidence")}</Button>
         </span>
         {(sample || !canRefresh) && <p id="refresh-reason" className="basis-full text-[11px] text-muted">{sample ? t("Refresh is switched off while previewing sample data.") : t("Refreshing needs the Maker or Administrator role. You can still read the watch.")}</p>}
         {!sample && <ProactiveSchedulerStatus refreshToken={refreshResult}/>}
@@ -196,18 +198,14 @@ export function HazardWatch() {
           {refreshError && <p className="text-rose-700 dark:text-rose-300">{refreshError}</p>}
           {refreshResult && <p>{t("Refresh result")}: {Object.entries(refreshResult.fetched).map(([id, v]) => `${id}: ${typeof v === "number" ? `${v} ${t("records")}` : v}`).join(" · ")} · {refreshResult.evidence_added} {t("new evidence")} · {t("clear")} {refreshResult.triggers.clear} / {t("watch")} {refreshResult.triggers.watch} / {t("candidate")} {refreshResult.triggers.candidate}</p>}
         </div>
-      </section>
+      </Panel>
 
       {!sample && watch.triggers.length === 0 && <div className="mb-5"><SetupChecklist evidenceCount={watch.evidence.length} refreshed={refreshResult !== null} triggerCount={watch.triggers.length}
         onPreview={toggleSample} onRefresh={refresh} canRefresh={canRefresh} refreshing={refreshing}/></div>}
 
       <div className="grid gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-        <section className="panel min-w-0 overflow-hidden" aria-label={t("Hazard Watch map")}>
-          <div className="panel-heading">
-            <h2 className="flex items-center gap-2 t-title"><Layers size={18} className="text-accent" aria-hidden="true"/>{t("Trigger map")}</h2>
-            {sample && <SampleChip/>}
-            <button type="button" className="control" aria-pressed={pitched} onClick={() => setPitched(value => !value)} disabled={mapFailed}><Box size={16} aria-hidden="true"/>{t("3D view")}</button>
-          </div>
+        <Panel className="min-w-0 overflow-hidden" aria-label={t("Hazard Watch map")} bodyClassName="p-0" icon={Layers} title={t("Trigger map")}
+          actions={<>{sample && <SampleChip/>}<Button type="button" aria-pressed={pitched} onClick={() => setPitched(value => !value)} disabled={mapFailed}><Box size={16} aria-hidden="true"/>{t("3D view")}</Button></>}>
           {mapFailed ? <FallbackMap triggers={triggers} selectedId={selectedId} onSelect={id => select(id)} onRetry={() => { setMapFailed(false); setMapReady(false); setMapKey(key => key + 1); }}/>
             : <div className="relative">
               <HazardWatchMap key={mapKey} triggers={triggers} evidence={watch.evidence} selectedId={selectedId} pitched={pitched} onSelect={id => select(id)} onFail={() => setMapFailed(true)} onReady={() => setMapReady(true)}/>
@@ -218,21 +216,18 @@ export function HazardWatch() {
             <li className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-full bg-gradient-to-r from-sky-500 to-rose-600" aria-hidden="true"/>{t("Evidence density")}</li>
             <li className="basis-full text-muted">{t("Columns are equal-height schematic symbols for a trigger location. They are not building geometry, flood extent or severity.")}</li>
           </ul>
-        </section>
+        </Panel>
 
-        <aside className="panel min-w-0 xl:row-span-2 xl:col-start-2 xl:row-start-1 xl:self-start" aria-label={t("Trigger queue")} data-queue>
-          <div className="panel-heading">
-            <h2 className="t-title">{t("Trigger queue")} <span className="text-xs font-normal text-muted">({triggers.length}{filtered ? ` / ${all.length}` : ""})</span></h2>
-            {sample && <SampleChip/>}
+        <Panel as="aside" className="min-w-0 xl:row-span-2 xl:col-start-2 xl:row-start-1 xl:self-start" aria-label={t("Trigger queue")} data-queue bodyClassName="p-0"
+          title={<>{t("Trigger queue")} <span className="text-xs font-normal text-muted">({triggers.length}{filtered ? ` / ${all.length}` : ""})</span></>}
+          actions={<>{sample && <SampleChip/>}
             <label className="flex items-center gap-2 text-xs font-semibold" htmlFor="trigger-sort">{t("Sort by")}
               <select id="trigger-sort" className="field !h-8 !w-auto" value={sort} onChange={event => setSort(event.target.value as Sort)}>
                 <option value="score">{t("Score")}</option><option value="state">{t("State")}</option><option value="recent">{t("Most recent")}</option>
-              </select></label>
-          </div>
-          {all.length > 0 && <FilterBar hazards={hazards} hazardFilter={hazardFilter} onToggleHazard={toggleHazard} stateFilter={stateFilter} onState={setStateFilter} onClear={clearFilters} counts={counts}/>}
+              </select></label></>}>
           <QueueList items={triggers} selectedId={selectedId} onSelect={select} now={now} filtered={filtered}/>
           <p className="border-t border-stroke px-4 py-2 text-[11px] text-muted">{t("Arrow keys move through the queue. Enter opens a trigger; Escape closes it.")}</p>
-        </aside>
+        </Panel>
 
         {selected && <div className="min-w-0 space-y-5 xl:col-start-1" onKeyDown={onDetailKey}>
           <TriggerDetail trigger={selected} evidenceById={evidenceById} now={now} sample={sample} run={run} headingRef={headingRef} onClose={closeDetail} drawer={drawer} onDrawer={() => setDrawer(value => !value)}/>

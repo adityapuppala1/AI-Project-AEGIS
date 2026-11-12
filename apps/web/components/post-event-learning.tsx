@@ -1,6 +1,6 @@
 "use client";
 
-import { PermissionState } from "./ui";
+import { PermissionState, Button } from "./ui";
 import { pageRoles } from "../lib/roles";
 import { useCallback, useEffect, useState } from "react";
 import { BarChart3, Check, FileDiff, GitPullRequest, Play, RefreshCw, ShieldCheck, X } from "lucide-react";
@@ -9,7 +9,7 @@ import { useT } from "./language-provider";
 import { EmptyState, ErrorState, Panel, SkeletonRows, StatusPill } from "./ui";
 import { useOperatorSession } from "../lib/use-operator-session";
 import { SignInRequired } from "./sign-in-required";
-import { DataTable, HazardGlyph, RecordRef, TwoKey, formatAbsolute, keysForStatus } from "./ui";
+import { SortableTable, HazardGlyph, RecordRef, TwoKey, formatAbsolute, keysForStatus } from "./ui";
 import { codeLabel, sentenceCase } from "../lib/labels";
 import {
   cleanConfig, cleanProposal, cleanScenarios, cleanWindow, pctLabel,
@@ -80,10 +80,11 @@ export function PostEventLearning() {
     {session?.authenticated && !loading && !error && <div className="space-y-4">
       {config && <Panel title={t("Engine configuration")} icon={ShieldCheck}>
         <p className="text-sm">{t("Source")}: <strong className="font-semibold" title={config.config_source}>{t(codeLabel(config.config_source))}</strong></p>
-        <div className="mt-3 rounded-md border border-stroke"><DataTable label={t("Effective trigger thresholds")} minWidth="24rem">
-          <thead><tr><th scope="col">{t("Hazard")}</th><th scope="col" className="num">{t("Watch")}</th><th scope="col" className="num">{t("Candidate")}</th></tr></thead>
-          <tbody>{Object.entries(config.thresholds).map(([name, spec]) => <tr key={name}><td title={name}><HazardGlyph value={name} label={t(codeLabel(name))} /></td><td className="num">{spec.watch}</td><td className="num">{spec.candidate}</td></tr>)}</tbody>
-        </DataTable></div>
+        <div className="mt-3 rounded-md border border-stroke"><SortableTable label={t("Effective trigger thresholds")} minWidth="24rem" rows={Object.entries(config.thresholds)} rowKey={([name]) => name} columns={[
+          { key: "hazard", label: t("Hazard"), sortValue: ([name]) => t(codeLabel(name)), cell: ([name]) => <span title={name}><HazardGlyph value={name} label={t(codeLabel(name))} /></span> },
+          { key: "watch", label: t("Watch"), numeric: true, sortValue: ([, spec]) => spec.watch, cell: ([, spec]) => spec.watch },
+          { key: "candidate", label: t("Candidate"), numeric: true, sortValue: ([, spec]) => spec.candidate, cell: ([, spec]) => spec.candidate },
+        ]}/></div>
         <details className="mt-3 text-xs text-muted"><summary className="cursor-pointer font-semibold">{t("Technical details")}</summary>
           <p className="mt-2">{t("Effective version")}: <code className="break-all">{config.effective_version}</code></p>
           {config.versions.length > 0 && <ul className="mt-2 space-y-1.5">{config.versions.map(v => <li key={v.version_id} className="flex flex-wrap items-center gap-2"><code className="break-all">{v.version_id}</code><RecordRef id={v.applied_by} /><time className="tnum">{formatAbsolute(v.applied_at) || v.applied_at}</time></li>)}</ul>}
@@ -96,13 +97,13 @@ export function PostEventLearning() {
             <label htmlFor="learn-scenario" className="field-label">{t("Replay a synthetic scenario")}</label>
             <select id="learn-scenario" className="field" value={scenario} onChange={e => setScenario(e.target.value)}>
               {scenarios.map(s => <option key={s.id} value={s.id}>{s.title}</option>)}</select>
-            <button type="button" className="control" disabled={busy || !scenario} onClick={() => act("/api/learning/windows/replay", { source: "synthetic", scenario_id: scenario }, "Window recorded")}>{t("Replay scenario")}</button>
+            <Button type="button" disabled={busy || !scenario} onClick={() => act("/api/learning/windows/replay", { source: "synthetic", scenario_id: scenario }, "Window recorded")}>{t("Replay scenario")}</Button>
           </div>
           <div className="space-y-2">
             <p className="field-label">{t("Replay catalogue events (training years 2000-2017 only)")}</p>
             <input aria-label={t("Window start")} className="field" type="date" value={range.start} onChange={e => setRange({ ...range, start: e.target.value })}/>
             <input aria-label={t("Window end")} className="field" type="date" value={range.end} onChange={e => setRange({ ...range, end: e.target.value })}/>
-            <button type="button" className="control" disabled={busy} onClick={() => act("/api/learning/windows/replay", { source: "known_events", window_start: range.start, window_end: range.end }, "Window recorded")}>{t("Replay catalogue events")}</button>
+            <Button type="button" disabled={busy} onClick={() => act("/api/learning/windows/replay", { source: "known_events", window_start: range.start, window_end: range.end }, "Window recorded")}>{t("Replay catalogue events")}</Button>
           </div>
           <div className="space-y-2">
             <p className="field-label">{t("Close an operator event window")}</p>
@@ -111,7 +112,7 @@ export function PostEventLearning() {
             <input aria-label={t("Window start")} className="field" type="date" value={close.start} onChange={e => setClose({ ...close, start: e.target.value })}/>
             <input aria-label={t("Window end")} className="field" type="date" value={close.end} onChange={e => setClose({ ...close, end: e.target.value })}/>
             <input aria-label={t("Observed event days (comma-separated ISO dates)")} placeholder="2026-07-04, 2026-07-20" className="field" value={close.days} onChange={e => setClose({ ...close, days: e.target.value })}/>
-            <button type="button" className="control" disabled={busy || !close.start || !close.end} onClick={() => act("/api/learning/windows/close", { hazard: close.hazard, window_start: close.start, window_end: close.end, observed_event_days: closeDays }, "Window recorded")}>{t("Close window")}</button>
+            <Button type="button" disabled={busy || !close.start || !close.end} onClick={() => act("/api/learning/windows/close", { hazard: close.hazard, window_start: close.start, window_end: close.end, observed_event_days: closeDays }, "Window recorded")}>{t("Close window")}</Button>
           </div>
         </div>
       </Panel>}
@@ -123,15 +124,18 @@ export function PostEventLearning() {
             <StatusPill tone={w.basis === "synthetic_rehearsal" ? "sample" : "warning"}>{t(BASIS_LABEL[w.basis])}</StatusPill>
           </div>
           <p className="mt-1 text-xs text-muted">{w.basis_note}</p>
-          <div className="mt-2 rounded-md border border-stroke"><DataTable label={t("Per-rule statistics")} minWidth="44rem" rows={w.rules.length} columns={7}>
-            <thead><tr><th scope="col">{t("Rule")}</th><th scope="col" className="num">{t("Hits")}</th><th scope="col" className="num">{t("Misses")}</th><th scope="col" className="num">{t("False-alarm episodes")}</th><th scope="col" className="num">{t("Detected share")}</th><th scope="col" className="num">{t("False-alarm share")}</th><th scope="col" className="num">{t("Lead time (days)")}</th></tr></thead>
-            <tbody>{w.rules.map(r => <tr key={r.rule_id}><td title={r.rule_id}>{t(codeLabel(r.rule_id))}</td><td className="num">{r.hits}</td><td className="num">{r.misses}</td><td className="num">{r.false_alarm_episodes}</td>
-              <td className="num">{pctLabel(r.probability_of_detection)}{r.probability_of_detection.ci_reason && <span className="text-muted" title={r.probability_of_detection.ci_reason}> · {t(codeLabel(r.probability_of_detection.ci_reason))}</span>}</td>
-              <td className="num">{pctLabel(r.false_alarm_ratio)}</td><td className="num">{r.lead_time_days.n ? `${r.lead_time_days.min}/${r.lead_time_days.median}/${r.lead_time_days.max}` : t("n/a")}</td></tr>)}</tbody>
-          </DataTable></div>
+          <div className="mt-2 rounded-md border border-stroke"><SortableTable label={t("Per-rule statistics")} minWidth="44rem" rows={w.rules} rowKey={r => r.rule_id} columns={[
+            { key: "rule", label: t("Rule"), sortValue: r => t(codeLabel(r.rule_id)), cell: r => <span title={r.rule_id}>{t(codeLabel(r.rule_id))}</span> },
+            { key: "hits", label: t("Hits"), numeric: true, sortValue: r => r.hits, cell: r => r.hits },
+            { key: "misses", label: t("Misses"), numeric: true, sortValue: r => r.misses, cell: r => r.misses },
+            { key: "fa", label: t("False-alarm episodes"), numeric: true, sortValue: r => r.false_alarm_episodes, cell: r => r.false_alarm_episodes },
+            { key: "pod", label: t("Detected share"), numeric: true, sortValue: r => r.probability_of_detection.estimate, cell: r => <>{pctLabel(r.probability_of_detection)}{r.probability_of_detection.ci_reason && <span className="text-muted" title={r.probability_of_detection.ci_reason}> · {t(codeLabel(r.probability_of_detection.ci_reason))}</span>}</> },
+            { key: "far", label: t("False-alarm share"), numeric: true, sortValue: r => r.false_alarm_ratio.estimate, cell: r => pctLabel(r.false_alarm_ratio) },
+            { key: "lead", label: t("Lead time (days)"), numeric: true, sortValue: r => r.lead_time_days.n ? r.lead_time_days.median : null, cell: r => r.lead_time_days.n ? r.lead_time_days.min + "/" + r.lead_time_days.median + "/" + r.lead_time_days.max : t("n/a") },
+          ]}/></div>
           <p className="helper mt-1" title={w.config_version}>{t("Scored against the thresholds in force when the window closed.")}</p>
           {w.event_refs.length > 0 && <p className="mt-1 flex flex-wrap gap-1">{w.event_refs.map(ref => <RecordRef key={ref} id={ref} />)}</p>}
-          {isMaker && <button type="button" className="control control-sm mt-2" disabled={busy} onClick={() => act("/api/learning/proposals", { window_id: w.id }, "Proposal drafted")}><FileDiff size={16}/>{t("Propose threshold change")}</button>}
+          {isMaker && <Button size="sm" className="mt-2" type="button" disabled={busy} onClick={() => act("/api/learning/proposals", { window_id: w.id }, "Proposal drafted")}><FileDiff size={16}/>{t("Propose threshold change")}</Button>}
         </div>)}</div>}
       </Panel>
 
@@ -144,22 +148,22 @@ export function PostEventLearning() {
           <ul className="mt-2 space-y-1 text-sm">{p.changes.map(c => <li key={c.path} title={c.path}>{t(sentenceCase(c.path))}: <span className="tnum">{c.old} → <strong className="font-semibold">{c.new}</strong></span></li>)}</ul>
           <p className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted"><span>{t("Maker")}</span><RecordRef id={p.maker_subject} />{p.checker_subject && <><span>{t("Checker")}</span><RecordRef id={p.checker_subject} /></>}</p>
           <details className="mt-1 text-xs text-muted"><summary className="cursor-pointer">{t("Technical details")}</summary><code className="break-all">{p.base_version} → {p.new_version}</code></details>
-          {p.status === "draft" && isMaker && <button type="button" className="control mt-2" disabled={busy} onClick={() => act(`/api/learning/proposals/${p.id}/submit`, {}, "Submitted for independent review")}>{t("Submit for review")}</button>}
+          {p.status === "draft" && isMaker && <Button className="mt-2" type="button" disabled={busy} onClick={() => act(`/api/learning/proposals/${p.id}/submit`, {}, "Submitted for independent review")}>{t("Submit for review")}</Button>}
           {(p.status === "submitted" && isChecker || p.status === "approved" && !p.applied_version && isAdmin) && <div className="mt-2 space-y-2">
             <label htmlFor={`rationale-${p.id}`} className="field-label">{t("Decision rationale (10 to 2000 characters)")}</label>
             <textarea id={`rationale-${p.id}`} className="field !h-20 py-2" maxLength={2000} value={note(p.id)} onChange={e => setRationale({ ...rationale, [p.id]: e.target.value })}/>
             <div className="flex flex-wrap gap-2">
               {p.status === "submitted" && <>
-                <button type="button" className="control control-primary" disabled={busy || note(p.id).trim().length < 10} onClick={() => act(`/api/learning/proposals/${p.id}/review`, { approve: true, rationale: note(p.id) }, "Recorded as approved candidate")}><Check size={16}/>{t("Approve candidate")}</button>
-                <button type="button" className="control control-danger" disabled={busy || note(p.id).trim().length < 10} onClick={() => act(`/api/learning/proposals/${p.id}/review`, { approve: false, rationale: note(p.id) }, "Proposal rejected")}><X size={16}/>{t("Reject")}</button>
+                <Button variant="primary" type="button" disabled={busy || note(p.id).trim().length < 10} onClick={() => act(`/api/learning/proposals/${p.id}/review`, { approve: true, rationale: note(p.id) }, "Recorded as approved candidate")}><Check size={16}/>{t("Approve candidate")}</Button>
+                <Button variant="danger" type="button" disabled={busy || note(p.id).trim().length < 10} onClick={() => act(`/api/learning/proposals/${p.id}/review`, { approve: false, rationale: note(p.id) }, "Proposal rejected")}><X size={16}/>{t("Reject")}</Button>
               </>}
-              {p.status === "approved" && <button type="button" className="control control-primary" disabled={busy || note(p.id).trim().length < 10} onClick={() => act(`/api/learning/proposals/${p.id}/apply`, { rationale: note(p.id) }, "New config version applied")}>{t("Apply as new config version")}</button>}
+              {p.status === "approved" && <Button variant="primary" type="button" disabled={busy || note(p.id).trim().length < 10} onClick={() => act(`/api/learning/proposals/${p.id}/apply`, { rationale: note(p.id) }, "New config version applied")}>{t("Apply as new config version")}</Button>}
             </div>
             <p className="helper">{t("The server refuses self-approval, system accounts and other agencies. Applying is a separate Administrator action.")}</p>
           </div>}
         </div>)}</div>}
       </Panel>
-      <div className="flex items-center gap-3"><button type="button" className="control" onClick={() => void load()} disabled={busy}><RefreshCw size={16}/>{t("Refresh")}</button>
+      <div className="flex items-center gap-3"><Button type="button" onClick={() => void load()} disabled={busy}><RefreshCw size={16}/>{t("Refresh")}</Button>
         <span aria-live="polite" role="status" className="text-xs">{message}</span></div>
     </div>}
   </AppShell>;

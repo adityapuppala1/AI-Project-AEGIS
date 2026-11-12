@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { buttonClass } from "./ui";
 import Link from "next/link";
 import * as Menu from "@radix-ui/react-dropdown-menu";
 import { ChevronDown, Info, KeyRound, LogIn, LogOut } from "lucide-react";
@@ -90,5 +91,5 @@ export function OperatorAuth() {
   }
   if (!session.configured) return <span className="hidden text-xs text-amber-700 dark:text-amber-300 md:inline" title={t("Operator access requires a configured trusted identity provider")}>{t("SSO not configured")}</span>;
   // Icon-only below sm so the top bar fits a phone; the link keeps its full accessible name.
-  return <a className="control control-icon sm:w-auto sm:px-3" href="/sign-in" aria-label="Operator sign in" title="Operator sign in"><LogIn size={16} aria-hidden="true"/><span className="hidden sm:inline">{t("Operator sign in")}</span></a>;
+  return <a className={buttonClass({ iconOnly: true, className: "sm:w-auto sm:px-3" })} href="/sign-in" aria-label="Operator sign in" title="Operator sign in"><LogIn size={16} aria-hidden="true"/><span className="hidden sm:inline">{t("Operator sign in")}</span></a>;
 }

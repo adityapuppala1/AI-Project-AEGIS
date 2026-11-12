@@ -344,3 +344,55 @@ test('sign-in return path accepts only plain in-app pages and never travels thro
   assert.ok(logout.includes('id_token_hint') && server.includes('path: "/api/auth"') === false && callback.includes('path: "/api/auth"'), 'id token cookie is limited to the sign-in endpoints');
   assert.ok(callback.includes('displayLabel(idClaims.preferred_username)') && !/roles:\s*idClaims/.test(callback), 'names come from the verified ID token and are display only');
 });
+
+test('another agency is refused with a styled 403 page that stays behind the gate and shows no data', () => {
+  const gate = loadTs('lib/session-gate.ts', { jose: require('jose') });
+  assert.ok(!gate.isPublicPath('/no-access'), 'the refusal page is not a public page');
+  assert.ok(gate.safeReturnPath('/no-access') !== null, 'it is an ordinary in-app path');
+  const middleware = read('middleware.ts');
+  const branch = middleware.slice(middleware.indexOf('isFixturePath(pathname) && session.agencyId'), middleware.indexOf('if (isApi) return NextResponse.next();'));
+  assert.ok(branch.includes('NextResponse.rewrite(denied, { status: 403'), 'rewritten, with status 403');
+  assert.ok(branch.includes('denied.pathname = "/no-access"'), 'to the in-app refusal page');
+  assert.ok(!/redirect\(/.test(branch.slice(branch.indexOf('const denied'))), 'never a redirect to another page');
+  assert.ok(!branch.includes('text/plain'), 'no plain-text refusal any more');
+  assert.ok(branch.includes('"No records for your agency"') && branch.includes('status: 403'), 'the API refusal is unchanged');
+  assert.ok(branch.includes('Content-Security-Policy') && branch.includes('x-nonce'), 'the refusal page carries the same nonce and policy');
+  const page = read('app/no-access/page.tsx');
+  assert.ok(page.includes('code="403"') && page.includes('SystemPage'), 'it reuses the system page');
+  assert.ok(!/fetch\(|api\//.test(page.replace(/\/\/.*$/gm, '')), 'the page reads no data');
+});
+
+test('middleware behaviour: a page of another agency is a 403 rewrite to /no-access; the owner, the API and signed-out visitors are unchanged', async () => {
+  const jose = require('jose'), { NextRequest } = require('next/server'), crypto = require('node:crypto');
+  const key = crypto.randomBytes(32), env = { ...process.env, BFF_SESSION_KEY_BASE64: key.toString('base64'), APP_ORIGIN: 'http://localhost:3000', NODE_ENV: 'production' };
+  delete env.AEGIS_FIXTURE_AGENCY_ID;
+  const compile = (file, map) => {
+    const code = ts.transpileModule(read(file), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, mod = { exports: {} };
+    new Function('require', 'module', 'exports', 'process', code)(name => map[name] ?? require(name), mod, mod.exports, { env });
+    return mod.exports;
+  };
+  const gate = compile('lib/session-gate.ts', { jose }), csp = compile('lib/csp.ts', {});
+  const { middleware } = compile('middleware.ts', { './lib/csp': csp, './lib/session-gate': gate, 'next/server': require('next/server') });
+  const seal = agencyId => new jose.EncryptJWT({ sub: 'u1', agencyId, roles: ['incident_operator'] }).setProtectedHeader({ alg: 'dir', enc: 'A256GCM' }).setExpirationTime(Math.floor(Date.now() / 1000) + 600).encrypt(key);
+  const ask = async (url, agencyId) => middleware(new NextRequest('http://localhost:3000' + url, agencyId ? { headers: { cookie: 'aegis-session=' + await seal(agencyId) } } : {}));
+  const owner = '11111111-1111-4111-8111-111111111111', other = '22222222-2222-4222-8222-222222222222';
+
+  const refused = await ask('/incidents', other);
+  assert.equal(refused.status, 403, 'still a 403');
+  assert.match(refused.headers.get('x-middleware-rewrite') ?? '', /\/no-access$/, 'rewritten to the in-app page');
+  assert.equal(refused.headers.get('location'), null, 'no redirect');
+  assert.ok((refused.headers.get('content-security-policy') ?? '').includes("script-src"), 'same security policy as every page');
+  assert.equal(refused.headers.get('cache-control'), 'no-store');
+  assert.doesNotMatch(refused.headers.get('content-type') ?? '', /text\/plain/);
+
+  const api = await ask('/api/incidents', other);
+  assert.equal(api.status, 403); assert.equal((await api.json()).code, 'OUT_OF_SCOPE', 'the API refusal is unchanged');
+
+  const ok = await ask('/incidents', owner);
+  assert.notEqual(ok.status, 403); assert.equal(ok.headers.get('x-middleware-rewrite'), null, 'the owning agency sees its own records');
+
+  const signedOut = await ask('/no-access');
+  assert.equal(signedOut.status, 307); assert.match(signedOut.headers.get('location'), /\/sign-in/, 'the refusal page itself stays behind the sign-in gate');
+  const signedOutFixture = await ask('/incidents');
+  assert.equal(signedOutFixture.status, 307, 'a signed-out visitor is sent to sign in, not told which pages exist');
+});

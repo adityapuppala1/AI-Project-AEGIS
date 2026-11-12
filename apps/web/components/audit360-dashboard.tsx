@@ -1,7 +1,7 @@
 "use client";
 
 import { codeLabel } from "../lib/labels";
-import { ErrorState } from "./ui";
+import { ErrorState, Button, buttonClass, Panel } from "./ui";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AlertTriangle, Archive, ArrowRight, Download, FileCheck2, FileClock, ListChecks, RefreshCw, ShieldAlert } from "lucide-react";
@@ -79,16 +79,8 @@ export function Audit360Dashboard() {
         It excludes private approval histories, verified operator identities and real agency communications.
         A SHA-256 content checksum is not a signature or proof of independent custody.</p>
     </div>
-    <section className="panel overflow-hidden">
-      <div className="panel-heading"><div>
-        <h2 className="flex items-center gap-2 t-title"><Archive size={18} className="text-accent"/> Traceable Exercise Snapshot</h2>
-        <p className="mt-1 text-xs text-muted">Choose one of five synthetic incidents; no private cases are searchable here.</p>
-      </div>
-      <button type="button" className="control control-sm" disabled={loading}
-        onClick={() => setRevision(value=>value+1)}>
-        <RefreshCw size={15} className={loading ? "animate-spin" : ""}/> Refresh
-      </button>
-      </div>
+    <Panel className="overflow-hidden" bodyClassName="p-0" icon={Archive} title="Traceable Exercise Snapshot" description="Choose one of five synthetic incidents; no private cases are searchable here."
+      actions={<Button size="sm" type="button" disabled={loading} onClick={() => setRevision(value=>value+1)}><RefreshCw size={15} className={loading ? "animate-spin" : ""}/> Refresh</Button>}>
       <div className="p-5">
         <label htmlFor="audit-case" className="mb-2 block text-xs font-semibold text-muted">Synthetic exercise case</label>
         <select id="audit-case" className="field max-w-[420px]" value={incidentId}
@@ -111,11 +103,11 @@ export function Audit360Dashboard() {
             { label: "Unsigned SHA-256 manifest", value: <span className="flex flex-wrap items-center gap-2"><span className="break-all font-mono text-[11px] text-muted">{bundle.manifest_sha256}</span><CopyButton value={bundle.manifest_sha256} label={t("Copy checksum")}/></span> },
           ]}/>
           <div className="mt-5 flex flex-wrap gap-3">
-            <a href={"/api/incidents/" + incidentId + "/audit"} className="control control-primary control-sm"
+            <a href={"/api/incidents/" + incidentId + "/audit"} className={buttonClass({ variant: "primary", size: "sm" })}
               download={"aegis-exercise-audit-" + incidentId + ".json"}>
               <Download size={15}/> Export synthetic JSON bundle
             </a>
-            <Link className="control control-sm" href={"/incidents/" + incidentId}>
+            <Link className={buttonClass({ size: "sm" })} href={"/incidents/" + incidentId}>
               <FileCheck2 size={15}/> Open case details <ArrowRight size={14}/>
             </Link>
           </div>
@@ -137,6 +129,6 @@ export function Audit360Dashboard() {
           <p className="mt-4 text-xs leading-5 text-muted">{bundle.integrity_note}</p>
         </>}
       </div>
-    </section>
+    </Panel>
   </AppShell>;
 }

@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { AppShell } from "./app-shell";
 import { useT } from "./language-provider";
-import { DataFreshness, EmptyState, ErrorState, SearchField, SegmentedControl, SkeletonRows, StatStrip, StatTile, StatusPill, type Tone } from "./ui";
+import { DataFreshness, EmptyState, ErrorState, SearchField, SegmentedControl, SkeletonRows, StatStrip, StatTile, StatusPill, type Tone, Button, buttonClass, Panel } from "./ui";
 import { isSyntheticTaskPayload,
   type ExerciseAgencyTask, type ExerciseAgencyTaskBoard,
   type ExerciseAgencyTaskDetail, type ExerciseTaskState,
@@ -128,9 +128,9 @@ export function AgencySync() {
     {error && <ErrorState className="mb-4" message={error + ". " + t("No past result is treated as current.")} onRetry={() => setRevision(value => value+1)}/>}
     <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
       <p className="flex flex-wrap items-center gap-2 text-xs text-muted">Version: AEGIS urban flood exercise v0.1 · {board ? when(board.as_of) : "Awaiting local database"}{board && <DataFreshness observedAt={board.as_of} staleAfterHours={1}/>}</p>
-      <button type="button" className="control" onClick={() => setRevision(value => value+1)} disabled={loading}>
+      <Button type="button" onClick={() => setRevision(value => value+1)} disabled={loading}>
         <RefreshCw size={16} className={loading ? "animate-spin" : ""}/> Refresh scripted tasks
-      </button>
+      </Button>
     </div>
     <StatStrip label={t("Scripted task summary")} className="sm:grid-cols-3 xl:grid-cols-3">
       {([
@@ -141,11 +141,7 @@ export function AgencySync() {
         value={board ? board.status_counts[item.state] : "—"} hint={t("Fictional department tasks")}/>)}
     </StatStrip>
     <div className="mt-5 grid items-start gap-5 2xl:grid-cols-[minmax(0,1.25fr)_minmax(320px,1fr)]">
-      <section className="panel min-w-0 overflow-hidden">
-        <div className="panel-heading"><div>
-          <h2 className="flex items-center gap-2 t-title"><ClipboardList size={18} className="text-accent"/> Task registry</h2>
-          <p className="mt-1 text-xs text-muted">Select a task for its immutable scripted chronology.</p>
-        </div></div>
+      <Panel className="min-w-0 overflow-hidden" bodyClassName="p-0" icon={ClipboardList} title="Task registry" description="Select a task for its immutable scripted chronology.">
         <div className="flex flex-wrap items-center gap-3 border-b border-stroke p-4">
           <SearchField label={t("Filter fictional task records")} value={search} onChange={setSearch} placeholder={t("Search desk, kind or case...")} className="min-w-[190px] flex-1"/>
           <label><span className="sr-only">Filter task state</span>
@@ -175,9 +171,8 @@ export function AgencySync() {
           </button>)}
         </div>
         <p className="border-t border-stroke px-5 py-3 text-xs text-muted">{shown.length} matching of {board?.total_in_scope ?? "—"} local fictional records.</p>
-      </section>
-      <section className="panel min-w-0 overflow-hidden" aria-label="Scripted acknowledgement timeline">
-        <div className="panel-heading"><h2 className="flex items-center gap-2 t-title"><GitBranch size={18} className="text-accent"/> Scripted audit trail</h2></div>
+      </Panel>
+      <Panel className="min-w-0 overflow-hidden" aria-label="Scripted acknowledgement timeline" bodyClassName="p-0" icon={GitBranch} title="Scripted audit trail">
         {historyError && <ErrorState className="m-4" message={historyError} onRetry={() => setRevision(value => value+1)}/>}
         {historyLoading && <div className="p-4"><SkeletonRows rows={3} label={t("Loading chronology…")}/></div>}
         {!selectedId && <EmptyState icon={GitBranch} title={t("Select a fictional task")} body={t("Select a fictional task to inspect its scripted acknowledgement chain.")}/>}
@@ -194,13 +189,13 @@ export function AgencySync() {
             </li>)}
           </ol>
           <div className="mt-5 flex flex-wrap gap-2">
-            <Link className="control control-sm" href={"/incidents/" + detail.task.incident_id}>
+            <Link className={buttonClass({ size: "sm" })} href={"/incidents/" + detail.task.incident_id}>
               Incident evidence <ArrowRight size={14}/></Link>
-            <Link className="control control-sm" href="/playbooks">
+            <Link className={buttonClass({ size: "sm" })} href="/playbooks">
               Source playbook <ArrowRight size={14}/></Link>
           </div>
         </div>}
-      </section>
+      </Panel>
     </div>
   </AppShell>;
 }

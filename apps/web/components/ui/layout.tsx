@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useId, useState, type ReactNode } from "react";
+import { useId, useState, type HTMLAttributes, type ReactNode } from "react";
 import * as Collapsible from "@radix-ui/react-collapsible";
 import { Ban, ChevronDown, ChevronRight, CircleHelp, Eye, FlaskConical, MousePointerClick, type LucideIcon } from "lucide-react";
 import { useT } from "../language-provider";
@@ -29,7 +29,7 @@ export function PageHeader({ eyebrow, chain, title, description, actions, breadc
           {breadcrumbs.map((crumb, index) => {
             const last = index === breadcrumbs.length - 1;
             return <li key={`${crumb.label}-${index}`} className="inline-flex items-center gap-1">
-              {crumb.href && !last ? <Link href={crumb.href} className="rounded underline-offset-2 hover:text-ink hover:underline">{crumb.label}</Link> : <span aria-current={last ? "page" : undefined} className={last ? "font-semibold text-ink" : ""}>{crumb.label}</span>}
+              {crumb.href && !last ? <Link href={crumb.href} className="rounded underline-offset-2 hover:text-ink hover:underline max-sm:inline-flex max-sm:min-h-11 max-sm:items-center">{crumb.label}</Link> : <span aria-current={last ? "page" : undefined} className={last ? "font-semibold text-ink" : ""}>{crumb.label}</span>}
               {!last && <ChevronRight size={12} aria-hidden="true" />}
             </li>;
           })}
@@ -73,19 +73,19 @@ export function PageHelp({ help, defaultOpen = false }: Readonly<{ help: PageHel
  * Pass `bodyClassName="p-0"` when the body is a table or a full-bleed list. With `collapsible` the heading holds a
  * button (aria-expanded/aria-controls) and the closed body is hidden, so it is neither visible nor focusable.
  */
-export function Panel({ title, description, icon: Icon, actions, collapsible = false, defaultOpen = true, level = 2, id, className = "", bodyClassName, children }: Readonly<{
-  title?: string; description?: string; icon?: LucideIcon; actions?: ReactNode; collapsible?: boolean; defaultOpen?: boolean; level?: 2 | 3;
-  id?: string; className?: string; bodyClassName?: string; children: ReactNode;
-}>) {
+export function Panel({ title, titleId, description, icon: Icon, actions, collapsible = false, defaultOpen = true, level = 2, id, className = "", bodyClassName, as: Tag = "section", children, ...rest }: Readonly<{
+  title?: ReactNode; titleId?: string; description?: string; icon?: LucideIcon; actions?: ReactNode; collapsible?: boolean; defaultOpen?: boolean; level?: 2 | 3;
+  id?: string; className?: string; bodyClassName?: string; as?: "section" | "div" | "aside" | "article"; children: ReactNode;
+}> & Omit<HTMLAttributes<HTMLElement>, "title" | "children" | "className" | "id">) {
   const generated = useId();
   const bodyId = `${id ?? generated}-body`;
   const [open, setOpen] = useState(defaultOpen);
   const Heading = level === 2 ? "h2" : "h3";
   const label = <>{Icon && <Icon size={16} aria-hidden="true" className="shrink-0 text-muted" />}<span>{title}</span></>;
-  return <section id={id} className={`panel ${className}`}>
+  return <Tag id={id} className={`panel ${className}`} {...rest}>
     {(title || actions) && <div className={`panel-heading ${collapsible && !open ? "border-b-0" : ""}`}>
       <div className="min-w-0">
-        {title && <Heading className="t-title">
+        {title && <Heading id={titleId} className="t-title">
           {collapsible
             ? <button type="button" aria-expanded={open} aria-controls={bodyId} onClick={() => setOpen(value => !value)} className="inline-flex min-h-8 items-center gap-2 rounded-md text-left hover:text-accent">
                 {label}<ChevronDown size={14} aria-hidden="true" className={`shrink-0 transition-transform ${open ? "" : "-rotate-90"}`} /></button>
@@ -96,7 +96,7 @@ export function Panel({ title, description, icon: Icon, actions, collapsible = f
       {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
     </div>}
     <div id={bodyId} hidden={collapsible && !open} className={bodyClassName ?? "panel-body"}>{children}</div>
-  </section>;
+  </Tag>;
 }
 
 /** The row of filters and actions above a list or table. One per view; primary action last. */

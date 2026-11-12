@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Ban, Bot, Building2, FlaskConical, RadioTower, Smartphone, UserCheck } from "lucide-react";
 import { AppShell } from "./app-shell";
 import { useT } from "./language-provider";
-import { Panel, TwoKey } from "./ui";
+import { Panel, TwoKey, buttonClass } from "./ui";
 import { CHAIN, allPages, type ChainStep } from "../lib/navigation";
 
 const STEPS: Record<ChainStep, { title: string; text: string; ai: string; people: string }> = {
@@ -53,7 +53,7 @@ export function AboutAegis() {
                   <div className="flex gap-2"><dt className="inline-flex shrink-0 items-center gap-1 font-semibold text-muted"><Bot size={13} aria-hidden="true" />{t("Software")}</dt><dd>{t(info.ai)}</dd></div>
                   <div className="flex gap-2"><dt className="inline-flex shrink-0 items-center gap-1 font-semibold text-muted"><UserCheck size={13} aria-hidden="true" />{t("People")}</dt><dd>{t(info.people)}</dd></div>
                 </dl>
-                {pages.length > 0 && <p className="mt-2.5 flex flex-wrap gap-1.5">{pages.map(({ href, label, icon: Icon }) => <Link key={href} href={href} className="control control-sm"><Icon size={14} aria-hidden="true" />{t(label)}</Link>)}</p>}
+                {pages.length > 0 && <p className="mt-2.5 flex flex-wrap gap-1.5">{pages.map(({ href, label, icon: Icon }) => <Link key={href} href={href} className={buttonClass({ size: "sm" })}><Icon size={14} aria-hidden="true" />{t(label)}</Link>)}</p>}
               </div>
             </li>;
           })}</ol>

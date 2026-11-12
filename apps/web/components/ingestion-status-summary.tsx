@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, GitMerge, ShieldCheck } from "lucide-react";
 import { useT } from "./language-provider";
-import { DataFreshness, StatusPill } from "./ui";
+import { DataFreshness, StatusPill, buttonClass, Panel } from "./ui";
 import type { IngestionOverview } from "../lib/ingestion";
 
 export function IngestionStatusSummary() {
@@ -22,7 +22,7 @@ export function IngestionStatusSummary() {
       .catch(() => { if (!controller.signal.aborted) setFailed(true); });
     return () => controller.abort();
   }, []);
-  return <section className="panel mt-5 flex flex-wrap items-center justify-between gap-4 p-4" aria-label="DataFusion replay summary">
+  return <Panel className="mt-5" bodyClassName="flex flex-wrap items-center justify-between gap-4 p-4" aria-label="DataFusion replay summary">
     <div className="flex min-w-0 items-start gap-3">
       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent"><GitMerge size={20}/></span>
       <div className="min-w-0"><h2 className="text-sm font-bold">DataFusion Ingestion <span className="ml-1 font-normal text-muted">· Synthetic replay</span></h2>
@@ -36,6 +36,6 @@ export function IngestionStatusSummary() {
           {status && <DataFreshness observedAt={status.generated_at} staleAfterHours={1}/>}</p>
       </div>
     </div>
-    <Link href="/ingestion" className="control control-sm">Review replay <ArrowRight size={15}/></Link>
-  </section>;
+    <Link href="/ingestion" className={buttonClass({ size: "sm" })}>Review replay <ArrowRight size={15}/></Link>
+  </Panel>;
 }

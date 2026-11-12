@@ -237,11 +237,11 @@ export function WelcomeExperience() {
                   <span>Looking at <span ref={viewRef}>20.0°N 80.5°E</span></span>
                   {now && <span className="wl-clock">{istClock(now)} IST, {daylight} over India</span>}
                 </p>
+                <p className="wl-credit">Illustration, not live imagery</p>
                 <div className="wl-key" key={active + hazardId}>
                   <b>{active === 0 ? hazard.mark : STEPS[active - 1].title}</b>
                   <ul>{legend.map(([tone, text]) => <li key={text}><i data-tone={tone} />{text}</li>)}</ul>
                 </div>
-                <p className="wl-credit">Illustration, not live imagery</p>
               </div>
             </div>
             <nav className="wl-rail" aria-label="Steps in the story">
