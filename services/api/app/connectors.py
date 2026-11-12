@@ -3,9 +3,13 @@
 Hosts are hard-coded per connector; fetches use no redirects, no proxy variables, a 10 s socket
 timeout, a 25 s deadline and a 64 KB cap for tests. Test responses are never persisted and
 secret values are never returned. `authority_notification` cannot be enabled: there is no send path.
-See docs/PROACTIVE_IMPLEMENTATION_CONTRACT.md.
+The `comms_*` entries hold staff message provider credentials (email, SMS, WhatsApp). Their test only
+asks the provider whether the credentials are valid; nothing in this module sends a message and they
+cannot be enabled. See docs/PROACTIVE_IMPLEMENTATION_CONTRACT.md and docs/COMMUNICATION_CHANNELS.md.
 """
+import base64
 import os
+import re
 import time
 from datetime import datetime, timezone
 from urllib.error import HTTPError, URLError
@@ -69,6 +73,24 @@ def _bool(candidate):
     if not isinstance(candidate, bool):
         raise ValueError("must be true or false")
     return candidate
+
+
+def _pattern(expression):
+    """A text setting that is either empty (not set yet) or matches the whole expression."""
+    compiled = re.compile(expression)
+
+    def check(candidate):
+        if not isinstance(candidate, str) or (candidate != "" and not compiled.fullmatch(candidate)):
+            raise ValueError("unsupported value")
+        return candidate
+    return check
+
+
+EMAIL_ADDRESS = r"[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9-]{1,63}(\.[A-Za-z0-9-]{1,63}){1,4}"
+TWILIO_ACCOUNT_SID = r"AC[0-9a-fA-F]{32}"
+SMS_SENDER = r"\+[1-9][0-9]{7,14}|[A-Za-z0-9]{3,11}"
+WHATSAPP_NUMBER_ID = r"[0-9]{5,20}"
+COMMS_LOCKED = "Credentials are checked only. No message is sent: this build has no send code and the channel cannot be enabled."
 
 
 def _field(name, label, secret=False, required=False):
@@ -141,7 +163,43 @@ REGISTRY = {
         "licence": "No send path exists in this demonstration.",
         "hosts": (), "fields": (), "settings": {"enabled": (False, _fixed(False))},
     },
+    # Staff message channels. "delivery" marks an entry that can never be enabled from here:
+    # "built_in" needs no provider and never leaves this server; "locked" stores and checks credentials only.
+    "comms_in_app": {
+        "name": "In-app alerts (signed-in users)", "category": "communications", "delivery": "built_in",
+        "licence": "Built in. Requests, tasks and approvals appear only to people signed in to AEGIS; nothing leaves this server.",
+        "hosts": (), "fields": (), "settings": {"mode": ("signed_in_users_only", _fixed("signed_in_users_only"))},
+    },
+    "comms_email": {
+        "name": "Email provider (Twilio SendGrid)", "category": "communications", "delivery": "locked",
+        "licence": "Paid service; SendGrid terms and sender authentication apply (https://sendgrid.com). " + COMMS_LOCKED,
+        "hosts": ("api.sendgrid.com",),
+        "fields": (_field("api_key", "API key", True, True), _field("from_address", "Sender email address", False, True)),
+        "settings": {"from_address": ("", _pattern(EMAIL_ADDRESS))},
+    },
+    "comms_sms": {
+        "name": "SMS provider (Twilio)", "category": "communications", "delivery": "locked",
+        "licence": ("Paid service; Twilio terms apply. SMS to Indian numbers also needs DLT registration of the sender "
+                    "and each message template with a telecom operator. " + COMMS_LOCKED),
+        "hosts": ("api.twilio.com",),
+        "fields": (_field("account_sid", "Account SID", False, True), _field("auth_token", "Auth token", True, True),
+                   _field("from_number", "Sender number or sender ID", False, True)),
+        "settings": {"account_sid": ("", _pattern(TWILIO_ACCOUNT_SID)), "from_number": ("", _pattern(SMS_SENDER))},
+    },
+    "comms_whatsapp": {
+        "name": "WhatsApp provider (Meta Cloud API)", "category": "communications", "delivery": "locked",
+        "licence": ("Meta WhatsApp Business terms apply; conversations are charged by Meta and message templates need "
+                    "Meta approval. " + COMMS_LOCKED),
+        "hosts": ("graph.facebook.com",),
+        "fields": (_field("access_token", "Access token", True, True), _field("phone_number_id", "Phone number ID", False, True)),
+        "settings": {"phone_number_id": ("", _pattern(WHATSAPP_NUMBER_ID))},
+    },
 }
+
+
+def never_enabled(connector_id: str) -> bool:
+    """True for entries with no send path: authority notification and every communications channel."""
+    return connector_id == "authority_notification" or "delivery" in REGISTRY[connector_id]
 
 
 class _NoRedirect(HTTPRedirectHandler):
@@ -191,7 +249,7 @@ def default_settings(connector_id: str) -> dict:
 def effective(connector_id: str) -> dict:
     """Enabled flag and settings, defaults filled in; never contains secret values."""
     config = proactive_store.get_store().list_configs()["configs"].get(connector_id) or {}
-    return {"enabled": bool(config.get("enabled")) and connector_id != "authority_notification",
+    return {"enabled": bool(config.get("enabled")) and not never_enabled(connector_id),
             "settings": {**default_settings(connector_id), **(config.get("settings") or {})},
             "version": config.get("version", 0)}
 
@@ -214,13 +272,17 @@ def _view(connector_id: str, data: dict) -> dict:
     secrets = data["secrets"].get(connector_id, {})
     test = data["tests"].get(connector_id)
     last_test = None
-    if test:
+    saved_at, tested_at = config.get("updated_at"), (test or {}).get("at")
+    # A channel's status is its credential check alone, so a check older than the last save no longer counts.
+    stale = (bool(spec.get("delivery")) and hasattr(saved_at, "isoformat") and hasattr(tested_at, "isoformat")
+             and tested_at < saved_at)
+    if test and not stale:
         detail = test.get("detail") or {}
         last_test = {"at": _iso(test["at"]), "ok": bool(test["ok"]), "status_code": detail.get("status_code"),
                      "latency_ms": detail.get("latency_ms"), "message": detail.get("message")}
     return {"id": connector_id, "name": spec["name"], "category": spec["category"], "licence": spec["licence"],
-            "hosts": list(spec["hosts"]),
-            "enabled": bool(config.get("enabled")) and connector_id != "authority_notification",
+            "hosts": list(spec["hosts"]), "delivery": spec.get("delivery"),
+            "enabled": bool(config.get("enabled")) and not never_enabled(connector_id),
             "version": config.get("version", 0), "updated_at": _iso(config.get("updated_at")),
             "updated_by": config.get("updated_by"),
             "settings": {**default_settings(connector_id), **(config.get("settings") or {})},
@@ -321,10 +383,66 @@ def _test_authority(settings):
     return _result(False, None, "no_send_path")
 
 
+# Communications checks ask the provider about the credentials themselves. None of them calls a send endpoint.
+
+def _credentials(status, rejected=(401, 403)):
+    if status == 200:
+        return _result(True, status, "credentials_accepted_nothing_sent")
+    if status in rejected:
+        return _result(False, status, "credentials_rejected")
+    return _result(False, status, "upstream_status")
+
+
+def _test_comms_in_app(settings):
+    return _result(True, None, "built_in_no_transport")
+
+
+def _test_comms_email(settings):
+    key = read_secret("comms_email", "api_key")
+    if not key:
+        return _result(False, None, "secret_missing")
+    if not re.fullmatch(EMAIL_ADDRESS, str(settings.get("from_address") or "")):
+        return _result(False, None, "setting_missing")
+    status, payload = bounded_request("https://api.sendgrid.com/v3/scopes", REGISTRY["comms_email"]["hosts"],
+                                      headers={"Authorization": "Bearer " + key}, truncate=True)
+    can_send = b'"mail.send"' in payload
+    del payload  # the scope list is discarded; only whether Mail Send is present is kept
+    if status == 200 and not can_send:
+        return _result(False, status, "key_lacks_mail_send")
+    return _credentials(status)
+
+
+def _test_comms_sms(settings):
+    token = read_secret("comms_sms", "auth_token")
+    if not token:
+        return _result(False, None, "secret_missing")
+    sid = str(settings.get("account_sid") or "")
+    if not re.fullmatch(TWILIO_ACCOUNT_SID, sid) or not re.fullmatch(SMS_SENDER, str(settings.get("from_number") or "")):
+        return _result(False, None, "setting_missing")
+    basic = base64.b64encode(f"{sid}:{token}".encode()).decode()
+    status, _ = bounded_request(f"https://api.twilio.com/2010-04-01/Accounts/{sid}.json", REGISTRY["comms_sms"]["hosts"],
+                                headers={"Authorization": "Basic " + basic}, truncate=True)
+    return _credentials(status)
+
+
+def _test_comms_whatsapp(settings):
+    token = read_secret("comms_whatsapp", "access_token")
+    if not token:
+        return _result(False, None, "secret_missing")
+    number_id = str(settings.get("phone_number_id") or "")
+    if not re.fullmatch(WHATSAPP_NUMBER_ID, number_id):
+        return _result(False, None, "setting_missing")
+    status, _ = bounded_request(f"https://graph.facebook.com/{number_id}?fields=id", REGISTRY["comms_whatsapp"]["hosts"],
+                                headers={"Authorization": "Bearer " + token}, truncate=True)
+    return _credentials(status, rejected=(400, 401, 403))  # Meta answers a bad token or unknown number ID with 400
+
+
 TESTS = {"open_meteo": _test_open_meteo, "nasa_firms": _test_nasa_firms, "nasa_lhasa": _test_nasa_lhasa,
          "copernicus_cdse": _test_copernicus, "imd_warnings": _test_imd, "gdacs": _test_gdacs,
          "google_flood_forecasting": _test_google_flood, "typesafe_jev": _test_typesafe,
-         "cap_handover": _test_cap, "authority_notification": _test_authority}
+         "cap_handover": _test_cap, "authority_notification": _test_authority,
+         "comms_in_app": _test_comms_in_app, "comms_email": _test_comms_email, "comms_sms": _test_comms_sms,
+         "comms_whatsapp": _test_comms_whatsapp}
 
 
 def run_test(connector_id: str) -> dict:
@@ -383,6 +501,8 @@ def update_connector(connector_id: str, body: ConnectorUpdate, operator: Operato
     spec = REGISTRY[connector_id]
     if connector_id == "authority_notification" and body.enabled:
         raise HTTPException(status_code=409, detail="authority_notification_cannot_be_enabled")
+    if never_enabled(connector_id) and body.enabled:
+        raise HTTPException(status_code=409, detail="channel_cannot_be_enabled")
     settings = default_settings(connector_id)
     for name, value in body.settings.items():
         if name not in spec["settings"]:

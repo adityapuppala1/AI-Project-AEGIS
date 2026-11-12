@@ -141,6 +141,14 @@ export function buildSampleConnectors(nowMs: number): ConnectorsPayload {
       settings: { mode: "file_export" }, fields: [], last_test: ok(12, 200) },
     { ...base, id: "authority_notification", name: "Authority notification", category: "hand-over", licence: "", hosts: [], enabled: false,
       settings: { enabled: false }, fields: [], last_test: null },
+    { ...base, id: "comms_in_app", name: "In-app alerts", category: "communications", delivery: "built_in", hosts: [], enabled: false,
+      settings: { mode: "signed_in_users_only" }, fields: [], last_test: null },
+    { ...base, id: "comms_email", name: "Email provider", category: "communications", delivery: "locked", hosts: ["api.sendgrid.com"], enabled: false,
+      settings: { from_address: "" }, fields: [field("api_key", "API key", true, true, false), field("from_address", "Sender email address", false, true, false)], last_test: null },
+    { ...base, id: "comms_sms", name: "SMS provider", category: "communications", delivery: "locked", hosts: ["api.twilio.com"], enabled: false,
+      settings: { account_sid: "", from_number: "" }, fields: [field("account_sid", "Account SID", false, true, false), field("auth_token", "Auth token", true, true, false), field("from_number", "Sender number or sender ID", false, true, false)], last_test: null },
+    { ...base, id: "comms_whatsapp", name: "WhatsApp provider", category: "communications", delivery: "locked", hosts: ["graph.facebook.com"], enabled: false,
+      settings: { phone_number_id: "" }, fields: [field("access_token", "Access token", true, true, false), field("phone_number_id", "Phone number ID", false, true, false)], last_test: null },
   ];
   return { master_key_configured: false, connectors };
 }

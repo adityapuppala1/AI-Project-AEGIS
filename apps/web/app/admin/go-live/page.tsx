@@ -69,6 +69,13 @@ const SECTIONS: Section[] = [
   { id: "never", title: "8 · Cannot be enabled by any key", summary: "Sending real public alerts is outside AEGIS by design.", items: [
     { name: "Live public warning, SMS, cell broadcast or dispatch", kind: "agreement", needed: "Government channel only", where: "Not in AEGIS: NDMA / state SDMA → SACHET (C-DOT) → each operator's cell-broadcast centre", how: "AEGIS prepares a private CAP draft that a different human approves, then an authorised officer hands it over. A formal agency partnership is required; no configuration here turns on sending." },
   ]},
+  { id: "channels", title: "9 · Staff message channels (credentials only; sending locked)", summary: "How AEGIS reaches its own operators, department desks and response teams. Only in-app alerts are in use. The three providers below can be set up and their credentials checked on the Connectors page, but AEGIS has no sending code, so no email, text or WhatsApp message leaves it. Details are in docs/COMMUNICATION_CHANNELS.md.", items: [
+    { name: "In-app alerts", kind: "none", needed: "In use · nothing to set", where: "Nothing to configure", how: "Requests, tasks and approvals appear on the page and as a number on the menu, only for people who are signed in." },
+    { name: "Email · SendGrid API key and sender address", kind: "key", needed: "Paid account · optional", where: "Connectors page", how: "Create an API key with the Mail Send permission and verify the sender address or domain in SendGrid." },
+    { name: "SMS · Twilio Account SID, auth token and sender", kind: "key", needed: "Paid account · optional", where: "Connectors page", how: "From the Twilio console. Texts to Indian numbers also need the sender and every message template registered on an operator's DLT portal." },
+    { name: "WhatsApp · Meta access token and phone number ID", kind: "key", needed: "Paid per conversation · optional", where: "Connectors page", how: "From a Meta WhatsApp Business account: a permanent system-user token, a registered phone number and Meta-approved message templates." },
+    { name: "Switching sending on", kind: "agreement", needed: "Owner decision and security review", where: "Not implemented", how: "Needs the project's no-dispatch rule lifted by the owner, a reviewed sending service, recipient consent and contact records, and fixed message templates." },
+  ]},
 ];
 
 const SOURCE_DOCUMENTS = ["docs/PROACTIVE_IMPLEMENTATION_CONTRACT.md", "docs/OIDC_IDENTITY_AND_AUTHORIZATION.md", "research/real-data/LICENCES.md"] as const;

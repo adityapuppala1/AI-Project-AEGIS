@@ -44,6 +44,8 @@ const LABELS: Record<string, string> = {
   exporter_valid_exercise_only: "Exercise alert file checked; nothing is ever sent", connector_key_missing: "The server's connector vault key is not set",
   connector_secret_unreadable: "The stored key could not be read; enter it again", invalid_response: "The service sent an answer AEGIS could not read",
   no_send_path: "This connector cannot send anything, by design", terms_not_accepted: "The source's terms have not been confirmed",
+  credentials_accepted_nothing_sent: "The provider accepted the credentials; no message was sent", credentials_rejected: "The provider refused the credentials",
+  key_lacks_mail_send: "The key is valid but lacks the Mail Send permission", setting_missing: "A required setting is empty or not valid", built_in_no_transport: "Built in; nothing leaves this server",
   test_failed: "The test did not pass", timeout: "The service took too long to answer", token_request_failed: "The service refused the sign-in for its key",
 };
 
@@ -52,6 +54,7 @@ const LABELS: Record<string, string> = {
  * only where an administrator needs it to find the file (see `documentParts`).
  */
 export const DOCUMENT_TITLES: Record<string, string> = {
+  "docs/COMMUNICATION_CHANNELS.md": "Communication channels guide",
   "docs/GDACS_INQUIRY_DRAFT.md": "GDACS inquiry draft",
   "docs/GOVT_DEPLOYMENT_READINESS.md": "Government deployment readiness notes",
   "docs/OIDC_IDENTITY_AND_AUTHORIZATION.md": "Sign-in and roles guide",

@@ -8,7 +8,8 @@ export type RunStatus = "running" | "review_ready" | "cancelled";
 export type Scalar = string | number | boolean | null;
 export type Bag = Record<string, Scalar | Scalar[]>;
 
-export const CONNECTOR_IDS = ["open_meteo", "nasa_firms", "nasa_lhasa", "copernicus_cdse", "imd_warnings", "gdacs", "google_flood_forecasting", "typesafe_jev", "cap_handover", "authority_notification"] as const;
+export const CONNECTOR_IDS = ["open_meteo", "nasa_firms", "nasa_lhasa", "copernicus_cdse", "imd_warnings", "gdacs", "google_flood_forecasting", "typesafe_jev", "cap_handover", "authority_notification",
+  "comms_in_app", "comms_email", "comms_sms", "comms_whatsapp"] as const;
 export type ConnectorId = (typeof CONNECTOR_IDS)[number];
 export const RUN_STEPS = ["gather_evidence", "simulate_variants", "judge", "draft_cap", "plan_prepositioning", "hand_to_human"] as const;
 /** Runs created before the A5 plan step keep their original five steps. */
@@ -56,6 +57,8 @@ export interface Connector {
   id: string; name: string; category: string; licence: string; hosts: string[]; enabled: boolean; version: number;
   updated_at: string | null; updated_by: string | null; settings: Record<string, string | number | boolean>;
   fields: ConnectorField[]; last_test: TestResult | null;
+  /** Set only on communication channels, which can never be enabled: "built_in" stays inside AEGIS, "locked" stores and checks credentials only. */
+  delivery?: "built_in" | "locked" | null;
 }
 export interface ConnectorsPayload { master_key_configured: boolean; connectors: Connector[] }
 export interface AuditRow { id: string; connector_id: string; action: string; ok: boolean; actor: string; at: string | null }
@@ -318,6 +321,7 @@ export function cleanConnector(item: unknown): Connector | null {
   }) : [];
   return { id: item.id, name: text(item.name, 80) ?? item.id, category: text(item.category, 60) ?? "", licence: text(item.licence, 200) ?? "",
     hosts: Array.isArray(item.hosts) ? item.hosts.map(h => text(h, 120)).filter((h): h is string => !!h).slice(0, 8) : [],
+    delivery: item.delivery === "built_in" || item.delivery === "locked" ? item.delivery : null,
     enabled: item.enabled === true, version: Number.isSafeInteger(item.version) ? Number(item.version) : 0,
     updated_at: timestamp(item.updated_at), updated_by: text(item.updated_by, 120), settings, fields, last_test: cleanTest(item.last_test) };
 }
@@ -399,12 +403,13 @@ export function missingRequired(connector: Connector): ConnectorField[] {
 export function connectorStatus(connector: Connector): ConnectorStatus {
   if (connector.id === "imd_warnings" && connector.settings.terms_accepted !== true) return "blocked_terms";
   if (missingRequired(connector).length > 0) return "not_configured";
-  if (!connector.enabled) return "disabled";
+  // A communication channel has no on/off switch, so its status is its credential check alone.
+  if (!connector.enabled && !connector.delivery) return "disabled";
   if (!connector.last_test) return "untested";
   return connector.last_test.ok ? "passed" : "failed";
 }
-/** Ready means enabled and the last saved test passed. Authority notification can never be enabled and is not counted. */
-export const isReady = (connector: Connector) => connector.id !== "authority_notification" && connector.enabled && connectorStatus(connector) === "passed";
+/** Ready means enabled and the last saved test passed. Authority notification and communication channels can never be enabled and are not counted. */
+export const isReady = (connector: Connector) => connector.id !== "authority_notification" && !connector.delivery && connector.enabled && connectorStatus(connector) === "passed";
 
 export function cleanPause(value: unknown): PauseState {
   if (!isObject(value) || typeof value.paused !== "boolean") throw new Error("Invalid pause payload");

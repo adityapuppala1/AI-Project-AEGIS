@@ -58,7 +58,8 @@ def test_missing_or_malformed_key_fails_closed(monkeypatch, value):
 def test_registry_invariants():
     assert set(connectors.REGISTRY) == {'open_meteo', 'nasa_firms', 'nasa_lhasa', 'copernicus_cdse', 'imd_warnings',
                                         'gdacs', 'google_flood_forecasting', 'typesafe_jev', 'cap_handover',
-                                        'authority_notification'}
+                                        'authority_notification', 'comms_in_app', 'comms_email', 'comms_sms',
+                                        'comms_whatsapp'}
     assert set(connectors.TESTS) == set(connectors.REGISTRY)
     assert 'platform_admin' in ALLOWED_ROLES
     for spec in connectors.REGISTRY.values():
@@ -105,6 +106,101 @@ def test_authority_notification_cannot_be_enabled():
     assert response.status_code == 409
     test = client.post('/v1/proactive/connectors/authority_notification/test').json()
     assert test['ok'] is False and test['message'] == 'no_send_path'
+
+
+COMMS = ['comms_in_app', 'comms_email', 'comms_sms', 'comms_whatsapp']
+
+
+@pytest.mark.parametrize('connector_id', COMMS)
+def test_communication_channels_cannot_be_enabled(connector_id, proactive):
+    assert connectors.never_enabled(connector_id)
+    response = client.put(f'/v1/proactive/connectors/{connector_id}', json={'expected_version': 0, 'enabled': True})
+    assert response.status_code == 409 and response.json()['detail'] == 'channel_cannot_be_enabled'
+    proactive.configs[connector_id] = {'enabled': True, 'settings': {}, 'version': 1}  # a tampered row still reads as off
+    assert connectors.effective(connector_id)['enabled'] is False
+    view = next(c for c in client.get('/v1/proactive/connectors').json()['connectors'] if c['id'] == connector_id)
+    assert view['enabled'] is False and view['delivery'] in {'built_in', 'locked'}
+
+
+def test_no_send_endpoint_exists_in_the_module():
+    source = Path(connectors.__file__).read_text(encoding='utf-8')
+    for needle in ('mail/send', 'Messages.json', '/messages', 'smtplib'):
+        assert needle not in source, needle
+    assert client.post('/v1/proactive/connectors/comms_in_app/test').json()['message'] == 'built_in_no_transport'
+
+
+@pytest.mark.parametrize('settings', [{'account_sid': 'AC123'}, {'account_sid': '../Accounts/x'}, {'from_number': '+0 12'},
+                                      {'account_sid': 7}])
+def test_sms_settings_are_validated(settings):
+    body = {'expected_version': 0, 'enabled': False, 'settings': settings}
+    assert client.put('/v1/proactive/connectors/comms_sms', json=body).status_code == 422
+
+
+def test_comms_checks_ask_only_about_credentials(monkeypatch, proactive):
+    monkeypatch.setattr(connectors, 'bounded_request', lambda *a, **k: pytest.fail('network used before setup'))
+    for connector_id in COMMS[1:]:
+        assert client.post(f'/v1/proactive/connectors/{connector_id}/test').json()['message'] == 'secret_missing'
+    sid = 'AC' + '0123456789abcdef' * 2
+    saves = {'comms_email': ({'from_address': 'desk@example.org'}, {'api_key': 'SG.PLAIN-KEY'}),
+             'comms_sms': ({'account_sid': sid, 'from_number': '+14155550100'}, {'auth_token': 'tw-PLAIN-TOKEN'}),
+             'comms_whatsapp': ({'phone_number_id': '123456789012345'}, {'access_token': 'wa-PLAIN-TOKEN'})}
+    for connector_id, (settings, secrets) in saves.items():
+        saved = client.put(f'/v1/proactive/connectors/{connector_id}', json={'expected_version': 0, 'enabled': False, 'settings': settings, 'secrets': secrets})
+        assert saved.status_code == 200, saved.text
+    calls = []
+    monkeypatch.setattr(connectors, 'bounded_request', lambda url, hosts, **k: calls.append((url, hosts, k)) or (200, b'{"scopes":["mail.send"]}'))
+    for connector_id in COMMS[1:]:
+        result = client.post(f'/v1/proactive/connectors/{connector_id}/test')
+        assert result.json()['ok'] is True and result.json()['message'] == 'credentials_accepted_nothing_sent'
+        assert 'PLAIN' not in result.text
+    assert [c[0] for c in calls] == ['https://api.sendgrid.com/v3/scopes', f'https://api.twilio.com/2010-04-01/Accounts/{sid}.json',
+                                     'https://graph.facebook.com/123456789012345?fields=id']
+    assert all(c[2].get('method', 'GET') == 'GET' and c[2].get('data') is None for c in calls)  # read-only checks
+    assert calls[1][2]['headers']['Authorization'] == 'Basic ' + base64.b64encode(f'{sid}:tw-PLAIN-TOKEN'.encode()).decode()
+    assert 'PLAIN' not in json.dumps(proactive.audit, default=str) and 'PLAIN' not in client.get('/v1/proactive/connectors').text
+    monkeypatch.setattr(connectors, 'bounded_request', lambda *a, **k: (401, b''))
+    assert client.post('/v1/proactive/connectors/comms_sms/test').json()['message'] == 'credentials_rejected'
+    assert 'PLAIN' not in json.dumps(proactive.audit, default=str)
+    monkeypatch.setattr(connectors, 'bounded_request', lambda *a, **k: (400, b''))
+    assert client.post('/v1/proactive/connectors/comms_whatsapp/test').json()['message'] == 'credentials_rejected'
+    assert client.post('/v1/proactive/connectors/comms_sms/test').json()['message'] == 'upstream_status'
+    monkeypatch.setattr(connectors, 'bounded_request', lambda *a, **k: (200, b'{"scopes":["mail.read"]}'))
+    email = client.post('/v1/proactive/connectors/comms_email/test').json()
+    assert email['ok'] is False and email['message'] == 'key_lacks_mail_send'
+
+
+def test_a_check_older_than_the_last_save_no_longer_counts(monkeypatch):
+    sid = 'AC' + 'ab' * 16
+    body = {'expected_version': 0, 'enabled': False, 'settings': {'account_sid': sid, 'from_number': 'AEGISX'}, 'secrets': {'auth_token': 'tok'}}
+    assert client.put('/v1/proactive/connectors/comms_sms', json=body).status_code == 200
+    monkeypatch.setattr(connectors, 'bounded_request', lambda *a, **k: (200, b'{}'))
+    assert client.post('/v1/proactive/connectors/comms_sms/test').json()['ok'] is True
+
+    def view():
+        return next(c for c in client.get('/v1/proactive/connectors').json()['connectors'] if c['id'] == 'comms_sms')
+    assert view()['last_test']['ok'] is True
+    assert client.put('/v1/proactive/connectors/comms_sms', json={**body, 'expected_version': 1, 'secrets': {'auth_token': 'other'}}).status_code == 200
+    assert view()['last_test'] is None
+
+
+@pytest.mark.parametrize('connector_id,settings', [('comms_email', {'from_address': 'a@b.c\n'}), ('comms_email', {'from_address': 'no-at-sign'}),
+                                                   ('comms_whatsapp', {'phone_number_id': '1/messages'}), ('comms_whatsapp', {'phone_number_id': '12345?x'}),
+                                                   ('comms_sms', {'account_sid': 'AC' + 'ab' * 16 + '\n'}), ('comms_sms', {'from_number': '+911234567890abc'})])
+def test_channel_settings_reject_unsafe_values(connector_id, settings):
+    body = {'expected_version': 0, 'enabled': False, 'settings': settings}
+    assert client.put(f'/v1/proactive/connectors/{connector_id}', json=body).status_code == 422
+
+
+def test_provider_hosts_and_channels_stay_inside_the_registry():
+    from app import hazard_watch
+    assert not [cid for cid in hazard_watch.ADAPTERS if connectors.never_enabled(cid)]
+    app_dir = Path(connectors.__file__).parent
+    for path in app_dir.rglob('*.py'):
+        if path.name == 'connectors.py':
+            continue
+        text = path.read_text(encoding='utf-8')
+        for needle in ('api.sendgrid.com', 'api.twilio.com', 'graph.facebook.com', 'comms_email', 'comms_sms', 'comms_whatsapp'):
+            assert needle not in text, (path.name, needle)
 
 
 def test_imd_refuses_until_terms_accepted(monkeypatch):

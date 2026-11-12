@@ -8,7 +8,7 @@ import { ErrorState } from "./ui";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Activity, AlertTriangle, Ban, CheckCircle2, ChevronDown, CircleDashed, CircleHelp, Cloud, Eraser, ExternalLink, Eye, EyeOff, FileOutput, FlaskConical, Flame, Gavel, History, KeyRound,
-  Globe2, Loader2, Lock, Mountain, Plug, Power, PowerOff, Satellite, Save, ShieldCheck, Sparkles, Undo2, Waves, X, XCircle, type LucideIcon,
+  BellRing, Globe2, Loader2, Lock, Mail, MessageCircle, MessageSquareText, Mountain, Plug, Power, PowerOff, Satellite, Save, ShieldCheck, Sparkles, Undo2, Waves, X, XCircle, type LucideIcon,
 } from "lucide-react";
 import { AppShell } from "./app-shell";
 import { ProactivePauseControl } from "./proactive-pause";
@@ -41,6 +41,10 @@ const META: Record<string, Meta> = {
   typesafe_jev: { icon: Sparkles, can: "Judge among fixed playbook options using cited evidence.", cannot: "Write proposals, approve or send anything.", where: "An API key from your TypeSafe account (paid)." },
   cap_handover: { icon: FileOutput, can: "Export an Exercise CAP file that a person downloads.", cannot: "Transmit the file anywhere.", where: "Nothing to enter." },
   authority_notification: { icon: Ban, can: "Show that hand-over is a human step.", cannot: "Ever be enabled. AEGIS sends no notifications.", where: "Nothing to enter." },
+  comms_in_app: { icon: BellRing, can: "Show requests, tasks and approvals to people signed in to AEGIS.", cannot: "Reach anyone who is not signed in.", where: "Nothing to enter." },
+  comms_email: { icon: Mail, can: "Keep the email provider's key and check that the provider accepts it.", cannot: "Send an email. Sending is locked.", where: "An API key and a verified sender address from your SendGrid account (paid).", url: "https://app.sendgrid.com/settings/api_keys", urlLabel: "SendGrid API keys" },
+  comms_sms: { icon: MessageSquareText, can: "Keep the SMS provider's credentials and check that the provider accepts them.", cannot: "Send a text message. Sending is locked.", where: "The Account SID, auth token and a sender number from your Twilio console (paid). Indian numbers also need DLT registration.", url: "https://console.twilio.com/", urlLabel: "Twilio console" },
+  comms_whatsapp: { icon: MessageCircle, can: "Keep the WhatsApp Business token and check that Meta accepts it.", cannot: "Send a WhatsApp message. Sending is locked.", where: "A permanent access token and the phone number ID from your Meta WhatsApp Business account (paid per conversation).", url: "https://developers.facebook.com/docs/whatsapp/cloud-api/get-started", urlLabel: "WhatsApp Cloud API setup" },
 };
 const FALLBACK_META: Meta = { icon: Plug, can: "Provide data to Hazard Watch.", cannot: "Send warnings or notifications.", where: "See the admin runbook." };
 
@@ -86,6 +90,8 @@ function ConnectorCard({ connector, masterKey, preview, now, onToast, onSaved }:
   const meta = META[connector.id] ?? FALLBACK_META;
   const Icon = meta.icon;
   const readOnly = connector.id === "authority_notification";
+  // A communication channel has no on/off switch: in-app alerts are always on, the others store and check credentials only.
+  const channel = connector.delivery ?? null;
   const requiredPlain = connector.fields.filter(field => !field.secret && field.required);
   const optionalPlain = connector.fields.filter(field => !field.secret && !field.required);
   const secretFields = connector.fields.filter(field => field.secret);
@@ -172,17 +178,22 @@ function ConnectorCard({ connector, masterKey, preview, now, onToast, onSaved }:
       <span className="rounded-full bg-elevated px-2.5 py-1 text-[11px] font-semibold text-muted ring-1 ring-stroke">{connector.category || t("other")}</span>
       <StatusPill connector={connector}/>
       {preview && <SampleBadge/>}
-      <label className="inline-flex min-h-9 items-center gap-2 text-sm font-semibold" htmlFor={`${base}-enabled`}>
+      {channel ? <span className="inline-flex min-h-9 items-center gap-1.5 text-sm font-semibold"><Lock size={14} aria-hidden="true"/>{channel === "built_in" ? t("Always on inside AEGIS") : t("Sending locked")}</span>
+      : <label className="inline-flex min-h-9 items-center gap-2 text-sm font-semibold" htmlFor={`${base}-enabled`}>
         <input id={`${base}-enabled`} type="checkbox" role="switch" className="h-5 w-5 accent-[rgb(var(--accent))]" checked={enabled} disabled={readOnly || busy !== ""}
           aria-describedby={`${base}-can`} onChange={event => setEnabled(event.target.checked)}/>
         {enabled ? t("Enabled") : t("Disabled")}
-      </label></>}>
+      </label>}</>}>
     <div className="space-y-4 p-5">
       <p id={`${base}-can`} className="text-xs leading-5"><strong>{t("Can")}:</strong> {t(meta.can)} <strong className="ml-1">{t("Cannot")}:</strong> {t(meta.cannot)}</p>
       <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted"><KeyRound size={13} aria-hidden="true"/>{t(meta.where)}
         {meta.url && <a href={meta.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-9 items-center gap-1 font-semibold text-accent underline underline-offset-2">{meta.urlLabel}<ExternalLink size={12} aria-hidden="true"/><span className="sr-only">({t("opens in a new tab")})</span></a>}</p>
       {readOnly && <p className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs leading-5 text-amber-800 dark:text-amber-200" role="note">
         <Lock size={16} className="mt-0.5 shrink-0" aria-hidden="true"/>{t("Read-only. AEGIS never sends warnings or notifications to authorities; this connector cannot be enabled. Hand-over is a CAP file a human downloads.")}</p>}
+      {channel && <p className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs leading-5 text-amber-800 dark:text-amber-200" role="note">
+        <Lock size={16} className="mt-0.5 shrink-0" aria-hidden="true"/>{channel === "built_in"
+          ? t("This is how AEGIS alerts people today: a request, task or approval shows on the page and as a number on the menu, only for people who are signed in. Nothing leaves this server.")
+          : t("You can save and check this provider's credentials here. AEGIS sends nothing through it: this build has no sending code, and adding it needs the owner's decision and a security review.")}</p>}
 
       {requiredPlain.map(plainField)}
 
@@ -237,7 +248,7 @@ function ConnectorCard({ connector, masterKey, preview, now, onToast, onSaved }:
         {!readOnly && <Button type="button" variant={dirty ? "primary" : "secondary"} onClick={save} disabled={preview || !dirty || busy !== "" || (secretsPending && !masterKey)}>
           {busy === "save" ? <Loader2 size={16} className="animate-spin" aria-hidden="true"/> : <Save size={16} aria-hidden="true"/>}{t("Save")}</Button>}
         <Button type="button" onClick={runTest} disabled={busy !== ""}>
-          {busy === "test" ? <Loader2 size={16} className="animate-spin" aria-hidden="true"/> : <Activity size={16} aria-hidden="true"/>}{t("Test connection")}</Button>
+          {busy === "test" ? <Loader2 size={16} className="animate-spin" aria-hidden="true"/> : <Activity size={16} aria-hidden="true"/>}{channel === "locked" ? t("Check credentials") : t("Test connection")}</Button>
         {dirty && <>
           <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-800 dark:text-amber-300"><span className="status-dot bg-amber-500" aria-hidden="true"/>{t("Unsaved changes")}</span>
           <Button size="sm" type="button" onClick={discard} disabled={busy !== ""}><Undo2 size={14} aria-hidden="true"/>{t("Discard changes")}</Button>
@@ -265,7 +276,7 @@ function Ring({ ready, total }: Readonly<{ ready: number; total: number }>) {
 
 function SetupHeader({ payload, preview }: Readonly<{ payload: ConnectorsPayload; preview: boolean }>) {
   const t = useT();
-  const counted = payload.connectors.filter(connector => connector.id !== "authority_notification");
+  const counted = payload.connectors.filter(connector => connector.id !== "authority_notification" && !connector.delivery);
   const ready = counted.filter(isReady).length;
   const actions = useMemo(() => {
     const list: { key: string; text: string; href?: string }[] = [];
@@ -366,10 +377,20 @@ export function ConnectorAdmin() {
       {!preview && isAdmin && <ProactivePauseControl/>}
       {view && <>
         <SetupHeader payload={view} preview={preview}/>
-        <div className="grid items-start gap-5 xl:grid-cols-2">
-          {view.connectors.map(connector => <ConnectorCard key={`${preview ? "sample" : "live"}-${connector.id}-${connector.version}`} connector={connector} masterKey={view.master_key_configured} preview={preview} now={nowRef.current}
-            onToast={setNotice} onSaved={() => void load()}/>)}
-        </div>
+        {[false, true].map(channels => {
+          const group = view.connectors.filter(connector => Boolean(connector.delivery) === channels);
+          if (group.length === 0) return null;
+          return <section key={String(channels)} aria-labelledby={channels ? "channels-title" : undefined} className={channels ? "mt-8" : undefined}>
+            {channels && <>
+              <h2 id="channels-title" className="t-title mb-1">{t("Communication channels")}</h2>
+              <p className="helper mb-4 max-w-3xl">{t("How AEGIS reaches its own staff. Only in-app alerts are in use. Email, SMS and WhatsApp providers can be set up and their credentials checked here, but no message is sent. Public warnings never go through AEGIS.")}</p>
+            </>}
+            <div className="grid items-start gap-5 xl:grid-cols-2">
+              {group.map(connector => <ConnectorCard key={`${preview ? "sample" : "live"}-${connector.id}-${connector.version}`} connector={connector} masterKey={view.master_key_configured} preview={preview} now={nowRef.current}
+                onToast={setNotice} onSaved={() => void load()}/>)}
+            </div>
+          </section>;
+        })}
       </>}
     </>}
     <Toast notice={notice} onClose={clearNotice}/>

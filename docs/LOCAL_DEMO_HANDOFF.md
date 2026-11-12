@@ -18,6 +18,28 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Round 15: communication channels on the Connectors page (credentials only) — 12 November 2026 (Windows laptop)
+
+Owner request: say which channels exist for sending communications and make providers configurable from the admin page.
+
+- **Finding:** AEGIS has no send path. The only channel in use is in-app alerts for signed-in users.
+- **Added (completed):** four registry entries in services/api/app/connectors.py under category communications:
+  comms_in_app (built in), comms_email (SendGrid), comms_sms (Twilio), comms_whatsapp (Meta Cloud API). A platform
+  administrator saves credentials on /admin/connectors (encrypted, write-only, audited) and runs a read-only credential
+  check. The entries can never be enabled (409 channel_cannot_be_enabled; a tampered row reads as off).
+- **Not added, by rule:** any sending code. The no-dispatch rule stands until the owner lifts it in writing and a security
+  review is done. See docs/COMMUNICATION_CHANNELS.md, the new AGENTS.md line and Go-Live Setup section 9.
+- **Checks run on this laptop:** API pytest 1168 passed / 30 skipped before the review fixes, then the connector and
+  route-inventory files again after them (317 passed); app.model_lab --check PASS; npm run typecheck clean; web tests
+  331 pass before the last label addition, then the three affected files again (28 pass). Stack rebuilt with
+  start-windows.ps1 -SignIn -PublicEarth -Proactive -StatisticalForecast.
+- **Browser check (demo-admin, 1440 px and 390 px):** the Communication channels group shows four cards with no on/off
+  switch, the in-app check passes, no page errors, no sideways scroll; Go-Live Setup shows section 9.
+- **Independent security review (read-only):** no critical or high finding. Applied: Meta 400 reads as credentials
+  refused; the email check fails a key without Mail Send; a check older than the last save no longer counts; more tests.
+- **Not verified:** the three provider checks against real accounts (no credentials exist here; the calls are tested with
+  doubles only). The 582 pending strings now include the new English text; no translation was written.
+
 ## Round 14: Learning and Drills clicked through; Earth Watch with tiles refused — 12 November 2026 (Windows laptop)
 
 Branch `feat/landing-ux-security-hardening`. Compose services left **running** (overlays local-idp + public-earth +
