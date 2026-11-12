@@ -41,9 +41,17 @@ Branch `feat/landing-ux-security-hardening` (commit `5c12e9c`, then this note). 
 - Checks after the rebuild: `npm run typecheck` clean; web tests 331 pass; `npm run build` succeeded inside the
   image build. API code unchanged, API tests not re-run.
 
+**Owner decisions taken on 12 November 2026 (owner delegated the call):**
+- No second-agency demo account. The local identity provider signs one fixed agency into every token
+  (`signed-demo-agency`, a hardcoded claim). A second agency would mean changing that mapper to read a per-user
+  attribute, which alters sign-in for every account, including the owner's `exercise-*` accounts that scripts must
+  not touch. The other-agency refusal stays covered by the middleware and API tests, not by a live view.
+- The Public Intake page stays closed as a whole to department and team accounts (least access; neither role
+  reviews public reports).
+- Video 10 is kept as recorded (5 min 46 s, two scenes end scrolled to the top). It shows the real flow correctly.
+
 **Still not done:** install on a clean computer; native Telugu and Hindi review; Survey of India boundary and
-confirmed NDMA figures; forecast comparison with gauge data or GloFAS; a live view of the other-agency refusal
-(no second-agency demo account); video 10 is 5 min 46 s and two scenes end scrolled to the top.
+confirmed NDMA figures; forecast comparison with gauge data or GloFAS.
 
 ## Round 12: sign-in required on the API port; Alert Journey touch targets — 12 November 2026 (Windows laptop)
 
