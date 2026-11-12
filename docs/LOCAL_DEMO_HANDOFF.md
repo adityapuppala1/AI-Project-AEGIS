@@ -18,6 +18,44 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Round 10: team response loop (rehearsal) — 12 November 2026 (Windows laptop)
+
+Branch `feat/landing-ux-security-hardening` (commits `dcd151c`, `e4dbdd2`, then docs). `main` not moved. Compose
+services left **running** (overlays local-idp + public-earth + proactive + timesfm).
+
+**Completed and verified by execution on the Windows laptop (not a Linux runner):**
+- `docs/RESPONSE_LOOP.md`: department desks request synthetic teams for an acknowledged task of an approved proposal;
+  teams (new `response_team` role, signed `aegis_team_id`) answer on `/my-team`; every report writes the request, the
+  report, an incident timeline line and an audit event in one transaction. No transport exists in this feature.
+- Migration `017_response_loop.sql` applied by the normal start on the existing volume (two new tables, no reset).
+- `scripts/update-local-idp.ps1` added the team role, attribute and mapper; `scripts/new-demo-accounts.ps1` created
+  `demo-team-rescue` and `demo-team-medical` and left the six existing accounts unchanged.
+- Browser walk-through with four accounts on proposal `f5eddd46`: maker prepared tasks; control-room desk
+  acknowledged, saw five teams in suggestion order, requested rescue team 01 (201); closing the task was refused
+  (409) while the request was open; the team landed on `/my-team` with alert count 1, accepted, could not skip to
+  on site (409), reported en route, on site and a support request; the desk's count rose to 1 and it marked the flag
+  handled; the team completed; the desk then closed the task. Refusals confirmed: other team sees 0 requests and gets
+  404 on write; team gets 403 on proposals, handover and creating a request; maker gets 403 on writing a report; a
+  stale version gets 409; the team view has no proposal id. Six timeline lines (five coordination, one resolution)
+  and seven audit events were written, all with `outbound_messages_sent=false`.
+- Independent security review of the backend commit: no critical or high finding. Fixed: pause read now has an
+  explicit role list (team token 403), missing-row 404, browser/API team allowlist drift test.
+- Checks: API pytest 920 passed / 30 skipped; `app.model_lab --check` PASS (run by the build agent before the review
+  fixes); `npm run typecheck` clean; web tests pass; `npm run build` succeeded.
+
+**Not done / open:**
+- Opt-in PostGIS test `integration_tests/test_postgis_response_loop.py` (concurrent capacity and uniqueness) was not
+  run; it needs the isolated verification database.
+- Team requests and reports still work while the proactive kill switch is engaged (owner decision pending).
+- Pages viewed: My Team at phone width and the Department Inbox at laptop width, light theme. Not viewed: dark
+  theme, the incident panel and field-team board in detail, the menu toast, keyboard-only use.
+- Server error sentences and team capability names appear in English and as sentence-cased codes; 536 strings are
+  pending native translation.
+- Not checked in the identity provider's account console that a team user cannot edit its own team attribute (the
+  script sets it to administrators only).
+- No real delivery to responders, rosters, live locations or attachments; the incident's status is not changed
+  automatically. Videos and screenshots do not show this feature yet.
+
 ## Round 9: India globe, account menu, uniform portal, department accounts — 11 November 2026 (Windows laptop)
 
 Branch `feat/landing-ux-security-hardening` (commits `019ea46`, `278565e`, `16db0fd`, then docs/media). `main` not

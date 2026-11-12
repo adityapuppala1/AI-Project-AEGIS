@@ -194,6 +194,7 @@ The OpenAPI page at `http://localhost:8000/docs` is off unless `AEGIS_API_DOCS=1
 - [Product vision and feature catalog](docs/PRODUCT_VISION.md)
 - [Architecture decisions](docs/ARCHITECTURE.md)
 - [Security and governance](docs/SECURITY_AND_GOVERNANCE.md)
+- [Team response loop (rehearsal)](docs/RESPONSE_LOOP.md)
 - [Delivery roadmap](docs/DELIVERY_PLAN.md)
 
 **Repository boundary:** Only use GitHub account `adityapuppala1` and repository `adityapuppala1/AI-Project-AEGIS` for this project. Do not pull or merge from unrelated repositories. Feature branches and reviewed PRs precede changes to main.

@@ -87,7 +87,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\new-demo-accounts.ps1
 ```
 
 The first script gives the provider's sign-in pages the AEGIS look, sets 15-minute tokens and adds the department
-role. It is safe to run again, and it is also what brings an older install up to date. The second creates the accounts:
+and response-team roles. It is safe to run again, and it is also what brings an older install up to date. The second creates the accounts:
 
 | Account | Shown in the app as | What it can do |
 |---|---|---|
@@ -97,6 +97,8 @@ role. It is safe to run again, and it is also what brings an older install up to
 | `demo-admin` | Administrator | Administration pages |
 | `demo-dept-control` | Department desk (control room) | Opens the Department Inbox for that desk |
 | `demo-dept-infra` | Department desk (infrastructure) | Opens the Department Inbox for that desk |
+| `demo-team-rescue` | Response team (Synthetic rescue team 01) | Answers requests on My Team: accept, en route, on site, completed |
+| `demo-team-medical` | Response team (Synthetic medical team 01) | Same, for the medical team |
 
 The passwords are generated on your laptop and saved to
 `%LOCALAPPDATA%\AEGIS\local-idp\demo-credentials.txt` (user name, password, role). Open that file in Notepad to read

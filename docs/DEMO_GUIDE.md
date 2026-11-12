@@ -1,6 +1,6 @@
 # AEGIS demo guide for the presenter
 
-A 20-minute walkthrough with six demo accounts. Written 11 November 2026 for the local laptop setup.
+A 25-minute walkthrough with the demo accounts. Written 11 November 2026 for the local laptop setup.
 Everything shown is synthetic exercise data. AEGIS does not send warnings and has no government approval. Say that
 once at the start and once at the end.
 
@@ -29,6 +29,7 @@ handed to the official warning channel. The software prepares and explains. Peop
 | `demo-maker` | Maker | Duty officer who studies a case and drafts the proposal |
 | `demo-checker` | Checker | Senior officer who independently approves or rejects |
 | `demo-dept-control` | Department desk | Control-room desk that receives approved tasks |
+| `demo-team-rescue` | Response team | Field team lead who answers a request and reports progress |
 | `demo-auditor` | Auditor | Reviewer who reads who decided what, and why |
 | `demo-admin` | Administrator | IT administrator who configures the platform |
 
@@ -91,6 +92,24 @@ every action is recorded against a named person. That only works if each person 
 - **Shift Handover** (as maker or checker): a read-only brief of what changed, every line citing record ids.
 - **Operator Copilot**: click "Which incidents are open?". It answers only from records and cites them; it cannot act.
 - **Audit360 Export**: sign in as `demo-auditor` if time allows: who did what, when, and why.
+
+### Part 6b. Teams respond and the incident is updated (4 min)
+
+This is a rehearsal inside AEGIS. Say it out loud: "Nobody is called, texted or radioed. The teams are invented."
+
+1. As `demo-maker`, on the approved proposal in **Approval Workbench**, prepare the department tasks.
+2. As `demo-dept-control`, open **Department Inbox** and acknowledge the task (write a short reason).
+3. Still as the desk, under **Team response** choose **Request a team**. Show why a team is suggested: matching
+   capability, free capacity, available now, estimated travel time (a planning estimate). Request
+   "Synthetic rescue team 01".
+4. On a phone-sized window, sign in as `demo-team-rescue`. It opens **My Team** with the request waiting and a count
+   on the menu. Press **Accept**, then **I am en route**, **I am on site** (choose how the situation looks), and
+   optionally **Ask for support**.
+5. Back at the desk: the request shows the team's answers; a support request raises a flag the desk marks as handled.
+   The desk can also record an answer for a team (as from a radio call) or stand the team down.
+6. The team presses **Completed**. Only now can the desk close its task.
+7. As `demo-maker`, open the incident: the timeline lists each team step, and the **Team response** panel shows the
+   current state. The audit trail holds who recorded what.
 
 ### Part 7. Administration (1 min, optional)
 
