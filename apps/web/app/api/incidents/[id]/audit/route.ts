@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { apiAuthHeaders, signInRequired } from "../../../../../lib/api-auth";
+import { apiAuthHeaders, signInRequired, upstreamAuthFailure } from "../../../../../lib/api-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -15,6 +15,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     const response = await fetch(base + "/v1/exercise/incidents/" + id + "/audit", {
       headers: auth, cache: "no-store", signal: AbortSignal.timeout(7500),
     });
+    const refused = upstreamAuthFailure(response);
+    if (refused) return refused;
     if (response.status === 404) return NextResponse.json({ error: "Exercise case not found" }, { status: 404 });
     if (!response.ok) throw new Error("Audit snapshot unavailable");
     const data: unknown = await response.json();

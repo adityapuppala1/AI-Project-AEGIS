@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { apiAuthHeaders, signInRequired } from "../../../../../lib/api-auth";
+import { apiAuthHeaders, signInRequired, upstreamAuthFailure } from "../../../../../lib/api-auth";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -22,6 +22,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       method: "POST", headers: { ...auth, "Content-Type": "application/json" },
       body: JSON.stringify({ question: body.question }), cache: "no-store", signal: AbortSignal.timeout(8000),
     });
+    const refused = upstreamAuthFailure(response);
+    if (refused) return refused;
     if (response.status === 404) return json({ error: "Synthetic context not found" }, 404);
     if (!response.ok) throw new Error("Unavailable");
     const value = await response.json();

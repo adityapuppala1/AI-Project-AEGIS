@@ -46,8 +46,8 @@ Accepted limits of this local demo (each needs an owner decision before any expo
 2. **Queue read (closed 12 November 2026).** `GET /v1/public-intake/reports` and `/v1/public-intake/status` now need
    a verified operator token (every AEGIS role), and the queue only for the exercise agency; the web route forwards
    the session token server-side. Submission (`POST /v1/public-intake/reports`) is unchanged: still public, opt-in,
-   quarantine-only, with the controls above. Any signed-in role can still read the queue, so a role-restricted
-   reviewer list remains a requirement before exposure.
+   quarantine-only, with the controls above. Since 12 November 2026 the queue read is limited to the incident
+   desk and administrators (`INTAKE_QUEUE_ROLES`; the web GET checks the same roles and answers 403 otherwise).
 3. **`DELETE` and `TRUNCATE` are not blocked.** Only `UPDATE` is. A reviewed operator may purge test
    rows with explicit SQL; this is deliberate so a demo database can be cleaned without a volume reset.
 4. **Filters are best-effort.** They cannot detect every obfuscation (for example other languages

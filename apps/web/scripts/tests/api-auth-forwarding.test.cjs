@@ -82,6 +82,67 @@ for (const [file, method, args, apiPath] of ROUTES) {
   });
 }
 
+async function withStatus(status, run) {
+  const original = global.fetch, calls = [];
+  global.fetch = async (url, options = {}) => { calls.push({ url: String(url), options });
+    return new Response(JSON.stringify({ detail: 'upstream-secret-detail' }), { status, headers: { 'content-type': 'application/json' } }); };
+  try { await run(calls); } finally { global.fetch = original; }
+}
+
+for (const [file, method, args] of ROUTES) {
+  for (const [status, expected] of [[401, { error: 'Sign-in required', code: 'SIGN_IN_REQUIRED' }], [403, { error: 'Not permitted for your role or agency', code: 'FORBIDDEN' }]]) {
+    test(`${file}: an upstream ${status} becomes the fixed ${expected.code} reply, never the upstream body`, async () => {
+      const route = load(file);
+      await withStatus(status, async () => {
+        const response = await route[method](...args());
+        assert.equal(response.status, status);
+        const text = await response.text();
+        assert.deepEqual(JSON.parse(text), expected);
+        assert.ok(!text.includes('upstream-secret-detail'));
+      });
+    });
+  }
+}
+
+test('the shared helper maps only 401 and 403', async () => {
+  assert.equal(apiAuth.upstreamAuthFailure({ status: 401 }).status, 401);
+  assert.equal(apiAuth.upstreamAuthFailure({ status: 403 }).status, 403);
+  for (const status of [200, 404, 422, 500, 502, 503]) assert.equal(apiAuth.upstreamAuthFailure({ status }), null);
+});
+
+test('the public-intake queue refuses department and team roles before any API call', async () => {
+  const route = load('app/api/public-intake/route.ts');
+  const saved = state.session;
+  try {
+    for (const role of ['department_operator', 'response_team']) {
+      state.session = { ...saved, roles: [role] };
+      await withFetch(async calls => {
+        const response = await route.GET();
+        assert.equal(response.status, 403);
+        assert.deepEqual(await response.json(), { error: 'Not permitted for your role or agency', code: 'FORBIDDEN' });
+        assert.equal(calls.length, 0);
+      });
+    }
+  } finally { state.session = saved; }
+});
+
+test('every file that forwards the session token maps upstream 401/403 through the shared helper', () => {
+  const files = [];
+  const walk = dir => { for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) walk(full); else if (/\.(ts|tsx)$/.test(entry.name)) files.push(full);
+  } };
+  walk(path.join(ROOT, 'app'));
+  // The demo walkthrough degrades each panel to "unavailable" on any failure and never shows upstream text.
+  const EXEMPT = new Set(['app/demo/page.tsx']);
+  const forwarding = files.map(file => path.relative(ROOT, file).replace(/\\/g, '/'))
+    .filter(file => /lib\/api-auth"/.test(fs.readFileSync(path.join(ROOT, file), 'utf8')) && !EXEMPT.has(file));
+  assert.ok(forwarding.length >= 20, 'found the forwarding files');
+  const offenders = forwarding.filter(file => !/upstreamAuthFailure\(/.test(fs.readFileSync(path.join(ROOT, file), 'utf8')));
+  assert.deepEqual(offenders, []);
+  assert.doesNotMatch(fs.readFileSync(path.join(ROOT, 'app/incidents/[id]/page.tsx'), 'utf8'), /if \(!auth\) return <IncidentUnavailable/);
+});
+
 test('every server file that calls the internal API forwards a session token', () => {
   const files = [];
   const walk = dir => { for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -91,7 +152,7 @@ test('every server file that calls the internal API forwards a session token', (
   for (const dir of ['app', 'lib', 'components']) walk(path.join(ROOT, dir));
   const offenders = files.filter(file => {
     const text = fs.readFileSync(file, 'utf8');
-    return text.includes('API_INTERNAL_URL') && !/apiAuthHeaders|readSession|accessToken/.test(text);
+    return text.includes('API_INTERNAL_URL') && !/apiAuthHeaders|apiAuthForRoles|readSession|accessToken/.test(text);
   }).map(file => path.relative(ROOT, file));
   assert.deepEqual(offenders, []);
 });
@@ -99,7 +160,7 @@ test('every server file that calls the internal API forwards a session token', (
 test('server components attach the token server-side only', () => {
   for (const file of ['app/demo/page.tsx', 'app/incidents/[id]/page.tsx', 'app/model-lab/page.tsx']) {
     const text = fs.readFileSync(path.join(ROOT, file), 'utf8');
-    assert.match(text, /import \{ apiAuthHeaders \} from "[./]+lib\/api-auth";/, file);
+    assert.match(text, /import \{ apiAuthHeaders(, upstreamAuthFailure)? \} from "[./]+lib\/api-auth";/, file);
     assert.match(text, /headers: auth/, file);
     assert.doesNotMatch(text, /"use client"/, file);
   }

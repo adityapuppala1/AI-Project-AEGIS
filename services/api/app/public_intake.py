@@ -25,7 +25,10 @@ router = APIRouter(prefix="/v1/public-intake", tags=["public-intake"])
 # Submission (POST /reports) keeps its own public, opt-in rules. Reading the status and the quarantine queue now
 # needs a verified operator; the queue is also limited to the exercise agency (docs/PUBLIC_INTAKE_SECURITY.md).
 INTAKE_STATUS_READ = scoped_operator(EXERCISE_RECORD_ROLES, fixture_agency=False)
-INTAKE_QUEUE_READ = scoped_operator(EXERCISE_RECORD_ROLES)
+# The queue holds unreviewed public text, so only the incident desk and administrators read it (the same set as
+# READERS in apps/web/lib/roles.ts); department desks and response teams are refused with 403.
+INTAKE_QUEUE_ROLES = frozenset({"incident_operator", "incident_checker", "incident_auditor", "platform_admin"})
+INTAKE_QUEUE_READ = scoped_operator(INTAKE_QUEUE_ROLES)
 
 MAX_BODY_BYTES = 4096
 PER_MINUTE = 5

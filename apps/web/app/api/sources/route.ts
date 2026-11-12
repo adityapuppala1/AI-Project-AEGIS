@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { apiAuthHeaders, signInRequired } from "../../../lib/api-auth";
+import { apiAuthHeaders, signInRequired, upstreamAuthFailure } from "../../../lib/api-auth";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
@@ -9,6 +9,8 @@ export async function GET() {
   try {
     const endpoint = (process.env.API_INTERNAL_URL || "http://localhost:8000") + "/v1/exercise/sources";
     const response = await fetch(endpoint, { headers: auth, cache: "no-store", signal: AbortSignal.timeout(6000) });
+    const refused = upstreamAuthFailure(response);
+    if (refused) return refused;
     if (!response.ok) throw new Error("Source service unavailable");
     const payload: unknown = await response.json();
     if (!payload || typeof payload !== "object" ||

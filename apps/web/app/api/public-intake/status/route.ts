@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { apiAuthHeaders, signInRequired } from "../../../../lib/api-auth";
+import { apiAuthHeaders, signInRequired, upstreamAuthFailure } from "../../../../lib/api-auth";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
@@ -9,6 +9,8 @@ export async function GET() {
   try {
     const base = process.env.API_INTERNAL_URL || "http://localhost:8000";
     const response = await fetch(base + "/v1/public-intake/status", { headers: auth, cache: "no-store", signal: AbortSignal.timeout(6000) });
+    const refused = upstreamAuthFailure(response);
+    if (refused) return refused;
     if (!response.ok) throw new Error("status unavailable");
     const payload: unknown = await response.json();
     if (!payload || typeof payload !== "object" || Array.isArray(payload)) throw new Error("unexpected");

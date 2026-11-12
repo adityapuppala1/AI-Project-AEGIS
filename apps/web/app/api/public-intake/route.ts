@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { apiAuthHeaders, signInRequired } from "../../../lib/api-auth";
+import { apiAuthForRoles, upstreamAuthFailure } from "../../../lib/api-auth";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
@@ -21,11 +21,17 @@ const timestamp = (value: unknown) => { const raw = text(value, 40); return raw 
 const base = () => process.env.API_INTERNAL_URL || "http://localhost:8000";
 const fail = (status: number, error: string, extra: Record<string, string> = {}) => NextResponse.json({ error }, { status, headers: { ...HEADERS, ...extra } });
 
+// The queue holds unreviewed public text: incident desk and administrators only (INTAKE_QUEUE_ROLES in
+// services/api/app/public_intake.py; read_intake_queue in lib/roles.ts). The status route stays open to every role.
+const QUEUE_ROLES = ["incident_operator", "incident_checker", "incident_auditor", "platform_admin"];
+
 export async function GET() {
-  const auth = await apiAuthHeaders();
-  if (!auth) return signInRequired();
+  const auth = await apiAuthForRoles(QUEUE_ROLES);
+  if (auth instanceof Response) return auth;
   try {
     const response = await fetch(base() + "/v1/public-intake/reports?limit=50", { headers: auth, cache: "no-store", signal: AbortSignal.timeout(8000) });
+    const refused = upstreamAuthFailure(response);
+    if (refused) return refused;
     if (response.status === 503) return fail(503, "disabled");
     if (!response.ok) throw new Error("queue unavailable");
     const payload: unknown = await response.json();

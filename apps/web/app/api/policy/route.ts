@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { apiAuthHeaders, signInRequired } from "../../../lib/api-auth";
+import { apiAuthHeaders, signInRequired, upstreamAuthFailure } from "../../../lib/api-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -12,6 +12,8 @@ export async function GET() {
     const response = await fetch(base + "/v1/exercise/policy", {
       headers: auth, cache: "no-store", signal: AbortSignal.timeout(6000),
     });
+    const refused = upstreamAuthFailure(response);
+    if (refused) return refused;
     if (!response.ok) throw new Error("Exercise policy unavailable");
     const data: unknown = await response.json();
     if (!data || typeof data !== "object" ||

@@ -2,7 +2,8 @@ import { AppShell } from "../../components/app-shell";
 import { ModelLabDashboard } from "../../components/model-lab-dashboard";
 import { ErrorState, Panel, buttonClass } from "../../components/ui";
 import type { ModelReport } from "../../lib/model-lab";
-import { apiAuthHeaders } from "../../lib/api-auth";
+import { redirect } from "next/navigation";
+import { apiAuthHeaders, upstreamAuthFailure } from "../../lib/api-auth";
 
 export const metadata = { title: "Model Evaluation Lab" };
 
@@ -11,11 +12,13 @@ export default async function ModelLabPage() {
   let report: ModelReport | null = null;
   // Server-side only: the session token is attached here and never reaches the browser.
   const auth = await apiAuthHeaders();
+  let signedOut = !auth;
   if (auth) try {
     const base = process.env.API_INTERNAL_URL || "http://localhost:8000";
     const response = await fetch(base + "/v1/exercise/model-lab/report", {
       headers: auth, cache: "no-store", signal: AbortSignal.timeout(6000),
     });
+    signedOut = upstreamAuthFailure(response)?.status === 401;
     if (response.ok) {
       const candidate = await response.json() as ModelReport;
       if (candidate.source === "synthetic_generated_fixture" &&
@@ -25,6 +28,8 @@ export default async function ModelLabPage() {
           candidate.operational_actions_enabled === false) report = candidate;
     }
   } catch { /* Never invent or silently substitute evaluation metrics. */ }
+  // The middleware normally sends a signed-out visitor to sign-in first; an expired token lands here.
+  if (signedOut) redirect("/sign-in");
 
   return <AppShell title="Model Evaluation Lab"
     description="Reproducible offline synthetic scenarios, model transparency and held-out diagnostics—not an operational forecast.">

@@ -1,8 +1,8 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { IncidentUnavailable } from "../../../components/incident-unavailable";
 import { IncidentIntelligence } from "../../../components/incident-intelligence";
 import type { IncidentWorkspace } from "../../../lib/incident-intelligence";
-import { apiAuthHeaders } from "../../../lib/api-auth";
+import { apiAuthHeaders, upstreamAuthFailure } from "../../../lib/api-auth";
 
 export const metadata = { title: "Incident" };
 
@@ -13,8 +13,10 @@ export default async function IncidentDetailPage({ params }: { params: Promise<{
   const { id } = await params;
   if (!UUID.test(id)) notFound();
   // Server-side only: the session token is attached here and never reaches the browser.
+  // Signed out (or the API refuses the token): go to sign-in. The middleware normally redirects first; the
+  // return path stays in its sealed flow cookie, never in the URL.
   const auth = await apiAuthHeaders();
-  if (!auth) return <IncidentUnavailable issue="unreachable"/>;
+  if (!auth) redirect("/sign-in");
   let response: Response | null;
   try {
     const base = process.env.API_INTERNAL_URL || "http://localhost:8000";
@@ -25,6 +27,7 @@ export default async function IncidentDetailPage({ params }: { params: Promise<{
   } catch {
     response = null;
   }
+  if (response && upstreamAuthFailure(response)?.status === 401) redirect("/sign-in");
   if (response?.status === 404) notFound();
   if (!response?.ok) return <IncidentUnavailable issue="unreachable"/>;
   let payload: IncidentWorkspace;

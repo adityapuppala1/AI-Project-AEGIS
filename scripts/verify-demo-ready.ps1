@@ -50,7 +50,9 @@ Invoke-AegisLocalOperation -Name "verify-demo-ready.ps1" -Action {
 
   # 2. Which opt-in profiles are running
   # Read from the running API container's switches (read-only); the status routes need a signed-in operator.
-  $apiEnv = @(docker inspect ai-project-aegis-api-1 --format "{{range .Config.Env}}{{println .}}{{end}}" 2>$null)
+  # The Go template prints only the two switch lines, so no other variable (secrets included) reaches this shell.
+  # Single PowerShell quotes and Go backtick strings keep the template free of embedded double quotes (PS 5.1 safe).
+  $apiEnv = @(docker inspect ai-project-aegis-api-1 --format '{{range .Config.Env}}{{if or (eq . `AEGIS_PUBLIC_EARTH_FEEDS=1`) (eq . `AEGIS_PUBLIC_INTAKE=1`)}}{{println .}}{{end}}{{end}}' 2>$null)
   $earthOn = [bool]($apiEnv -contains "AEGIS_PUBLIC_EARTH_FEEDS=1"); $intakeOn = [bool]($apiEnv -contains "AEGIS_PUBLIC_INTAKE=1")
   if ($earthOn) { Write-Host "INFO: Earth Watch (public feeds) is ON" } else { Write-Host "INFO: Earth Watch is OFF (default synthetic profile)" }
   if ($intakeOn) { Warn "Public intake is ON. Decision D4: do not show it to an audience unless asked; restart without -PublicIntake" } else { Pass "Public intake is OFF" }

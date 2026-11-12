@@ -42,6 +42,7 @@ export const CAPABILITIES: Capability[] = [
   { id: "refresh_watch", group: "Sense and predict", label: "Refresh the Hazard Watch", roles: ["incident_operator", "platform_admin"], rule: "lib/proactive-proxy.ts" },
   { id: "run_proactive", group: "Sense and predict", label: "Start, advance or cancel a proactive run", roles: ["incident_operator"], rule: "lib/proactive-proxy.ts" },
   { id: "read_scheduler", group: "Sense and predict", label: "See the scheduler status", roles: READERS, rule: "lib/proactive-proxy.ts" },
+  { id: "read_intake_queue", group: "Sense and predict", label: "Open Public Intake and read its quarantine queue of unverified reports", roles: READERS, rule: "app/api/public-intake/route.ts" },
   { id: "read_forecast", group: "Sense and predict", label: "See the optional statistical forecast (display only)", roles: READERS, rule: "app/api/forecast/route.ts" },
   { id: "read_proposals", group: "Decide", label: "Read proposals and their audit trail", roles: ["incident_operator", "incident_checker", "incident_auditor"], rule: "lib/proposal-proxy.ts" },
   { id: "make_proposal", group: "Decide", label: "Draft and submit a proposal, simulate it, prepare tasks and run bounded assistance", roles: ["incident_operator"], rule: "lib/proposal-proxy.ts" },
@@ -68,6 +69,7 @@ export const can = (capability: string, roles: readonly string[] | null | undefi
 const PAGE_CAPABILITY: Record<string, string> = {
   "/approvals": "read_proposals", "/department-tasks": "department_inbox", "/my-team": "team_respond", "/handover": "read_assist", "/copilot": "read_assist",
   "/learning": "read_learning", "/drills": "read_learning", "/admin/connectors": "connectors",
+  "/public-intake": "read_intake_queue",
 };
 /** Roles that can use a page, or null when any signed-in role can. */
 export function pageRoles(href: string): RoleId[] | null {

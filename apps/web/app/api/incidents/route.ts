@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { apiAuthHeaders, signInRequired } from "../../../lib/api-auth";
+import { apiAuthHeaders, signInRequired, upstreamAuthFailure } from "../../../lib/api-auth";
 export const dynamic = "force-dynamic";
 export async function GET() {
   const auth = await apiAuthHeaders();
@@ -7,6 +7,8 @@ export async function GET() {
   try {
     const endpoint = (process.env.API_INTERNAL_URL || "http://localhost:8000") + "/v1/exercise/incidents";
     const response = await fetch(endpoint, { headers: auth, cache: "no-store", signal: AbortSignal.timeout(5000) });
+    const refused = upstreamAuthFailure(response);
+    if (refused) return refused;
     if (!response.ok) throw new Error("API unavailable");
     const data: unknown = await response.json();
     if (!Array.isArray(data)) throw new Error("Invalid API response");

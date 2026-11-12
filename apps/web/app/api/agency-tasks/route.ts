@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isSyntheticTaskPayload } from "../../../lib/agency-sync";
-import { apiAuthHeaders, signInRequired } from "../../../lib/api-auth";
+import { apiAuthHeaders, signInRequired, upstreamAuthFailure } from "../../../lib/api-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -27,6 +27,8 @@ export async function GET(request: NextRequest) {
     const response = await fetch(base + "/v1/exercise/agency-tasks?" + query.toString(), {
       headers: auth, cache: "no-store", signal: AbortSignal.timeout(6000),
     });
+    const refused = upstreamAuthFailure(response);
+    if (refused) return refused;
     if (!response.ok) throw new Error("Exercise task service unavailable");
     const data: unknown = await response.json();
     if (!isSyntheticTaskPayload(data) ||

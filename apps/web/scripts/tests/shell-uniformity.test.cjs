@@ -128,6 +128,11 @@ test('the permission matrix repeats the role lists written in the route rules', 
   const cap = id => sorted(roles.CAPABILITIES.find(item => item.id === id).roles);
   const assist = /const READ_ROLES: Role\[\] = \[([^\]]+)\]/.exec(read('lib/assist-proxy.ts'));
   assert.deepEqual(cap('read_assist'), listed(assist[1]));
+  const intake = read('app/api/public-intake/route.ts');
+  assert.deepEqual(cap('read_intake_queue'), listed(/const QUEUE_ROLES = \[([^\]]+)\]/.exec(intake)[1]));
+  assert.match(intake, /const auth = await apiAuthForRoles\(QUEUE_ROLES\);/, 'the queue GET checks the listed roles');
+  const apiIntake = fs.readFileSync(path.join(root, '../../services/api/app/public_intake.py'), 'utf8');
+  assert.deepEqual(cap('read_intake_queue'), listed(/INTAKE_QUEUE_ROLES = frozenset\(\{([^}]+)\}\)/.exec(apiIntake)[1]));
   const forecast = /const READ_ROLES: Role\[\] = \[([^\]]+)\]/.exec(read('app/api/forecast/route.ts'));
   assert.deepEqual(cap('read_forecast'), listed(forecast[1]));
   const learning = read('lib/learning-proxy.ts');
@@ -181,6 +186,9 @@ test('page access is a menu convenience derived from the matrix, never wider tha
   assert.equal(roles.canOpenPage('/handover', ['department_operator']), false);
   assert.equal(roles.canOpenPage('/admin/connectors', ['incident_checker']), false);
   assert.equal(roles.canOpenPage('/incidents', ['department_operator']), true);
+  assert.equal(roles.canOpenPage('/public-intake', ['department_operator']), false);
+  assert.equal(roles.canOpenPage('/public-intake', ['response_team']), false);
+  assert.equal(roles.canOpenPage('/public-intake', ['incident_auditor']), true);
   assert.equal(roles.canOpenPage('/approvals', null), true, 'unknown session shows the full menu; the server still decides');
   const pages = new Set(nav.allPages.map(page => page.href));
   for (const href of roles.GATED_PAGES) assert.ok(pages.has(href), 'gated page is in the menu: ' + href);

@@ -1,6 +1,8 @@
 "use client";
 
-import { ErrorState, Button, Panel } from "./ui";
+import { ErrorState, Button, Panel, PermissionState } from "./ui";
+import { canOpenPage, pageRoles } from "../lib/roles";
+import { useOperatorSession } from "../lib/use-operator-session";
 import { useCallback, useEffect, useState } from "react";
 import {
   AlertTriangle, CircleHelp, Droplets, Flame, Inbox, Loader2, Mountain, PhoneCall, RefreshCw, Send, ShieldAlert, Wind, Waves,
@@ -38,11 +40,16 @@ export function PublicIntake() {
   const [total, setTotal] = useState(0);
   const [queueError, setQueueError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [queueRefused, setQueueRefused] = useState(false);
+  const session = useOperatorSession();
+  // Menus only: the server decides. A role outside the queue readers sees the standard permission state.
+  const refused = queueRefused || (session !== null && session.authenticated && !canOpenPage("/public-intake", session.roles));
 
   const loadQueue = useCallback(async (signal?: AbortSignal) => {
     setLoading(true);
     try {
       const response = await fetch("/api/public-intake", { cache: "no-store", signal });
+      if (response.status === 403) { setQueueRefused(true); return; }
       if (!response.ok) throw new Error("Quarantine queue unavailable");
       const payload = await response.json() as { classification?: string; total?: number; reports?: QuarantinedReport[] };
       if (payload.classification !== "public_unverified_intake" || !Array.isArray(payload.reports)) throw new Error("Unexpected queue classification");
@@ -53,6 +60,7 @@ export function PublicIntake() {
   }, []);
 
   useEffect(() => {
+    if (refused) return;
     const controller = new AbortController();
     fetch("/api/public-intake/status", { cache: "no-store", signal: controller.signal })
       .then(async response => {
@@ -65,7 +73,7 @@ export function PublicIntake() {
       })
       .catch(() => { if (!controller.signal.aborted) setGate("error"); });
     return () => controller.abort();
-  }, [loadQueue]);
+  }, [loadQueue, refused]);
 
   const update = <K extends keyof IntakeDraft>(key: K, value: IntakeDraft[K]) => {
     setDraft(current => ({ ...current, [key]: value }));
@@ -106,15 +114,17 @@ export function PublicIntake() {
       </div>
     </div>
 
-    {gate === "checking" && <Panel as="div" bodyClassName="p-4 text-sm text-muted" role="status">{t("Checking whether public intake is enabled…")}</Panel>}
-    {gate === "error" && <ErrorState message={t("Intake status is unavailable. The rest of AEGIS is unaffected.")} />}
-    {gate === "disabled" && <Panel>
+    {refused && <PermissionState needs={pageRoles("/public-intake") ?? []} roles={session?.roles}
+      what={t("The quarantine queue holds unreviewed public reports, so it is for the incident desk and administrators.")} />}
+    {!refused && gate === "checking" && <Panel as="div" bodyClassName="p-4 text-sm text-muted" role="status">{t("Checking whether public intake is enabled…")}</Panel>}
+    {!refused && gate === "error" && <ErrorState message={t("Intake status is unavailable. The rest of AEGIS is unaffected.")} />}
+    {!refused && gate === "disabled" && <Panel>
       <h2 className="flex items-center gap-2 t-title"><Inbox size={18} className="text-accent"/> {t("Public intake is switched off")}</h2>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">{t("The base AEGIS stack accepts no public input. To rehearse intake, restart with the optional profile. Reports go to an isolated quarantine table only.")}</p>
       <pre className="mt-4 overflow-x-auto rounded-lg bg-elevated p-4 text-xs" tabIndex={0} aria-label="Start command"><code>powershell -ExecutionPolicy Bypass -File scripts/start-windows.ps1 -NoBuild -PublicIntake</code></pre>
     </Panel>}
 
-    {gate === "enabled" && <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,1fr)]">
+    {!refused && gate === "enabled" && <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,1fr)]">
       <Panel className="min-w-0" aria-label={t("Report what you see")} bodyClassName="p-0" icon={Send} title={t("Report what you see")}
         actions={<span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">{t("Unverified")}</span>}>
         {receipt ? <div className="p-6 text-center" role="status">

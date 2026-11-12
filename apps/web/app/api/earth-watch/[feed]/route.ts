@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { apiAuthHeaders, signInRequired } from "../../../../lib/api-auth";
+import { apiAuthHeaders, signInRequired, upstreamAuthFailure } from "../../../../lib/api-auth";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
@@ -66,6 +66,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ fee
     const response = await fetch(base + "/v1/public-reference/earth-watch/" + feed, {
       headers: auth, cache: "no-store", signal: AbortSignal.timeout(30000),
     });
+    const refused = upstreamAuthFailure(response);
+    if (refused) return refused;
     if (response.status === 503) return NextResponse.json({ error: "disabled" }, { status: 503, headers: HEADERS });
     if (!response.ok) throw new Error("Public feed unavailable");
     const payload: unknown = await response.json();

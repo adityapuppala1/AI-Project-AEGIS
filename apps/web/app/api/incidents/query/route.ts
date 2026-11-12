@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { apiAuthHeaders, signInRequired } from "../../../../lib/api-auth";
+import { apiAuthHeaders, signInRequired, upstreamAuthFailure } from "../../../../lib/api-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -21,6 +21,8 @@ export async function GET(request: NextRequest) {
       headers: auth, cache: "no-store",
       signal: AbortSignal.timeout(6000),
     });
+    const refused = upstreamAuthFailure(response);
+    if (refused) return refused;
     const data: unknown = await response.json();
     if (!response.ok) {
       return NextResponse.json({ error: "Invalid filter or incident service unavailable" }, { status: response.status === 422 ? 422 : 503 });

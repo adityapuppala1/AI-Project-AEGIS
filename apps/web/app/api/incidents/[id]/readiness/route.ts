@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { contextErrorCode } from "../../../../../lib/context-errors";
-import { apiAuthHeaders, signInRequired } from "../../../../../lib/api-auth";
+import { apiAuthHeaders, signInRequired, upstreamAuthFailure } from "../../../../../lib/api-auth";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -21,6 +21,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       base + "/v1/exercise/incidents/" + id + "/readiness?radius_m=" + radius,
       { headers: auth, cache: "no-store", signal: AbortSignal.timeout(6000) },
     );
+    const refused = upstreamAuthFailure(response);
+    if (refused) return refused;
     if (response.status === 404) {
       return NextResponse.json({ error: "Synthetic case not found" }, { status: 404 });
     }

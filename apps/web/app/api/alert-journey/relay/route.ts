@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { apiAuthHeaders, signInRequired } from "../../../../lib/api-auth";
+import { apiAuthHeaders, signInRequired, upstreamAuthFailure } from "../../../../lib/api-auth";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
@@ -41,6 +41,8 @@ let cacheBytes = 0;
 const inFlight = new Map<string, Promise<Entry>>();
 const hits = new Map<string, { start: number; count: number }>();
 const hostFetches = new Map<string, { start: number; count: number }>();
+// Process-global cache of the public-feeds switch, shared by every caller. It must stay a single global boolean with
+// no user-, session- or agency-specific content; never cache anything derived from one caller's token here.
 let gate = { at: 0, enabled: false };
 
 const refuse = (status: number, error: string) => NextResponse.json({ error }, { status, headers: { "Cache-Control": "no-store" } });
@@ -60,13 +62,18 @@ function resolveTarget(raw: string | null, method: "GET" | "POST"): URL | null {
   return url;
 }
 
-async function publicFeedsEnabled(auth: { Authorization: string }): Promise<boolean> {
+/** True/false for the switch, or the fixed sign-in/forbidden reply when the API refuses the forwarded token. */
+async function publicFeedsEnabled(auth: { Authorization: string }): Promise<boolean | NextResponse> {
   const now = Date.now();
+  // `gate` is process-global and shared by every caller: it must stay a single global on/off boolean with no
+  // user-, session- or agency-specific content (a refusal below is returned, never cached).
   if (now - gate.at < 30_000) return gate.enabled;
   let enabled = false;
   try {
     const base = process.env.API_INTERNAL_URL || "http://localhost:8000";
     const response = await fetch(base + "/v1/public-reference/earth-watch/status", { headers: auth, cache: "no-store", signal: AbortSignal.timeout(8000) });
+    const refused = upstreamAuthFailure(response);
+    if (refused) return refused;
     if (response.ok) {
       const payload = await response.json() as { enabled?: unknown; display_only?: unknown };
       enabled = payload.enabled === true && payload.display_only === true;
@@ -176,7 +183,9 @@ async function handle(request: Request, method: "GET" | "POST") {
     // The switch is read from the API with the signed-in operator's token (server-side only).
     const auth = await apiAuthHeaders();
     if (!auth) return signInRequired();
-    if (!(await publicFeedsEnabled(auth))) return refuse(503, "disabled");
+    const enabled = await publicFeedsEnabled(auth);
+    if (enabled instanceof Response) return enabled;
+    if (!enabled) return refuse(503, "disabled");
   }
   let body: string | undefined;
   if (method === "POST") {

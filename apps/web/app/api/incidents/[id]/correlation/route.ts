@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { apiAuthHeaders, signInRequired } from "../../../../../lib/api-auth";
+import { apiAuthHeaders, signInRequired, upstreamAuthFailure } from "../../../../../lib/api-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -20,6 +20,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       base + "/v1/exercise/incidents/" + id + "/correlation?radius_m=" + radius,
       { headers: auth, cache: "no-store", signal: AbortSignal.timeout(6000) },
     );
+    const refused = upstreamAuthFailure(response);
+    if (refused) return refused;
     if (response.status === 404) {
       return NextResponse.json({ error: "Synthetic incident not found" }, { status: 404 });
     }
