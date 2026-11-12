@@ -109,9 +109,10 @@ def test_authority_notification_cannot_be_enabled():
 
 
 COMMS = ['comms_in_app', 'comms_email', 'comms_sms', 'comms_whatsapp']
+NEVER_ENABLED_COMMS = ['comms_in_app', 'comms_sms', 'comms_whatsapp']
 
 
-@pytest.mark.parametrize('connector_id', COMMS)
+@pytest.mark.parametrize('connector_id', NEVER_ENABLED_COMMS)
 def test_communication_channels_cannot_be_enabled(connector_id, proactive):
     assert connectors.never_enabled(connector_id)
     response = client.put(f'/v1/proactive/connectors/{connector_id}', json={'expected_version': 0, 'enabled': True})
@@ -122,10 +123,31 @@ def test_communication_channels_cannot_be_enabled(connector_id, proactive):
     assert view['enabled'] is False and view['delivery'] in {'built_in', 'locked'}
 
 
-def test_no_send_endpoint_exists_in_the_module():
-    source = Path(connectors.__file__).read_text(encoding='utf-8')
-    for needle in ('mail/send', 'Messages.json', '/messages', 'smtplib'):
-        assert needle not in source, needle
+def test_email_channel_enables_only_with_key_and_sender(proactive):
+    # Owner decision 12 November 2026: email to opted-in staff only. Enabling needs the key and the sender address.
+    assert not connectors.never_enabled('comms_email') and connectors.REGISTRY['comms_email']['delivery'] == 'send'
+    response = client.put('/v1/proactive/connectors/comms_email', json={'expected_version': 0, 'enabled': True})
+    assert response.status_code == 422 and response.json()['detail'] == 'required_secret_missing:api_key'
+    response = client.put('/v1/proactive/connectors/comms_email', json={'expected_version': 0, 'enabled': True, 'secrets': {'api_key': 'SG.PLAIN'}})
+    assert response.status_code == 422 and response.json()['detail'] == 'required_setting_missing:from_address'
+    response = client.put('/v1/proactive/connectors/comms_email', json={'expected_version': 0, 'enabled': True, 'settings': {'from_address': 'desk@example.org'}, 'secrets': {'api_key': 'SG.PLAIN'}})
+    assert response.status_code == 200 and response.json()['enabled'] is True and response.json()['delivery'] == 'send'
+    assert connectors.effective('comms_email')['enabled'] is True and 'SG.PLAIN' not in response.text
+    off = client.put('/v1/proactive/connectors/comms_email', json={'expected_version': 1, 'enabled': False, 'settings': {'from_address': 'desk@example.org'}})
+    assert off.status_code == 200 and connectors.effective('comms_email')['enabled'] is False  # the kill switch
+
+
+def _app_sources():
+    return {path.name: path.read_text(encoding='utf-8') for path in Path(connectors.__file__).parent.rglob('*.py')}
+
+
+def test_send_endpoint_exists_only_in_the_staff_email_module():
+    sources = _app_sources()
+    assert 'mail/send' not in sources['connectors.py']
+    assert [name for name, text in sources.items() if 'mail/send' in text] == ['staff_messages.py']
+    for name, text in sources.items():
+        for needle in ('Messages.json', '/messages', 'smtplib', 'sendmail', 'whatsapp_business'):
+            assert needle not in text, (name, needle)
     assert client.post('/v1/proactive/connectors/comms_in_app/test').json()['message'] == 'built_in_no_transport'
 
 
@@ -194,13 +216,15 @@ def test_channel_settings_reject_unsafe_values(connector_id, settings):
 def test_provider_hosts_and_channels_stay_inside_the_registry():
     from app import hazard_watch
     assert not [cid for cid in hazard_watch.ADAPTERS if connectors.never_enabled(cid)]
-    app_dir = Path(connectors.__file__).parent
-    for path in app_dir.rglob('*.py'):
-        if path.name == 'connectors.py':
+    for name, text in _app_sources().items():
+        if name == 'connectors.py':
             continue
-        text = path.read_text(encoding='utf-8')
-        for needle in ('api.sendgrid.com', 'api.twilio.com', 'graph.facebook.com', 'comms_email', 'comms_sms', 'comms_whatsapp'):
-            assert needle not in text, (path.name, needle)
+        # SMS and WhatsApp stay locked: their hosts and ids live only in the registry, which calls them with GET only.
+        for needle in ('api.twilio.com', 'graph.facebook.com', 'comms_sms', 'comms_whatsapp'):
+            assert needle not in text, (name, needle)
+        if name != 'staff_messages.py':  # the one sending module (owner decision 12 November 2026)
+            for needle in ('api.sendgrid.com', 'comms_email'):
+                assert needle not in text, (name, needle)
 
 
 def test_imd_refuses_until_terms_accepted(monkeypatch):
@@ -306,6 +330,18 @@ def test_compose_and_start_script_wiring():
     assert '016_learning_drills.sql:/docker-entrypoint-initdb.d/021-learning-drills.sql' in base
     assert '016_learning_drills.sql:/learning-drills.sql' in base
     assert '-f /exposure.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /learning-drills.sql' in base
+    # 018 staff email notices: initdb after 017, migrate chain after 017.
+    assert '018_staff_messages.sql:/docker-entrypoint-initdb.d/023-staff-messages.sql' in base
+    assert '018_staff_messages.sql:/staff-messages.sql' in base
+    assert '-f /response-loop.sql && psql -h db -U aegis -d aegis -v ON_ERROR_STOP=1 -f /staff-messages.sql' in base
+    staff_sql = (root / 'db/migrations/018_staff_messages.sql').read_text()
+    assert 'DROP' not in staff_sql.upper() and 'TRUNCATE' not in staff_sql.upper()
+    assert staff_sql.count('CREATE TABLE IF NOT EXISTS') == 2 and 'append-only' in staff_sql
+    staff_overlay = (root / 'compose.staff-email.yaml').read_text()
+    assert 'AEGIS_STAFF_EMAIL: "1"' in staff_overlay and 'AEGIS_STAFF_EMAIL' not in base
+    assert 'AEGIS_STAFF_EMAIL' not in (root / 'compose.proactive.yaml').read_text()
+    start = (root / 'scripts/start-windows.ps1').read_text()
+    assert 'compose.staff-email.yaml' in start and '-StaffEmail needs -Proactive' in start
     learning_sql = (root / 'db/migrations/016_learning_drills.sql').read_text()
     assert 'DROP TABLE' not in learning_sql.upper() and 'TRUNCATE' not in learning_sql.upper()
     assert learning_sql.count('CREATE TABLE IF NOT EXISTS') == 6 and 'CHECK (checker_subject IS NULL OR checker_subject <> maker_subject)' in learning_sql

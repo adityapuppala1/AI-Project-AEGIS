@@ -7,7 +7,7 @@ from enum import Enum
 from typing import Literal
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Response
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt
 
 from app.governance import Action, DecisionError
@@ -68,9 +68,13 @@ def available_exercise_incidents(operator: Operator = Depends(get_operator)):
 
 
 @router.get("")
-def proposals(operator: Operator = Depends(get_operator)):
+def proposals(background: BackgroundTasks, operator: Operator = Depends(get_operator)):
     require_role(operator, {"incident_operator", "incident_checker", "incident_auditor"})
-    return list_proposals(operator.agency_id)
+    rows = list_proposals(operator.agency_id)
+    # Staff email register refresh from the verified token (after the response; best effort; off without -StaffEmail).
+    from app.staff_messages import refresh_contact
+    background.add_task(refresh_contact, operator)
+    return rows
 
 
 @router.post("", status_code=201)
@@ -100,6 +104,7 @@ def create(payload: CreateProposal, operator: Operator = Depends(get_operator)):
 def change(
     proposal_id: UUID,
     payload: ChangeProposal,
+    background: BackgroundTasks,
     operator: Operator = Depends(get_operator),
 ):
     if payload.operation in (Operation.submit, Operation.simulate, Operation.prepare_tasks, Operation.acknowledge_task, Operation.close_task, Operation.reassign_task,
@@ -133,6 +138,13 @@ def change(
             payload.rationale,
             **task_args,
         )
+        from app.staff_messages import refresh_contact
+        background.add_task(refresh_contact, operator)  # register refresh, best effort, after the response
+        if payload.operation is Operation.submit:
+            # Staff email notice (docs/COMMUNICATION_CHANNELS.md): runs after the committed transaction and after this
+            # response, best effort, and can never fail, delay or change the transition. Off unless AEGIS_STAFF_EMAIL=1.
+            from app.staff_messages import notify_approval_waiting
+            background.add_task(notify_approval_waiting, operator.agency_id, operator.subject)
         return {"id": str(proposal_id), "status": status, "exercise_only": True}
     except ContextUnavailable as err:
         raise HTTPException(status_code=503, detail={"code": err.code}) from err

@@ -5,7 +5,8 @@ No developer override, hardcoded token, unsigned JWT, or browser-supplied
 subject/role is supported by this module.
 """
 import os
-from dataclasses import dataclass
+import re
+from dataclasses import dataclass, field
 from functools import lru_cache
 from uuid import UUID
 
@@ -23,9 +24,21 @@ class Operator:
     roles: frozenset[str]
     department_id: str | None = None
     team_id: str | None = None  # Signed aegis_team_id; only set for response_team tokens (docs/RESPONSE_LOOP.md).
+    # The token's `email` claim, set only when `email_verified` is exactly true. Used only by the staff email
+    # register (docs/COMMUNICATION_CHANNELS.md); kept out of repr so it never reaches a log line.
+    email: str | None = field(default=None, repr=False, compare=False)
 
 
 SYSTEM_SUBJECT_PREFIX = "system:"
+_VERIFIED_EMAIL = re.compile(r"[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9-]{1,63}(\.[A-Za-z0-9-]{1,63}){1,4}")
+
+
+def _verified_email(claims: dict) -> str | None:
+    """The email claim only when the identity provider marks it verified; anything unusual yields None."""
+    email = claims.get("email")
+    if claims.get("email_verified") is not True or not isinstance(email, str) or len(email) > 254:
+        return None
+    return email if _VERIFIED_EMAIL.fullmatch(email) else None
 ALLOWED_ROLES = frozenset({"incident_operator", "incident_checker", "incident_auditor", "department_operator",
                            "response_team", "platform_admin"})
 
@@ -141,7 +154,8 @@ def decode_operator_token(token: str) -> Operator:
     if team is not None or "response_team" in roles:
         if not isinstance(team, str) or team not in TEAM_IDS:
             raise HTTPException(status_code=403, detail="Invalid team scope")
-    return Operator(subject=subject, agency_id=agency_id, roles=roles, department_id=department, team_id=team)
+    return Operator(subject=subject, agency_id=agency_id, roles=roles, department_id=department, team_id=team,
+                    email=_verified_email(claims))
 
 
 def get_operator(credentials: HTTPAuthorizationCredentials | None = Depends(_bearer)) -> Operator:

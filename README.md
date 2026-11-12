@@ -112,7 +112,7 @@ Stop with `scripts\stop-windows.ps1`; the database volume is kept.
 incidents with evidence, data sources, map assets, department tasks and exposure features. Optional extra exercise
 data: `scripts\replay-windows.ps1` and `scripts\run-tabletop-windows.ps1 -ConfirmExercise`.
 
-Optional switches (default off): `-PublicEarth`, `-Proactive`, `-StatisticalForecast`, `-LocalCopilot`,
+Optional switches (default off): `-PublicEarth`, `-Proactive`, `-StaffEmail` (needs `-Proactive`), `-StatisticalForecast`, `-LocalCopilot`,
 `-PublicIntake`. Run one AEGIS stack at a time ([single-instance rules](docs/SINGLE_INSTANCE_LOCAL_RUNTIME.md)).
 
 **Local checks**

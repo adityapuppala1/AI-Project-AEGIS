@@ -161,6 +161,7 @@ switched on is switched off again.
 |---|---|---|
 | `-PublicEarth` | Live public reference feeds (USGS, NASA, Open-Meteo) on Live Earth and Earth Watch, display only | Internet |
 | `-Proactive` | Exercise-only multi-hazard watch | `AEGIS_CONNECTOR_KEY` in `.env` (`scripts\new-connector-key.ps1`) |
+| `-StaffEmail` | Email notices to staff who opt in (fixed rehearsal templates only) | `-Proactive`, a SendGrid key saved on the Connectors page and the Email switch turned on there, see [COMMUNICATION_CHANNELS.md](COMMUNICATION_CHANNELS.md) |
 | `-StatisticalForecast` | TimesFM 2.5 statistical river estimate on the Flood tab, display only | A one-time 883 MB model download, see [STATISTICAL_FORECAST.md](STATISTICAL_FORECAST.md) |
 | `-LocalCopilot` | Optional local language model for rephrasing cited facts | See [LOCAL_REVIEW_FOCUS.md](LOCAL_REVIEW_FOCUS.md) |
 

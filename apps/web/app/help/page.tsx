@@ -6,6 +6,7 @@ import { ArrowRight, BookOpenCheck, BrainCircuit, Database, Keyboard, LifeBuoy, 
 import { AppShell } from "../../components/app-shell";
 import { useT } from "../../components/language-provider";
 import { SearchField, Stepper, Tabs, TabPanel, type Step, Panel } from "../../components/ui";
+import { EmailNoticesPanel } from "../../components/staff-email";
 
 type Guide = {
   title: string;
@@ -105,6 +106,7 @@ export default function HelpPage() {
       <h2 className="t-title">{t("If the app shows unavailable")}</h2>
       <Stepper className="mt-4" label={t("Troubleshooting steps")} steps={TROUBLE.map(([id, label]): Step => ({ id, label: t(label), status: "pending" }))}/>
     </Panel>
+    <EmailNoticesPanel className="mt-5"/>
     <div className="mt-5 flex flex-wrap items-start gap-3 rounded-lg border border-amber-500/20 bg-amber-500/5 p-4 text-xs leading-6 text-muted">
       <ShieldCheck className="mt-1 shrink-0 text-amber-500" size={18}/>
       <span>Emergency procedures must be approved by the responsible agency. These help articles describe a synthetic hackathon application and are not public emergency instructions.</span>

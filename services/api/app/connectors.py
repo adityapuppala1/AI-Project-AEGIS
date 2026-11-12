@@ -4,8 +4,11 @@ Hosts are hard-coded per connector; fetches use no redirects, no proxy variables
 timeout, a 25 s deadline and a 64 KB cap for tests. Test responses are never persisted and
 secret values are never returned. `authority_notification` cannot be enabled: there is no send path.
 The `comms_*` entries hold staff message provider credentials (email, SMS, WhatsApp). Their test only
-asks the provider whether the credentials are valid; nothing in this module sends a message and they
-cannot be enabled. See docs/PROACTIVE_IMPLEMENTATION_CONTRACT.md and docs/COMMUNICATION_CHANNELS.md.
+asks the provider whether the credentials are valid; nothing in this module sends a message. SMS and
+WhatsApp cannot be enabled. `comms_email` (delivery "send") may be enabled by a platform_admin: it is then
+the kill switch read by app/staff_messages.py, the only module that sends (fixed rehearsal emails to
+opted-in staff, owner decision 12 November 2026). See docs/PROACTIVE_IMPLEMENTATION_CONTRACT.md and
+docs/COMMUNICATION_CHANNELS.md.
 """
 import base64
 import os
@@ -91,6 +94,8 @@ TWILIO_ACCOUNT_SID = r"AC[0-9a-fA-F]{32}"
 SMS_SENDER = r"\+[1-9][0-9]{7,14}|[A-Za-z0-9]{3,11}"
 WHATSAPP_NUMBER_ID = r"[0-9]{5,20}"
 COMMS_LOCKED = "Credentials are checked only. No message is sent: this build has no send code and the channel cannot be enabled."
+COMMS_EMAIL_SEND = ("When enabled and the host switch AEGIS_STAFF_EMAIL is on, AEGIS sends fixed rehearsal notices to its own "
+                    "staff who opted in with a verified address. Disabling stops sending at the next attempt.")
 
 
 def _field(name, label, secret=False, required=False):
@@ -163,16 +168,16 @@ REGISTRY = {
         "licence": "No send path exists in this demonstration.",
         "hosts": (), "fields": (), "settings": {"enabled": (False, _fixed(False))},
     },
-    # Staff message channels. "delivery" marks an entry that can never be enabled from here:
-    # "built_in" needs no provider and never leaves this server; "locked" stores and checks credentials only.
+    # Staff message channels. "built_in" needs no provider and never leaves this server; "locked" stores and
+    # checks credentials only and can never be enabled; "send" (email only) can be enabled as described above.
     "comms_in_app": {
         "name": "In-app alerts (signed-in users)", "category": "communications", "delivery": "built_in",
         "licence": "Built in. Requests, tasks and approvals appear only to people signed in to AEGIS; nothing leaves this server.",
         "hosts": (), "fields": (), "settings": {"mode": ("signed_in_users_only", _fixed("signed_in_users_only"))},
     },
     "comms_email": {
-        "name": "Email provider (Twilio SendGrid)", "category": "communications", "delivery": "locked",
-        "licence": "Paid service; SendGrid terms and sender authentication apply (https://sendgrid.com). " + COMMS_LOCKED,
+        "name": "Email provider (Twilio SendGrid)", "category": "communications", "delivery": "send",
+        "licence": "Paid service; SendGrid terms and sender authentication apply (https://sendgrid.com). " + COMMS_EMAIL_SEND,
         "hosts": ("api.sendgrid.com",),
         "fields": (_field("api_key", "API key", True, True), _field("from_address", "Sender email address", False, True)),
         "settings": {"from_address": ("", _pattern(EMAIL_ADDRESS))},
@@ -198,8 +203,8 @@ REGISTRY = {
 
 
 def never_enabled(connector_id: str) -> bool:
-    """True for entries with no send path: authority notification and every communications channel."""
-    return connector_id == "authority_notification" or "delivery" in REGISTRY[connector_id]
+    """True for entries that can never be switched on: authority notification and the built-in/locked channels."""
+    return connector_id == "authority_notification" or REGISTRY[connector_id].get("delivery") in ("built_in", "locked")
 
 
 class _NoRedirect(HTTPRedirectHandler):
@@ -533,9 +538,12 @@ def update_connector(connector_id: str, body: ConnectorUpdate, operator: Operato
     current = data["configs"].get(connector_id) or {}
     if body.enabled:
         present = {n for n, op in ops.items() if op is not None} | (set(data["secrets"].get(connector_id, {})) - set(ops))
-        missing = [f["name"] for f in spec["fields"] if f["required"] and f["name"] not in present]
+        missing = [f["name"] for f in spec["fields"] if f["required"] and f["secret"] and f["name"] not in present]
         if missing:
             raise HTTPException(status_code=422, detail="required_secret_missing:" + ",".join(missing))
+        unset = [f["name"] for f in spec["fields"] if f["required"] and not f["secret"] and settings.get(f["name"]) == ""]
+        if unset:
+            raise HTTPException(status_code=422, detail="required_setting_missing:" + ",".join(unset))
     audits.insert(0, ("save", True, {"version": body.expected_version + 1, "settings": settings,
                                      "secrets_set": {n: op[2] for n, op in ops.items() if op is not None}}))
     if body.enabled != bool(current.get("enabled")):

@@ -47,6 +47,17 @@ const LABELS: Record<string, string> = {
   credentials_accepted_nothing_sent: "The provider accepted the credentials; no message was sent", credentials_rejected: "The provider refused the credentials",
   key_lacks_mail_send: "The key is valid but lacks the Mail Send permission", setting_missing: "A required setting is empty or not valid", built_in_no_transport: "Built in; nothing leaves this server",
   test_failed: "The test did not pass", timeout: "The service took too long to answer", token_request_failed: "The service refused the sign-in for its key",
+  // Staff email notices (services/api/app/staff_messages.py reason codes and states; docs/COMMUNICATION_CHANNELS.md)
+  host_switch_off: "Email notices are switched off on this server", channel_unavailable: "The email channel setting could not be read",
+  channel_disabled: "The email channel is switched off", no_consent: "This person has not turned on email notices",
+  agency_mismatch: "The person belongs to another agency", recipient_cap: "Hourly limit for this person reached",
+  agency_cap: "Daily limit for this agency reached", provider_rejected: "The email provider refused the key",
+  provider_status: "The email provider answered with an error", send_failed: "The email could not be sent",
+  store_unavailable: "The message log could not be written", verified_email_required: "Your sign-in account has no verified email address", undeliverable_address: "Your sign-in address uses a reserved test domain that cannot receive email",
+  test_notice: "Test notice", approval_waiting: "Proposal waiting for review",
+  sent: "Sent", suppressed: "Not sent (blocked by a rule)",
+  stale_contact: "This person has not used AEGIS in the last 24 hours", send_lock_unavailable: "Another email was being prepared; try again",
+  test_in_flight: "A test email is already on its way",
 };
 
 /**

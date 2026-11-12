@@ -143,7 +143,7 @@ export function buildSampleConnectors(nowMs: number): ConnectorsPayload {
       settings: { enabled: false }, fields: [], last_test: null },
     { ...base, id: "comms_in_app", name: "In-app alerts", category: "communications", delivery: "built_in", hosts: [], enabled: false,
       settings: { mode: "signed_in_users_only" }, fields: [], last_test: null },
-    { ...base, id: "comms_email", name: "Email provider", category: "communications", delivery: "locked", hosts: ["api.sendgrid.com"], enabled: false,
+    { ...base, id: "comms_email", name: "Email provider", category: "communications", delivery: "send", hosts: ["api.sendgrid.com"], enabled: false,
       settings: { from_address: "" }, fields: [field("api_key", "API key", true, true, false), field("from_address", "Sender email address", false, true, false)], last_test: null },
     { ...base, id: "comms_sms", name: "SMS provider", category: "communications", delivery: "locked", hosts: ["api.twilio.com"], enabled: false,
       settings: { account_sid: "", from_number: "" }, fields: [field("account_sid", "Account SID", false, true, false), field("auth_token", "Auth token", true, true, false), field("from_number", "Sender number or sender ID", false, true, false)], last_test: null },

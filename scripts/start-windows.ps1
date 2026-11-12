@@ -1,4 +1,4 @@
-param([switch]$NoBuild, [switch]$LocalCopilot, [switch]$PublicEarth, [switch]$PublicIntake, [switch]$Proactive, [switch]$ProactiveScheduler, [switch]$StatisticalForecast, [switch]$SignIn)
+param([switch]$NoBuild, [switch]$LocalCopilot, [switch]$PublicEarth, [switch]$PublicIntake, [switch]$Proactive, [switch]$ProactiveScheduler, [switch]$StatisticalForecast, [switch]$StaffEmail, [switch]$SignIn)
 $ErrorActionPreference = "Stop"
 . (Join-Path $PSScriptRoot "local-runtime-common.ps1")
 Invoke-AegisLocalOperation -Name "start-windows.ps1" -Action {
@@ -30,6 +30,11 @@ Invoke-AegisLocalOperation -Name "start-windows.ps1" -Action {
   if ($PublicIntake) { $startCommand += ' -f compose.public-intake.yaml' }
   # Opt-in proactive multi-hazard watch (exercise only; no send path). Requires AEGIS_CONNECTOR_KEY.
   if ($Proactive -or $ProactiveScheduler) { $startCommand += ' -f compose.proactive.yaml' }
+  # Opt-in staff email notices (fixed templates to opted-in staff only). The key lives in the connector vault.
+  if ($StaffEmail) {
+    if (-not ($Proactive -or $ProactiveScheduler)) { throw '-StaffEmail needs -Proactive: the email key is kept in the connector vault.' }
+    $startCommand += ' -f compose.staff-email.yaml'
+  }
   # Optional TimesFM statistical forecast (display-only). Needs AEGIS_TIMESFM_CACHE; see docs/STATISTICAL_FORECAST.md.
   if ($StatisticalForecast) {
     if (-not $env:AEGIS_TIMESFM_CACHE) { $env:AEGIS_TIMESFM_CACHE = Join-Path $env:USERPROFILE '.cache\huggingface' }

@@ -87,6 +87,8 @@ from app.connectors import router as proactive_connectors_router
 from app.hazard_watch import router as proactive_watch_router
 from app.proactive_run import router as proactive_run_router
 app.include_router(proactive_connectors_router)
+from app.staff_messages import router as staff_messages_router
+app.include_router(staff_messages_router)
 app.include_router(proactive_watch_router)
 app.include_router(proactive_run_router)
 # Opt-in L3 scheduled watch loop; refuses to start unless AEGIS_PROACTIVE_SCHEDULER=1 with a valid agency.

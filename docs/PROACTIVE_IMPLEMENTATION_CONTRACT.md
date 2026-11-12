@@ -31,12 +31,15 @@ the API routers return 404 unless `AEGIS_PROACTIVE=1` (same pattern as Earth Wat
 | cap_handover | hand-over | — | `mode` fixed `file_export` | validates exporter |
 | authority_notification | hand-over | — | `enabled` fixed false | always 409 on enable |
 | comms_in_app | communications | — | `mode` fixed `signed_in_users_only` | built in; 409 on enable |
-| comms_email | communications | `api_key*`, `from_address` | `from_address` | GET `https://api.sendgrid.com/v3/scopes`; 409 on enable |
+| comms_email | communications | `api_key*`, `from_address` | `from_address` | GET `https://api.sendgrid.com/v3/scopes`; can be enabled (needs key and sender); the kill switch for staff email notices |
 | comms_sms | communications | `account_sid`, `auth_token*`, `from_number` | `account_sid`, `from_number` | GET the Twilio account resource; 409 on enable |
 | comms_whatsapp | communications | `access_token*`, `phone_number_id` | `phone_number_id` | GET the Meta phone number resource; 409 on enable |
 
-The `comms_*` rows hold staff message provider credentials only. Their view carries
-`delivery: "built_in" | "locked"`; no send endpoint is called anywhere. See
+The `comms_*` rows hold staff message provider credentials. Their view carries
+`delivery: "built_in" | "locked" | "send"`. Only `comms_email` (`send`) can be enabled, after the owner
+decision of 12 November 2026: with the host switch `AEGIS_STAFF_EMAIL=1` (`-StaffEmail`), the separate
+module `app/staff_messages.py` sends fixed rehearsal emails to opted-in staff of the same agency.
+Nothing in `connectors.py` calls a send endpoint, and SMS and WhatsApp stay locked. See
 [COMMUNICATION_CHANNELS.md](COMMUNICATION_CHANNELS.md).
 
 Allowlisted hosts per connector are hard-coded; no redirects; 10 s socket / 25 s deadline;

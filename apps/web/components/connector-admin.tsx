@@ -19,6 +19,7 @@ import type { AuditRow, Connector, ConnectorStatus, ConnectorsPayload, TestResul
 import { buildSampleAudit, buildSampleConnectors } from "../lib/proactive-sample";
 import { formatIst } from "../lib/earth-watch";
 import { codeLabel } from "../lib/labels";
+import { SendTestButton, StaffEmailLog } from "./staff-email";
 
 type Notice = { tone: "ok" | "error"; text: string };
 type Settings = Record<string, string | number | boolean>;
@@ -42,7 +43,7 @@ const META: Record<string, Meta> = {
   cap_handover: { icon: FileOutput, can: "Export an Exercise CAP file that a person downloads.", cannot: "Transmit the file anywhere.", where: "Nothing to enter." },
   authority_notification: { icon: Ban, can: "Show that hand-over is a human step.", cannot: "Ever be enabled. AEGIS sends no notifications.", where: "Nothing to enter." },
   comms_in_app: { icon: BellRing, can: "Show requests, tasks and approvals to people signed in to AEGIS.", cannot: "Reach anyone who is not signed in.", where: "Nothing to enter." },
-  comms_email: { icon: Mail, can: "Keep the email provider's key and check that the provider accepts it.", cannot: "Send an email. Sending is locked.", where: "An API key and a verified sender address from your SendGrid account (paid).", url: "https://app.sendgrid.com/settings/api_keys", urlLabel: "SendGrid API keys" },
+  comms_email: { icon: Mail, can: "Send fixed rehearsal notices to AEGIS staff who turned on email notices, once switched on here and on the server.", cannot: "Send SMS, WhatsApp, public warnings, messages outside AEGIS staff, or any case details.", where: "An API key and a verified sender address from your SendGrid account (paid).", url: "https://app.sendgrid.com/settings/api_keys", urlLabel: "SendGrid API keys" },
   comms_sms: { icon: MessageSquareText, can: "Keep the SMS provider's credentials and check that the provider accepts them.", cannot: "Send a text message. Sending is locked.", where: "The Account SID, auth token and a sender number from your Twilio console (paid). Indian numbers also need DLT registration.", url: "https://console.twilio.com/", urlLabel: "Twilio console" },
   comms_whatsapp: { icon: MessageCircle, can: "Keep the WhatsApp Business token and check that Meta accepts it.", cannot: "Send a WhatsApp message. Sending is locked.", where: "A permanent access token and the phone number ID from your Meta WhatsApp Business account (paid per conversation).", url: "https://developers.facebook.com/docs/whatsapp/cloud-api/get-started", urlLabel: "WhatsApp Cloud API setup" },
 };
@@ -90,8 +91,10 @@ function ConnectorCard({ connector, masterKey, preview, now, onToast, onSaved }:
   const meta = META[connector.id] ?? FALLBACK_META;
   const Icon = meta.icon;
   const readOnly = connector.id === "authority_notification";
-  // A communication channel has no on/off switch: in-app alerts are always on, the others store and check credentials only.
+  // In-app alerts are always on and SMS/WhatsApp store and check credentials only, so they have no on/off switch.
+  // Email ("send") has one: it is the kill switch for staff email notices.
   const channel = connector.delivery ?? null;
+  const switchable = channel === null || channel === "send";
   const requiredPlain = connector.fields.filter(field => !field.secret && field.required);
   const optionalPlain = connector.fields.filter(field => !field.secret && !field.required);
   const secretFields = connector.fields.filter(field => field.secret);
@@ -178,7 +181,7 @@ function ConnectorCard({ connector, masterKey, preview, now, onToast, onSaved }:
       <span className="rounded-full bg-elevated px-2.5 py-1 text-[11px] font-semibold text-muted ring-1 ring-stroke">{connector.category || t("other")}</span>
       <StatusPill connector={connector}/>
       {preview && <SampleBadge/>}
-      {channel ? <span className="inline-flex min-h-9 items-center gap-1.5 text-sm font-semibold"><Lock size={14} aria-hidden="true"/>{channel === "built_in" ? t("Always on inside AEGIS") : t("Sending locked")}</span>
+      {!switchable ? <span className="inline-flex min-h-9 items-center gap-1.5 text-sm font-semibold"><Lock size={14} aria-hidden="true"/>{channel === "built_in" ? t("Always on inside AEGIS") : t("Sending locked")}</span>
       : <label className="inline-flex min-h-9 items-center gap-2 text-sm font-semibold" htmlFor={`${base}-enabled`}>
         <input id={`${base}-enabled`} type="checkbox" role="switch" className="h-5 w-5 accent-[rgb(var(--accent))]" checked={enabled} disabled={readOnly || busy !== ""}
           aria-describedby={`${base}-can`} onChange={event => setEnabled(event.target.checked)}/>
@@ -193,6 +196,8 @@ function ConnectorCard({ connector, masterKey, preview, now, onToast, onSaved }:
       {channel && <p className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs leading-5 text-amber-800 dark:text-amber-200" role="note">
         <Lock size={16} className="mt-0.5 shrink-0" aria-hidden="true"/>{channel === "built_in"
           ? t("This is how AEGIS alerts people today: a request, task or approval shows on the page and as a number on the menu, only for people who are signed in. Nothing leaves this server.")
+          : channel === "send"
+          ? t("When this switch is on and the server was started with -StaffEmail, AEGIS emails fixed rehearsal notices to its own staff who turned on email notices, at their verified sign-in address. Today the only notice is a proposal waiting for a checker, plus a test a person sends to themselves. No case details are included. Switching off stops sending at the next attempt.")
           : t("You can save and check this provider's credentials here. AEGIS sends nothing through it: this build has no sending code, and adding it needs the owner's decision and a security review.")}</p>}
 
       {requiredPlain.map(plainField)}
@@ -234,6 +239,11 @@ function ConnectorCard({ connector, masterKey, preview, now, onToast, onSaved }:
       {test && <p className={`text-xs ${test.ok ? "text-emerald-800 dark:text-emerald-300" : "text-rose-700 dark:text-rose-300"}`}>
         {test.ok ? t("Test passed") : t("Test failed")} · HTTP {test.status_code ?? "n/a"} · {test.latency_ms ?? "n/a"} ms{test.message ? <> · <span title={test.message}>{t(codeLabel(test.message))}</span></> : ""}{test.at ? ` · ${formatIst(test.at)}` : ""}</p>}
 
+      {channel === "send" && !preview && <div className="space-y-3 rounded-lg border border-stroke p-3">
+        <SendTestButton/>
+        <StaffEmailLog/>
+      </div>}
+
       <div>
         <Button size="sm" type="button" aria-expanded={auditOpen} aria-controls={`${base}-audit`} onClick={toggleAudit}>
           <History size={14} aria-hidden="true"/>{t("Audit (last 50)")}<ChevronDown size={14} aria-hidden="true" className={auditOpen ? "rotate-180" : ""}/></Button>
@@ -248,7 +258,7 @@ function ConnectorCard({ connector, masterKey, preview, now, onToast, onSaved }:
         {!readOnly && <Button type="button" variant={dirty ? "primary" : "secondary"} onClick={save} disabled={preview || !dirty || busy !== "" || (secretsPending && !masterKey)}>
           {busy === "save" ? <Loader2 size={16} className="animate-spin" aria-hidden="true"/> : <Save size={16} aria-hidden="true"/>}{t("Save")}</Button>}
         <Button type="button" onClick={runTest} disabled={busy !== ""}>
-          {busy === "test" ? <Loader2 size={16} className="animate-spin" aria-hidden="true"/> : <Activity size={16} aria-hidden="true"/>}{channel === "locked" ? t("Check credentials") : t("Test connection")}</Button>
+          {busy === "test" ? <Loader2 size={16} className="animate-spin" aria-hidden="true"/> : <Activity size={16} aria-hidden="true"/>}{channel === "locked" || channel === "send" ? t("Check credentials") : t("Test connection")}</Button>
         {dirty && <>
           <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-800 dark:text-amber-300"><span className="status-dot bg-amber-500" aria-hidden="true"/>{t("Unsaved changes")}</span>
           <Button size="sm" type="button" onClick={discard} disabled={busy !== ""}><Undo2 size={14} aria-hidden="true"/>{t("Discard changes")}</Button>
@@ -383,7 +393,7 @@ export function ConnectorAdmin() {
           return <section key={String(channels)} aria-labelledby={channels ? "channels-title" : undefined} className={channels ? "mt-8" : undefined}>
             {channels && <>
               <h2 id="channels-title" className="t-title mb-1">{t("Communication channels")}</h2>
-              <p className="helper mb-4 max-w-3xl">{t("How AEGIS reaches its own staff. Only in-app alerts are in use. Email, SMS and WhatsApp providers can be set up and their credentials checked here, but no message is sent. Public warnings never go through AEGIS.")}</p>
+              <p className="helper mb-4 max-w-3xl">{t("How AEGIS reaches its own staff. In-app alerts are always on. Email can send fixed rehearsal notices to staff who turned them on, once switched on here and on the server. SMS and WhatsApp credentials can be checked here, but nothing is sent through them. Public warnings never go through AEGIS.")}</p>
             </>}
             <div className="grid items-start gap-5 xl:grid-cols-2">
               {group.map(connector => <ConnectorCard key={`${preview ? "sample" : "live"}-${connector.id}-${connector.version}`} connector={connector} masterKey={view.master_key_configured} preview={preview} now={nowRef.current}

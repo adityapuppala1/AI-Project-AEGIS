@@ -18,6 +18,36 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Round 16: staff email notices (owner lifted the no-dispatch rule for this only) — 12 November 2026 (Windows laptop)
+
+Owner decision, 12 November 2026: asked whether to build real sending for staff messages, the owner answered "yes please
+proceed". Scope taken: email notices to AEGIS's own signed-in staff who opted in. SMS, WhatsApp, push, public warnings,
+outside agencies, the team response loop and any case content in a message stay forbidden. AGENTS.md records this.
+
+- **Built (completed):** migration 018 (staff_contacts, append-only staff_message_log), services/api/app/staff_messages.py
+  and staff_message_store.py, routes under /v1/staff-messages (my preference, test to my own address, admin log), one
+  trigger (proposal submitted -> opted-in checkers of the same agency, never the maker, after commit, best effort), web
+  proxy routes, an Email notices panel on the Help page, and the email card on /admin/connectors with its switch and log.
+- **Two switches, both default off:** start flag -StaffEmail (compose.staff-email.yaml, needs -Proactive) and the email
+  provider switch on the Connectors page (also the kill switch).
+- **Safeguards:** address only from a verified sign-in claim; reserved demo domains refused; fixed templates; register
+  rows older than 24 hours never receive; an address change or agency move ends the opt-in; caps of 5 per person per hour
+  and 200 per agency per day; every attempt logged; no lock or transaction held during the provider call.
+- **Reviews:** two independent read-only security reviews. No critical or high finding; the medium and low findings
+  were fixed (see docs/COMMUNICATION_CHANNELS.md). Left as is: the register refresh opens two short database connections
+  per approvals-list read; the test in-flight guard and per-maker cap are per API process.
+- **Checks run on this laptop:** API pytest 1219 passed / 30 skipped; app.model_lab --check PASS; npm run typecheck clean
+  and web tests 337 pass (run by the build agent after its last web change). Stack rebuilt with -StaffEmail; migration 018
+  applied to the existing volume (tables present).
+- **Browser check:** demo-admin sees the email card with a switch, SMS and WhatsApp without one, and the log; demo-checker
+  sees the Help panel, opt-in is refused for the demo address (undeliverable_address), a self-test is suppressed
+  (channel_disabled) and written to the log in PostgreSQL, and the admin log answers 403 for a checker.
+- **Not verified:** any real email. No SendGrid key exists here and demo accounts cannot opt in, so the provider call, the
+  reserve step with consent and the approval notice ran only against test doubles.
+- **Open for the owner:** a SendGrid account and verified sender; an identity-provider account with a real verified
+  address to try it; the identity provider must reset the verified flag when a user changes address (the local Keycloak
+  realm does not enforce this); native review of the new English strings; no bounce or delivery-status handling yet.
+
 ## Round 15: communication channels on the Connectors page (credentials only) — 12 November 2026 (Windows laptop)
 
 Owner request: say which channels exist for sending communications and make providers configurable from the admin page.

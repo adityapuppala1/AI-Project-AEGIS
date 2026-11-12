@@ -57,8 +57,9 @@ export interface Connector {
   id: string; name: string; category: string; licence: string; hosts: string[]; enabled: boolean; version: number;
   updated_at: string | null; updated_by: string | null; settings: Record<string, string | number | boolean>;
   fields: ConnectorField[]; last_test: TestResult | null;
-  /** Set only on communication channels, which can never be enabled: "built_in" stays inside AEGIS, "locked" stores and checks credentials only. */
-  delivery?: "built_in" | "locked" | null;
+  /** Set only on communication channels: "built_in" stays inside AEGIS, "locked" stores and checks credentials only and can
+   *  never be enabled, "send" (email only) can be enabled by an administrator to send fixed notices to opted-in staff. */
+  delivery?: "built_in" | "locked" | "send" | null;
 }
 export interface ConnectorsPayload { master_key_configured: boolean; connectors: Connector[] }
 export interface AuditRow { id: string; connector_id: string; action: string; ok: boolean; actor: string; at: string | null }
@@ -321,7 +322,7 @@ export function cleanConnector(item: unknown): Connector | null {
   }) : [];
   return { id: item.id, name: text(item.name, 80) ?? item.id, category: text(item.category, 60) ?? "", licence: text(item.licence, 200) ?? "",
     hosts: Array.isArray(item.hosts) ? item.hosts.map(h => text(h, 120)).filter((h): h is string => !!h).slice(0, 8) : [],
-    delivery: item.delivery === "built_in" || item.delivery === "locked" ? item.delivery : null,
+    delivery: item.delivery === "built_in" || item.delivery === "locked" || item.delivery === "send" ? item.delivery : null,
     enabled: item.enabled === true, version: Number.isSafeInteger(item.version) ? Number(item.version) : 0,
     updated_at: timestamp(item.updated_at), updated_by: text(item.updated_by, 120), settings, fields, last_test: cleanTest(item.last_test) };
 }
@@ -403,8 +404,8 @@ export function missingRequired(connector: Connector): ConnectorField[] {
 export function connectorStatus(connector: Connector): ConnectorStatus {
   if (connector.id === "imd_warnings" && connector.settings.terms_accepted !== true) return "blocked_terms";
   if (missingRequired(connector).length > 0) return "not_configured";
-  // A communication channel has no on/off switch, so its status is its credential check alone.
-  if (!connector.enabled && !connector.delivery) return "disabled";
+  // A built-in or locked channel has no on/off switch, so its status is its credential check alone.
+  if (!connector.enabled && connector.delivery !== "built_in" && connector.delivery !== "locked") return "disabled";
   if (!connector.last_test) return "untested";
   return connector.last_test.ok ? "passed" : "failed";
 }
