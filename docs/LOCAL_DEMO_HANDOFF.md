@@ -18,6 +18,33 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Round 13: open items from round 12 — 12 November 2026 (Windows laptop)
+
+Branch `feat/landing-ux-security-hardening` (commit `5c12e9c`, then this note). Compose services left **running**
+(overlays local-idp + public-earth + proactive + timesfm), rebuilt from this code.
+
+**Completed and verified by execution on the Windows laptop (not a Linux runner):**
+- `scripts/replay-windows.ps1` run for the first time since the sign-in changes: exit 0, 3 events accepted, 5
+  quarantined (one per designed reason), `live_ingestion_enabled=false`.
+- `scripts/benchmark-local.py` run under the shared operation lease: exit 0; `api_health` p95 31 ms, `readiness` p95
+  101 ms, `guided_demo` p95 109 ms (20 requests each, concurrency 4). The three exercise-record routes were skipped
+  because no operator token was supplied, as the script reports. `guided_demo` is requested without a session, so
+  it times the sign-in gate's answer for `/demo`, not the signed-in page. Local latency only, not capacity.
+- Map and Alert Journey code: the eleven background calls SonarQube flagged now have an explicit handler or are
+  marked as deliberately not awaited (the three map start-up blocks already caught their own errors; full-screen
+  requests and the optional HD imagery upgrade now ignore a refusal instead of leaving an unhandled rejection).
+  SonarQube was not re-run.
+- My Team "Report history": the earlier note that it did not open on an automated click was wrong. Finished requests
+  sit in the "Finished" panel, which is closed until opened. With the panel open, all four history sections opened
+  on click and stayed open across a list refresh (390px, `demo-team-rescue`). The section now also keeps the
+  reader's choice.
+- Checks after the rebuild: `npm run typecheck` clean; web tests 331 pass; `npm run build` succeeded inside the
+  image build. API code unchanged, API tests not re-run.
+
+**Still not done:** install on a clean computer; native Telugu and Hindi review; Survey of India boundary and
+confirmed NDMA figures; forecast comparison with gauge data or GloFAS; a live view of the other-agency refusal
+(no second-agency demo account); video 10 is 5 min 46 s and two scenes end scrolled to the top.
+
 ## Round 12: sign-in required on the API port; Alert Journey touch targets — 12 November 2026 (Windows laptop)
 
 Branch `feat/landing-ux-security-hardening` @ `0cb6e64` plus uncommitted changes (not committed). Compose running
