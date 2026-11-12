@@ -52,7 +52,7 @@ export default function install(g) {
       '<a class="btn" href="?mode=exercise" data-aj-mode="exercise" title="Back to the synthetic exercise (no live data)">' + ic('shield', 15) + '<span>Synthetic exercise</span></a>' +
       '<button class="btn icon" id="btnHelp" aria-label="Help">' + ic('help', 16) + '</button><button class="btn icon" id="btnFs" aria-label="Fullscreen">' + ic('expand', 16) + '</button>';
     $('#liveChip').onclick = function () { if (S.live) openModal('sources'); else openModal('consent'); };
-    $('#btnHelp').onclick = function () { openModal('help'); }; $('#btnFs').onclick = function () { if (!document.fullscreenElement) document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); else document.exitFullscreen(); };
+    $('#btnHelp').onclick = function () { openModal('help'); }; $('#btnFs').onclick = function () { if (!document.fullscreenElement) document.documentElement.requestFullscreen && document.documentElement.requestFullscreen().catch(function () { }); else document.exitFullscreen().catch(function () { }); };
     var inp = $('#searchIn'), timer = null;
     function showSugg(list, note) {
       var h = list.map(function (r, i) { return '<button type="button" class="sg" data-i="' + i + '">' + ic('pin', 14) + '<span><b>' + U.esc(r.name) + '</b><small>' + U.esc([r.admin, r.country].filter(Boolean).join(', ') || r.note || '') + '</small></span></button>'; }).join('') + (note ? '<div class="sgn">' + note + '</div>' : '');

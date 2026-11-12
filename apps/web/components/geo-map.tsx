@@ -31,7 +31,7 @@ export function GeoMap({ incidents, selectedId, onSelect }: {
   useEffect(() => {
     let disposed = false;
     let map: MapLibreMap | null = null;
-    (async () => {
+    void (async () => {
       try {
         if (!containerRef.current) return;
         const maplibregl = await import("maplibre-gl");
@@ -125,7 +125,7 @@ export function GeoMap({ incidents, selectedId, onSelect }: {
           [item.lon+x,item.lat-y],[item.lon+x,item.lat+y],[item.lon-x,item.lat+y],
           [item.lon-x,item.lat-y]]] } };
     });
-    (map.getSource("locators") as GeoJSONSource)?.setData({ type: "FeatureCollection", features });
+    void (map.getSource("locators") as GeoJSONSource)?.setData({ type: "FeatureCollection", features });
     map.setLayoutProperty("incident-locators", "visibility", spatial ? "visible" : "none");
   }, [incidents, selectedId, spatial, sceneReady, mapError]);
 

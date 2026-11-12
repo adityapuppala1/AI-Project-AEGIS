@@ -31,6 +31,8 @@ export function RehearsalNote({ className = "" }: Readonly<{ className?: string 
 function RequestCard({ request, onSaved, onStale }: Readonly<{ request: ResponseRequest; onSaved: (request: ResponseRequest, kind: string) => void; onStale: () => void }>) {
   const t = useT();
   const [open, setOpen] = useState<string | null>(null);
+  // The reader's own choice for the history section; until they choose, it is open while the request is active.
+  const [historyOpen, setHistoryOpen] = useState<boolean | null>(null);
   const kinds = teamKinds(request.state);
   const [main, ...others] = kinds;
   const decline = others.includes("declined"), extras = others.filter(kind => kind !== "declined");
@@ -58,7 +60,7 @@ function RequestCard({ request, onSaved, onStale }: Readonly<{ request: Response
     {formKind && <ReportForm key={formKind} request={request} kind={formKind} relay={false} large
       onSaved={(next, kind) => { setOpen(null); onSaved(next, kind); }} onCancel={() => setOpen(null)} onStale={onStale} />}
     {finished && last && <div className="rounded-md bg-elevated/50 p-3"><p className="mb-1 text-xs font-semibold text-muted">{t("Last report")}</p><ReportLine report={last} kind="summary" /></div>}
-    <details open={!finished} className="text-sm">
+    <details open={historyOpen ?? !finished} onToggle={event => setHistoryOpen(event.currentTarget.open)} className="text-sm">
       <summary className="min-h-11 cursor-pointer py-2 text-xs font-semibold text-muted">{t("Report history")} ({request.reports.length})</summary>
       <div className="pt-2"><ReportHistory reports={request.reports} /></div>
     </details>

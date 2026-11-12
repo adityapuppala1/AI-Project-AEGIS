@@ -30,7 +30,7 @@ export function HazardWatchMap({ triggers, evidence, selectedId, pitched, onSele
   useEffect(() => {
     let disposed = false;
     let map: MapLibreMap | null = null;
-    (async () => {
+    void (async () => {
       try {
         const maplibregl = await import("maplibre-gl");
         if (disposed || !container.current) return;
@@ -81,13 +81,13 @@ export function HazardWatchMap({ triggers, evidence, selectedId, pitched, onSele
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
-    (map.getSource("columns") as GeoJSONSource | undefined)?.setData({
+    void (map.getSource("columns") as GeoJSONSource | undefined)?.setData({
       type: "FeatureCollection", features: triggers.map(item => ({ type: "Feature" as const, properties: { id: item.id, color: STATE_COLOR[item.state] },
         geometry: { type: "Polygon" as const, coordinates: square(item.lon, item.lat) } })) });
-    (map.getSource("points") as GeoJSONSource | undefined)?.setData({
+    void (map.getSource("points") as GeoJSONSource | undefined)?.setData({
       type: "FeatureCollection", features: triggers.map(item => ({ type: "Feature" as const, properties: { id: item.id, color: STATE_COLOR[item.state] },
         geometry: { type: "Point" as const, coordinates: [item.lon, item.lat] } })) });
-    (map.getSource("evidence") as GeoJSONSource | undefined)?.setData({
+    void (map.getSource("evidence") as GeoJSONSource | undefined)?.setData({
       type: "FeatureCollection", features: evidence.map(item => ({ type: "Feature" as const, properties: { weight: item.stale ? 0.25 : 1 },
         geometry: { type: "Point" as const, coordinates: [item.lon, item.lat] } })) });
   }, [triggers, evidence, ready]);

@@ -55,7 +55,7 @@ export default function install(g) {
       var a = loadInto('uBase', 'gibs', L.gibsUrl({ layer: 'BlueMarble_NextGeneration', w: 2048, h: 1024 }), 'Blue Marble', function () { LV.emit('imagery'); });
       var b = loadInto('uDay', 'gibs', L.gibsUrl({ layer: 'MODIS_Terra_CorrectedReflectance_TrueColor', w: 2048, h: 1024, time: ytd }), 'MODIS true colour ' + ytd, function () { U.uDayOn.value = 1; LV.emit('imagery'); });
       var c = loadInto('uNight', 'gibs', L.gibsUrl({ layer: 'VIIRS_Black_Marble', w: 2048, h: 1024 }), 'VIIRS night lights', function () { U.uNightOn.value = 1; LV.emit('imagery'); });
-      Promise.all([a, b, c]).then(function () { if (hd) loadInto('uDay', 'gibs', L.gibsUrl({ layer: 'MODIS_Terra_CorrectedReflectance_TrueColor', w: 4096, h: 2048, time: ytd }), 'MODIS true colour (HD)', function () { U.uDayOn.value = 1; }); });
+      Promise.all([a, b, c]).then(function () { if (hd) loadInto('uDay', 'gibs', L.gibsUrl({ layer: 'MODIS_Terra_CorrectedReflectance_TrueColor', w: 4096, h: 2048, time: ytd }), 'MODIS true colour (HD)', function () { U.uDayOn.value = 1; }); }).catch(function () { });
     };
     out.setImagery = function (mode) {
       LV.state.imagery = mode;

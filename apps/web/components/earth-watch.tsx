@@ -136,7 +136,7 @@ export function EarthWatch() {
     if (gate !== "enabled") return;
     let disposed = false;
     let map: MapLibreMap | null = null;
-    (async () => {
+    void (async () => {
       try {
         if (!containerRef.current) return;
         const maplibregl = await import("maplibre-gl");
@@ -197,7 +197,7 @@ export function EarthWatch() {
     const map = mapRef.current;
     if (!map || mapState !== "ready") return;
     const source = map.getSource("hazards") as GeoJSONSource | undefined;
-    source?.setData({
+    void source?.setData({
       type: "FeatureCollection",
       features: records.map(record => ({
         type: "Feature" as const, geometry: { type: "Point" as const, coordinates: [record.lon, record.lat] },

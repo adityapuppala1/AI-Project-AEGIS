@@ -293,7 +293,7 @@ export default function install(g) {
     app.ui.update(F, cam, renderer);
   }
   app.setQuality = function (qn) { var u = new URL(location.href); u.searchParams.set('q', qn); location.href = u.toString(); };
-  app.toggleFullscreen = function () { if (!document.fullscreenElement) document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); else document.exitFullscreen && document.exitFullscreen(); };
+  app.toggleFullscreen = function () { if (!document.fullscreenElement) document.documentElement.requestFullscreen && document.documentElement.requestFullscreen().catch(function () { }); else document.exitFullscreen && document.exitFullscreen().catch(function () { }); };
   g.__aegis = app;
   AX.bootExercise = boot;
 }
