@@ -18,6 +18,37 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Round 14: Learning and Drills clicked through; Earth Watch with tiles refused — 12 November 2026 (Windows laptop)
+
+Branch `feat/landing-ux-security-hardening`. Compose services left **running** (overlays local-idp + public-earth +
+proactive + timesfm), rebuilt from this code.
+
+**Completed and verified by execution on the Windows laptop (not a Linux runner), in a headless browser with the
+local demo accounts (not real two-human approval):**
+- `/learning`: `demo-maker` replayed the three synthetic scenarios; the first two gave no proposal (the server
+  abstains when the statistics support no change), the third drafted one (heavy rain watch 38.5 to 42.35), which the
+  maker submitted. The maker was never offered Approve. `demo-checker` had no replay controls, Approve was disabled
+  until a reason was typed, then the proposal showed "Approved candidate, not applied" and the checker was not
+  offered Apply. `demo-admin` was offered "Apply as new config version"; it was **not pressed**, so the engine
+  configuration is unchanged. The page already showed an applied overlay from an earlier session (heavy rain
+  38.5 / 70.95). No page errors.
+- `/drills`: `demo-maker` started the catalogue-date drill, advanced the simulated clock to the watch (T+01:00) and
+  the candidate (T+02:00), then acknowledged, took the hand-off and submitted; Approve stayed disabled for the maker.
+  `demo-checker` could not start a drill, opened the same drill and approved; the drill showed Completed and the
+  coach report listed four steps, all "Within synthetic target", with cited ids. No page errors.
+- `/earth-watch` with every map tile request refused at the relay: the page kept its 20 list rows, had no page
+  error and no overflow, and showed "Some NASA imagery tiles failed to load". Defect found and fixed: with the
+  OpenStreetMap reference map selected, the note said only "Reference map: OpenStreetMap"; it now says the reference
+  tiles are unavailable. Re-checked after the rebuild.
+- Checks after the rebuild: `npm run build` succeeded inside the image build; web tests 331 pass.
+
+**Left in the database by this round (synthetic, exercise-only):** three learning windows, one approved and
+unapplied threshold proposal, one completed drill.
+
+**Not done:** status messages under the buttons were not read by the script (results were confirmed from the page
+state and screenshots); the Apply step was not exercised in this round; dark theme and phone width for these two
+pages; keyboard-only use.
+
 ## Round 13: open items from round 12 — 12 November 2026 (Windows laptop)
 
 Branch `feat/landing-ux-security-hardening` (commit `5c12e9c`, then this note). Compose services left **running**

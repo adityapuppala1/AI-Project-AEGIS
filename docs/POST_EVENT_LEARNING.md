@@ -1,5 +1,10 @@
 # Post-event learning (roadmap A8)
 
+Update 12 November 2026: migration 016 is applied and the flow was clicked through in the browser on the Windows
+laptop with the local demo accounts (maker replays and proposes, checker approves, administrator is offered Apply).
+See Round 14 in [LOCAL_DEMO_HANDOFF.md](LOCAL_DEMO_HANDOFF.md). The status paragraph below is the 4 November record.
+Demo accounts are not real two-human approval.
+
 Status 4 November 2026: **implemented on `feat/agentic-proactive-l3`, pending runtime, browser and IdP
 verification.** Unit, golden, Node and typecheck gates pass on the Windows laptop. Migration 016 is not yet
 applied to the running stack and the opt-in PostGIS test (`services/api/integration_tests/test_postgis_learning_drills.py`)

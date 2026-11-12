@@ -52,6 +52,8 @@ export function EarthWatch() {
   const nextRef = useRef<number | null>(null);
   const busyRef = useRef(false);
   const fallbackRef = useRef(false);
+  // Set when the reference map's own tiles were refused, so the note still says so after a base-map switch.
+  const osmFailedRef = useRef(false);
   const controllerRef = useRef<AbortController | null>(null);
   nextRef.current = nextAt;
 
@@ -171,7 +173,7 @@ export function EarthWatch() {
           const id = (event as { sourceId?: string }).sourceId;
           if (disposed) return;
           if (id === "gibs") setImageryNote("Some NASA imagery tiles failed to load. Coverage may be partial; try another day or the reference map.");
-          else if (id === "osm") setImageryNote("Reference map tiles are unavailable. Hazard locations remain listed beside the map.");
+          else if (id === "osm") { osmFailedRef.current = true; setImageryNote("Reference map tiles are unavailable. Hazard locations remain listed beside the map."); }
         });
         map.on("webglcontextlost", () => { if (!disposed) setMapState("failed"); });
         map.on("click", "hazard-points", event => {
@@ -219,7 +221,7 @@ export function EarthWatch() {
     if (!map || mapState !== "ready") return;
     if (map.getLayer("gibs")) map.removeLayer("gibs");
     if (map.getSource("gibs")) map.removeSource("gibs");
-    if (baseId === "streets") { setImageryNote("Reference map: OpenStreetMap. No satellite imagery selected."); return; }
+    if (baseId === "streets") { setImageryNote(osmFailedRef.current ? "Reference map tiles are unavailable. Hazard locations remain listed beside the map." : "Reference map: OpenStreetMap. No satellite imagery selected."); return; }
     if (!meta || !effectiveDate) return;
     const tiles = gibsTileUrl(baseId, effectiveDate, meta.matrix);
     if (!tiles) { setImageryNote("Imagery request rejected as unsafe."); return; }

@@ -1,5 +1,9 @@
 # Exercise drills and coach (roadmap A9)
 
+Update 12 November 2026: a drill was run to the coach report in the browser on the Windows laptop with the local
+demo accounts (maker acknowledges, takes hand-off and submits; checker approves). See Round 14 in
+[LOCAL_DEMO_HANDOFF.md](LOCAL_DEMO_HANDOFF.md). The status paragraph below is the 4 November record.
+
 Status 4 November 2026: **implemented on `feat/agentic-proactive-l3`, pending runtime, browser and IdP
 verification** (unit, golden, Node, typecheck pass on the Windows laptop; migration 016 not applied; PostGIS test
 not run). Signed-in flows are verified by unit tests only because the local identity provider is off.
