@@ -7,6 +7,9 @@ import { SignInRequired } from "../../components/sign-in-required";
 import { useOperatorSession } from "../../lib/use-operator-session";
 import { codeLabel, shortId } from "../../lib/labels";
 import { pageRoles } from "../../lib/roles";
+import { TeamResponseDesk, openRequests } from "../../components/team-response-desk";
+import { alertView } from "../../lib/response-ui";
+import { useResponseRequests } from "../../lib/use-response-requests";
 import { Button, EmptyState, ErrorState, Panel, PermissionState, RecordRef, SkeletonRows, StatStrip, StatTile, StatusPill, type Tone } from "../../components/ui";
 const STATE_TONE: Record<string, Tone> = { prepared: "info", acknowledged: "warning", closed: "success" };
 interface TaskRow { proposal_id: string; incident_id: string; task: {
@@ -22,8 +25,11 @@ export default function DepartmentTasks() {
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(true);
   const [notes, setNotes] = useState<Record<string, string>>({});
+  const [notices, setNotices] = useState<Record<string, string>>({});
   const session = useOperatorSession();
   const signedOut = session !== null && !session.authenticated;
+  // Team requests for this desk (the API returns only its own department's). Refreshed every 30 s while the tab is visible.
+  const responses = useResponseRequests({ enabled: session?.authenticated === true && alertView(session.roles) === "desk" && !refused });
   async function refresh() {
     setBusy(true);
     setFailed(false);
@@ -55,8 +61,17 @@ export default function DepartmentTasks() {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ operation: row.task.state === "prepared" ? "acknowledge_task" : "close_task", rationale: notes[`${row.proposal_id}:${row.task.id}`], task_id: row.task.id, expected_assignment_version: row.task.assignment_version ?? 0 }),
       });
+      if (response.status === 409) {
+        // The server refused this step (for example closing while team requests are open). Say why, in place, and refresh the requests.
+        const body: { detail?: unknown } | null = await response.json().catch(() => null);
+        setNotices(previous => ({ ...previous, [`${row.proposal_id}:${row.task.id}`]: typeof body?.detail === "string" ? body.detail : "The task changed or cannot move on yet. Refresh before retrying." }));
+        void responses.refresh();
+        return;
+      }
       if (!response.ok) throw new Error("Action could not be confirmed. Refresh before retrying; it may have completed.");
+      setNotices({});
       await refresh();
+      void responses.refresh();
     } catch (error) { setRows([]); setNotes({}); setFailed(true); setMessage(error instanceof Error ? error.message : "Task update unavailable"); }
     finally { setBusy(false); }
   }
@@ -79,6 +94,8 @@ export default function DepartmentTasks() {
     {usable && !busy && !failed && rows.length === 0 && <EmptyState icon={Inbox} title={t("No approved tasks for your department")} body={t("An empty inbox does not mean no work exists. Tasks appear only after an independent checker approves a proposal.")}/>}
     <div className="grid gap-4 xl:grid-cols-2">{rows.map(row => {
       const key = `${row.proposal_id}:${row.task.id}`, noteId = `note-${row.proposal_id}-${row.task.id}`;
+      const taskRequests = responses.requests.filter(item => item.proposal_id === row.proposal_id && item.task.id === row.task.id);
+      const open = openRequests(taskRequests).length;
       return <Panel key={key} level={2} title={row.task.summary} actions={<span title={row.task.state}><StatusPill tone={STATE_TONE[row.task.state] ?? "neutral"}>{t(codeLabel(row.task.state))}</StatusPill></span>}>
         <dl className="grid grid-cols-[7rem_minmax(0,1fr)] items-center gap-x-3 gap-y-2 text-sm">
           <dt className="text-xs font-semibold text-muted">{t("Proposal")}</dt><dd><RecordRef id={row.proposal_id} kind="proposal" /></dd>
@@ -93,8 +110,12 @@ export default function DepartmentTasks() {
           <textarea id={noteId} className="field" rows={3} minLength={10} maxLength={2000} required disabled={busy} aria-describedby={noteId + "-help"}
             value={notes[key] || ""} onChange={event => setNotes(previous => ({ ...previous, [key]: event.target.value }))}/>
           <p id={noteId + "-help"} className="helper mt-1">{t("At least 10 characters. Recorded in the audit trail; nobody is contacted.")}</p>
-          <Button type="submit" variant="primary" className="mt-3" disabled={busy || (notes[key] || "").trim().length < 10}>{row.task.state === "prepared" ? t("Acknowledge rehearsal task") : t("Close rehearsal task")}</Button>
+          <Button type="submit" variant="primary" className="mt-3" disabled={busy || (notes[key] || "").trim().length < 10} aria-describedby={row.task.state === "acknowledged" && (open > 0 || notices[key]) ? noteId + "-close" : undefined}>{row.task.state === "prepared" ? t("Acknowledge rehearsal task") : t("Close rehearsal task")}</Button>
+          {row.task.state === "acknowledged" && (open > 0 || notices[key]) && <p id={noteId + "-close"} role={notices[key] ? "alert" : undefined} className="mt-2 text-xs font-semibold text-amber-800 dark:text-amber-300">
+            {notices[key] ? t(notices[key]) : t("Closing is blocked while this task has open team requests. Stand down or finish the task's team requests before closing it.")}</p>}
         </form>}
+        {row.task.state === "acknowledged" && <TeamResponseDesk proposalId={row.proposal_id} taskId={row.task.id} assignmentVersion={row.task.assignment_version ?? 0}
+          requests={taskRequests} status={responses.status} message={responses.message} onChanged={() => void responses.refresh()} />}
       </Panel>;
     })}</div>
   </AppShell>;

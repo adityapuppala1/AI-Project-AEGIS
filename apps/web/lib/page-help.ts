@@ -21,9 +21,9 @@ export const PAGE_HELP: Record<string, PageHelp> = {
     never: "It never resets data, and a passing check is not proof of readiness for real use.",
   },
   "/incidents": {
-    shows: "Every exercise incident with its hazard, status, place and evidence.",
-    can: "Search, sort and filter the list, then open a case to read its evidence and readiness.",
-    never: "It never creates or changes a case. The records are synthetic.",
+    shows: "Every exercise incident with its hazard, status, place and evidence. An open case also lists the exercise team requests made for it.",
+    can: "Search, sort and filter the list, then open a case to read its evidence, readiness and team response.",
+    never: "It never creates or changes a case. The records are synthetic, and the team response panel is read-only.",
   },
   "/sources": {
     shows: "How fresh each synthetic data feed is, and which feeds are late or missing.",
@@ -61,9 +61,14 @@ export const PAGE_HELP: Record<string, PageHelp> = {
     never: "It never lets one person both submit and approve, and an approval never sends a warning. It produces a draft for the alerting authority.",
   },
   "/department-tasks": {
-    shows: "Approved tasks assigned to your department.",
-    can: "Acknowledge a task and close it with a note.",
-    never: "It never shows another department's tasks or dispatches anyone. Time targets are rehearsal targets, not contractual.",
+    shows: "Approved tasks assigned to your department, and for an acknowledged task the exercise teams requested for it and their answers.",
+    can: "Acknowledge a task and close it with a note. On an acknowledged task, request a team, record an answer for it, stand it down or mark a flagged request handled.",
+    never: "It never shows another department's tasks, and a team request never calls, texts or radios anyone: it alerts only people signed in to AEGIS. Time targets are rehearsal targets, not contractual.",
+  },
+  "/my-team": {
+    shows: "The requests that department desks made to your exercise team, where each one stands, and what has been reported so far.",
+    can: "Accept or decline a request, then report that you are en route, on site and completed. Send a situation report or ask for support while a request is active.",
+    never: "It never shows another team's requests, and nobody is called, texted or radioed. Your answers reach people signed in to AEGIS only. Teams and travel times are invented exercise data.",
   },
   "/agency-sync": {
     shows: "Fictional acknowledgements and timelines from the departments in the exercise.",
@@ -71,9 +76,9 @@ export const PAGE_HELP: Record<string, PageHelp> = {
     never: "It never messages a real agency.",
   },
   "/response-teams": {
-    shows: "The workload of each fictional response desk.",
-    can: "See which desks are busy before a task is planned.",
-    never: "It never moves, tasks or notifies a team.",
+    shows: "The workload of each fictional response desk, and the five invented field teams with their current requests grouped by state.",
+    can: "See which desks are busy before a task is planned, and which field team has been asked to do what.",
+    never: "It never moves, tasks or notifies a team. Requests are made from the Department Inbox, and the field teams are exercise teams, not real units.",
   },
   "/handover": {
     shows: "What changed for your agency in the chosen window, each line with the records it comes from.",
@@ -121,7 +126,7 @@ export const PAGE_HELP: Record<string, PageHelp> = {
     never: "It never shows a saved secret again, and it never sends data to a source.",
   },
   "/admin/users": {
-    shows: "The five roles, what each one can do, and the account you are signed in with.",
+    shows: "The six roles, what each one can do, and the account you are signed in with.",
     can: "Check what your role allows and where accounts are managed.",
     never: "It never creates, changes or removes an account. That is done in your agency's identity provider.",
   },

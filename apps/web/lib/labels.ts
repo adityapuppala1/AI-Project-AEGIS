@@ -68,10 +68,52 @@ export function plainText(text: string): string {
   return text.replace(/(?<![/.\w])[a-z][a-z0-9]*(?:_[a-z0-9]+)+(?!\w|\.\w)/g, code => codeLabel(code).toLowerCase());
 }
 
+// Team response loop (docs/RESPONSE_LOOP.md). Separate tables because the same word can mean different things as a
+// state, a report kind or a code (for example "other" for a decline and for a request for support).
+export const RESPONSE_STATE_LABELS: Record<string, string> = {
+  requested: "Waiting for an answer", accepted: "Accepted", declined: "Declined", en_route: "On the way", on_site: "On site",
+  completed: "Completed", stood_down: "Stood down",
+};
+export const REPORT_KIND_LABELS: Record<string, string> = {
+  requested: "Team requested", accepted: "Accepted", declined: "Declined", en_route: "On the way", on_site: "Arrived on site",
+  completed: "Completed", situation_report: "Situation report", needs_support: "Asked for support", stood_down: "Stood down by the desk",
+  desk_handled: "Desk marked it handled",
+};
+export const AUTHORITY_LABELS: Record<string, string> = { team: "Team", department_relay: "Desk, on the team's behalf", department: "Desk" };
+export const REPORT_CODE_LABELS: Record<string, string> = {
+  already_committed: "Already committed elsewhere", out_of_area: "Outside the team's area", not_equipped: "Not equipped for this",
+  off_shift: "Off shift", as_expected: "As expected", worse_than_expected: "Worse than expected", better_than_expected: "Better than expected",
+  access_blocked: "Access is blocked", nothing_found: "Nothing found", more_people: "More people needed", equipment: "Equipment needed",
+  medical: "Medical help needed", transport: "Transport needed",
+};
+/** "other" reads differently for a decline and for a request for support. */
+export const OTHER_CODE_LABELS: Record<string, string> = { declined: "Another reason", needs_support: "Something else" };
+/** Button text for the signed team's own actions, and for a desk recording on the team's behalf. */
+export const RESPONSE_ACTION_LABELS: Record<string, string> = {
+  accepted: "Accept", declined: "Decline", en_route: "I am en route", on_site: "I am on site", completed: "Completed",
+  situation_report: "Send situation report", needs_support: "Ask for support",
+};
+export const RELAY_ACTION_LABELS: Record<string, string> = {
+  accepted: "Record: team accepted", declined: "Record: team declined", en_route: "Record: team is en route", on_site: "Record: team is on site",
+  completed: "Record: team completed", situation_report: "Record a situation report", needs_support: "Record a request for support",
+  stood_down: "Stand the team down", desk_handled: "Mark handled",
+};
+const pick = (table: Record<string, string>, key: string | null | undefined): string | null =>
+  typeof key === "string" && Object.prototype.hasOwnProperty.call(table, key) ? table[key] : null;
+export const responseStateLabel = (state: string | null | undefined): string => pick(RESPONSE_STATE_LABELS, state) ?? codeLabel(state);
+export const reportKindLabel = (kind: string | null | undefined): string => pick(REPORT_KIND_LABELS, kind) ?? codeLabel(kind);
+export const authorityLabel = (authority: string | null | undefined): string => pick(AUTHORITY_LABELS, authority) ?? codeLabel(authority);
+/** Plain label for a report code; `kind` decides what "other" means. An unknown code is read as plain words, never shown raw. */
+export function reportCodeLabel(kind: string | null | undefined, code: string | null | undefined): string {
+  if (code === "other") return pick(OTHER_CODE_LABELS, kind) ?? "Something else";
+  return pick(REPORT_CODE_LABELS, code) ?? codeLabel(code);
+}
+const RESPONSE_TEXTS: string[] = [RESPONSE_STATE_LABELS, REPORT_KIND_LABELS, AUTHORITY_LABELS, REPORT_CODE_LABELS, OTHER_CODE_LABELS, RESPONSE_ACTION_LABELS, RELAY_ACTION_LABELS].flatMap(table => Object.values(table));
+
 /** True when the code has a reviewed label (rather than the generic fallback). */
 export const hasLabel = (code: string): boolean => Object.prototype.hasOwnProperty.call(LABELS, code);
 export const KNOWN_LABEL_CODES: readonly string[] = Object.keys(LABELS);
-export const KNOWN_LABEL_TEXTS: readonly string[] = [...new Set(Object.values(LABELS))];
+export const KNOWN_LABEL_TEXTS: readonly string[] = [...new Set([...Object.values(LABELS), ...RESPONSE_TEXTS])];
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export const isUuid = (value: string): boolean => UUID.test(value);

@@ -472,6 +472,8 @@ class PauseUpdate(BaseModel):
 
 @router.get("/pause")
 def get_pause(operator: Operator = Depends(get_operator)):
+    # Explicit role list: a newly added role (for example response_team) must not gain this read by default.
+    require_role(operator, {"incident_operator", "incident_checker", "incident_auditor", "department_operator", "platform_admin"})
     store = proactive_store.get_store()
     view = pause_view(_store_call(store.get_pause))
     if "platform_admin" in operator.roles:

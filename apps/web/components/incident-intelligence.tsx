@@ -15,6 +15,7 @@ import { SpatialAnalysis } from "./spatial-analysis";
 import { AssessmentReadiness } from "./assessment-readiness";
 import { PublicSignalsNearCase } from "./public-signals-near-case";
 import { SituationBriefButton } from "./situation-brief-button";
+import { IncidentTeamResponse } from "./incident-team-response";
 import { useT } from "./language-provider";
 import {
   CopyButton, DataFreshness, EmptyState, KeyValueList, Panel, StatStrip, StatTile, StatusPill, TabPanel, Tabs,
@@ -142,6 +143,7 @@ export function IncidentIntelligence({ workspace }: { workspace: IncidentWorkspa
         </section>
       </div>
       <SpatialAnalysis incidentId={incident.id}/>
+      <IncidentTeamResponse incidentId={incident.id}/>
     </TabPanel>
 
     <TabPanel idPrefix="case" value="evidence" active={view === "evidence"}>

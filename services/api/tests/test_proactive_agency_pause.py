@@ -150,3 +150,13 @@ def test_unreadable_switch_fails_closed(store, monkeypatch):
     response = client.post('/v1/proactive/runs', json={'trigger_event_id': trigger['id']})
     assert response.status_code == 503 and store.runs == {}
     assert client.get('/v1/proactive/watch').json()['paused'] is None
+
+
+def test_response_team_cannot_read_the_pause_state(store):
+    """A team token must not learn the pause reason or the administrator's subject."""
+    app.dependency_overrides[get_operator] = lambda: Operator('team-lead', UUID('11111111-1111-4111-8111-111111111111'),
+                                                              frozenset({'response_team'}), None, 'syn-team-rescue-01')
+    try:
+        assert client.get('/v1/proactive/pause').status_code == 403
+    finally:
+        app.dependency_overrides.clear()

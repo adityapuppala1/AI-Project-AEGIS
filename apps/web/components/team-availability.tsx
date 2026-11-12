@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { AppShell } from "./app-shell";
 import { useT } from "./language-provider";
+import { FieldTeams } from "./field-teams";
 import { DataFreshness, EmptyState, ErrorState, SegmentedControl, SkeletonCards, StatStrip, StatTile, StatusPill, type Tone } from "./ui";
 import { isSyntheticTaskPayload, type ExerciseAgencyTaskBoard } from "../lib/agency-sync";
 import { DEMO_CAPACITY, summarizeTeams, type TeamKind, type TeamStatus, type TeamSummary } from "../lib/team-availability";
@@ -133,6 +134,7 @@ export function TeamAvailability() {
         </article>;
       })}
     </section>
+    <FieldTeams/>
     <p className="mt-5 text-xs leading-6 text-muted">Counts come from the seeded exercise task table. “Acknowledged” and “closed” are scripted states, not responder activity.</p>
   </AppShell>;
 }

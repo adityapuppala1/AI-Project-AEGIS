@@ -16,6 +16,8 @@ import { ROLE_INFO, canOpenPage, pageRoles } from "../lib/roles";
 import { helpFor } from "../lib/page-help";
 import { shortId } from "../lib/labels";
 import { useOperatorSession } from "../lib/use-operator-session";
+import { useResponseAlerts } from "../lib/use-response-alerts";
+import { ResponseAlertToast } from "./response-alert-toast";
 
 
 // Matches Tailwind's lg breakpoint, where the rail stops being an overlay drawer.
@@ -112,6 +114,10 @@ export function AppShell({ children, title, description, actions, breadcrumbs }:
   const [othersOpen, setOthersOpen] = useState(false);
   const session = useOperatorSession();
   const roles = session?.authenticated ? session.roles : null;
+  // The menu count for response teams (My Team) and desks (Department Inbox). Polled only for those roles, only while the tab is visible.
+  const alerts = useResponseAlerts(roles);
+  const alertHref = alerts.view === "team" ? "/my-team" : alerts.view === "desk" ? "/department-tasks" : null;
+  const waiting = alerts.count ?? 0;
   const mini = miniChoice && persistentRail;
   const drawer = !persistentRail;
 
@@ -256,13 +262,16 @@ export function AppShell({ children, title, description, actions, breadcrumbs }:
                     const active = section?.href === href;
                     const needs = locked ? neededLabel(item, t) : "";
                     const tabs = item.tabs?.length ?? 0;
-                    return <Tip key={href} text={t(label) + (needs ? ` (${t("needs")} ${needs})` : "")} side="right" disabled={!mini}>
+                    const badge = !locked && href === alertHref && waiting > 0 ? waiting : 0;
+                    return <Tip key={href} text={t(label) + (needs ? ` (${t("needs")} ${needs})` : badge ? ` (${badge} ${t("waiting")})` : "")} side="right" disabled={!mini}>
                       <Link href={href} aria-current={active ? "page" : undefined} data-locked={locked || undefined} title={needs ? `${t("needs")} ${needs}` : undefined} className={`rail-link ${active ? "nav-active" : ""}`}
                         onClick={() => { if (href === pathname) setMenuOpen(false); }}>
                         <Icon size={17} aria-hidden="true" className="shrink-0" /><span className="rail-text">{t(label)}</span>
                         {locked
                           ? <span className="rail-meta"><Lock size={11} aria-hidden="true" /><span className="sr-only">{t("needs")} {needs}</span><span aria-hidden="true">{shortNeeds(needs)}</span></span>
-                          : tabs > 1 && <span className="rail-meta" title={`${tabs} ${t("tabs")}`}><Layers size={11} aria-hidden="true" />{tabs}<span className="sr-only"> {t("tabs")}</span></span>}
+                          : badge > 0
+                            ? <span className="rail-meta"><span className="rail-count" style={{ background: "rgb(var(--role-team) / .16)", color: "rgb(var(--ink))" }}>{badge}</span><span className="sr-only"> {t("waiting")}</span></span>
+                            : tabs > 1 && <span className="rail-meta" title={`${tabs} ${t("tabs")}`}><Layers size={11} aria-hidden="true" />{tabs}<span className="sr-only"> {t("tabs")}</span></span>}
                       </Link>
                     </Tip>;
                   })}</div>
@@ -282,6 +291,7 @@ export function AppShell({ children, title, description, actions, breadcrumbs }:
         </Tip>
       </aside>
       <div className="min-w-0 flex-1" inert={menuOpen && drawer}>
+        <span className="sr-only" role="status" aria-live="polite">{alerts.rose > 0 && waiting > 0 ? `${waiting} ${t("waiting")}` : ""}</span>
         <div className="sticky top-0 z-20">
           <div className="command-topbar flex items-center justify-between gap-3 border-b border-stroke bg-surface px-3 sm:px-5">
             <div className="@container flex min-w-0 flex-1 items-center gap-2">
@@ -311,6 +321,7 @@ export function AppShell({ children, title, description, actions, breadcrumbs }:
         </div>
         <main id="main-content" tabIndex={-1} className="mx-auto max-w-[1800px] px-4 pb-12 pt-5 outline-none sm:px-6">
           <ToastProvider>
+            <ResponseAlertToast view={alerts.view} rose={alerts.rose} />
             <div className="reveal-in">
               <p className="print-only mb-3 text-xs">AEGIS · {t("Exercise environment")} · {t("No live warnings or dispatch")}</p>
               <PageHeader eyebrow={section ? t(section.group) : undefined} chain={section?.page.chain} title={t(title)} description={t(description)} breadcrumbs={crumbs} actions={actions} />

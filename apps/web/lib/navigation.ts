@@ -1,7 +1,7 @@
 // The one list of pages. Related pages are grouped under one menu entry as tabs, which keeps the menu short. The side navigation and the Ctrl+K search both read it, so they cannot drift apart.
 import {
   Activity, Archive, BarChart3, BookOpenCheck, BrainCircuit, ClipboardCheck, ClipboardList, Gauge, Globe2, GraduationCap, Inbox, Info, LayoutDashboard,
-  KeyRound, LifeBuoy, ListChecks, MessagesSquare, Plug, Radar, RadioTower, Rocket, Route, Satellite, Settings2, UsersRound, Workflow, type LucideIcon,
+  KeyRound, LifeBuoy, ListChecks, MessagesSquare, Plug, Radar, RadioTower, Rocket, Route, Satellite, Settings2, Truck, UsersRound, Workflow, type LucideIcon,
 } from "lucide-react";
 
 /** The six steps of the alert chain. Pages that serve one step say so; support pages carry none. */
@@ -36,6 +36,7 @@ export const navigation: NavGroup[] = [
     { chain: "Predict", href: "/model-lab", label: "Model Evaluation Lab", description: "Synthetic holdout metrics, calibration and limitations", icon: BrainCircuit },
   ]},
   { label: "Coordinate", items: [
+    { chain: "Reach", href: "/my-team", label: "My Team", description: "Requests for your response team, and your answers", icon: Truck },
     { chain: "Decide", href: "/approvals", label: "Approval Workbench", description: "Authenticated maker-checker workflow", icon: ClipboardCheck },
     { chain: "Reach", href: "/department-tasks", label: "Department Inbox", description: "Approved tasks for your department", icon: ListChecks },
     { chain: "Reach", href: "/agency-sync", label: "AgencySync Tasks", description: "Fictional acknowledgements and department timelines", icon: UsersRound, tabs: [

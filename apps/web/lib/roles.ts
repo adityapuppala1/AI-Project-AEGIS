@@ -66,7 +66,7 @@ export const can = (capability: string, roles: readonly string[] | null | undefi
 
 // Pages whose main content needs a particular role. Pages not listed here open for every signed-in role.
 const PAGE_CAPABILITY: Record<string, string> = {
-  "/approvals": "read_proposals", "/department-tasks": "department_inbox", "/handover": "read_assist", "/copilot": "read_assist",
+  "/approvals": "read_proposals", "/department-tasks": "department_inbox", "/my-team": "team_respond", "/handover": "read_assist", "/copilot": "read_assist",
   "/learning": "read_learning", "/drills": "read_learning", "/admin/connectors": "connectors",
 };
 /** Roles that can use a page, or null when any signed-in role can. */

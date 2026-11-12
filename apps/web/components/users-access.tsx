@@ -7,6 +7,7 @@ import { useT } from "./language-provider";
 import { Avatar, DataTable, KeyValueList, Panel, RecordRef, RoleChip, SkeletonRows, TwoKey } from "./ui";
 import { CAPABILITIES, CAPABILITY_GROUPS, ROLE_IDS, ROLE_INFO, knownRoles, primaryRole } from "../lib/roles";
 import { codeLabel } from "../lib/labels";
+import { responseTeamLabel } from "../lib/response-teams";
 import { useOperatorSession } from "../lib/use-operator-session";
 import { personName, useSessionTimeLeft } from "./operator-auth";
 
@@ -18,7 +19,7 @@ export function UsersAccess() {
   const held = knownRoles(session?.roles);
   const rules = [...new Set(CAPABILITIES.map(item => item.rule))];
 
-  return <AppShell title="Users and access" description="The five roles, what each one can do, and the account you are signed in with. Read-only: accounts are managed in your agency's identity provider.">
+  return <AppShell title="Users and access" description="The six roles, what each one can do, and the account you are signed in with. Read-only: accounts are managed in your agency's identity provider.">
     <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
       <div className="space-y-4">
         <Panel title={t("Signed in now")} icon={UserRound}>
@@ -34,6 +35,7 @@ export function UsersAccess() {
               { label: t("Role"), value: <span className="flex flex-wrap gap-1.5">{held.length > 0 ? held.map(role => <RoleChip key={role} role={role} />) : t("No role that AEGIS recognises")}</span> },
               ...(session.agencyId ? [{ label: t("Agency"), value: <RecordRef id={session.agencyId} /> }] : []),
               ...(session.departmentId ? [{ label: t("Department"), value: <span title={session.departmentId}>{t(codeLabel(session.departmentId))}</span> }] : []),
+              ...(session.teamId ? [{ label: t("Response team"), value: <span title={session.teamId}>{responseTeamLabel(session.teamId) ?? t("Unknown team")}</span> }] : []),
               ...(left ? [{ label: t("Session ends in"), value: <span className="tnum">{left}</span> }] : []),
             ]} />
           </>}

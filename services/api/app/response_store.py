@@ -236,7 +236,10 @@ def _shape(cur, rows: list[dict], actor: str, team_view: bool) -> list[dict]:
 
 def _load_one(cur, request_id: str, agency_id: UUID, actor: str, team_view: bool) -> dict:
     cur.execute(_SELECT + " AND r.id=%s", (str(agency_id), str(agency_id), request_id))
-    return _shape(cur, cur.fetchall(), actor, team_view)[0]
+    shaped = _shape(cur, cur.fetchall(), actor, team_view)
+    if not shaped:
+        raise LookupError("Team request not found")  # mapped to the fixed 404, never a raw 500
+    return shaped[0]
 
 
 def list_requests(agency_id: UUID, actor: str, *, view: str, scope_value: str | None = None,

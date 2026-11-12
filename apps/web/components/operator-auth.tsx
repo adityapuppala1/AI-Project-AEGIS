@@ -8,6 +8,7 @@ import { clearExerciseDraftRecovery } from "../lib/exercise-draft-buffer";
 import { useOperatorSession, type SessionInfo } from "../lib/use-operator-session";
 import { ROLE_INFO, knownRoles, primaryRole } from "../lib/roles";
 import { codeLabel, timeLeft } from "../lib/labels";
+import { responseTeamLabel } from "../lib/response-teams";
 import { Avatar, RoleChip } from "./ui/identity";
 import { RecordRef } from "./ui/record";
 import { useNow } from "./ui/hooks";
@@ -72,6 +73,7 @@ export function OperatorAuth() {
           <dl className="grid grid-cols-[5.5rem_minmax(0,1fr)] items-center gap-x-2 gap-y-1.5 border-t border-stroke px-2.5 py-2.5 text-xs">
             {session.agencyId && <><dt className="text-muted">{t("Agency")}</dt><dd><RecordRef id={session.agencyId} /></dd></>}
             {session.departmentId && <><dt className="text-muted">{t("Department")}</dt><dd className="font-semibold" title={session.departmentId}>{t(codeLabel(session.departmentId))}</dd></>}
+            {session.teamId && <><dt className="text-muted">{t("Response team")}</dt><dd className="font-semibold" title={session.teamId}>{responseTeamLabel(session.teamId) ?? t("Unknown team")}</dd></>}
             {session.subject && <><dt className="text-muted">{t("Account id")}</dt><dd><RecordRef id={session.subject} /></dd></>}
             {left && <><dt className="text-muted">{t("Session ends in")}</dt><dd className="tnum font-semibold">{left}</dd></>}
           </dl>

@@ -7,7 +7,7 @@ import { createContext, useContext } from "react";
  */
 export interface SessionInfo {
   authenticated: boolean; configured: boolean; roles: string[];
-  subject?: string; username?: string; displayName?: string; agencyId?: string; departmentId?: string; expiresAt?: number;
+  subject?: string; username?: string; displayName?: string; agencyId?: string; departmentId?: string; teamId?: string; expiresAt?: number;
 }
 
 const text = (value: unknown, max = 200): string | undefined => typeof value === "string" && value.trim() ? value.trim().slice(0, max) : undefined;
@@ -21,7 +21,7 @@ export function cleanSession(value: unknown): SessionInfo {
   return {
     authenticated: true, configured: data.configured === true, roles,
     subject: text(data.subject), username: text(data.username, 80), displayName: text(data.displayName, 120),
-    agencyId: text(data.agencyId, 60), departmentId: text(data.departmentId, 60), expiresAt: expires,
+    agencyId: text(data.agencyId, 60), departmentId: text(data.departmentId, 60), teamId: text(data.teamId, 60), expiresAt: expires,
   };
 }
 
