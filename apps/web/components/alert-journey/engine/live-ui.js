@@ -215,7 +215,7 @@ export default function install(g) {
   function updateAttr() {
     var a = $('#attr'); if (!a) return; if (!S.live) { a.innerHTML = 'Live data off · synthetic fallback available'; return; }
     var used = Object.keys(L.status).filter(function (k) { return L.status[k].state === 'ok' || L.status[k].state === 'cached'; }); var seen = {}; var txt = used.map(function (k) { return L.SOURCES[k] ? L.SOURCES[k].attr : ''; }).filter(function (t) { if (!t || seen[t]) return false; seen[t] = 1; return true; });
-    a.innerHTML = '<b>Sources:</b> ' + txt.map(U.esc).join(' · ') + ' · <i>Public reference, not an AEGIS assessment.</i>';
+    a.innerHTML = '<b>Sources:</b> ' + txt.map(function (x) { return U.esc(x); }).join(' · ') + ' · <i>Public reference, not an AEGIS assessment.</i>';
   }
   function onMode() { AX.root.dataset.mode = S.mode; renderLayers(); renderDock(); U.refresh(true); var dv = $('#goLive'); if (dv) dv.classList.toggle('on', !S.live && S.mode === 'earth'); }
   function onPlace() { renderLayers(); U.refresh(true); }

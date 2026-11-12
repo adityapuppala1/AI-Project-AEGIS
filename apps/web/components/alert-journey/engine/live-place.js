@@ -91,7 +91,7 @@ export default function install(g) {
 
     /* ---------------- scenario impact ---------------- */
     out.setScenario = function (level, mode) {
-      if (!out.info.ready) return null; setField(mode); uni.uLevel.value = level; S.layers.flood = S.layers.flood; var land = 0, wet = 0, i;
+      if (!out.info.ready) return null; setField(mode); uni.uLevel.value = level; var land = 0, wet = 0, i;
       for (i = 0; i < N * N; i++) { if (dem.elev[i] > 0.5) { land++; if (fieldVals[i] <= level) wet++; } }
       function cnt(arr) { var ex = 0, names = []; arr.forEach(function (o) { var w = fieldAt(o.x, o.z) <= level; o.exposed = w; if (w) { ex++; if (o.name) names.push(o.name); } }); return { n: arr.length, exposed: ex, names: names }; }
       var hosp = out.pois.filter(function (p) { return p.kind === 'hospital'; }), sch = out.pois.filter(function (p) { return p.kind === 'school'; });
@@ -283,7 +283,7 @@ export default function install(g) {
       // groups visibility
       if (groups.buildings) groups.buildings.visible = !!S.layers.buildings; if (groups.towers) groups.towers.visible = !!S.layers.towers; if (groups.pois) groups.pois.visible = !!S.layers.pois; if (groups.markers) groups.markers.visible = true;
       glow.begin(); if (out.towers.length && S.layers.towers) out.towers.forEach(function (tw) { if (tw.top) { glow.push(tw.top.x, tw.top.y + 0.4, tw.top.z, 1, 0.2, 0.2, (0.5 + 0.5 * Math.sin(time * 2 + tw.x)) * (region ? 2 : 3) + 0.6); } });
-      drillUpdate(F); glow.end(); glow.setScale(F.glowScale); lines.end && 0;
+      drillUpdate(F); glow.end(); glow.setScale(F.glowScale);
       if (overlays.rain) overlays.rain.visible = !!S.layers.rainOverlay; if (overlays.snow) overlays.snow.visible = !!S.layers.snowOverlay;
       updateLabels(F); if (performance.now() - lastChip > 300) { lastChip = performance.now(); chip(f, wx, ms); }
     };
