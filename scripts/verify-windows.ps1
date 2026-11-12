@@ -67,18 +67,20 @@ Invoke-AegisLocalOperation -Name "verify-windows.ps1" -Action {
   foreach ($path in $signInRequired) { Check-Status ("http://localhost:8000" + $path) @("401") ("$path requires sign-in") }
   Check-Status "http://localhost:8000/v1/exercise/risk" @("401") "Illustrative risk index requires sign-in" "POST"
 
-  Check-Status "http://localhost:3000/" @("200") "Command Center page"
-  Check-Status "http://localhost:3000/incidents" @("200") "Incident Registry page"
-  Check-Status "http://localhost:3000/incidents/$incident" @("200") "Incident Intelligence page"
-  Check-Status "http://localhost:3000/sources" @("200") "Source Health page"
-  Check-Status "http://localhost:3000/model-lab" @("200") "Model Evaluation Lab page"
-  Check-Status "http://localhost:3000/agency-sync" @("200") "Fictional AgencySync page"
-  Check-Status "http://localhost:3000/audit" @("200") "Audit360 exercise export page"
-  Check-Status "http://localhost:3000/admin" @("200") "PolicyStudio read-only administration page"
-  Check-Status "http://localhost:3000/demo" @("200") "Guided exercise"
-  Check-Status "http://localhost:3000/ingestion" @("200") "Ingestion Monitor page"
-  Check-Status "http://localhost:3000/approvals" @("200") "Exercise Approvals page renders without unauthorized login"
-  Check-Status "http://localhost:3000/help" @("200") "Help Center page"
+  # Since the sign-in gate, only the landing and sign-in pages open anonymously; every other page must redirect.
+  Check-Status "http://localhost:3000/" @("200") "Landing page"
+  Check-Status "http://localhost:3000/sign-in" @("200") "Sign-in page"
+  Check-Status "http://localhost:3000/incidents" @("307") "Incident Registry page requires sign-in"
+  Check-Status "http://localhost:3000/incidents/$incident" @("307") "Incident Intelligence page requires sign-in"
+  Check-Status "http://localhost:3000/sources" @("307") "Source Health page requires sign-in"
+  Check-Status "http://localhost:3000/model-lab" @("307") "Model Evaluation Lab page requires sign-in"
+  Check-Status "http://localhost:3000/agency-sync" @("307") "Fictional AgencySync page requires sign-in"
+  Check-Status "http://localhost:3000/audit" @("307") "Audit360 exercise export page requires sign-in"
+  Check-Status "http://localhost:3000/admin" @("307") "PolicyStudio read-only administration page requires sign-in"
+  Check-Status "http://localhost:3000/demo" @("307") "Guided exercise requires sign-in"
+  Check-Status "http://localhost:3000/ingestion" @("307") "Ingestion Monitor page requires sign-in"
+  Check-Status "http://localhost:3000/approvals" @("307") "Exercise Approvals page renders without unauthorized login requires sign-in"
+  Check-Status "http://localhost:3000/help" @("307") "Help Center page requires sign-in"
 
   # Security regression: HTTP write to operational warning is forbidden.
   Check-Status "http://localhost:8000/v1/live/public-warning" @("403") "Live public warning blocked" "POST"

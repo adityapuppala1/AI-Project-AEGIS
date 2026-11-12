@@ -50,6 +50,7 @@ were made: [docs/media/NARRATION.md](docs/media/NARRATION.md).
 | [07 Inputs](docs/media/07-inputs.mp4) | Source freshness and DataFusion ingestion |
 | [08 Approvals](docs/media/08-approvals-maker-checker.mp4) | A maker drafts and submits; a different checker signs in and approves |
 | [09 Team response](docs/media/09-team-response.mp4) | Team availability, AgencySync tasks, department inbox, audit and administration |
+| [10 Team response loop](docs/media/10-team-response-loop.mp4) | A desk requests an exercise team, the team answers on a phone, and each answer is logged on the incident (rehearsal; nobody is contacted) |
 
 ## Architecture
 

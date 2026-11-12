@@ -138,3 +138,32 @@ Not covered: Hazard Watch, Public Intake, Earth Watch, Copilot, Drills, Handover
 10. The Department Inbox now opens, because this account has a verified department role and a department, the control room. It shows only that department's approved tasks. Right now there are none, and the page says an empty inbox does not mean no work exists. Tasks appear only after an independent checker approves a proposal.
 11. Last, Users and access, under Administration. It shows who is signed in, the role, the department, and what each of the five roles can and cannot do. It is read only. Accounts are managed in the agency's identity provider, never in AEGIS.
 12. That is the team response side. Tasks are scripted, every step is audited, and the controls that would send a real warning or dispatch a real team are locked off. This is a prototype for rehearsal.
+
+## 10-team-response-loop.mp4: The team response loop (rehearsal)
+
+*Date:* 12 November 2026. *Shown:* The full loop through the real screens, each step by its own signed-in demo user. Maker (demo-maker) prepares the department tasks of an already approved proposal in the Approval Workbench. The control room desk (demo-dept-control) acknowledges the task, opens Request a team and sees the suggestion facts, requests Synthetic rescue team 01 with a note, and tries to close the task (blocked). The rescue team (demo-team-rescue, phone-sized view shown on a dark background) sees the request on My Team with the count on the menu, then presses Accept, I am en route, I am on site (situation: worse than expected) and Ask for support (equipment). The desk sees the answers and the flag and presses Mark handled. The team presses Completed, and the desk can now close its task. The maker opens the incident: Team response panel on Overview, SIMULATION lines on the Timeline tab, and the Field teams (synthetic) section of the Response Teams page. Sign-in for each user was done in the background with the demo accounts; no password is shown. Synthetic records only; nobody is called, texted or radioed.
+
+1. This is a rehearsal inside AEGIS, with invented teams. It alerts only people who are signed in. Nobody is called, texted or radioed. Travel times are planning estimates. AEGIS never sends warnings or dispatches anyone, and it has no government approval. We start as the maker.
+2. In the Approval Workbench, this proposal was approved by a second person. Its department tasks are not prepared yet.
+3. The maker presses Prepare scripted department tasks. The tasks now exist for each department. They are only records. Nothing is sent.
+4. Now the control room desk, signed in as its own user. The Department Inbox shows only this desk's tasks. Here is the new task from the proposal we just prepared. It is waiting for the desk.
+5. The desk acknowledges the task, and writes a short reason. The reason goes into the audit trail.
+6. A Team response section has appeared. The desk presses Request a team. AEGIS lists the invented teams, with the facts behind each suggestion: matching skills, free capacity, whether the team is available now, and an estimated travel time. The travel time is a planning estimate. The desk decides.
+7. The desk chooses Synthetic rescue team 01, and writes a note for the team. Then it presses Request this team. The team is asked only through AEGIS.
+8. The request now shows as waiting for an answer. Now the desk tries to close the task. The reason is written, but closing is blocked while a team request is open.
+9. Now the rescue team, on a phone. Signed in as the team, it lands on My Team. The request from the desk is waiting. A request alerts only people signed in to AEGIS. Nobody is called, texted or radioed.
+10. The menu shows a count of requests waiting for an answer. That count is the alert, and it exists only inside AEGIS.
+11. The team presses Accept, writes a short note, and confirms.
+12. Next, I am en route. The team reports that it is on the way. This is a rehearsal step. No one is moving.
+13. Then, I am on site. The team chooses how the situation looks, here worse than expected, and adds a note.
+14. The team can also ask for support. Here it chooses the kind of support, equipment, and writes a note. This raises a flag for the desk.
+15. Back at the desk. The Team response section now shows the team's answers, step by step, each with who recorded it and when. A flag shows that the team asked for support.
+16. The desk reads the request for support and deals with it outside this rehearsal. Then it presses Mark handled, writes a note, and confirms. The flag clears. Nobody is contacted by this.
+17. The team presses Completed, chooses how the situation ended, and writes a note.
+18. The request has moved to Finished. The team has nothing left waiting.
+19. At the desk, the request now shows Completed. The team has finished.
+20. Now the desk can close its task. It writes a reason, and presses Close rehearsal task. Closing was blocked before, and it works now.
+21. Finally, the maker opens the incident. On the Overview tab, the Team response panel shows the completed request, and the team's answers.
+22. On the Timeline tab, each team step is a line marked SIMULATION: requested, accepted, on the way, on site, asking for support, and completed. This is the record of the rehearsal on the incident.
+23. The Response Teams page also has Field teams. These are the five invented teams, with their current requests. They are exercise teams, not real units.
+24. To end, remember what this was. A rehearsal inside AEGIS, with invented teams. It alerts only people who are signed in. Nobody was called, texted or radioed. Travel times are planning estimates. AEGIS never sends warnings or dispatches anyone, and it has no government approval.

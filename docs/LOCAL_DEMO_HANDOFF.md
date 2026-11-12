@@ -32,6 +32,21 @@ Branch `feat/landing-ux-security-hardening` @ `0cb6e64` plus uncommitted changes
   markers only on phones; desktop unchanged). Connector result codes and go-live document names use `lib/labels.ts`.
 - Pending: commit; signed-in cross-agency test with a real second-agency token (test doubles only so far).
 
+**Round 12 follow-up (same day, after an independent review of the API sign-in change):** no critical or high finding.
+Fixed: the public-intake queue is limited to maker, checker, auditor and administrator (department and team accounts
+get 403 on the API and the web route, and the standard permission message on the page; seen in the browser); the web
+layer maps an upstream 401/403 to sign-in-required / not-permitted; the route inventory test also rejects non-API
+routes and unreviewed role logic; `verify-demo-ready.ps1` reads only two switches. `verify-windows.ps1` page checks
+now expect the sign-in redirect. Run on the final build: `verify-demo-ready.ps1` GO (warning: uncommitted tree at
+the time), `security-smoke-windows.ps1` PASS, `verify-windows.ps1` PASSED, `verify-local-http.py` PASS; API pytest
+1158 passed / 30 skipped; web tests 331 pass; browser check as maker, auditor, department and team: incidents,
+sources and Earth Watch status load for all four. SonarQube Community (30,168 lines): quality gate OK, 0 security
+hotspots, 9 flagged vulnerabilities all false positives, 35 minor bugs of which three were fixed. Video
+`docs/media/10-team-response-loop.mp4` (5 min 46 s) and six screenshots of the team response loop recorded through
+the UI. Not done: `replay-windows.ps1` and `benchmark-local.py` were edited but not run; about ten background calls
+in the map code still have no error handler; no account from a second agency exists to see the 403 pages live.
+
+
 ## Round 11: pending items closed, scans, forecast back-test — 12 November 2026 (Windows laptop)
 
 Branch `feat/landing-ux-security-hardening`. Compose services left **running** (overlays local-idp + public-earth +
