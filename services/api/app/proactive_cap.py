@@ -47,11 +47,11 @@ def _exposure_text(block) -> dict:
                      f"{facilities} critical facilities, {roads} road segments. No validated hazard footprint"),
             "instruction": (f" Impact-based exercise trigger ({basis} exposure): exposure counts are rehearsal inputs, "
                             "not a damage, casualty or inundation estimate."),
-            "params": [("aegis.impact_config_version", str(block.get("config_version"))[:60]),
-                       ("aegis.impact_state", str(block.get("state"))[:20]),
-                       ("aegis.exposure_basis", str(block.get("data_basis"))),
-                       ("aegis.people_exposed", str(people)), ("aegis.critical_facilities", str(facilities)),
-                       *(("aegis.exposure_feature_id", value) for value in features[:50])],
+            "params": [("indtrana.impact_config_version", str(block.get("config_version"))[:60]),
+                       ("indtrana.impact_state", str(block.get("state"))[:20]),
+                       ("indtrana.exposure_basis", str(block.get("data_basis"))),
+                       ("indtrana.people_exposed", str(people)), ("indtrana.critical_facilities", str(facilities)),
+                       *(("indtrana.exposure_feature_id", value) for value in features[:50])],
             "radius": radius_text}
 
 
@@ -82,8 +82,8 @@ def _localized_info(root, lang: str, review_status: str, common: dict, values: d
                         ("headline", render("headline", lang)), ("description", render("description", lang)),
                         ("instruction", instruction)):
         add(info, name, value)
-    for name, value in (("aegis.language_review_status", review_status),
-                        ("aegis.cap_template_version", cap_templates.load_templates()["version"]), *params):
+    for name, value in (("indtrana.language_review_status", review_status),
+                        ("indtrana.cap_template_version", cap_templates.load_templates()["version"]), *params):
         parameter = ET.SubElement(info, "parameter")
         add(parameter, "valueName", name)
         add(parameter, "value", value)
@@ -148,9 +148,9 @@ def exercise_cap_xml(run: dict, trigger: dict, status: str = STATUS) -> bytes:
                         ("instruction", "Review cited evidence locally. Do not forward, transmit, warn the public or dispatch."
                          + exposure["instruction"])):
         add(info, name, value)
-    params = [("aegis.run_id", run_id), ("aegis.trigger_event_id", trigger_event),
-              ("aegis.trigger_id", str(trigger.get("trigger_id"))), ("aegis.operational_actions_enabled", "false"),
-              *exposure["params"], *(("aegis.evidence_id", value) for value in evidence)]
+    params = [("indtrana.run_id", run_id), ("indtrana.trigger_event_id", trigger_event),
+              ("indtrana.trigger_id", str(trigger.get("trigger_id"))), ("indtrana.operational_actions_enabled", "false"),
+              *exposure["params"], *(("indtrana.evidence_id", value) for value in evidence)]
     for name, value in params:
         parameter = ET.SubElement(info, "parameter")
         add(parameter, "valueName", name)
@@ -164,8 +164,8 @@ def exercise_cap_xml(run: dict, trigger: dict, status: str = STATUS) -> bytes:
     # A10: te-IN and hi-IN blocks alongside the English block (CAP 1.2 allows several <info> blocks).
     common = {"category": _CATEGORY.get(hazard, "Other"),
               "severity": _SEVERITY.get(band, "Unknown") if isinstance(band, int) else "Unknown"}
-    shared = [("aegis.run_id", run_id), ("aegis.trigger_event_id", trigger_event),
-              ("aegis.operational_actions_enabled", "false")]
+    shared = [("indtrana.run_id", run_id), ("indtrana.trigger_event_id", trigger_event),
+              ("indtrana.operational_actions_enabled", "false")]
     statuses = {item["language"]: item["review_status"] for item in languages}
     for lang in cap_templates.TRANSLATED:
         code = cap_templates.load_templates()["languages"][lang]

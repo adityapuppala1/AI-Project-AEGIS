@@ -1,6 +1,6 @@
 "use client";
 
-import { codeLabel } from "../lib/labels";
+import { codeLabel, recordIdTitle } from "../lib/labels";
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import Link from "next/link";
 import {
@@ -178,7 +178,7 @@ export function AgencySync() {
         {!selectedId && <EmptyState icon={GitBranch} title={t("Select a fictional task")} body={t("Select a fictional task to inspect its scripted acknowledgement chain.")}/>}
         {detail && <div className="p-5">
           <p className="text-sm font-bold">{detail.task.agency_label}</p>
-          <p className="mt-2 text-xs leading-6 text-muted">Playbook: {detail.task.playbook_ref}</p>
+          <p className="mt-2 text-xs leading-6 text-muted">Playbook: <span title={detail.task.playbook_ref}>{recordIdTitle(detail.task.playbook_ref)}</span></p>
           <p className="mt-1 text-xs leading-6 text-muted">All acknowledgements are generated exercise entries, not evidence of real response.</p>
           <ol className="mt-5 space-y-4 border-l-2 border-stroke pl-4">
             {detail.events.map(event => <li key={event.id} className="relative">

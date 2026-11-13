@@ -68,16 +68,16 @@ def cap_draft_xml(audit: dict) -> bytes:
                         ("description", DISCLAIMER + "\nCaptured exercise rationale: " + str(payload.get("rationale", "")) + "\nLimitations: " + " ".join(str(item.get("description", "")) for item in draft.get("reasons", []))),
                         ("instruction", "Review captured evidence and uncertainty locally. Do not forward, transmit, warn the public or dispatch responders.")):
         add(info, name, value)
-    for name, value in [("aegis.incident_id", incident_id), ("aegis.playbook", PLAYBOOK),
-                        ("aegis.context_state", draft.get("context_state", "unknown")),
-                        ("aegis.operational_actions_enabled", "false")]:
+    for name, value in [("indtrana.incident_id", incident_id), ("indtrana.playbook", PLAYBOOK),
+                        ("indtrana.context_state", draft.get("context_state", "unknown")),
+                        ("indtrana.operational_actions_enabled", "false")]:
         parameter = ET.SubElement(info, "parameter")
         add(parameter, "valueName", name)
         add(parameter, "value", value)
     for kind, values in (("evidence_id", evidence), ("source_id", sources)):
         for value in sorted(set(values)):
             parameter = ET.SubElement(info, "parameter")
-            add(parameter, "valueName", "aegis.synthetic_" + kind)
+            add(parameter, "valueName", "indtrana.synthetic_" + kind)
             add(parameter, "value", value)
     area = ET.SubElement(info, "area")
     add(area, "areaDesc", "Fictional Hyderabad exercise case " + incident_id + "; no validated hazard footprint")

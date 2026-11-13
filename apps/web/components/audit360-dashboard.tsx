@@ -1,6 +1,6 @@
 "use client";
 
-import { codeLabel } from "../lib/labels";
+import { codeLabel, recordIdTitle } from "../lib/labels";
 import { ErrorState, Button, buttonClass, Panel } from "./ui";
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -97,7 +97,7 @@ export function Audit360Dashboard() {
             <StatTile label="Scripted task events" value={bundle.scripted_task_events.length} icon={Archive}/>
           </StatStrip>
           <KeyValueList className="rounded-lg border border-stroke p-4" items={[
-            { label: "Playbook reference", value: <span className="break-all text-muted">{bundle.playbook_ref}</span> },
+            { label: "Playbook reference", value: <span className="break-all text-muted" title={bundle.playbook_ref}>{recordIdTitle(bundle.playbook_ref)}</span> },
             { label: "Assessment status", value: <span className="text-muted">{codeLabel(bundle.readiness_checklist.context_state)}</span> },
             { label: "Snapshot time", value: <span className="text-muted">{timestamp(bundle.exported_at)} <DataFreshness observedAt={bundle.exported_at} staleAfterHours={24}/></span> },
             { label: "Unsigned SHA-256 manifest", value: <span className="flex flex-wrap items-center gap-2"><span className="break-all font-mono text-[11px] text-muted">{bundle.manifest_sha256}</span><CopyButton value={bundle.manifest_sha256} label={t("Copy checksum")}/></span> },

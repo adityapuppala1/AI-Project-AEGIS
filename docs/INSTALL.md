@@ -14,7 +14,8 @@ certificate copy and one Windows confirmation box to trust it, start with `-Sign
 `update-local-idp.ps1`, `new-demo-accounts.ps1`). Afterwards use `aegis.cmd start`, `stop`, `status` and `doctor`.
 macOS and Linux use `./aegis.sh install`. (`indtrana.cmd` and `./indtrana.sh` are the same commands under the product
 name. After install, an administrator can set the product name and logo on Administration > Brand; see
-[BRANDING.md](BRANDING.md).) Ports, repairs and other systems: [DEPLOYMENT.md](DEPLOYMENT.md). The manual
+[BRANDING.md](BRANDING.md). The sign-in provider is at `indtrana-idp.localhost:8443`; an install made before the
+rename is moved there automatically by `aegis.cmd start`, keeping every account: [LOCAL_IDP_ADDRESS.md](LOCAL_IDP_ADDRESS.md).) Ports, repairs and other systems: [DEPLOYMENT.md](DEPLOYMENT.md). The manual
 steps below remain valid and are what the installer runs.
 
 ## What you need
@@ -86,7 +87,7 @@ Notes:
 
 - If 4b says the file does not exist, the proxy has not finished starting. Wait 30 seconds and run 4b again.
 - Step 4c changes which HTTPS certificates this Windows account trusts. It is a certificate made on your own laptop
-  for `aegis-idp.localhost` only. To undo it later, remove that one certificate ("Caddy Local Authority") from
+  for `indtrana-idp.localhost` only. To undo it later, remove that one certificate ("Caddy Local Authority") from
   *Manage user certificates → Trusted Root Certification Authorities*. Firefox keeps its own list and may still warn.
 - More background and the review notes: [LOCAL_IDP_REVIEW.md](LOCAL_IDP_REVIEW.md).
 
@@ -188,7 +189,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\start-windows.ps1 -SignIn -Pu
 |---|---|
 | "Another IndTrana local operation is active" | A start, build or test is still running. Wait for it to finish. |
 | Port 3000, 8000 or 8443 is in use | IndTrana never takes over a port. `aegis.cmd start` moves the web app or API to the next free port and prints the address; with `start-windows.ps1` close the other program. Port 8443 is never moved: close the program holding it. |
-| Browser warns about the certificate at `aegis-idp.localhost:8443` | Step 4c was skipped or refused. Run it again and choose Yes. |
+| Browser warns about the certificate at `indtrana-idp.localhost:8443` | Step 4c was skipped or refused. Run it again and choose Yes. |
 | Sign-in returns to the sign-in page with an error | Run step 4d and 4e again, then check `docker compose --project-name ai-project-aegis logs --tail 50 web api`. |
 | "Sign-in is not set up yet" from the start script | Finish steps 3 and 4. |
 | Pages show no incidents | The first start did not finish seeding. Check `docker compose --project-name ai-project-aegis logs seed migrate`. |

@@ -50,9 +50,9 @@ def test_cap_has_valid_english_telugu_and_hindi_info_blocks():
     assert hi.findtext('cap:area/cap:areaDesc', namespaces=NS).startswith('हैदराबाद पायलट ग्रिड बिंदु')
     # Review status propagated into each block and the alert note.
     for info in (te, hi):
-        assert params(info)['aegis.language_review_status'] == 'pending'
-        assert params(info)['aegis.cap_template_version'] == 'aegis.cap-templates.v2'
-        assert params(info)['aegis.operational_actions_enabled'] == 'false'
+        assert params(info)['indtrana.language_review_status'] == 'pending'
+        assert params(info)['indtrana.cap_template_version'] == 'indtrana.cap-templates.v3'
+        assert params(info)['indtrana.operational_actions_enabled'] == 'false'
     note = root.findtext('cap:note', namespaces=NS)
     assert 'te-IN, hi-IN are pending native-language review' in note
     assert proactive_cap.self_check(proactive_cap.exercise_cap_xml)
@@ -115,7 +115,7 @@ def test_template_fixture_rejects_free_placeholders(tmp_path, monkeypatch):
     finally:
         monkeypatch.undo()
         cap_templates.load_templates.cache_clear()
-    assert cap_templates.load_templates()['version'] == 'aegis.cap-templates.v2'
+    assert cap_templates.load_templates()['version'] == 'indtrana.cap-templates.v3'
 
 
 def write_review(path, lang_ok='y', reviewer='Native Reviewer', tamper=False):

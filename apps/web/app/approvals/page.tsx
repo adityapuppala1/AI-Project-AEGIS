@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { Check, ClipboardCheck, LockKeyhole, Plus, RefreshCw, X } from "lucide-react";
-import { codeLabel, shortId } from "../../lib/labels";
+import { codeLabel, recordIdTitle, shortId } from "../../lib/labels";
 import { pageRoles } from "../../lib/roles";
 import { ReviewFocusDetails, type Focus } from "../../components/local-review-focus";
 import { ExerciseDraftBuffer } from "../../lib/exercise-draft-buffer";
@@ -241,7 +241,7 @@ export default function ApprovalWorkbench() {
               <Stepper className="mt-3" label={t("Approval progress")} steps={workflowSteps(proposal.status, !!proposal.proposal.simulation).map((x): Step => ({ ...x, label: t(x.label) }))}/>
               <p className="mt-3 text-sm leading-6 text-muted">{proposal.proposal?.rationale || "No rationale recorded"}</p>
               {proposal.proposal.response_draft && <div className="mt-3 text-sm text-muted">
-                <p>Playbook: {proposal.proposal.response_draft.playbook.version}</p>
+                <p>Playbook: <span title={proposal.proposal.response_draft.playbook.version}>{recordIdTitle(proposal.proposal.response_draft.playbook.version)}</span></p>
                 {proposal.proposal.response_draft.review_brief && <ExerciseReviewBrief brief={proposal.proposal.response_draft.review_brief}/>}
                 <p>Captured context: {t(codeLabel(proposal.proposal.response_draft.context_state))}</p>
                 <p>{proposal.proposal.response_draft.playbook.synthetic_evidence_ids.length} synthetic evidence references preserved for review.</p>

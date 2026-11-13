@@ -1,4 +1,5 @@
 "use client";
+import { recordIdTitle } from "../../lib/labels";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, BookOpenCheck, CheckCircle2, ShieldAlert } from "lucide-react";
@@ -37,7 +38,7 @@ export default function PlaybooksPage() {
       <StatTile label={t("Shown")} value={shown.length} icon={CheckCircle2}/>
     </StatStrip>
     <SearchField label={t("Search playbook steps")} value={query} onChange={setQuery} className="mb-4"/>
-    <Panel className="overflow-hidden" bodyClassName="p-0" icon={BookOpenCheck} title="Urban Flood Exercise · Referenced Steps" description={PLAYBOOK}
+    <Panel className="overflow-hidden" bodyClassName="p-0" icon={BookOpenCheck} title="Urban Flood Exercise · Referenced Steps" description={recordIdTitle(PLAYBOOK)}
       actions={<span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">Draft · Unapproved</span>}>
         {shown.length === 0 && <div className="md:col-span-2"><EmptyState title={t("No playbook steps match")} body={t("No match does not mean a step is unnecessary; clear the search to see all steps.")}/></div>}
       <div className="grid gap-3 p-5 md:grid-cols-2">

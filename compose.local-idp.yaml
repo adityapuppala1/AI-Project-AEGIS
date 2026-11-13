@@ -8,13 +8,15 @@ services:
       - ${AEGIS_LOCAL_IDP_PRIVATE_DIR:?Set a private directory outside the XAMPP web root}/provider.env
     environment:
       KC_HTTP_ENABLED: 'true'
-      KC_HOSTNAME: https://aegis-idp.localhost:8443
+      KC_HOSTNAME: https://indtrana-idp.localhost:8443
       KC_HOSTNAME_STRICT: 'true'
       KC_PROXY_HEADERS: xforwarded
       KC_HEALTH_ENABLED: 'true'
     volumes:
       - local_idp_data:/opt/keycloak/data
       - ${AEGIS_LOCAL_IDP_PRIVATE_DIR:?Set a private directory outside the XAMPP web root}/realm.json:/opt/keycloak/data/import/aegis-exercise.json:ro
+      # Internal file name kept: existing data volumes hold this mount point, and an empty stub under another name
+      # would be read by the realm import. The realm inside is indtrana-exercise.
       # IndTrana look for the provider's own sign-in pages (styles only; see ops/local-idp/theme).
       - ./ops/local-idp/theme:/opt/keycloak/themes/aegis:ro
     mem_limit: 768m
@@ -26,25 +28,25 @@ services:
       - '127.0.0.1:8443:8443'
     networks:
       default:
-        aliases: [aegis-idp.localhost]
+        aliases: [indtrana-idp.localhost]
     volumes:
       - ./ops/local-idp/Caddyfile:/etc/caddy/Caddyfile:ro
       - local_idp_tls:/data
     mem_limit: 128m
   api:
     environment:
-      OIDC_ISSUER: https://aegis-idp.localhost:8443/realms/aegis-exercise
+      OIDC_ISSUER: https://indtrana-idp.localhost:8443/realms/indtrana-exercise
       OIDC_AUDIENCE: aegis-resource-server
-      OIDC_JWKS_URL: https://aegis-idp.localhost:8443/realms/aegis-exercise/protocol/openid-connect/certs
+      OIDC_JWKS_URL: https://indtrana-idp.localhost:8443/realms/indtrana-exercise/protocol/openid-connect/certs
       SSL_CERT_FILE: /run/local-idp/api-ca-bundle.pem
     volumes:
       - ${AEGIS_LOCAL_IDP_PRIVATE_DIR:?Set a private directory outside the XAMPP web root}/api-ca-bundle.pem:/run/local-idp/api-ca-bundle.pem:ro
   web:
     environment:
-      OIDC_ISSUER: https://aegis-idp.localhost:8443/realms/aegis-exercise
+      OIDC_ISSUER: https://indtrana-idp.localhost:8443/realms/indtrana-exercise
       OIDC_AUDIENCE: aegis-resource-server
-      OIDC_JWKS_URL: https://aegis-idp.localhost:8443/realms/aegis-exercise/protocol/openid-connect/certs
-      OIDC_CLIENT_ID: aegis-local-web
+      OIDC_JWKS_URL: https://indtrana-idp.localhost:8443/realms/indtrana-exercise/protocol/openid-connect/certs
+      OIDC_CLIENT_ID: indtrana-local-web
       OIDC_CLIENT_SECRET: ''
       NODE_EXTRA_CA_CERTS: /run/local-idp/root.crt
     volumes:

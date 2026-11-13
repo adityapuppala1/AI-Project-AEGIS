@@ -10,9 +10,10 @@ from tests.test_cap_multilingual import NS, params, run_and_trigger
 ROOT = Path(__file__).resolve().parents[3]
 
 
-def test_new_cap_drafts_use_template_version_2_and_carry_indtrana():
+def test_new_cap_drafts_use_template_version_3_and_carry_indtrana():
     xml = proactive_cap.exercise_cap_xml(*run_and_trigger()).decode()
-    assert "AEGIS" not in xml.replace("aegis.", "")  # parameter keys keep their documented aegis.* namespace
+    # Keys and version id carry the product name too; only stored config-id values keep the old prefix.
+    assert "AEGIS" not in xml and "<valueName>aegis." not in xml
     root = ET.fromstring(xml)
     assert root.findtext("cap:identifier", namespaces=NS).startswith("indtrana-proactive-exercise-")
     assert root.findtext("cap:sender", namespaces=NS) == "proactive-exercise@indtrana.invalid"
@@ -21,8 +22,9 @@ def test_new_cap_drafts_use_template_version_2_and_carry_indtrana():
     assert [i.findtext("cap:senderName", namespaces=NS) for i in infos] == [
         "IndTrana proactive exercise desk", "IndTrana ముందస్తు అభ్యాస డెస్క్", "IndTrana सक्रिय अभ्यास डेस्क"]
     for info in infos[1:]:
-        assert params(info)["aegis.cap_template_version"] == "aegis.cap-templates.v2"
-        assert params(info)["aegis.language_review_status"] == "pending"
+        assert params(info)["indtrana.cap_template_version"] == "indtrana.cap-templates.v3"
+        assert params(info)["indtrana.language_review_status"] == "pending"
+        assert params(info)["indtrana.run_id"]
 
 
 def test_translated_blocks_stay_pending_until_native_sign_off():
@@ -43,7 +45,9 @@ def test_version_1_templates_still_load_for_earlier_drafts():
         for lang, text in variants.items():
             assert v2["templates"][key][lang] == text.replace("AEGIS ", "IndTrana ", 1)
     assert v1["closed_lists"] == v2["closed_lists"] and v1["placeholders"] == v2["placeholders"]
-    assert cap_templates.load_templates()["version"] == cap_templates.CURRENT_VERSION == "aegis.cap-templates.v2"
+    v3 = cap_templates.load_template_version("indtrana.cap-templates.v3")
+    assert v3["templates"] == v2["templates"] and v3["closed_lists"] == v2["closed_lists"]
+    assert cap_templates.load_templates()["version"] == cap_templates.CURRENT_VERSION == "indtrana.cap-templates.v3"
 
 
 def test_unknown_template_version_is_refused():
@@ -71,10 +75,21 @@ def test_outbound_user_agents_name_indtrana():
 
 def test_local_provider_display_names_match_the_update_script():
     realm = json.loads((ROOT / "ops/local-idp/realm.json").read_text(encoding="utf-8"))
-    assert realm["realm"] == "aegis-exercise"  # technical id unchanged
+    assert realm["realm"] == "indtrana-exercise"  # technical id unchanged
     assert realm["displayName"] == "IndTrana LOCAL SYNTHETIC EXERCISE" and realm["displayNameHtml"] == "IndTrana"
-    web = next(c for c in realm["clients"] if c["clientId"] == "aegis-local-web")
+    web = next(c for c in realm["clients"] if c["clientId"] == "indtrana-local-web")
     assert web["name"] == "IndTrana"
     script = (ROOT / "scripts/update-local-idp.ps1").read_text(encoding="utf-8")
     assert "$IdpDisplayName = 'IndTrana LOCAL SYNTHETIC EXERCISE'" in script
     assert "$IdpDisplayNameHtml = 'IndTrana'" in script and "$IdpClientName = 'IndTrana'" in script
+
+
+def test_every_template_version_passes_the_same_markup_and_placeholder_checks(tmp_path, monkeypatch):
+    import pytest
+    bad = json.loads(cap_templates.TEMPLATE_FILES["aegis.cap-templates.v1"].read_text(encoding="utf-8"))
+    bad["templates"]["headline"]["en"] = "<b>EXERCISE</b>"
+    path = tmp_path / "cap_templates.v1.json"
+    path.write_text(json.dumps(bad), encoding="utf-8")
+    monkeypatch.setitem(cap_templates.TEMPLATE_FILES, "aegis.cap-templates.v1", path)
+    with pytest.raises(cap_templates.TemplateError):
+        cap_templates.load_template_version("aegis.cap-templates.v1")

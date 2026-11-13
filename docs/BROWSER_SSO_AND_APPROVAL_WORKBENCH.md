@@ -46,10 +46,10 @@ Set values only in a local, **untracked** root `.env`:
 
 ```dotenv
 APP_ORIGIN=http://localhost:3000
-OIDC_ISSUER=https://idp.example.invalid/realms/aegis
+OIDC_ISSUER=https://idp.example.invalid/realms/indtrana
 OIDC_AUDIENCE=aegis-resource-server
-OIDC_JWKS_URL=https://idp.example.invalid/realms/aegis/protocol/openid-connect/certs
-OIDC_CLIENT_ID=aegis-local-web
+OIDC_JWKS_URL=https://idp.example.invalid/realms/indtrana/protocol/openid-connect/certs
+OIDC_CLIENT_ID=indtrana-local-web
 # Only if the provider requires a confidential client:
 OIDC_CLIENT_SECRET=
 # Generate with: [Convert]::ToBase64String([Security.Cryptography.RandomNumberGenerator]::GetBytes(32))

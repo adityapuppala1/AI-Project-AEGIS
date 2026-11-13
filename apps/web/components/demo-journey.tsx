@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import Link from "next/link";
 import { useT } from "./language-provider";
 import { ErrorState, Panel, StatusPill, Button, buttonClass } from "./ui";
-import { codeLabel } from "../lib/labels";
+import { codeLabel, recordIdTitle } from "../lib/labels";
 import { ArrowLeft, ArrowRight, BookOpenCheck, ClipboardCheck, Compass, Database, FlaskConical, RadioTower, ShieldAlert, UsersRound, Workflow, Archive, Calculator } from "lucide-react";
 
 type ReadinessState = "ready" | "not_ready" | "unavailable";
@@ -192,7 +192,7 @@ export function DemoJourney({ snapshot }: { snapshot: Snapshot }) {
         <div className="mt-5 rounded-lg border border-stroke bg-elevated/40 p-4 text-xs leading-6">
           <p className="font-semibold">{t("What you will see")}: {current.subtitle}</p>
           <p className="mt-1 text-muted">{t("Exercise reference")}</p>
-          <p className="mt-1 text-muted">{current.playbook} · AEGIS-URBAN-FLOOD-EXERCISE-v0.1</p>
+          <p className="mt-1 text-muted">{current.playbook} · <span title="AEGIS-URBAN-FLOOD-EXERCISE-v0.1">{recordIdTitle("AEGIS-URBAN-FLOOD-EXERCISE-v0.1")}</span></p>
         </div>
         <div className="mt-6">
           <Link href={current.href} className={buttonClass({ variant: "primary" })}>

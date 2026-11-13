@@ -194,7 +194,7 @@ def test_run_bundle_variants_and_cap_carry_exposure(store, monkeypatch):
     assert 'not a damage, casualty or inundation estimate' in info.findtext(ns + 'instruction')
     assert ET.fromstring(xml).findtext(ns + 'status') == 'Exercise'
     params = {p.findtext(ns + 'valueName'): p.findtext(ns + 'value') for p in info.findall(ns + 'parameter')}
-    assert params['aegis.impact_config_version'] == CONFIG['version'] and params['aegis.people_exposed'] == '35000'
+    assert params['indtrana.impact_config_version'] == CONFIG['version'] and params['indtrana.people_exposed'] == '35000'
 
 
 def test_simulation_reapplies_stored_exposure(store):

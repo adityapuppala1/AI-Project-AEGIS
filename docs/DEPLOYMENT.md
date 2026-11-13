@@ -90,7 +90,7 @@ http://localhost:3000 once the conflict is gone. The sign-in addresses the scrip
 (`AEGIS_ADDED_ORIGINS`) and removed again from the provider once they are no longer used; it never removes an address
 it did not record.
 
-Why 8443 is not moved: the provider's address `https://aegis-idp.localhost:8443` is its fixed hostname setting, the
+Why 8443 is not moved: the provider's address `https://indtrana-idp.localhost:8443` is its fixed hostname setting, the
 token issuer that the API and web app check, the JWKS address, and the HTTPS proxy's site address, and the same name
 and port are used inside the Docker network. Moving it would mean changing all of them together and invalidating every
 signed-in session, so it is left to a person.
@@ -174,7 +174,7 @@ runcmd:
   provider instead of the local Keycloak.
 - Government hosting requirements in [GOVT_DEPLOYMENT_READINESS.md](GOVT_DEPLOYMENT_READINESS.md) still apply. A cloud
   VM running this installer is a rehearsal environment, not an accredited deployment.
-- Sign-in on a remote VM needs the browser to reach `aegis-idp.localhost:8443` too (add `-L 8443:localhost:8443`) and
+- Sign-in on a remote VM needs the browser to reach `indtrana-idp.localhost:8443` too (add `-L 8443:localhost:8443`) and
   to trust the generated certificate.
 
 ## On-premises server

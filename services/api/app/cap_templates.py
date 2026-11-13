@@ -1,4 +1,4 @@
-"""A10 multilingual CAP text from approved fixed templates only (app/fixtures/cap_templates.v2.json).
+"""A10 multilingual CAP text from approved fixed templates only (app/fixtures/cap_templates.v3.json).
 
 No model and no free text: every rendered string is a fixed template whose placeholders accept only integers,
 bounded numbers, closed-list codes (hazard, state, exposure basis) and validated area codes, each looked up in
@@ -17,9 +17,11 @@ from pathlib import Path
 
 # New drafts use the current version. Earlier versions stay on disk, unchanged, so a draft made before can be
 # matched to the exact template text it was built from (stored drafts keep their rendered XML as it was).
+# v1: AEGIS sender text; v2: IndTrana sender text, aegis.* parameter keys; v3: indtrana.* keys and version id.
 TEMPLATE_FILES = {"aegis.cap-templates.v1": Path(__file__).parent / "fixtures" / "cap_templates.v1.json",
-                  "aegis.cap-templates.v2": Path(__file__).parent / "fixtures" / "cap_templates.v2.json"}
-CURRENT_VERSION = "aegis.cap-templates.v2"
+                  "aegis.cap-templates.v2": Path(__file__).parent / "fixtures" / "cap_templates.v2.json",
+                  "indtrana.cap-templates.v3": Path(__file__).parent / "fixtures" / "cap_templates.v3.json"}
+CURRENT_VERSION = "indtrana.cap-templates.v3"
 TEMPLATES_PATH = TEMPLATE_FILES[CURRENT_VERSION]
 REVIEW_CSV = ("docs", "NATIVE_LANGUAGE_REVIEW.csv")
 TRANSLATED = ("te", "hi")
@@ -33,7 +35,11 @@ class TemplateError(ValueError):
 
 @lru_cache(maxsize=1)
 def load_templates() -> dict:
-    data = json.loads(TEMPLATES_PATH.read_text(encoding="utf-8"))
+    return _checked(json.loads(TEMPLATES_PATH.read_text(encoding="utf-8")))
+
+
+def _checked(data: dict) -> dict:
+    """The same placeholder, language and markup checks for every template version."""
     allowed = {name for names in data["placeholders"].values() for name in names}
     for key, variants in data["templates"].items():
         if set(variants) != set(data["languages"]):
@@ -57,7 +63,7 @@ def load_template_version(version: str) -> dict:
     path = TEMPLATE_FILES.get(version)
     if path is None:
         raise TemplateError("unknown template version")
-    data = json.loads(path.read_text(encoding="utf-8"))
+    data = _checked(json.loads(path.read_text(encoding="utf-8")))
     if data.get("version") != version:
         raise TemplateError("template version mismatch")
     return data

@@ -159,7 +159,7 @@ function Confirm-SignInFiles {
   Say 'fixed' 'Sign-in certificate copied and the API told to trust it'
   $trusted = @(Get-ChildItem Cert:\CurrentUser\Root -ErrorAction SilentlyContinue | Where-Object { $_.Subject -like '*Caddy Local Authority*' })
   if ($trusted.Count -gt 0) { Say 'OK' 'This Windows account already trusts the local sign-in certificate'; return }
-  if ($Ci) { Say 'needs you' "Browsers will warn at aegis-idp.localhost:$IdpPort until you run: Import-Certificate -FilePath `"$rootCrt`" -CertStoreLocation Cert:\CurrentUser\Root"; return }
+  if ($Ci) { Say 'needs you' "Browsers will warn at indtrana-idp.localhost:$IdpPort until you run: Import-Certificate -FilePath `"$rootCrt`" -CertStoreLocation Cert:\CurrentUser\Root"; return }
   if (Confirm-Step 'Let this Windows account trust the local sign-in certificate (Windows shows one confirmation box)?') {
     Import-Certificate -FilePath $rootCrt -CertStoreLocation Cert:\CurrentUser\Root | Out-Null
     Say 'fixed' 'Local sign-in certificate trusted for this Windows account'
@@ -302,8 +302,8 @@ function Sync-SignInOrigins([int]$WebPort) {
     # Residual risk (as in update-local-idp.ps1): kcadm has no stdin password option, so the provider's local bootstrap
     # password is briefly on a command line inside the provider container only.
     $login = 'K=/opt/keycloak/bin/kcadm.sh; $K config credentials --server http://localhost:8080 --realm master --user $KC_BOOTSTRAP_ADMIN_USERNAME --password $KC_BOOTSTRAP_ADMIN_PASSWORD >/dev/null 2>&1 || { echo ADMIN_LOGIN_FAILED; exit 0; }; '
-    $client = 'CID=$($K get clients -r aegis-exercise -q clientId=aegis-local-web --fields id --format csv --noquotes | head -1); '
-    $raw = @(& docker exec $id sh -c ($login + $client + '$K get clients/$CID -r aegis-exercise --fields redirectUris,webOrigins,attributes'))
+    $client = 'CID=$($K get clients -r indtrana-exercise -q clientId=indtrana-local-web --fields id --format csv --noquotes | head -1); '
+    $raw = @(& docker exec $id sh -c ($login + $client + '$K get clients/$CID -r indtrana-exercise --fields redirectUris,webOrigins,attributes'))
     if ($LASTEXITCODE -ne 0 -or $raw -contains 'ADMIN_LOGIN_FAILED') { Stop-WithMessage 'The identity provider refused its local administrator; sign-in addresses were not changed.' }
     $current = ($raw -join "`n") | ConvertFrom-Json
     $redirects = @($current.redirectUris | Where-Object { $_ }); $origins = @($current.webOrigins | Where-Object { $_ })
@@ -320,7 +320,7 @@ function Sync-SignInOrigins([int]$WebPort) {
     }
     if ((($redirects + $origins + $logout) -join '|') -ne $before) {
       $update = [PSCustomObject]@{ redirectUris = [string[]]$redirects; webOrigins = [string[]]$origins; attributes = [PSCustomObject]@{ 'post.logout.redirect.uris' = ($logout -join '##') } }
-      ($update | ConvertTo-Json -Depth 5 -Compress) | & docker exec -i $id sh -c ($login + $client + 'sed 1s/^\\xEF\\xBB\\xBF// > /tmp/aegis-client.json; $K update clients/$CID -r aegis-exercise -f /tmp/aegis-client.json >/dev/null; code=$?; rm -f /tmp/aegis-client.json; exit $code') | Out-Null
+      ($update | ConvertTo-Json -Depth 5 -Compress) | & docker exec -i $id sh -c ($login + $client + 'sed 1s/^\\xEF\\xBB\\xBF// > /tmp/aegis-client.json; $K update clients/$CID -r indtrana-exercise -f /tmp/aegis-client.json >/dev/null; code=$?; rm -f /tmp/aegis-client.json; exit $code') | Out-Null
       if ($LASTEXITCODE -ne 0) { Stop-WithMessage 'Could not update the sign-in addresses in the provider.' }
     }
     $saved = Read-State
@@ -342,11 +342,37 @@ function Get-StartArguments {
   }
   return $arguments
 }
+function Confirm-IdpAddress {
+  # An install made before the rename still uses aegis-idp.localhost / aegis-exercise. Moving it stops the provider
+  # for a backup and signs everyone out, so it is asked once; -Ci never moves it. After a failed attempt or a rollback
+  # the hold marker (local-idp\address-migration.hold, a separate file because Write-State rewrites the ports file)
+  # stops further automatic attempts until the owner runs the migration script explicitly.
+  if (-not $SignIn) { return }
+  $realmFile = Join-Path $IdpDir 'realm.json'
+  if (-not (Test-Path $realmFile)) { return }
+  if (-not (Select-String -Path $realmFile -Pattern '"realm"\s*:\s*"aegis-exercise"' -Quiet)) {
+    Say 'OK' 'Sign-in provider already on the IndTrana address (indtrana-idp.localhost); nothing to move'; return
+  }
+  $hold = Join-Path $IdpDir 'address-migration.hold'
+  $instruction = 'Run: powershell -ExecutionPolicy Bypass -File .\scripts\migrate-local-idp-address.ps1 (see docs\LOCAL_IDP_ADDRESS.md)'
+  if (Test-Path $hold) { Say 'needs you' "The sign-in provider still uses the old address and automatic moving is on hold. $instruction"; return }
+  if ($Ci) { Say 'needs you' "The sign-in provider still uses the old address (sign-in will not work until it is moved). $instruction"; return }
+  if (-not (Confirm-Step 'Move the sign-in provider to the IndTrana address now? (backup first, accounts kept, everyone signs in again)')) {
+    Say 'needs you' "Sign-in provider not moved; sign-in will not work until it is. $instruction"; return
+  }
+  Say 'info' 'Moving the sign-in provider to the IndTrana address (backup first; accounts are kept)'
+  if ((Invoke-Reviewed 'migrate-local-idp-address.ps1') -ne 0) {
+    [IO.File]::WriteAllText($hold, ('automatic attempt failed ' + (Get-Date -Format 's') + "`n"), [Text.Encoding]::ASCII)
+    Stop-WithMessage "Moving the sign-in provider failed and was rolled back; automatic attempts are now on hold. Read the message above. $instruction"
+  }
+  Say 'fixed' 'Sign-in provider moved to indtrana-idp.localhost; everyone signs in again'
+}
 function Start-Stack {
   if (Test-Running) {
     $ports = Read-State; Use-Ports $ports
     Say 'OK' 'IndTrana is already running (one copy only; nothing new started)'
     Confirm-Healthy $ports -Repair
+    Confirm-IdpAddress
     return $ports
   }
   Remove-StaleContainers
@@ -375,6 +401,7 @@ function Start-Stack {
   Say 'info' ('Starting IndTrana with ' + ($arguments -join ' '))
   if ((Invoke-Reviewed 'start-windows.ps1' $arguments) -ne 0) { Stop-WithMessage 'Start failed. Run aegis.cmd doctor, then aegis.cmd start.' }
   Confirm-Healthy $ports -Repair
+  Confirm-IdpAddress
   Sync-SignInOrigins $ports.AEGIS_WEB_PORT
   return $ports
 }
@@ -410,6 +437,7 @@ function Invoke-Doctor {
   if (Test-Running) {
     $ports = Read-State; Use-Ports $ports
     Confirm-Healthy $ports -Repair
+    Confirm-IdpAddress
     Sync-SignInOrigins $ports.AEGIS_WEB_PORT
   } else {
     Say 'info' 'IndTrana is stopped; checking the ports it would use'

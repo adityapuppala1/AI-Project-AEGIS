@@ -234,3 +234,20 @@ test('substitution is single pass and never rewrites record content', () => {
   const pending = run(transpile('lib/translations-pending.ts'), () => ({}));
   assert.ok(!pending.PENDING_NATIVE_REVIEW.includes(record));
 });
+
+test('stored record ids keep their spelling but are shown by a plain title, the raw id only in a title attribute', () => {
+  const labels = run(transpile('lib/labels.ts'), name => { throw Error('Unexpected dependency ' + name); });
+  assert.equal(labels.recordIdTitle('AEGIS-URBAN-FLOOD-EXERCISE-v0.1'), 'IndTrana urban flood exercise playbook v0.1');
+  assert.equal(labels.recordIdTitle('AEGIS-EXERCISE-ONLY'), 'Exercise-only source');
+  assert.equal(labels.codeLabel('aegis.exercise.audit360.v1'), 'IndTrana exercise audit360 v1');
+  for (const file of ['components/agency-sync.tsx', 'components/audit360-dashboard.tsx', 'components/assessment-readiness.tsx',
+    'components/demo-journey.tsx', 'components/exercise-review-brief.tsx', 'app/approvals/page.tsx', 'app/playbooks/page.tsx']) {
+    const source = fs.readFileSync(path.join(root, file), 'utf8');
+    assert.ok(source.includes('recordIdTitle('), file);
+    // The raw id never appears as JSX text: only inside a title attribute, a comparison or a type.
+    assert.ok(!/[>}][^<>{}"'=]*AEGIS-URBAN-FLOOD-EXERCISE-v0\.1[^<>{}"']*</.test(source), file);
+  }
+  // The audit export and readiness routes still demand the real stored id.
+  for (const file of ['app/api/incidents/[id]/audit/route.ts', 'app/api/incidents/[id]/readiness/route.ts'])
+    assert.ok(fs.readFileSync(path.join(root, file), 'utf8').includes('"AEGIS-URBAN-FLOOD-EXERCISE-v0.1"'), file);
+});

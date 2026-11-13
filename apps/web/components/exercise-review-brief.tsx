@@ -1,3 +1,5 @@
+import { recordIdTitle } from "../lib/labels";
+
 export interface ReviewBrief {
   version: "aegis.exercise.review-brief.v1";
   generated_by: "deterministic_template_no_model";
@@ -44,7 +46,7 @@ export function ExerciseReviewBrief({ brief }: { brief: ReviewBrief }) {
     <ol className="mt-2 list-decimal space-y-2 pl-5 text-xs leading-6 text-muted">
       {brief.review_options.map(option => <li key={option.playbook_step}><strong>{option.playbook_step}:</strong> {option.text}</li>)}
     </ol>
-    <p className="mt-3 break-words text-xs text-muted">Illustrative playbook: {brief.playbook_version}</p>
+    <p className="mt-3 break-words text-xs text-muted">Illustrative playbook: <span title={brief.playbook_version}>{recordIdTitle(brief.playbook_version)}</span></p>
     <h5 className="mt-4 text-xs font-bold">Limitations retained with this brief</h5>
     <ul className="mt-2 list-disc space-y-1 pl-5 text-xs leading-6 text-muted">
       {brief.limitations.map((text,index) => <li key={index}>{text}</li>)}

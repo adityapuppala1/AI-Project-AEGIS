@@ -28,10 +28,10 @@ session), and the one deliberately public route (Audit360 fixture export) correc
 - Keycloak keeps its development database in a separate named volume. It never
   uses the IndTrana application database. Its HTTP port is private to Docker.
 - Only HTTPS port **127.0.0.1:8443** is published. Issuer:
-  `https://aegis-idp.localhost:8443/realms/aegis-exercise`.
+  `https://indtrana-idp.localhost:8443/realms/indtrana-exercise`.
 - Caddy supplies a local CA and TLS. API and web retain HTTPS verification.
   Keycloak's internal HTTP hop is confined to the local Compose network.
-- Public OIDC client `aegis-local-web` uses Authorization Code + PKCE S256;
+- Public OIDC client `indtrana-local-web` uses Authorization Code + PKCE S256;
   exact callback `http://localhost:3000/api/auth/callback`, no wildcard origins,
   password grant, implicit flow or service account.
 - API audience `aegis-resource-server`; signed agency UUID is the existing
@@ -89,7 +89,7 @@ Import-Certificate -FilePath "$idpPrivate\root.crt" -CertStoreLocation Cert:\Cur
 $apiRoots = docker compose exec -T api cat /etc/ssl/certs/ca-certificates.crt
 [IO.File]::WriteAllText("$idpPrivate\api-ca-bundle.pem", (($apiRoots -join "`n") + "`n" + [IO.File]::ReadAllText("$idpPrivate\root.crt")), [Text.Encoding]::ASCII)
 docker compose @composeArgs up -d api web
-Invoke-RestMethod 'https://aegis-idp.localhost:8443/realms/aegis-exercise/.well-known/openid-configuration'
+Invoke-RestMethod 'https://indtrana-idp.localhost:8443/realms/indtrana-exercise/.well-known/openid-configuration'
 ```
 
 Use the generated local bootstrap administrator to inspect client, role and

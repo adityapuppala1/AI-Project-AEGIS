@@ -16,7 +16,7 @@ The signed *access token* issued by the trusted IdP must contain:
 
 | JWT claim | Example | Requirement |
 |---|---|---|
-| `iss` | `https://idp.example.gov/realms/aegis` | Exact OIDC_ISSUER match |
+| `iss` | `https://idp.example.gov/realms/indtrana` | Exact OIDC_ISSUER match |
 | `aud` | `aegis-resource-api` | Must include the configured API audience |
 | `sub` | Stable opaque operator identifier | Non-empty and at most 256 characters |
 | `iat`, `exp` | Signed Unix timestamps | Current non-expired token |
@@ -32,9 +32,9 @@ The Docker Compose exercise environment remains usable without a configured iden
 For an approved test IdP, configure in a local noncommitted `.env` file or PowerShell session:
 
 ```text
-OIDC_ISSUER=https://idp.example.gov/realms/aegis
+OIDC_ISSUER=https://idp.example.gov/realms/indtrana
 OIDC_AUDIENCE=aegis-resource-api
-OIDC_JWKS_URL=https://idp.example.gov/realms/aegis/protocol/openid-connect/certs
+OIDC_JWKS_URL=https://idp.example.gov/realms/indtrana/protocol/openid-connect/certs
 ```
 
 These are **illustrative placeholders, not real provider URLs**. Never commit real access tokens or client secrets. Start or recreate API:

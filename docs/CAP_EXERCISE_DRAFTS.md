@@ -83,7 +83,7 @@ or browser-checked, and **every Telugu/Hindi string is pending native review**.
   exposure basis, area). Area is a validated code derived from the trigger point id, never free text. Any other
   value, including injection strings, raises `CapRefused`; the fixture loader rejects templates with other
   placeholders, format specs or markup.
-- Each translated block carries `aegis.language_review_status` and `aegis.cap_template_version` parameters;
+- Each translated block carries `indtrana.language_review_status` and `indtrana.cap_template_version` (drafts made before template version 3 carry the earlier `aegis.*` keys) parameters;
   the alert `<note>` names pending languages. A language is `approved` only when every string has a row in
   `docs/NATIVE_LANGUAGE_REVIEW.csv` whose translation matches exactly, is marked `y` and names a reviewer. If the
   CSV is not reachable (the API container does not mount `docs/`) the status is `pending` (fail closed).

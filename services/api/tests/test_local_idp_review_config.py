@@ -14,8 +14,8 @@ def test_local_idp_claims_and_independent_users_are_not_client_supplied():
     assert not client['implicitFlowEnabled'] and not client['serviceAccountsEnabled']
     assert not realm['registrationAllowed'] and not client['fullScopeAllowed']
     users = {user['username']: user for user in realm['users']}
-    assert users['exercise-maker']['clientRoles']['aegis-local-web'] == ['incident_operator']
-    assert users['exercise-checker']['clientRoles']['aegis-local-web'] == ['incident_checker']
+    assert users['exercise-maker']['clientRoles']['indtrana-local-web'] == ['incident_operator']
+    assert users['exercise-checker']['clientRoles']['indtrana-local-web'] == ['incident_checker']
     for user in users.values():
         assert 'CONFIGURE_TOTP' in user['requiredActions']
         assert user['credentials'][0]['temporary']

@@ -20,6 +20,50 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Round 21: sign-in provider moved to the IndTrana address; CAP template v3 keys (branch Aegis_IndTrana) — 13 November 2026 (Windows laptop)
+
+Owner decision: remove the remaining visible old name from the sign-in address and from new CAP drafts.
+
+- **Address:** the provider is now `https://indtrana-idp.localhost:8443/realms/indtrana-exercise`, web client
+  `indtrana-local-web` (it appears in the sign-in URL). Port 8443, the token audience `aegis-resource-server`, the
+  login theme folder and the internal realm-import file name are unchanged (internal only; the import file name is kept
+  because the existing data volume holds that mount point).
+- **What ran on this laptop:** `scripts/migrate-local-idp-address.ps1` once against the live install. A first attempt
+  stopped before any change (Windows PowerShell mangled the quotes in a `docker inspect` template); it left a partial
+  backup folder `%LOCALAPPDATA%\AEGIS\local-idp-backups\20261113-222751` (private-file copies and the id list only).
+  The second attempt backed up to `%LOCALAPPDATA%\AEGIS\local-idp-backups\20261113-222828` (provider data volume with
+  the provider stopped, proxy volume, five private files; read back), renamed the realm and client in place, repointed
+  the role-claim mapper and updated the private realm.json. Accounts: 11 before and 11 after with identical ids
+  (8 demo-*, 3 exercise-*). No account was created, changed or deleted; no volume was removed. The local CA was reused,
+  so no new certificate trust step. Everyone signs in again (issuer changed).
+- **Review fixes to the script (this round):** archives verified by tar exit status, the provider database file
+  (h2/keycloakdb.mv.db) or proxy root certificate in the listing and an entry count equal to the source; restore
+  checks the archive first, extracts beside the live data and swaps only after a complete extract, restarts both
+  containers in `finally` and reports the original and the restore error; `-Rollback` needs `-Backup <folder>` or the
+  typed time stamp, takes a safety backup first and writes a hold marker; aegis.cmd asks once before moving, never
+  moves with `-Ci`, and stops retrying after a failure (hold marker); the private realm.json is updated before the
+  rename; backup folders are restricted to the current Windows user (both existing folders too, contents not read);
+  a read-only check confirms the role-claim mapper; more than 999 accounts stops the run. Tested with a parser check
+  (Windows PowerShell 5.1 and 7), the live "already migrated" path, and 12 checks against throwaway volumes and
+  containers outside the project (truncated archive refused, missing store refused, count mismatch refused, corrupt
+  restore leaves data intact and restarts both containers, good restore swaps completely, permissions, Docker can
+  still read a restricted folder, realm-file names both ways, scratch resources removed). No real migration or rollback
+  was run again.
+- **CAP:** new drafts use template version `indtrana.cap-templates.v3` with `indtrana.*` parameter keys; v1 and v2 stay
+  loadable (now through the same checks) and stored drafts keep their XML.
+- **Display:** the playbook id `AEGIS-URBAN-FLOOD-EXERCISE-v0.1` and source id `AEGIS-EXERCISE-ONLY` keep their stored
+  spelling but are shown by plain titles (lib/labels.ts `recordIdTitle`), the raw id in a title attribute; exports and
+  API payloads still carry the real id.
+- **Checks run on this laptop:** API pytest 1332 passed / 30 skipped; app.model_lab --check PASS; typecheck clean; web
+  tests 354 pass; stack rebuilt; aegis.cmd status OK; aegis.cmd doctor reports the provider already on the IndTrana
+  address; verify-windows.ps1 passed; the migration script reports already migrated; update-local-idp.ps1 all already
+  set. Browser (headless Chrome, demo-maker only): login page on indtrana-idp.localhost / indtrana-exercise with
+  client indtrana-local-web, title Sign in to IndTrana LOCAL SYNTHETIC EXERCISE, no visible AEGIS; sign-in returned
+  to localhost:3000 with incident_operator; /approvals loaded; sign-out ended the session.
+- **Not done / remaining:** existing Linux installs are not moved automatically (aegis.sh stops with the manual steps);
+  the two backup folders hold secrets and should be deleted by the owner once satisfied (docs/LOCAL_IDP_ADDRESS.md);
+  Telugu and Hindi CAP text still awaits native review.
+
 ## Round 20: every outgoing communication says IndTrana; local sign-in provider renamed (branch Aegis_IndTrana) — 13 November 2026 (Windows laptop)
 
 Owner instruction: all communications go out as IndTrana, and the local sign-in provider must not show the old name.

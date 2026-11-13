@@ -8,28 +8,30 @@ templates, script console messages, README, docs and comments that name the prod
 
 **Everything sent out says IndTrana** (owner instruction, 13 November 2026):
 
-- **Alert drafts (CAP).** New drafts use CAP template version `aegis.cap-templates.v2`
-  (`services/api/app/fixtures/cap_templates.v2.json`): the sender name is "IndTrana proactive exercise desk" (and its
+- **Alert drafts (CAP).** New drafts use CAP template version `indtrana.cap-templates.v3`
+  (`services/api/app/fixtures/cap_templates.v3.json`): the sender name is "IndTrana proactive exercise desk" (and its
   Telugu and Hindi forms, where only the Latin-script name changed) and "Fictional IndTrana exercise desk" for approval
   drafts. The markers a recipient sees changed with it: identifiers `indtrana-proactive-exercise-...` /
   `indtrana-exercise-draft-...`, sender and addresses `@indtrana.invalid`, codes `INDTRANA-EXERCISE-NOT-FOR-TRANSMISSION`,
-  `INDTRANA-DRAFT-NOT-FOR-TRANSMISSION` and `INDTRANA-SYNTHETIC-EXERCISE`. Version 1 stays on disk unchanged and loadable
-  (`cap_templates.load_template_version`), and drafts made before keep the XML they were stored with, so before and
-  after are told apart by their `aegis.cap_template_version` parameter. The Telugu and Hindi rows in
+  `INDTRANA-DRAFT-NOT-FOR-TRANSMISSION` and `INDTRANA-SYNTHETIC-EXERCISE`. Versions 1 and 2 stay on disk unchanged and loadable
+  (`cap_templates.load_template_version`, with the same markup and placeholder checks as the current version), and
+  drafts made before keep the XML they were stored with. A draft tells its version by its parameter: v1 and v2 drafts
+  carry `aegis.cap_template_version`, v3 drafts carry `indtrana.cap_template_version` = `indtrana.cap-templates.v3`. The Telugu and Hindi rows in
   `docs/NATIVE_LANGUAGE_REVIEW.csv` now carry IndTrana and stay pending native sign-off; translated blocks still come
-  only from fixed templates and stay pending. The CAP parameter keys keep their documented `aegis.*` namespace (for
-  example `aegis.run_id`), because they are a machine schema a recipient parses, not a name.
+  only from fixed templates and stay pending. From v3 the CAP parameter keys use the `indtrana.*` namespace (for example
+  `indtrana.run_id`, `indtrana.people_exposed`); their values are unchanged, so stored config ids such as
+  `aegis.impact-triggers.v2` can still appear as a value.
 - **Staff email notices:** subject, body, link text and the sender display name (`IndTrana`).
 - **Downloads:** `indtrana-exercise-...xml`, `indtrana-exercise-audit-...json`, `indtrana-shift-handover-...`,
   `indtrana-situation-brief-...md`, `indtrana-sample-exercise-cap.xml`.
 - **Outbound HTTP identification:** `IndTrana-Proactive/1.0`, `IndTrana-EarthWatch/1.0`,
   `IndTrana-exercise-prototype/0.2` and `IndTrana-research-pilot/1.0`. No provider used here registers an exact agent
   string; OpenStreetMap asks only for a stable agent naming the app.
-- **The local sign-in provider's own pages.** Keycloak reads `ops/local-idp/realm.json` only when the realm is first
-  created, so a provider set up before the rename kept "AEGIS" until step 9 of `scripts/update-local-idp.ps1` set the
-  realm display names and the web client name to IndTrana (fresh installs get them from `realm.json`). The address bar
-  still shows the hostname `aegis-idp.localhost` and the realm `aegis-exercise` in the path: those are technical
-  identifiers that sign-in depends on and stay as they are.
+- **The local sign-in provider.** Its pages show IndTrana (display names set by step 9 of
+  `scripts/update-local-idp.ps1`; fresh installs get them from `realm.json`), and its address is now
+  `https://indtrana-idp.localhost:8443/realms/indtrana-exercise` with the web client `indtrana-local-web`. An install
+  made before used `aegis-idp.localhost` / `aegis-exercise` / `aegis-local-web`; `scripts/migrate-local-idp-address.ps1`
+  moves it in place, keeping every account (docs/LOCAL_IDP_ADDRESS.md).
 
 What was **not** renamed, on purpose, because changing it would break the existing database, sign-in or installs:
 
@@ -38,9 +40,9 @@ What was **not** renamed, on purpose, because changing it would break the existi
 | Environment variables | `AEGIS_STAFF_EMAIL`, `AEGIS_PROACTIVE`, `AEGIS_WEB_PORT` |
 | Token claims | `aegis_roles`, `aegis_agency_id`, `aegis_department_id`, `aegis_team_id` |
 | Compose, containers, volume, database | project `ai-project-aegis`, volume `ai-project-aegis_pgdata`, database and user `aegis` |
-| Local identity provider | realm `aegis-exercise`, clients `aegis-local-web` / `aegis-resource-server`, host `aegis-idp.localhost` |
+| Local identity provider (internal parts) | token audience `aegis-resource-server`, login theme folder `aegis`, the realm-import file name inside the provider |
 | Private folders, cookies, storage keys | `%LOCALAPPDATA%\AEGIS`, `aegis-session`, `aegis-language` |
-| Versioned ids used as data | `aegis.exercise.policy.v1`, `aegis.cap-templates.v2`, CAP parameter keys `aegis.*`, playbook `AEGIS-URBAN-FLOOD-EXERCISE-v0.1`, source id `AEGIS-EXERCISE-ONLY` |
+| Versioned ids used as data | `aegis.exercise.policy.v1` and other `aegis.exercise.*` ids, `aegis.impact-triggers.v2`, earlier CAP template ids `aegis.cap-templates.v1`/`v2`, playbook `AEGIS-URBAN-FLOOD-EXERCISE-v0.1`, source id `AEGIS-EXERCISE-ONLY` |
 | File, script and function names | `aegis.cmd`, `aegis.sh`, `scripts/aegis.ps1`, `Invoke-AegisLocalOperation` |
 | Repository and history | `adityapuppala1/AI-Project-AEGIS`, branch names, CI workflow file, applied migrations, seed rows already in the database, versioned fixtures |
 

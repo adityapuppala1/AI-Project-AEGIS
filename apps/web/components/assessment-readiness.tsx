@@ -1,6 +1,6 @@
 "use client";
 
-import { codeLabel } from "../lib/labels";
+import { codeLabel, recordIdTitle } from "../lib/labels";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { LocalReviewFocus } from "./local-review-focus";
@@ -67,7 +67,7 @@ export function AssessmentReadiness({ incidentId }: { incidentId: string }) {
     if (!result) return;
     const rationale = [
       "IndTrana SIMULATION ONLY: fictional case " + result.incident_id,
-      "Playbook: " + result.playbook.version,
+      "Playbook: " + recordIdTitle(result.playbook.version),
       "Human-review checklist: " + result.recommendation_draft.join(" "),
       "Synthetic evidence IDs: " + result.playbook.synthetic_evidence_ids.join(", "),
       "Synthetic source IDs: " + result.playbook.synthetic_source_ids.join(", "),
@@ -236,7 +236,7 @@ export function AssessmentReadiness({ incidentId }: { incidentId: string }) {
         <p className="mt-3 text-xs text-muted">{t("Static safety guidance, not a machine-issued emergency action or automatically generated forecast.")}</p>
         <div className="mt-4 rounded-lg border border-stroke bg-surface p-3 text-xs leading-6 text-muted">
           <p className="font-semibold text-ink">{t("Traceable teaching references")}</p>
-          <p className="mt-1">{t("Playbook")}: {result.playbook.version} · {codeLabel(result.playbook.status)}</p>
+          <p className="mt-1">{t("Playbook")}: <span title={result.playbook.version}>{recordIdTitle(result.playbook.version)}</span> · {codeLabel(result.playbook.status)}</p>
           <p className="mt-1">{result.playbook.synthetic_evidence_ids.length} {t("synthetic case evidence IDs and")} {result.playbook.synthetic_source_ids.length} {t("synthetic source IDs cited.")}</p>
           <p className="mt-1 break-all font-mono text-[11px]">{result.playbook.synthetic_evidence_ids.join(" · ") || t("No case evidence reference available")}</p>
           <Link href="/playbooks" className="mt-2 inline-flex min-h-9 items-center gap-1 font-semibold text-accent">{t("Read referenced playbook")} <ArrowRight size={14} aria-hidden="true"/></Link>

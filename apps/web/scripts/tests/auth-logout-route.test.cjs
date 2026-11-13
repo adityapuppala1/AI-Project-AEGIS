@@ -12,7 +12,7 @@ const path = require('node:path');
 const ts = require('typescript');
 const { NextResponse } = require('next/server');
 
-const config = { origin: 'http://localhost:3000', clientId: 'aegis-local-web' };
+const config = { origin: 'http://localhost:3000', clientId: 'indtrana-local-web' };
 
 function loadRoute({ configured = true, oidcDocument, idToken = null } = {}) {
   const source = fs.readFileSync(path.join(__dirname, '../../app/api/auth/logout/route.ts'), 'utf8');
@@ -53,15 +53,15 @@ test('cross-origin logout is refused', async () => {
 
 test('local session always clears, and a reachable provider yields a one-time-use RP logout URL', async () => {
   const route = loadRoute({
-    oidcDocument: async () => ({ end_session_endpoint: 'https://aegis-idp.localhost:8443/realms/aegis-exercise/protocol/openid-connect/logout' }),
+    oidcDocument: async () => ({ end_session_endpoint: 'https://indtrana-idp.localhost:8443/realms/indtrana-exercise/protocol/openid-connect/logout' }),
   });
   const response = await route(post());
   assert.equal(response.status, 200);
   const body = await response.json();
   assert.equal(body.loggedOut, true);
   const logoutUrl = new URL(body.logoutUrl);
-  assert.equal(logoutUrl.origin + logoutUrl.pathname, 'https://aegis-idp.localhost:8443/realms/aegis-exercise/protocol/openid-connect/logout');
-  assert.equal(logoutUrl.searchParams.get('client_id'), 'aegis-local-web');
+  assert.equal(logoutUrl.origin + logoutUrl.pathname, 'https://indtrana-idp.localhost:8443/realms/indtrana-exercise/protocol/openid-connect/logout');
+  assert.equal(logoutUrl.searchParams.get('client_id'), 'indtrana-local-web');
   assert.equal(logoutUrl.searchParams.get('post_logout_redirect_uri'), 'http://localhost:3000');
   assert.equal(logoutUrl.searchParams.get('id_token_hint'), null, 'no hint is invented when no ID token was kept');
   assert.equal(clearedCookies(response).length, 2);
@@ -71,7 +71,7 @@ test('local session always clears, and a reachable provider yields a one-time-us
 test('a kept ID token is passed as id_token_hint so the provider signs out without a second confirmation', async () => {
   const route = loadRoute({
     idToken: 'aaa.bbb.ccc',
-    oidcDocument: async () => ({ end_session_endpoint: 'https://aegis-idp.localhost:8443/realms/aegis-exercise/protocol/openid-connect/logout' }),
+    oidcDocument: async () => ({ end_session_endpoint: 'https://indtrana-idp.localhost:8443/realms/indtrana-exercise/protocol/openid-connect/logout' }),
   });
   const response = await route(post());
   const logoutUrl = new URL((await response.json()).logoutUrl);

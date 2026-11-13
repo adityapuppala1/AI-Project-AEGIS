@@ -1,5 +1,5 @@
 {
-  "realm": "aegis-exercise",
+  "realm": "indtrana-exercise",
   "enabled": true,
   "displayName": "IndTrana LOCAL SYNTHETIC EXERCISE",
   "displayNameHtml": "IndTrana",
@@ -25,7 +25,7 @@
   ],
   "roles": {
     "client": {
-      "aegis-local-web": [
+      "indtrana-local-web": [
         {
           "name": "incident_operator"
         },
@@ -49,7 +49,7 @@
   },
   "clients": [
     {
-      "clientId": "aegis-local-web",
+      "clientId": "indtrana-local-web",
       "name": "IndTrana",
       "enabled": true,
       "protocol": "openid-connect",
@@ -97,7 +97,7 @@
           "protocol": "openid-connect",
           "protocolMapper": "oidc-usermodel-client-role-mapper",
           "config": {
-            "usermodel.clientRoleMapping.clientId": "aegis-local-web",
+            "usermodel.clientRoleMapping.clientId": "indtrana-local-web",
             "claim.name": "aegis_roles",
             "multivalued": "true",
             "jsonType.label": "String",
@@ -143,7 +143,7 @@
         "CONFIGURE_TOTP"
       ],
       "clientRoles": {
-        "aegis-local-web": [
+        "indtrana-local-web": [
           "incident_operator"
         ]
       },
@@ -163,7 +163,7 @@
         "CONFIGURE_TOTP"
       ],
       "clientRoles": {
-        "aegis-local-web": [
+        "indtrana-local-web": [
           "platform_admin"
         ]
       },
@@ -183,7 +183,7 @@
         "CONFIGURE_TOTP"
       ],
       "clientRoles": {
-        "aegis-local-web": [
+        "indtrana-local-web": [
           "incident_checker"
         ]
       },
@@ -197,9 +197,9 @@
     }
   ],
   "clientScopeMappings": {
-    "aegis-local-web": [
+    "indtrana-local-web": [
       {
-        "client": "aegis-local-web",
+        "client": "indtrana-local-web",
         "roles": [
           "incident_operator",
           "incident_checker",

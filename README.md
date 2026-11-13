@@ -9,7 +9,7 @@ AI-powered disaster prediction, preparedness and accountable response.
 
 The product is now called **IndTrana** (renamed from AEGIS on this branch, 13 November 2026). Only the name people
 read changed; technical identifiers such as `AEGIS_*` variables, `aegis_*` token claims, the `ai-project-aegis`
-Compose project, the `aegis-exercise` sign-in realm and the `aegis.cmd` / `aegis.sh` launchers keep their names so
+Compose project and the `aegis.cmd` / `aegis.sh` launchers keep their names so
 existing installs, sign-in and the database keep working. `indtrana.cmd` (Windows) and `./indtrana.sh` (macOS/Linux)
 are thin wrappers that call the same launchers with the same commands.
 

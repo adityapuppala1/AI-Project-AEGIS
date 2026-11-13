@@ -46,11 +46,11 @@ tr -d '\r' | while IFS=, read -r u p r d t; do
   case $u in '') continue ;; esac
   dept=; case $d in control_room|infrastructure|communications) dept='-s attributes.aegis_department_id='$d ;; esac
   team=; case $t in syn-team-rescue-01|syn-team-rescue-02|syn-team-health-01|syn-team-fire-01|syn-team-municipal-01) team='-s attributes.aegis_team_id='$t ;; esac
-  found=$($K get users -r aegis-exercise -q username=$u -q exact=true --fields username --format csv --noquotes 2>/dev/null)
+  found=$($K get users -r indtrana-exercise -q username=$u -q exact=true --fields username --format csv --noquotes 2>/dev/null)
   case $found in *$u*) echo EXISTS,$u; continue ;; esac
-  if $K create users -r aegis-exercise -s username=$u -s enabled=true -s emailVerified=true -s firstName=Demo -s lastName=$u -s email=$u@example.invalid $dept $team >/dev/null 2>&1 &&
-     $K set-password -r aegis-exercise --username $u --new-password $p >/dev/null 2>&1 &&
-     $K add-roles -r aegis-exercise --uusername $u --cclientid aegis-local-web --rolename $r >/dev/null 2>&1
+  if $K create users -r indtrana-exercise -s username=$u -s enabled=true -s emailVerified=true -s firstName=Demo -s lastName=$u -s email=$u@example.invalid $dept $team >/dev/null 2>&1 &&
+     $K set-password -r indtrana-exercise --username $u --new-password $p >/dev/null 2>&1 &&
+     $K add-roles -r indtrana-exercise --uusername $u --cclientid indtrana-local-web --rolename $r >/dev/null 2>&1
   then echo CREATED,$u; else echo FAILED,$u; fi
 done
 '@

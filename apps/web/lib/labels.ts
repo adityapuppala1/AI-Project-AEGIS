@@ -126,6 +126,20 @@ export function sentenceCase(code: string): string {
   return words.map((word, index) => word === "aegis" ? "IndTrana" : ACRONYMS.has(word) ? word.toUpperCase() : index === 0 ? word.charAt(0).toUpperCase() + word.slice(1) : word).join(" ");
 }
 
+/**
+ * Stored, validated ids that keep their original spelling (docs/BRANDING.md) but are shown by a plain title. The raw id
+ * belongs in a title attribute only; API payloads and exports keep it unchanged.
+ */
+export const RECORD_ID_TITLES: Record<string, string> = {
+  "AEGIS-URBAN-FLOOD-EXERCISE-v0.1": "IndTrana urban flood exercise playbook v0.1",
+  "AEGIS-EXERCISE-ONLY": "Exercise-only source",
+};
+/** The plain title for a playbook or other stored record id; an unknown id reads as its sentence-cased words. */
+export function recordIdTitle(id: string | null | undefined): string {
+  if (typeof id === "string" && Object.prototype.hasOwnProperty.call(RECORD_ID_TITLES, id)) return RECORD_ID_TITLES[id];
+  return codeLabel(id);
+}
+
 /** Plain label for a code. Known codes use the table; anything else gets the sentence-cased fallback; empty gives "Not known". */
 export function codeLabel(code: string | null | undefined): string {
   if (typeof code !== "string") return LABELS.unknown;

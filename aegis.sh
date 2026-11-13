@@ -429,6 +429,11 @@ ensure_signin_files() {
   if [ "$present" = 0 ]; then create_signin_secrets; say fixed "Private sign-in files created in $IDP_DIR (not shown)"
   elif [ "$present" -lt 3 ]; then die "Some private sign-in files are missing in $IDP_DIR. They are never overwritten automatically; move that folder aside only if you are sure, then run install again."
   else say OK 'Private sign-in files exist'; fi
+  # An install made before the rename uses the old sign-in address. This port does not move it automatically: stop
+  # with an instruction instead of guessing (docs/LOCAL_IDP_ADDRESS.md). Fresh installs use the new names from the start.
+  if grep -Eq '"realm"[[:space:]]*:[[:space:]]*"aegis-exercise"' "$IDP_DIR/realm.json"; then
+    die "This sign-in provider still uses the old address (aegis-idp.localhost / aegis-exercise). Nothing was changed. Move it with the steps in docs/LOCAL_IDP_ADDRESS.md (back up, rename the realm and client in place, keep every account), then run ./aegis.sh start again."
+  fi
   export AEGIS_LOCAL_IDP_PRIVATE_DIR="$IDP_DIR"
   if [ -f "$IDP_DIR/root.crt" ] && [ -f "$IDP_DIR/api-ca-bundle.pem" ]; then say OK 'Sign-in certificate files exist'; return; fi
   check_idp_port
@@ -503,7 +508,7 @@ idp_container() { "${DOCKER[@]}" ps --filter "label=com.docker.compose.project=$
 # shellcheck disable=SC2016
 KC_LOGIN='K=/opt/keycloak/bin/kcadm.sh; $K config credentials --server http://localhost:8080 --realm master --user $KC_BOOTSTRAP_ADMIN_USERNAME --password $KC_BOOTSTRAP_ADMIN_PASSWORD >/dev/null 2>&1 || { echo ADMIN_LOGIN_FAILED; exit 0; }; '
 # shellcheck disable=SC2016
-KC_CLIENT='CID=$($K get clients -r aegis-exercise -q clientId=aegis-local-web --fields id --format csv --noquotes | head -1); '
+KC_CLIENT='CID=$($K get clients -r indtrana-exercise -q clientId=indtrana-local-web --fields id --format csv --noquotes | head -1); '
 sync_signin_origins() {
   # Adds http://localhost:<web port> when the web port moved; removes origins this script added earlier (recorded in
   # the state file) once they are no longer in use. Never removes anything it did not record. Accounts untouched.
@@ -514,7 +519,7 @@ sync_signin_origins() {
   [ -z "$add" ] && [ -z "$drop" ] && return 0
   id="$(idp_container)"; [ "$(printf '%s\n' "$id" | grep -c .)" = 1 ] || die 'The identity provider is not running, so the sign-in addresses could not be updated.'
   # shellcheck disable=SC2016
-  current="$("${DOCKER[@]}" exec "$id" sh -c "$KC_LOGIN$KC_CLIENT"'$K get clients/$CID -r aegis-exercise --fields redirectUris,webOrigins,attributes')" || die 'Could not read the sign-in client settings.'
+  current="$("${DOCKER[@]}" exec "$id" sh -c "$KC_LOGIN$KC_CLIENT"'$K get clients/$CID -r indtrana-exercise --fields redirectUris,webOrigins,attributes')" || die 'Could not read the sign-in client settings.'
   case "$current" in *ADMIN_LOGIN_FAILED*) die 'The identity provider refused its local administrator; sign-in addresses were not changed.' ;; esac
   update="$(printf '%s' "$current" | ADD="$add" DROP="$drop" python3 -c '
 import json, os, sys
@@ -531,7 +536,7 @@ print("" if (r, w, l) == before else json.dumps({"redirectUris": r, "webOrigins"
 ')" || die 'Could not prepare the sign-in client update.'
   if [ -n "$update" ]; then
     # shellcheck disable=SC2016
-    printf '%s' "$update" | "${DOCKER[@]}" exec -i "$id" sh -c "$KC_LOGIN$KC_CLIENT"'cat > /tmp/aegis-client.json; $K update clients/$CID -r aegis-exercise -f /tmp/aegis-client.json >/dev/null; code=$?; rm -f /tmp/aegis-client.json; exit $code' ||
+    printf '%s' "$update" | "${DOCKER[@]}" exec -i "$id" sh -c "$KC_LOGIN$KC_CLIENT"'cat > /tmp/aegis-client.json; $K update clients/$CID -r indtrana-exercise -f /tmp/aegis-client.json >/dev/null; code=$?; rm -f /tmp/aegis-client.json; exit $code' ||
       die 'Could not update the sign-in addresses in the provider.'
   fi
   ADDED_ORIGINS="$add"; write_state
@@ -581,12 +586,12 @@ demo_accounts() { # port of new-demo-accounts.ps1 for the four base roles only
 umask 077
 while IFS=, read -r u p r; do
   case $u in demo-maker|demo-checker|demo-auditor|demo-admin) ;; *) continue ;; esac
-  found=$($K get users -r aegis-exercise -q username=$u -q exact=true --fields username --format csv --noquotes 2>/dev/null)
+  found=$($K get users -r indtrana-exercise -q username=$u -q exact=true --fields username --format csv --noquotes 2>/dev/null)
   case $found in *$u*) echo EXISTS,$u; continue ;; esac
   f=/tmp/aegis-user-$$.json
   printf "{\"username\":\"%s\",\"enabled\":true,\"emailVerified\":true,\"firstName\":\"Demo\",\"lastName\":\"%s\",\"email\":\"%s@example.invalid\",\"credentials\":[{\"type\":\"password\",\"value\":\"%s\",\"temporary\":false}]}" "$u" "$u" "$u" "$p" > $f
-  if $K create users -r aegis-exercise -f $f >/dev/null 2>&1 &&
-     $K add-roles -r aegis-exercise --uusername $u --cclientid aegis-local-web --rolename $r >/dev/null 2>&1
+  if $K create users -r indtrana-exercise -f $f >/dev/null 2>&1 &&
+     $K add-roles -r indtrana-exercise --uusername $u --cclientid indtrana-local-web --rolename $r >/dev/null 2>&1
   then echo CREATED,$u; else echo FAILED,$u; fi
   rm -f $f
 done')" || die 'Could not run the account tool inside the identity provider container.'
