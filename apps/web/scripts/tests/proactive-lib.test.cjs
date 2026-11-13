@@ -34,8 +34,8 @@ test('stale check, cap filename and helpers', () => {
   assert.equal(lib.isStale({ stale: false, observed_at: '2026-01-09T23:00:00Z' }, now), false);
   assert.equal(lib.isStale({ stale: false, observed_at: '2026-01-01T00:00:00Z' }, now), true);
   assert.equal(lib.isStale({ observed_at: null }, now), true);
-  assert.equal(lib.capFilename(A), 'aegis-exercise-cap-' + A + '.xml');
-  assert.equal(lib.capFilename('../../etc'), 'aegis-exercise-cap-run.xml');
+  assert.equal(lib.capFilename(A), 'indtrana-exercise-cap-' + A + '.xml');
+  assert.equal(lib.capFilename('../../etc'), 'indtrana-exercise-cap-run.xml');
   assert.equal(lib.previewLines('a\nb\nc', 2), 'a\nb');
   assert.equal(lib.barWidth(2), '100%'); assert.equal(lib.barWidth(-1), '0%');
   assert.equal(lib.safeCategory('__proto__'), 'other'); assert.equal(lib.safeCategory('flood'), 'flood'); assert.equal(lib.safeCategory('a b'), 'other');

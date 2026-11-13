@@ -44,7 +44,7 @@ async function fromSatnogs(group: string): Promise<string | null> {
     if (!satnogs || Date.now() - satnogs.at > 6 * 60 * 60 * 1000) {
       const response = await fetch("https://db.satnogs.org/api/tle/?format=json", {
         cache: "no-store", redirect: "error", signal: AbortSignal.timeout(25000),
-        headers: { "User-Agent": "AEGIS-exercise-prototype/0.2 (display-only orbit relay; cached 6h)" },
+        headers: { "User-Agent": "IndTrana-exercise-prototype/0.2 (display-only orbit relay; cached 6h)" },
       });
       if (!response.ok) return null;
       const text = await response.text();
@@ -80,7 +80,7 @@ export async function GET(request: Request) {
   try {
     const upstream = await fetch("https://celestrak.org/NORAD/elements/gp.php?" + GROUPS[group] + "&FORMAT=tle", {
       cache: "no-store", redirect: "error", signal: AbortSignal.timeout(20000),
-      headers: { "User-Agent": "AEGIS-exercise-prototype/0.2 (display-only orbit relay; cached 3h)" },
+      headers: { "User-Agent": "IndTrana-exercise-prototype/0.2 (display-only orbit relay; cached 3h)" },
     });
     if (!upstream.ok) throw new Error("Upstream status " + upstream.status);
     const body = await upstream.text();

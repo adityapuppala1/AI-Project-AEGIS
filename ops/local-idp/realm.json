@@ -2,6 +2,7 @@
   "realm": "aegis-exercise",
   "enabled": true,
   "displayName": "IndTrana LOCAL SYNTHETIC EXERCISE",
+  "displayNameHtml": "IndTrana",
   "sslRequired": "all",
   "registrationAllowed": false,
   "resetPasswordAllowed": false,
@@ -49,6 +50,7 @@
   "clients": [
     {
       "clientId": "aegis-local-web",
+      "name": "IndTrana",
       "enabled": true,
       "protocol": "openid-connect",
       "publicClient": true,

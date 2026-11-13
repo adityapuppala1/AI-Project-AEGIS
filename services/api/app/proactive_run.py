@@ -295,7 +295,7 @@ def get_run_cap(run_id: UUID, operator: Operator = Depends(_operator)):
     xml = state["cap_xml"].encode()
     return Response(content=xml, media_type="application/xml",
                     headers={"X-Content-SHA256": hashlib.sha256(xml).hexdigest(),
-                             "Content-Disposition": f'attachment; filename="aegis-exercise-{run_id}.xml"'})
+                             "Content-Disposition": f'attachment; filename="indtrana-exercise-{run_id}.xml"'})
 
 
 @router.get("/runs/{run_id}/plan")

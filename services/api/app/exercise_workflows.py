@@ -173,7 +173,7 @@ def private_cap_draft(proposal_id: UUID, operator: Operator = Depends(get_operat
         xml = cap_draft_xml(proposal_audit(str(proposal_id), operator.agency_id))
         return Response(xml, media_type="application/xml", headers={
             "Cache-Control": "no-store",
-            "Content-Disposition": f'attachment; filename="aegis-exercise-{proposal_id}-draft.xml"',
+            "Content-Disposition": f'attachment; filename="indtrana-exercise-{proposal_id}-draft.xml"',
             "X-Content-Type-Options": "nosniff",
         })
     except LookupError as err:

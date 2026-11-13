@@ -42,7 +42,7 @@ def test_xml_is_repeatable_escaped_private_and_never_claims_severity():
     assert root.tag == "{" + CAP_NS + "}alert"
     assert root.findtext("c:status", namespaces=ns) == "Draft"
     assert root.findtext("c:scope", namespaces=ns) == "Private"
-    assert root.findtext("c:addresses", namespaces=ns).endswith("@aegis.invalid")
+    assert root.findtext("c:addresses", namespaces=ns).endswith("@indtrana.invalid")
     info = root.find("c:info", ns)
     for key in ("urgency", "severity", "certainty"):
         assert info.findtext("c:" + key, namespaces=ns) == "Unknown"

@@ -1,4 +1,4 @@
-"""A10 multilingual CAP text from approved fixed templates only (app/fixtures/cap_templates.v1.json).
+"""A10 multilingual CAP text from approved fixed templates only (app/fixtures/cap_templates.v2.json).
 
 No model and no free text: every rendered string is a fixed template whose placeholders accept only integers,
 bounded numbers, closed-list codes (hazard, state, exposure basis) and validated area codes, each looked up in
@@ -15,7 +15,12 @@ import string
 from functools import lru_cache
 from pathlib import Path
 
-TEMPLATES_PATH = Path(__file__).parent / "fixtures" / "cap_templates.v1.json"
+# New drafts use the current version. Earlier versions stay on disk, unchanged, so a draft made before can be
+# matched to the exact template text it was built from (stored drafts keep their rendered XML as it was).
+TEMPLATE_FILES = {"aegis.cap-templates.v1": Path(__file__).parent / "fixtures" / "cap_templates.v1.json",
+                  "aegis.cap-templates.v2": Path(__file__).parent / "fixtures" / "cap_templates.v2.json"}
+CURRENT_VERSION = "aegis.cap-templates.v2"
+TEMPLATES_PATH = TEMPLATE_FILES[CURRENT_VERSION]
 REVIEW_CSV = ("docs", "NATIVE_LANGUAGE_REVIEW.csv")
 TRANSLATED = ("te", "hi")
 _REVIEW_COLUMNS = {"te": ("telugu", "telugu_ok(y/n)"), "hi": ("hindi", "hindi_ok(y/n)")}
@@ -44,6 +49,17 @@ def load_templates() -> dict:
             if fields is not None and names != fields:
                 raise TemplateError(f"template {key} variants use different placeholders")
             fields = names
+    return data
+
+
+def load_template_version(version: str) -> dict:
+    """The fixed templates of an earlier or current version, by the id a draft records in its parameters."""
+    path = TEMPLATE_FILES.get(version)
+    if path is None:
+        raise TemplateError("unknown template version")
+    data = json.loads(path.read_text(encoding="utf-8"))
+    if data.get("version") != version:
+        raise TemplateError("template version mismatch")
     return data
 
 

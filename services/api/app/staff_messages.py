@@ -30,6 +30,8 @@ from app.security import EXERCISE_RECORD_ROLES, Operator, scoped_operator
 logger = logging.getLogger(__name__)
 
 HOST_SWITCH = "AEGIS_STAFF_EMAIL"
+# The display name on every notice: the code constant, never the administrator's brand setting (docs/BRANDING.md).
+SENDER_NAME = "IndTrana"
 CONNECTOR_ID = "comms_email"
 SEND_URL = "https://api.sendgrid.com/v3/mail/send"
 SEND_HOSTS = ("api.sendgrid.com",)
@@ -124,7 +126,7 @@ def _provider_call(address: str, subject: str, body: str) -> dict:
         return _result("failed", "setting_missing")
     payload = json.dumps({
         "personalizations": [{"to": [{"email": address}]}],
-        "from": {"email": sender},
+        "from": {"email": sender, "name": SENDER_NAME},
         "subject": subject,
         "content": [{"type": "text/plain", "value": body}],
         "tracking_settings": {"click_tracking": {"enable": False}, "open_tracking": {"enable": False}},

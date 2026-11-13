@@ -89,4 +89,4 @@ export function buildSituationBrief(workspace: IncidentWorkspace, readiness: Bri
   return lines.join("\n");
 }
 
-export const briefFileName = (caseId: string) => `aegis-situation-brief-${caseId.replace(/[^0-9a-f]/gi, "").slice(0, 8) || "case"}.md`;
+export const briefFileName = (caseId: string) => `indtrana-situation-brief-${caseId.replace(/[^0-9a-f]/gi, "").slice(0, 8) || "case"}.md`;

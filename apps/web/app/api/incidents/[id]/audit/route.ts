@@ -51,7 +51,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       headers: {
         "Cache-Control": "no-store",
         "Content-Type": "application/json; charset=utf-8",
-        "Content-Disposition": `attachment; filename="aegis-exercise-audit-${id}.json"`,
+        "Content-Disposition": `attachment; filename="indtrana-exercise-audit-${id}.json"`,
       },
     });
   } catch {

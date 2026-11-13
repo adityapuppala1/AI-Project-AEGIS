@@ -79,7 +79,7 @@ def _fetch_bytes(url: str) -> bytes:
     parsed = urlparse(url)
     if parsed.scheme != "https" or parsed.hostname not in ALLOWED_HOSTS:
         raise ValueError("URL is not allowlisted")
-    request = Request(url, headers={"User-Agent": "AEGIS-EarthWatch/1.0", "Accept": "*/*"})
+    request = Request(url, headers={"User-Agent": "IndTrana-EarthWatch/1.0", "Accept": "*/*"})
     deadline = time.monotonic() + DEADLINE_SECONDS
     chunks: list[bytes] = []
     size = 0

@@ -127,21 +127,21 @@ def exercise_cap_xml(run: dict, trigger: dict, status: str = STATUS) -> bytes:
 
     def add(parent, name, value):
         ET.SubElement(parent, name).text = str(value)
-    add(root, "identifier", "aegis-proactive-exercise-" + run_id)
-    add(root, "sender", "proactive-exercise@aegis.invalid")
+    add(root, "identifier", "indtrana-proactive-exercise-" + run_id)
+    add(root, "sender", "proactive-exercise@indtrana.invalid")
     add(root, "sent", datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S-00:00"))
     add(root, "status", STATUS)
     add(root, "msgType", "Alert")
     add(root, "scope", "Private")
-    add(root, "addresses", "local-review-only@aegis.invalid")
-    add(root, "code", "AEGIS-EXERCISE-NOT-FOR-TRANSMISSION")
+    add(root, "addresses", "local-review-only@indtrana.invalid")
+    add(root, "code", "INDTRANA-EXERCISE-NOT-FOR-TRANSMISSION")
     add(root, "note", note)
     info = ET.SubElement(root, "info")
     for name, value in (("language", "en-IN"), ("category", _CATEGORY.get(hazard, "Other")),
                         ("event", "EXERCISE: " + hazard.replace("_", " ") + " trigger " + str(trigger.get("state"))),
                         ("responseType", "Monitor"), ("urgency", "Unknown"),
                         ("severity", _SEVERITY.get(band, "Unknown") if isinstance(band, int) else "Unknown"),
-                        ("certainty", "Unknown"), ("senderName", "AEGIS proactive exercise desk"),
+                        ("certainty", "Unknown"), ("senderName", "IndTrana proactive exercise desk"),
                         ("headline", "EXERCISE — no public warning"),
                         ("description", DISCLAIMER + "\nDecision band: " + str(judgment.get("decision_band", "unknown"))
                          + "\nPlaybook option: " + str((judgment.get("playbook_option") or {}).get("choice", "unknown"))),

@@ -148,7 +148,7 @@ test('CAP download streams XML as an attachment', async () => {
   await withFetch(() => new Response(xml, { headers: { 'Content-Type': 'application/xml' } }), async () => {
     const result = await loadProxy(operator)(req('GET', '/x'), 'run_cap', id);
     assert.equal(await result.text(), xml);
-    assert.equal(result.headers.get('content-disposition'), 'attachment; filename="aegis-exercise-cap-' + id + '.xml"');
+    assert.equal(result.headers.get('content-disposition'), 'attachment; filename="indtrana-exercise-cap-' + id + '.xml"');
     assert.equal(result.headers.get('x-content-type-options'), 'nosniff');
   });
   await withFetch(() => new Response('<html/>', { headers: { 'Content-Type': 'text/html' } }), async () => {

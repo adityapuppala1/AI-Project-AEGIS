@@ -15,7 +15,7 @@ END_DATE = "2025-12-31"                   # stops short of the most recent, stil
 EXPECTED_DAYS = 9497                      # inclusive days from START_DATE to END_DATE
 
 ALLOWED_HOSTS = frozenset({"archive-api.open-meteo.com", "flood-api.open-meteo.com"})
-USER_AGENT = "AEGIS-research-pilot/1.0 (non-commercial hackathon research; repo adityapuppala1/AI-Project-AEGIS)"
+USER_AGENT = "IndTrana-research-pilot/1.0 (non-commercial hackathon research; repo adityapuppala1/AI-Project-AEGIS)"
 ATTRIBUTION = "Weather data by Open-Meteo.com (https://open-meteo.com/), CC BY 4.0, https://open-meteo.com/en/licence"
 LICENCE_REF = "research/real-data/LICENCES.md#1-open-meteo"
 

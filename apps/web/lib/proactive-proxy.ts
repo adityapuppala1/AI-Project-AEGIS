@@ -194,7 +194,7 @@ export async function proxyProactive(request: Request, route: ProactiveRoute, id
       if (xml.length > 400_000) return failure(502, "Proactive service returned an oversized artifact");
       return new NextResponse(xml, { headers: {
         "Content-Type": "application/xml; charset=utf-8",
-        "Content-Disposition": `attachment; filename="aegis-exercise-cap-${id}.xml"`,
+        "Content-Disposition": `attachment; filename="indtrana-exercise-cap-${id}.xml"`,
         "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff",
         ...(response.headers.get("x-cap-sha256") && /^[0-9a-f]{64}$/i.test(response.headers.get("x-cap-sha256") ?? "") ? { "X-CAP-SHA256": response.headers.get("x-cap-sha256") as string } : {}),
       } });

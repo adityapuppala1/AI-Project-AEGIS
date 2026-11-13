@@ -168,6 +168,9 @@ def test_one_recipient_per_call_fixed_template_and_no_leaks(env, caplog):
     assert payload['subject'].startswith('[IndTrana exercise]')
     body = payload['content'][0]['value']
     assert 'rehearsal notice' in body and 'http://localhost:3000/help' in body
+    # Everything a recipient sees names IndTrana, never the old product name (docs/BRANDING.md).
+    assert payload['from']['name'] == 'IndTrana' and 'Open IndTrana:' in body
+    assert 'AEGIS' not in payload['subject'] + body + payload['from']['name']
     as_user('admin-1', ('platform_admin',))
     log = client.get('/v1/staff-messages/log')
     assert log.status_code == 200 and log.json()['rows'][0]['recipient'] == 'c***@agency.example.org'

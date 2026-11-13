@@ -125,4 +125,4 @@ export function handoverMarkdown(brief: Handover): string {
   return out.join("\n");
 }
 
-export const handoverFileName = (generatedAt: string, ext: "md" | "json") => `aegis-shift-handover-${(generatedAt || "now").replace(/[^0-9]/g, "").slice(0, 12) || "now"}.${ext}`;
+export const handoverFileName = (generatedAt: string, ext: "md" | "json") => `indtrana-shift-handover-${(generatedAt || "now").replace(/[^0-9]/g, "").slice(0, 12) || "now"}.${ext}`;

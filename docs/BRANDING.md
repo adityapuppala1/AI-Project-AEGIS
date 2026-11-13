@@ -6,12 +6,30 @@ On 13 November 2026, on branch `Aegis_IndTrana`, the product was renamed from AE
 person reads now says IndTrana: web pages and page titles, the sign-in provider theme text, staff email notice
 templates, script console messages, README, docs and comments that name the product.
 
-**CAP sender text keeps the earlier wording.** The alert-draft sender names ("Fictional AEGIS exercise desk",
-"AEGIS proactive exercise desk" and their Telugu and Hindi forms in `services/api/app/fixtures/cap_templates.v1.json`)
-and the matching rows of `docs/NATIVE_LANGUAGE_REVIEW.csv` are versioned fixed-template content awaiting native
-sign-off. They stay exactly as on commit `67044f3` until a new template version is written and reviewed. The CSV also
-keeps four older interface rows that still say AEGIS; nothing reads those rows for the interface, and they will be
-refreshed at the next native review.
+**Everything sent out says IndTrana** (owner instruction, 13 November 2026):
+
+- **Alert drafts (CAP).** New drafts use CAP template version `aegis.cap-templates.v2`
+  (`services/api/app/fixtures/cap_templates.v2.json`): the sender name is "IndTrana proactive exercise desk" (and its
+  Telugu and Hindi forms, where only the Latin-script name changed) and "Fictional IndTrana exercise desk" for approval
+  drafts. The markers a recipient sees changed with it: identifiers `indtrana-proactive-exercise-...` /
+  `indtrana-exercise-draft-...`, sender and addresses `@indtrana.invalid`, codes `INDTRANA-EXERCISE-NOT-FOR-TRANSMISSION`,
+  `INDTRANA-DRAFT-NOT-FOR-TRANSMISSION` and `INDTRANA-SYNTHETIC-EXERCISE`. Version 1 stays on disk unchanged and loadable
+  (`cap_templates.load_template_version`), and drafts made before keep the XML they were stored with, so before and
+  after are told apart by their `aegis.cap_template_version` parameter. The Telugu and Hindi rows in
+  `docs/NATIVE_LANGUAGE_REVIEW.csv` now carry IndTrana and stay pending native sign-off; translated blocks still come
+  only from fixed templates and stay pending. The CAP parameter keys keep their documented `aegis.*` namespace (for
+  example `aegis.run_id`), because they are a machine schema a recipient parses, not a name.
+- **Staff email notices:** subject, body, link text and the sender display name (`IndTrana`).
+- **Downloads:** `indtrana-exercise-...xml`, `indtrana-exercise-audit-...json`, `indtrana-shift-handover-...`,
+  `indtrana-situation-brief-...md`, `indtrana-sample-exercise-cap.xml`.
+- **Outbound HTTP identification:** `IndTrana-Proactive/1.0`, `IndTrana-EarthWatch/1.0`,
+  `IndTrana-exercise-prototype/0.2` and `IndTrana-research-pilot/1.0`. No provider used here registers an exact agent
+  string; OpenStreetMap asks only for a stable agent naming the app.
+- **The local sign-in provider's own pages.** Keycloak reads `ops/local-idp/realm.json` only when the realm is first
+  created, so a provider set up before the rename kept "AEGIS" until step 9 of `scripts/update-local-idp.ps1` set the
+  realm display names and the web client name to IndTrana (fresh installs get them from `realm.json`). The address bar
+  still shows the hostname `aegis-idp.localhost` and the realm `aegis-exercise` in the path: those are technical
+  identifiers that sign-in depends on and stay as they are.
 
 What was **not** renamed, on purpose, because changing it would break the existing database, sign-in or installs:
 
@@ -22,7 +40,7 @@ What was **not** renamed, on purpose, because changing it would break the existi
 | Compose, containers, volume, database | project `ai-project-aegis`, volume `ai-project-aegis_pgdata`, database and user `aegis` |
 | Local identity provider | realm `aegis-exercise`, clients `aegis-local-web` / `aegis-resource-server`, host `aegis-idp.localhost` |
 | Private folders, cookies, storage keys | `%LOCALAPPDATA%\AEGIS`, `aegis-session`, `aegis-language` |
-| Versioned ids used as data | `aegis.exercise.policy.v1`, CAP identifiers and sender ids, `AEGIS-...` User-Agent strings |
+| Versioned ids used as data | `aegis.exercise.policy.v1`, `aegis.cap-templates.v2`, CAP parameter keys `aegis.*`, playbook `AEGIS-URBAN-FLOOD-EXERCISE-v0.1`, source id `AEGIS-EXERCISE-ONLY` |
 | File, script and function names | `aegis.cmd`, `aegis.sh`, `scripts/aegis.ps1`, `Invoke-AegisLocalOperation` |
 | Repository and history | `adityapuppala1/AI-Project-AEGIS`, branch names, CI workflow file, applied migrations, seed rows already in the database, versioned fixtures |
 

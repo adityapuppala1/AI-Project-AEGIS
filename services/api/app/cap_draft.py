@@ -48,22 +48,22 @@ def cap_draft_xml(audit: dict) -> bytes:
     root = ET.Element("alert", {"xmlns": CAP_NS})
     def add(parent, name, value):
         ET.SubElement(parent, name).text = str(value)
-    add(root, "identifier", "aegis-exercise-draft-" + proposal_id)
-    add(root, "sender", "draft-review@aegis.invalid")
+    add(root, "identifier", "indtrana-exercise-draft-" + proposal_id)
+    add(root, "sender", "draft-review@indtrana.invalid")
     add(root, "sent", sent)
     add(root, "status", "Draft")
     add(root, "msgType", "Alert")
     add(root, "scope", "Private")
-    add(root, "addresses", "local-review-only@aegis.invalid")
-    add(root, "code", "AEGIS-DRAFT-NOT-FOR-TRANSMISSION")
-    add(root, "code", "AEGIS-SYNTHETIC-EXERCISE")
+    add(root, "addresses", "local-review-only@indtrana.invalid")
+    add(root, "code", "INDTRANA-DRAFT-NOT-FOR-TRANSMISSION")
+    add(root, "code", "INDTRANA-SYNTHETIC-EXERCISE")
     add(root, "note", DISCLAIMER)
     info = ET.SubElement(root, "info")
     for name, value in (("language", "en-IN"), ("category", "Met"),
                         ("event", "SIMULATION: fictional urban waterlogging"),
                         ("responseType", "Monitor"), ("urgency", "Unknown"),
                         ("severity", "Unknown"), ("certainty", "Unknown"),
-                        ("senderName", "Fictional AEGIS exercise desk"),
+                        ("senderName", "Fictional IndTrana exercise desk"),
                         ("headline", "EXERCISE DRAFT — no public warning"),
                         ("description", DISCLAIMER + "\nCaptured exercise rationale: " + str(payload.get("rationale", "")) + "\nLimitations: " + " ".join(str(item.get("description", "")) for item in draft.get("reasons", []))),
                         ("instruction", "Review captured evidence and uncertainty locally. Do not forward, transmit, warn the public or dispatch responders.")):

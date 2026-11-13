@@ -83,7 +83,7 @@ export async function proxyProposals(request: Request, proposalId?: string, expo
         return failure(502, "Exercise service returned an invalid XML artifact");
       return new NextResponse(await response.text(), { headers: {
         "Content-Type": "application/xml; charset=utf-8",
-        "Content-Disposition": `attachment; filename="aegis-exercise-${proposalId}-draft.xml"`,
+        "Content-Disposition": `attachment; filename="indtrana-exercise-${proposalId}-draft.xml"`,
         "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff",
       } });
     }

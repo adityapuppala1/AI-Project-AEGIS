@@ -6,10 +6,15 @@
 #   4. The provider's own sign-in pages use the IndTrana look (ops/local-idp/theme; styles only).
 #   5-7. The response_team role, an aegis_team_id account attribute (administrators only) and its access-token mapper.
 #   8. Only an administrator can change an account's email address (staff email notices trust the verified address).
+#   9. The provider's own pages show the product name IndTrana (realm and web client display names; ids unchanged).
 # It never creates, changes or deletes an account and never prints a secret.
 # Run:  powershell -ExecutionPolicy Bypass -File .\scripts\update-local-idp.ps1
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'local-runtime-common.ps1')
+# Display names the provider shows; must match ops/local-idp/realm.json (used for a fresh install).
+$IdpDisplayName = 'IndTrana LOCAL SYNTHETIC EXERCISE'
+$IdpDisplayNameHtml = 'IndTrana'
+$IdpClientName = 'IndTrana'
 
 Invoke-AegisLocalOperation -Name 'update-local-idp.ps1' -Action {
   Assert-AegisSingleRuntime -RequireRunning
@@ -118,5 +123,22 @@ Invoke-AegisLocalOperation -Name 'update-local-idp.ps1' -Action {
     Invoke-Idp 'sed 1s/^\\xEF\\xBB\\xBF// > /tmp/aegis-profile.json; $K update users/profile -r aegis-exercise -f /tmp/aegis-profile.json >/dev/null; code=$?; rm -f /tmp/aegis-profile.json; exit $code' ($profile | ConvertTo-Json -Depth 32 -Compress) | Out-Null
   }
   Say 'Only an administrator can change an email address' $needEmailLock
+
+  # 9. Product name on the provider's own pages. The realm file is imported only when the realm is first created, so a
+  #    provider set up before the rename keeps the old display names until this step sets them. Display text only: the
+  #    realm id, client id and hostname stay as they are (docs/BRANDING.md).
+  $names = (Invoke-Idp '$K get realms/aegis-exercise --fields displayName,displayNameHtml') -join "`n" | ConvertFrom-Json
+  $needRealmName = $names.displayName -ne $IdpDisplayName -or $names.displayNameHtml -ne $IdpDisplayNameHtml
+  if ($needRealmName) {
+    $update = [PSCustomObject]@{ displayName = $IdpDisplayName; displayNameHtml = $IdpDisplayNameHtml }
+    Invoke-Idp 'sed 1s/^\\xEF\\xBB\\xBF// > /tmp/aegis-realm-names.json; $K update realms/aegis-exercise -f /tmp/aegis-realm-names.json >/dev/null; code=$?; rm -f /tmp/aegis-realm-names.json; exit $code' ($update | ConvertTo-Json -Compress) | Out-Null
+  }
+  Say 'Provider pages show the name IndTrana' $needRealmName
+  $clientName = ((Invoke-Idp '$K get clients/$CID -r aegis-exercise --fields name') -join "`n" | ConvertFrom-Json).name
+  $needClientName = $clientName -ne $IdpClientName
+  if ($needClientName) {
+    Invoke-Idp 'sed 1s/^\\xEF\\xBB\\xBF// > /tmp/aegis-client-name.json; $K update clients/$CID -r aegis-exercise -f /tmp/aegis-client-name.json >/dev/null; code=$?; rm -f /tmp/aegis-client-name.json; exit $code' ([PSCustomObject]@{ name = $IdpClientName } | ConvertTo-Json -Compress) | Out-Null
+  }
+  Say 'The web client is shown as IndTrana' $needClientName
   Write-Host 'Done. Sign out and in again to pick up the changes.'
 }

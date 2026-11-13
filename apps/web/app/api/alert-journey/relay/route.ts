@@ -33,7 +33,7 @@ const MAX_URL = 2400, MAX_BODY = 8_000, MAX_RESPONSE = 6_000_000, MAX_CACHED_ITE
 const WINDOW_MS = 5 * MINUTE, MAX_PER_WINDOW = 6000, MAX_CLIENTS = 5000;
 // Limits on new upstream fetches, whoever asks: at most this many per source per minute, and this many at once.
 const MAX_FETCHES_PER_HOST_MINUTE = 900, MAX_IN_FLIGHT = 96;
-const USER_AGENT = "AEGIS-exercise-prototype/0.2 (display-only public-reference relay; cached)";
+const USER_AGENT = "IndTrana-exercise-prototype/0.2 (display-only public-reference relay; cached)";
 
 type Entry = { at: number; ttl: number; type: string; body: Uint8Array };
 const cache = new Map<string, Entry>();

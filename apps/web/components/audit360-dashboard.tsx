@@ -104,7 +104,7 @@ export function Audit360Dashboard() {
           ]}/>
           <div className="mt-5 flex flex-wrap gap-3">
             <a href={"/api/incidents/" + incidentId + "/audit"} className={buttonClass({ variant: "primary", size: "sm" })}
-              download={"aegis-exercise-audit-" + incidentId + ".json"}>
+              download={"indtrana-exercise-audit-" + incidentId + ".json"}>
               <Download size={15}/> Export synthetic JSON bundle
             </a>
             <Link className={buttonClass({ size: "sm" })} href={"/incidents/" + incidentId}>

@@ -194,8 +194,8 @@ test('situation brief is template-only, escaped, cited and excludes public data'
   assert.doesNotMatch(text, /Gauge\nA/);
   const partial = brief.buildSituationBrief(workspace, null, new Date('2026-11-02T00:00:00Z'));
   assert.match(partial, /could not be loaded/); assert.doesNotMatch(partial, /Cited findings/);
-  assert.equal(brief.briefFileName(id), 'aegis-situation-brief-22222222.md');
-  assert.equal(brief.briefFileName('../../x'), 'aegis-situation-brief-case.md');
+  assert.equal(brief.briefFileName(id), 'indtrana-situation-brief-22222222.md');
+  assert.equal(brief.briefFileName('../../x'), 'indtrana-situation-brief-case.md');
 });
 
 test('feed freshness is based on fetch time and stale flag', () => {

@@ -41,7 +41,7 @@ test('XML download preserves body and sets private safe attachment headers', asy
     assert.equal(await result.text(), xml);
     assert.equal(result.headers.get('cache-control'), 'no-store');
     assert.equal(result.headers.get('x-content-type-options'), 'nosniff');
-    assert.equal(result.headers.get('content-disposition'), `attachment; filename="aegis-exercise-${id}-draft.xml"`);
+    assert.equal(result.headers.get('content-disposition'), `attachment; filename="indtrana-exercise-${id}-draft.xml"`);
     assert.equal(calls.length, 1);
     assert.ok(calls[0].url.endsWith('/v1/exercise/proposals/' + id + '/cap-draft'));
     assert.equal(calls[0].options.headers.Authorization, 'Bearer unit-only-token');

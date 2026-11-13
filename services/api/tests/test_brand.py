@@ -341,10 +341,11 @@ def test_logo_answers_304_for_a_matching_etag():
     assert client.get("/v1/brand/logo", headers={"If-None-Match": 'W/"x", "brand-logo-1"'}).status_code == 304
 
 
-def test_cap_sender_text_keeps_the_reviewed_template_wording():
+def test_cap_sender_text_is_the_code_constant_not_the_brand_setting():
+    # CAP template v2 carries the product name as fixed text; the administrator's brand name never reaches CAP.
     root = Path(__file__).resolve().parents[1] / "app"
-    assert '"senderName", "Fictional AEGIS exercise desk"' in (root / "cap_draft.py").read_text(encoding="utf-8")
-    assert '"senderName", "AEGIS proactive exercise desk"' in (root / "proactive_cap.py").read_text(encoding="utf-8")
+    assert '"senderName", "Fictional IndTrana exercise desk"' in (root / "cap_draft.py").read_text(encoding="utf-8")
+    assert '"senderName", "IndTrana proactive exercise desk"' in (root / "proactive_cap.py").read_text(encoding="utf-8")
 
 
 # --- the configured name never reaches outbound text ----------------------------------------------------------------

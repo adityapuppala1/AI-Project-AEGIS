@@ -110,7 +110,7 @@ test('handover is GET-only, bounded hours, scoped by bearer and rendered as cite
     assert.equal(data.lines.length, 1); assert.equal(data.lines[0].text, 'Draft run awaits review.');
     const md = lib.handoverMarkdown(data);
     assert.match(md, /EXERCISE ONLY/); assert.match(md, new RegExp('`' + A + '`')); assert.match(md, /disabled \(proactive_disabled\)/);
-    assert.match(lib.handoverFileName(data.generated_at, 'md'), /^aegis-shift-handover-\d+\.md$/);
+    assert.match(lib.handoverFileName(data.generated_at, 'md'), /^indtrana-shift-handover-\d+\.md$/);
   });
   await withFetch({ ...brief, operational_actions_enabled: true }, async () => {
     assert.equal((await proxy(req('GET', '/api/handover'), 'handover')).status, 502);

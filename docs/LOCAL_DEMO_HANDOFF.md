@@ -20,6 +20,27 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Round 20: every outgoing communication says IndTrana; local sign-in provider renamed (branch Aegis_IndTrana) — 13 November 2026 (Windows laptop)
+
+Owner instruction: all communications go out as IndTrana, and the local sign-in provider must not show the old name.
+
+- **CAP drafts:** new template version aegis.cap-templates.v2 with the IndTrana sender name (this supersedes round 19,
+  which had kept the old wording). Version 1 is kept so earlier stored drafts still match. Identifiers, sender addresses
+  and not-for-transmission codes now carry the new name. Five rows in docs/NATIVE_LANGUAGE_REVIEW.csv changed in the
+  Latin-script name only and remain pending native sign-off.
+- **Email notices:** fixed sender display name IndTrana (a code constant, not the brand setting).
+- **Downloads and outbound identification:** file names and User-Agent strings renamed.
+- **Sign-in provider:** scripts/update-local-idp.ps1 step 9 sets the running realm and client display names; run twice
+  under Windows PowerShell (updated, then already set; exit 0 both). realm.json carries the same names for new installs.
+- **Still showing the old word, by design:** the provider address aegis-idp.localhost and realm path, CAP parameter
+  keys and version ids, playbook and source ids, environment variable names, and drafts made before this round.
+- **Checks run on this laptop:** API pytest 1331 passed / 30 skipped; app.model_lab --check PASS; typecheck clean; web
+  tests 353 pass; stack rebuilt; aegis.cmd status and verify-windows.ps1 passed. Independent read-only review: approve,
+  one low note (load_template_version skips the placeholder checks; nothing renders from it today).
+- **Browser check:** the provider login page, opened through the sign-in redirect without signing in, has the title
+  Sign in to IndTrana LOCAL SYNTHETIC EXERCISE and no visible AEGIS.
+- **Not done:** existing Linux installs have no equivalent of step 9; native review of the Telugu and Hindi CAP text.
+
 ## Round 19: product renamed to IndTrana; brand name and logo settings (branch Aegis_IndTrana only) — 13 November 2026 (Windows laptop)
 
 Owner request: new branch Aegis_IndTrana, replace the product name AEGIS with IndTrana, and add an option to change the

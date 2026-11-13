@@ -154,7 +154,7 @@ export function cleanCapLanguages(value: unknown): CapLanguage[] {
     && REVIEW_STATUSES.includes(item.review_status as CapLanguage["review_status"])) as unknown as CapLanguage[];
 }
 
-export const capFilename = (runId: string) => `aegis-exercise-cap-${isUuid(runId) ? runId : "run"}.xml`;
+export const capFilename = (runId: string) => `indtrana-exercise-cap-${isUuid(runId) ? runId : "run"}.xml`;
 export const barWidth = (probability: number) => `${Math.round(Math.max(0, Math.min(1, probability)) * 100)}%`;
 export const pct = (value: number | null | undefined) => typeof value === "number" && Number.isFinite(value) ? `${Math.round(value * 100)}%` : "n/a";
 /** First `count` lines of CAP XML for the on-page preview. */
