@@ -5,6 +5,24 @@ AI-powered disaster prediction, preparedness and accountable response.
 > **Local synthetic exercise system.** AEGIS sends no real warnings, dispatches no responders and
 > makes no validated forecasting claims. All metrics are synthetic unless a registered protocol says otherwise.
 
+## Install and run in one step
+
+| System | First time | Daily use |
+|---|---|---|
+| Windows 10/11 | Double-click **`aegis.cmd`** and choose Install, or run `aegis.cmd install` | `aegis.cmd start`, `aegis.cmd stop`, `aegis.cmd status` |
+| Linux: Ubuntu, Debian, Fedora, RHEL, CentOS/Rocky/Alma, openSUSE, Arch (also on cloud VMs and on-premises servers; Amazon Linux needs Docker installed by hand first; start path not yet run on Linux) | `./aegis.sh install` | `./aegis.sh start`, `./aegis.sh stop`, `./aegis.sh status` |
+| macOS | `./aegis.sh install` (written for macOS, not yet run on one) | as Linux |
+
+The installer checks for Git and Docker (with Compose) and installs what is missing after asking once, starts Docker if
+it is not running, creates the local settings and private sign-in files, and starts **exactly one** copy of AEGIS with
+sign-in. If AEGIS is already running it just prints the address. If port 3000 or 8000 is taken by another program it
+moves to the next free port and says which; port 8443 (sign-in) is never moved. `doctor` finds and fixes common
+problems without deleting data. Add `--ci` (Linux/macOS) or `-Ci` (Windows) for pipelines. Open the address on the last
+line, normally http://localhost:3000.
+
+Docker Desktop, cloud VMs, CI pipelines, plain Docker Compose, and why worker nodes or Kubernetes are not supported:
+**[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**. Step-by-step manual setup: [docs/INSTALL.md](docs/INSTALL.md).
+
 ## What it is
 
 AEGIS is a decision-support workbench for emergency operations centres. It gathers hazard evidence,
@@ -86,9 +104,9 @@ More detail: [architecture decisions](docs/ARCHITECTURE.md) · [security and gov
 | PostGIS and immutable snapshots | Spatial correlation needs real geometry; approvals must reference exactly what the checker saw. |
 | Local-first, no paid infrastructure | Runs on one laptop for demos and tabletop exercises with no cost or data leaving the machine. |
 
-## Install and run (Windows)
+## Install and run by hand (Windows)
 
-**You need:** Windows 10/11, [Docker Desktop](https://www.docker.com/products/docker-desktop/) with WSL2, Git and
+The one-step `aegis.cmd install` above runs these same steps for you. **You need:** Windows 10/11, [Docker Desktop](https://www.docker.com/products/docker-desktop/) with WSL2, Git and
 PowerShell. Step-by-step guide with the demo data, sign-in setup, demo accounts and troubleshooting:
 **[docs/INSTALL.md](docs/INSTALL.md)**. Presenting it: **[docs/DEMO_GUIDE.md](docs/DEMO_GUIDE.md)**.
 

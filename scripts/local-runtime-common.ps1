@@ -46,6 +46,22 @@ function Get-AegisRuntimeContainers {
   }
 }
 
+# Ownership across ALL container states (running, stopped, created, dead): a stopped stack from another checkout or
+# another system sharing this Docker engine must never be recreated or cleaned up from here.
+function Assert-AegisProjectOwnership([string]$Root) {
+  $lines = @(& docker ps -a --filter 'label=com.docker.compose.project=ai-project-aegis' --format '{{.Names}}|{{.Labels}}')
+  if ($LASTEXITCODE -ne 0) { throw 'Docker inventory failed; no startup or cleanup attempted.' }
+  foreach ($line in $lines) {
+    if (-not $line) { continue }
+    $name, $labelText = $line -split '\|', 2
+    $directory = $null
+    foreach ($pair in ($labelText -split ',')) { if ($pair -like 'com.docker.compose.project.working_dir=*') { $directory = ($pair -split '=', 2)[1] } }
+    if (-not $directory -or [IO.Path]::GetFullPath($directory).TrimEnd([char[]]'\/') -ne [IO.Path]::GetFullPath($Root).TrimEnd([char[]]'\/')) {
+      throw "AEGIS container belongs to another checkout or system: $name (any state). Refusing to recreate, start or remove it."
+    }
+  }
+}
+
 function Test-AegisRuntimeInventory([object[]]$Containers, [string]$Root, [switch]$RequireRunning) {
   foreach ($item in $Containers) {
     if ($item.Project -ne 'ai-project-aegis') {
@@ -80,6 +96,7 @@ function Assert-AegisSingleRuntime([switch]$RequireRunning) {
   }
   if ($env:COMPOSE_FILE) { throw 'Unset COMPOSE_FILE; use the reviewed startup profile flags instead.' }
   $root = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
+  Assert-AegisProjectOwnership -Root $root
   $containers = @(Get-AegisRuntimeContainers)
   Test-AegisRuntimeInventory -Containers $containers -Root $root -RequireRunning:$RequireRunning
   if ($env:OS -eq 'Windows_NT') {
@@ -98,7 +115,11 @@ function Assert-AegisSingleRuntime([switch]$RequireRunning) {
     if ($native.Count -gt 0) {
       throw "Native AEGIS server process detected (PID $($native.ProcessId -join ',')). Use one Compose stack; inspect before stopping."
     }
-    foreach ($portRole in @(@(3000, 'web'), @(8000, 'api'))) {
+    # Host ports may be moved by scripts/aegis.ps1 (saved in LocalAppData/AEGIS/runtime-ports.env); defaults otherwise.
+    $webPort = 3000; $apiPort = 8000
+    if ($env:AEGIS_WEB_PORT -match '^\d{2,5}$') { $webPort = [int]$env:AEGIS_WEB_PORT }
+    if ($env:AEGIS_API_PORT -match '^\d{2,5}$') { $apiPort = [int]$env:AEGIS_API_PORT }
+    foreach ($portRole in @(@($webPort, 'web'), @($apiPort, 'api'))) {
       $listeners = @(Get-NetTCPConnection -State Listen -LocalPort $portRole[0] -ErrorAction SilentlyContinue)
       if ($listeners.Count -gt 0 -and @($containers | Where-Object { $_.Service -eq $portRole[1] }).Count -eq 0) {
         throw "Port $($portRole[0]) is occupied without its AEGIS container. Refusing a competing service; inspect its owner."

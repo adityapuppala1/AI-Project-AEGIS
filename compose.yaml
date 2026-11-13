@@ -88,7 +88,8 @@ services:
     build: ./services/api
     environment:
       DATABASE_URL: postgresql://aegis:${POSTGRES_PASSWORD:-aegis_local_only}@db:5432/aegis
-      CORS_ORIGIN: http://localhost:3000
+      # Follows the web address; scripts/aegis.ps1 and aegis.sh set APP_ORIGIN when port 3000 had to move.
+      CORS_ORIGIN: ${APP_ORIGIN:-http://localhost:3000}
       # These are nonsecret public OIDC metadata; absent config fails closed.
       OIDC_ISSUER: ${OIDC_ISSUER:-}
       OIDC_AUDIENCE: ${OIDC_AUDIENCE:-}
@@ -97,7 +98,8 @@ services:
       seed:
         condition: service_completed_successfully
     ports:
-      - "127.0.0.1:8000:8000"
+      # Host port is configurable (aegis.ps1 / aegis.sh pick a free one on conflict); 8000 when unset.
+      - "127.0.0.1:${AEGIS_API_PORT:-8000}:8000"
     mem_limit: 512m
     security_opt:
       - no-new-privileges:true
@@ -118,7 +120,7 @@ services:
     depends_on:
       - api
     ports:
-      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:${AEGIS_WEB_PORT:-3000}:3000"
     mem_limit: 1g
     security_opt:
       - no-new-privileges:true

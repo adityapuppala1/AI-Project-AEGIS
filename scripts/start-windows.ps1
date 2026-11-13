@@ -47,8 +47,9 @@ Invoke-AegisLocalOperation -Name "start-windows.ps1" -Action {
   cmd.exe /d /c "$startCommand 2>&1"
   if ($LASTEXITCODE -ne 0) { throw "Compose startup failed. Run docker compose logs to inspect." }
   Assert-AegisSingleRuntime -RequireRunning
-  Write-Host "AEGIS: http://localhost:3000"
-  if ($SignIn) { Write-Host "Sign in at http://localhost:3000/sign-in (demo accounts: scripts\new-demo-accounts.ps1)" }
+  $webPort = if ($env:AEGIS_WEB_PORT -match '^\d{2,5}$') { $env:AEGIS_WEB_PORT } else { '3000' }
+  Write-Host "AEGIS: http://localhost:$webPort"
+  if ($SignIn) { Write-Host "Sign in at http://localhost:$webPort/sign-in (demo accounts: scripts\new-demo-accounts.ps1)" }
   else { Write-Host "Started without sign-in: only the landing page opens. Use -SignIn after docs/INSTALL.md step 4." }
   Write-Host "Logs: docker compose logs -f"
 }

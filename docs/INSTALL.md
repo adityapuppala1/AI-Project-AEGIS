@@ -6,6 +6,15 @@ warnings, no dispatch, no real agency data.
 
 Time needed: about 20 minutes, most of it the first Docker build.
 
+## Quickest way: one command
+
+From the cloned folder, double-click `aegis.cmd` and choose **Install**, or run `aegis.cmd install`. It performs steps 1
+to 5 below for you (Git and Docker Desktop through winget if missing, `.env`, connector key, private sign-in files,
+certificate copy and one Windows confirmation box to trust it, start with `-SignIn -PublicEarth -Proactive`,
+`update-local-idp.ps1`, `new-demo-accounts.ps1`). Afterwards use `aegis.cmd start`, `stop`, `status` and `doctor`.
+macOS and Linux use `./aegis.sh install`. Ports, repairs and other systems: [DEPLOYMENT.md](DEPLOYMENT.md). The manual
+steps below remain valid and are what the installer runs.
+
 ## What you need
 
 - Windows 10 or 11 with [Docker Desktop](https://www.docker.com/products/docker-desktop/) (WSL2 backend) running.
@@ -176,7 +185,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\start-windows.ps1 -SignIn -Pu
 | What you see | What to do |
 |---|---|
 | "Another AEGIS local operation is active" | A start, build or test is still running. Wait for it to finish. |
-| Port 3000, 8000 or 8443 is in use | Close the other program using it. AEGIS will not take over a port. |
+| Port 3000, 8000 or 8443 is in use | AEGIS never takes over a port. `aegis.cmd start` moves the web app or API to the next free port and prints the address; with `start-windows.ps1` close the other program. Port 8443 is never moved: close the program holding it. |
 | Browser warns about the certificate at `aegis-idp.localhost:8443` | Step 4c was skipped or refused. Run it again and choose Yes. |
 | Sign-in returns to the sign-in page with an error | Run step 4d and 4e again, then check `docker compose --project-name ai-project-aegis logs --tail 50 web api`. |
 | "Sign-in is not set up yet" from the start script | Finish steps 3 and 4. |

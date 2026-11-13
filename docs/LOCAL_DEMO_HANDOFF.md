@@ -18,6 +18,48 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Round 18: one-step install and start for Windows, macOS and Linux — 13 November 2026 (Windows laptop)
+
+Branch `feat/landing-ux-security-hardening`, on top of `7dcfba4`; uncommitted at the time of writing.
+
+- **Added:** `aegis.cmd` + `scripts/aegis.ps1` (Windows, reuses the reviewed scripts and the shared lease) and
+  `aegis.sh` (macOS/Linux) with install, start, stop, status, doctor. Compose host ports are now
+  `${AEGIS_WEB_PORT:-3000}` and `${AEGIS_API_PORT:-8000}`; CORS follows `APP_ORIGIN`. Port 8443 is never moved.
+  Guide: [DEPLOYMENT.md](DEPLOYMENT.md).
+- **Executed on this laptop (Windows PowerShell 5.1 via aegis.cmd, all `-Ci`):** status (exit 0), doctor (exit 0),
+  stop (exit 0), status while stopped (exit 3); port 3000 held by a throwaway listener: start moved the web app to
+  3001, APP_ORIGIN and CORS_ORIGIN became `http://localhost:3001`, the provider accepted the 3001 callback (login page
+  HTTP 200), exit 0; port 8000 held: API moved to 8001, `/health` answered, web stayed on 3000, exit 0; start while
+  running reported "already running" (exit 0); 8443 held: start refused naming `python (PID ...)`, exit 1. Final
+  normal start (with build) with `-StaffEmail -StatisticalForecast`: 3000/8000, exit 0; verify-windows.ps1 PASSED.
+- **Checks:** API pytest 1223 passed, 30 skipped (4 new installer wiring tests); web typecheck clean; Node 337/337;
+  scripts/tests/test-local-runtime.ps1 PASS; shellcheck (via PyPI, no warnings).
+- **WSL incident (plain record):** a test `./aegis.sh start` run from WSL2 Ubuntu (which shares this laptop's Docker
+  Desktop) generated new private sign-in files inside WSL and recreated the running `local-idp` and `local-idp-tls`
+  containers with them. The Keycloak data and TLS volumes were not touched. Both containers were recreated straight
+  away from Windows with the original files; `update-local-idp.ps1` then reported "already set" (exit 0), so the
+  provider still accepted its original administrator. The WSL test folder was deleted. Cause: the script ran sign-in
+  setup before checking who owned the existing containers. Since then WSL is used only for `bash -n`, shellcheck,
+  help, detect and status.
+- **Review fixes (same day):** ownership is now checked across containers in **any state** (`docker ps -a`, compose
+  working directory) before any cleanup, sign-in setup or `up`, in `local-runtime-common.ps1` (used by every Windows
+  script), `aegis.ps1` and `aegis.sh`. Ports published by this project's own containers are kept when the stack is
+  partly running. The script records the sign-in origins it adds (`AEGIS_ADDED_ORIGINS` in `runtime-ports.env`) and
+  removes them once unused. A rebuild without cache now follows only a build failure. `aegis.sh`: sudo keeps the port
+  and folder variables, every sudo command is printed, the Docker repository is picked by distribution ID (Amazon Linux
+  stops with manual guidance), no docker-group change in `--ci`, an atomic lock (flock, or a PID symlink on macOS),
+  and secrets generated in python3 / passed through a private file in the container rather than on command lines. The
+  kcadm bootstrap login still puts the provider's bootstrap password on a command line inside the container (no stdin
+  option), as in `update-local-idp.ps1`.
+- **Re-tested after the fixes (Windows, `-Ci`):** status 0; stop 0; normal start 0 (removed the leftover
+  `http://localhost:3001` recorded from the first conflict test); 3000 held: start 0 on 3001, address added, provider
+  login page HTTP 200; stop, listener released, normal start 0 back on 3000 and the 3001 address removed again; web
+  container stopped by hand, doctor 0 with no port drift (API port reported as kept); start 0; stop and start with the
+  new separate build step 0; verify-windows.ps1 PASSED; pytest 1223 passed / 30 skipped; test-local-runtime.ps1 PASS.
+  WSL: `bash -n` 0, shellcheck no warnings, help 0, detect 0, status 0.
+- **Not executed:** the Linux install/start/doctor path, macOS, Amazon Linux guidance, the all-states ownership refusal
+  against a real container from another checkout (no safe fixture on this laptop), and a clean-machine install.
+
 ## Round 17: local sign-in provider locks the email address — 13 November 2026 (Windows laptop)
 
 - **Gap closed:** in the local Keycloak realm a user could change their own email address and keep it marked verified,
