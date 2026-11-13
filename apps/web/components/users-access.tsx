@@ -32,7 +32,7 @@ export function UsersAccess() {
               </div>
             </div>
             <KeyValueList items={[
-              { label: t("Role"), value: <span className="flex flex-wrap gap-1.5">{held.length > 0 ? held.map(role => <RoleChip key={role} role={role} />) : t("No role that AEGIS recognises")}</span> },
+              { label: t("Role"), value: <span className="flex flex-wrap gap-1.5">{held.length > 0 ? held.map(role => <RoleChip key={role} role={role} />) : t("No role that IndTrana recognises")}</span> },
               ...(session.agencyId ? [{ label: t("Agency"), value: <RecordRef id={session.agencyId} /> }] : []),
               ...(session.departmentId ? [{ label: t("Department"), value: <span title={session.departmentId}>{t(codeLabel(session.departmentId))}</span> }] : []),
               ...(session.teamId ? [{ label: t("Response team"), value: <span title={session.teamId}>{responseTeamLabel(session.teamId) ?? t("Unknown team")}</span> }] : []),
@@ -42,7 +42,7 @@ export function UsersAccess() {
         </Panel>
         <Panel title={t("Where accounts are managed")} icon={KeyRound}>
           <div className="space-y-2 text-sm leading-6">
-            <p>{t("AEGIS does not create, change or remove accounts. People, passwords, sign-in rules and roles live in your agency's identity provider, and AEGIS reads the role from the signed sign-in it receives.")}</p>
+            <p>{t("IndTrana does not create, change or remove accounts. People, passwords, sign-in rules and roles live in your agency's identity provider, and IndTrana reads the role from the signed sign-in it receives.")}</p>
             <p className="text-muted">{t("On a local exercise node the demonstration accounts are created by the script below. It is run by the node's owner, never from this page.")}</p>
             <p><code className="rounded bg-elevated px-1.5 py-0.5">scripts/new-demo-accounts.ps1</code></p>
           </div>

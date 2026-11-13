@@ -26,7 +26,7 @@ session), and the one deliberately public route (Audit360 fixture export) correc
   digests. Caddy's selected manifest identifies version 2.11.7. Digest selection
   establishes reproducibility, not a container vulnerability certification.
 - Keycloak keeps its development database in a separate named volume. It never
-  uses the AEGIS application database. Its HTTP port is private to Docker.
+  uses the IndTrana application database. Its HTTP port is private to Docker.
 - Only HTTPS port **127.0.0.1:8443** is published. Issuer:
   `https://aegis-idp.localhost:8443/realms/aegis-exercise`.
 - Caddy supplies a local CA and TLS. API and web retain HTTPS verification.

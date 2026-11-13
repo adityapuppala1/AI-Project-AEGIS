@@ -1,11 +1,11 @@
 @echo off
-rem AEGIS one-step control for Windows. Double-click for a menu, or run: aegis.cmd install|start|stop|status|doctor|help
+rem IndTrana one-step control for Windows. Double-click for a menu, or run: aegis.cmd install|start|stop|status|doctor|help
 setlocal
 set "AEGIS_PS=%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe"
 if not exist "%AEGIS_PS%" set "AEGIS_PS=powershell.exe"
 if not "%~1"=="" goto run
 echo.
-echo   AEGIS (local synthetic exercise)
+echo   IndTrana (local synthetic exercise)
 echo   1  Install (first time)
 echo   2  Start
 echo   3  Stop

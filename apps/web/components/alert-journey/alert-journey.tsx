@@ -98,7 +98,7 @@ export function AlertJourney({ initialMode }: { initialMode: JourneyMode }) {
     setMode(next);
   }, []);
 
-  // The engine renders plain links for "switch mode" and "back to AEGIS"; React handles them without a page reload.
+  // The engine renders plain links for "switch mode" and "back to IndTrana"; React handles them without a page reload.
   const onClick = useCallback((event: MouseEvent<HTMLDivElement>) => {
     if (!(event.target instanceof Element)) return;
     const modeLink = event.target.closest<HTMLElement>("[data-aj-mode]");

@@ -1,4 +1,4 @@
-# AEGIS Release Gate 0 — Integration, Migration and Security Verification
+# IndTrana Release Gate 0 — Integration, Migration and Security Verification
 
 **Branch:** `feat/integration-readiness-gates`  
 **Scope:** Local Windows 16 GB exercise-stack consolidation, **not production certification**.

@@ -1,4 +1,4 @@
-/* AEGIS Alert Journey explainer — terrain + simulation maths (pure functions, no DOM, no THREE).
+/* IndTrana Alert Journey explainer — terrain + simulation maths (pure functions, no DOM, no THREE).
  * Everything the 3D world shows is a deterministic function of simulated time, so the timeline can be scrubbed.
  * ALL values are synthetic and schematic: not geography, not a forecast, not an accuracy claim. */
 export default function install(g) {

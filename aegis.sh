@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AEGIS one-step installer and service control for macOS and Linux (also Linux virtual machines such as AWS EC2 or
+# IndTrana one-step installer and service control for macOS and Linux (also Linux virtual machines such as AWS EC2 or
 # Azure VMs, and on-premises Linux servers). Ported from the reviewed Windows scripts (start-windows.ps1,
 # stop-windows.ps1, prepare-local-idp.ps1, new-connector-key.ps1, new-demo-accounts.ps1, local-runtime-common.ps1).
 #   ./aegis.sh install|start|stop|status|doctor|detect|help [--yes] [--ci] [options]
@@ -17,11 +17,11 @@ LOCAL_COPILOT=0; PUBLIC_INTAKE=0; STAFF_EMAIL=0; STAT_FORECAST=0; PROACTIVE_SCHE
 
 usage() {
   cat <<'EOF'
-AEGIS one-step control (macOS and Linux)
+IndTrana one-step control (macOS and Linux)
   ./aegis.sh install   first-time setup: dependencies, local files, sign-in, start, demo accounts
-  ./aegis.sh start     start AEGIS (does nothing if it is already running)
-  ./aegis.sh stop      stop AEGIS (data is kept)
-  ./aegis.sh status    show whether AEGIS is running and answering (exit 0 running, 3 stopped or not answering)
+  ./aegis.sh start     start IndTrana (does nothing if it is already running)
+  ./aegis.sh stop      stop IndTrana (data is kept)
+  ./aegis.sh status    show whether IndTrana is running and answering (exit 0 running, 3 stopped or not answering)
   ./aegis.sh doctor    find and fix common problems without deleting data
   ./aegis.sh detect    show the detected system, package manager and port situation (changes nothing)
 Options: --yes (no questions) --ci (no questions, no colour) --no-build --no-sign-in --no-public-earth
@@ -248,7 +248,7 @@ take_lock() {
   fi
   trap '[ "$(readlink "$LOCK_LINK" 2>/dev/null)" = "$$" ] && rm -f "$LOCK_LINK"' EXIT
 }
-# Running containers only: "service|working_dir|oneoff|name|project|image" (by project label or AEGIS image).
+# Running containers only: "service|working_dir|oneoff|name|project|image" (by project label or IndTrana image).
 inventory() {
   "${DOCKER[@]}" ps --format '{{.Label "com.docker.compose.service"}}|{{.Label "com.docker.compose.project.working_dir"}}|{{.Label "com.docker.compose.oneoff"}}|{{.Names}}|{{.Label "com.docker.compose.project"}}|{{.Image}}' 2>/dev/null |
     awk -F'|' -v p="$PROJECT" '$5 == p || $6 ~ /^ai-project-aegis-(api|web)(:|$)/'
@@ -259,7 +259,7 @@ assert_ownership() { # every container of the project in ANY state must come fro
     die 'Docker inventory failed; nothing was started, stopped or removed.'
   while IFS='|' read -r name dir; do
     [ -z "$name" ] && continue
-    [ "$dir" != "$ROOT" ] && die "AEGIS container $name (any state) belongs to another checkout or another system sharing this Docker ($dir). Only one copy may exist; nothing was changed."
+    [ "$dir" != "$ROOT" ] && die "IndTrana container $name (any state) belongs to another checkout or another system sharing this Docker ($dir). Only one copy may exist; nothing was changed."
   done <<< "$all"
   return 0
 }
@@ -271,26 +271,26 @@ assert_single() { # $1 = require-running (0/1)
   local svc oneoff name proj
   while IFS='|' read -r svc _ oneoff name proj _; do
     [ -z "$name" ] && continue
-    [ "$proj" != "$PROJECT" ] && die "Another AEGIS Compose project is running ($name). Inspect who owns it before doing anything."
-    [ "$oneoff" = True ] && die "An AEGIS one-off job is active ($name). Wait for it to finish."
+    [ "$proj" != "$PROJECT" ] && die "Another IndTrana Compose project is running ($name). Inspect who owns it before doing anything."
+    [ "$oneoff" = True ] && die "An IndTrana one-off job is active ($name). Wait for it to finish."
   done <<< "$lines"
   local role count
   for role in api web db migrate seed; do
     count="$(printf '%s\n' "$lines" | awk -F'|' -v r="$role" '$1 == r' | grep -c . || true)"
-    [ "$count" -gt 1 ] && die "Duplicate AEGIS service '$role' ($count running). Inspect and stop only confirmed duplicates."
+    [ "$count" -gt 1 ] && die "Duplicate IndTrana service '$role' ($count running). Inspect and stop only confirmed duplicates."
     if [ "$1" = 1 ] && { [ "$role" = api ] || [ "$role" = web ] || [ "$role" = db ]; } && [ "$count" != 1 ]; then
-      die "Expected exactly one running AEGIS '$role'; found $count."
+      die "Expected exactly one running IndTrana '$role'; found $count."
     fi
   done
   # Another Compose operation on this project, or a native dev server from this folder (reported, never killed).
   local jobs
   # shellcheck disable=SC2009
   jobs="$(ps -eo pid=,args= 2>/dev/null | grep -E "docker(-compose)? .*(--project-name[ =]$PROJECT|-p $PROJECT).* (up|build|run|stop|down|start|restart|exec)( |$)" | grep -v grep | grep -v "^ *$$ " || true)"
-  [ -n "$jobs" ] && die "An AEGIS Compose operation is still running (PID $(echo "$jobs" | awk '{print $1}' | tr '\n' ' ')). Wait for it to finish."
+  [ -n "$jobs" ] && die "An IndTrana Compose operation is still running (PID $(echo "$jobs" | awk '{print $1}' | tr '\n' ' ')). Wait for it to finish."
   # shellcheck disable=SC2009
   jobs="$(ps -eo pid=,args= 2>/dev/null | grep -F "$ROOT" | grep -E 'uvicorn|next-server|next/dist/bin/next|server\.js' | grep -v grep || true)"
-  [ -n "$jobs" ] && die "A native AEGIS server process from this folder is running (PID $(echo "$jobs" | awk '{print $1}' | tr '\n' ' ')). Use one Compose stack only; stop that process yourself."
-  say OK 'Exactly one AEGIS copy (or none) and no competing AEGIS job'
+  [ -n "$jobs" ] && die "A native IndTrana server process from this folder is running (PID $(echo "$jobs" | awk '{print $1}' | tr '\n' ' ')). Use one Compose stack only; stop that process yourself."
+  say OK 'Exactly one IndTrana copy (or none) and no competing IndTrana job'
 }
 is_running() { local l r; l="$(inventory)"; for r in api web db; do printf '%s\n' "$l" | awk -F'|' -v r="$r" '$1 == r' | grep -q . || return 1; done; return 0; }
 
@@ -542,7 +542,7 @@ print("" if (r, w, l) == before else json.dumps({"redirectUris": r, "webOrigins"
 start_stack() {
   if is_running; then
     read_state; export_ports
-    say OK 'AEGIS is already running (one copy only; nothing new started)'
+    say OK 'IndTrana is already running (one copy only; nothing new started)'
     confirm_healthy 1; return
   fi
   remove_stale
@@ -558,7 +558,7 @@ start_stack() {
       say fixed 'Images built without the cache'
     fi
   fi
-  say info 'Starting AEGIS'
+  say info 'Starting IndTrana'
   (cd "$ROOT" && "${DOCKER[@]}" "${FILES[@]}" up -d) || die 'Start failed. Run ./aegis.sh doctor, then ./aegis.sh start.'
   assert_single 1
   confirm_healthy 1
@@ -591,7 +591,7 @@ while IFS=, read -r u p r; do
   rm -f $f
 done')" || die 'Could not run the account tool inside the identity provider container.'
   case "$result" in *ADMIN_LOGIN_FAILED*) die 'The identity provider rejected its local bootstrap administrator. No account was created.' ;; esac
-  (umask 077; [ -f "$file" ] || echo 'AEGIS local demo sign-ins (synthetic exercise only). Keep this file private.' > "$file")
+  (umask 077; [ -f "$file" ] || echo 'IndTrana local demo sign-ins (synthetic exercise only). Keep this file private.' > "$file")
   for i in 0 1 2 3; do
     name="${names[i]}"; role="${roles[i]}"
     if printf '%s\n' "$result" | grep -qx "CREATED,$name"; then printf '%s\t%s\t%s\n' "$name" "${pass[i]}" "$role" >> "$file"; created=1; say fixed "$name created ($role)"
@@ -603,16 +603,16 @@ done')" || die 'Could not run the account tool inside the identity provider cont
   say 'needs you' 'Department-desk and response-team demo accounts (and their provider roles) are created by the Windows scripts only; they are not set up here.'
 }
 stop_stack() {
-  if [ -z "$(inventory)" ]; then say OK 'AEGIS is already stopped'; return; fi
+  if [ -z "$(inventory)" ]; then say OK 'IndTrana is already stopped'; return; fi
   assert_single 0
   (cd "$ROOT" && "${DOCKER[@]}" compose --project-name "$PROJECT" stop) || die 'Stop failed. Run ./aegis.sh doctor.'
-  say OK 'AEGIS stopped; containers and the database volume are kept'
+  say OK 'IndTrana stopped; containers and the database volume are kept'
 }
 status_stack() {
   read_state
   local line svc name
   while IFS='|' read -r svc _ _ name _; do [ -n "$name" ] && say info "running: $svc ($name)"; done <<< "$(inventory)"
-  is_running || { say info 'AEGIS is not running. Start it with: ./aegis.sh start'; return 3; }
+  is_running || { say info 'IndTrana is not running. Start it with: ./aegis.sh start'; return 3; }
   local rc=0
   for line in "API|http://localhost:$API_PORT/health" "Web|http://localhost:$WEB_PORT/"; do
     if http_ok "${line#*|}"; then say OK "${line%%|*} answers at ${line#*|}"; else say 'needs you' "${line%%|*} does not answer at ${line#*|}; run ./aegis.sh doctor"; rc=3; fi
@@ -630,7 +630,7 @@ case "$COMMAND" in
     for t in git curl python3 docker; do if command -v "$t" >/dev/null 2>&1; then say OK "$t found"; else say 'needs you' "$t missing (install would add it)"; fi; done
     if command -v docker >/dev/null 2>&1 && docker_ok; then
       say OK 'Docker engine reachable'
-      if [ -n "$(inventory)" ]; then say info 'AEGIS containers exist on this Docker:'; inventory | awk -F'|' '{print "           " $1 " (" $4 ") from " $2}'; fi
+      if [ -n "$(inventory)" ]; then say info 'IndTrana containers exist on this Docker:'; inventory | awk -F'|' '{print "           " $1 " (" $4 ") from " $2}'; fi
     else say info 'Docker engine not reachable from here'; fi
     for p in $DEFAULT_WEB $DEFAULT_API $IDP_PORT; do if port_in_use "$p"; then say info "port $p in use by $(port_holder "$p")"; else say OK "port $p free"; fi; done
     say info "private folder: $PRIVATE"
@@ -639,7 +639,7 @@ case "$COMMAND" in
     if command -v docker >/dev/null 2>&1 && ! docker_ok && docker info 2>&1 | grep -qi 'permission denied' && command -v sudo >/dev/null 2>&1 && sudo -n true 2>/dev/null; then
       DOCKER=("${SUDO_DOCKER[@]}")
     fi
-    if ! command -v docker >/dev/null 2>&1 || ! docker_ok; then say info 'Docker is not running here, so AEGIS is not running.'; exit 3; fi
+    if ! command -v docker >/dev/null 2>&1 || ! docker_ok; then say info 'Docker is not running here, so IndTrana is not running.'; exit 3; fi
     status_stack; exit $? ;;
 esac
 take_lock
@@ -650,12 +650,12 @@ case "$COMMAND" in
   doctor)
     assert_single 0; ensure_env_file; ensure_signin_files; remove_stale
     if is_running; then read_state; export_ports; confirm_healthy 1; sync_signin_origins
-    else say info 'AEGIS is stopped; checking the ports it would use'; resolve_ports; fi
+    else say info 'IndTrana is stopped; checking the ports it would use'; resolve_ports; fi
     say OK 'Doctor finished' ;;
   install|start)
     assert_single 0; ensure_env_file; ensure_signin_files
     start_stack
     [ "$COMMAND" = install ] && [ "$SIGN_IN" = 1 ] && demo_accounts
-    say OK "AEGIS is running: http://localhost:$WEB_PORT" ;;
+    say OK "IndTrana is running: http://localhost:$WEB_PORT" ;;
 esac
 exit 0

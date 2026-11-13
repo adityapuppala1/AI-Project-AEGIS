@@ -3,7 +3,7 @@ import { apiAuthHeaders, signInRequired, upstreamAuthFailure } from "../../../..
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-// Display-only relay for Alert Journey live mode. The viewer's browser talks only to AEGIS; this route fetches the
+// Display-only relay for Alert Journey live mode. The viewer's browser talks only to IndTrana; this route fetches the
 // reviewed public source on its behalf, so third parties never see the viewer's network address. It is NOT a general
 // proxy: only fixed HTTPS hosts (and path prefixes) are reachable, redirects are refused, responses are size- and
 // type-checked, nothing is stored in the database, and it is closed unless the public-feeds switch is on.
@@ -83,7 +83,7 @@ async function publicFeedsEnabled(auth: { Authorization: string }): Promise<bool
   return enabled;
 }
 
-// The caller's address is only believed when a reverse proxy that AEGIS trusts sets it (AEGIS_TRUSTED_PROXY=1, last
+// The caller's address is only believed when a reverse proxy that IndTrana trusts sets it (AEGIS_TRUSTED_PROXY=1, last
 // hop). Otherwise the header is client-controlled, so every caller shares one bucket and the per-source cap protects
 // the upstream services.
 function withinRate(request: Request): boolean {

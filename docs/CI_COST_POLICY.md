@@ -1,4 +1,4 @@
-# AEGIS — GitHub Actions budget-first policy
+# IndTrana — GitHub Actions budget-first policy
 
 **Milestone:** `chore/opt-in-ci-and-gates` · **Mode:** synthetic-only developer project.
 
@@ -28,7 +28,7 @@ No automatic full Docker builds are enabled.
 
 ## Check locally first on Windows
 
-From your local AEGIS repository (with dependencies already installed):
+From your local IndTrana repository (with dependencies already installed):
 
 ```powershell
 # Keep the current continuation checkout; inspect local changes first.

@@ -1,6 +1,6 @@
-# Installing and running AEGIS on different systems
+# Installing and running IndTrana on different systems
 
-AEGIS is a **local synthetic exercise**. Whatever the host, it runs as **exactly one copy**: one Docker Compose project
+IndTrana is a **local synthetic exercise**. Whatever the host, it runs as **exactly one copy**: one Docker Compose project
 called `ai-project-aegis` with one database. Nothing in this repository creates cloud resources, sends warnings or
 dispatches anyone.
 
@@ -16,9 +16,9 @@ Each entry point has the same commands:
 
 | Command | What it does |
 |---|---|
-| `install` | Checks and installs what is missing, creates the local files, sets up sign-in, starts AEGIS, creates demo accounts |
-| `start` | Starts AEGIS. If it is already running, says so and prints the address (nothing new is started) |
-| `stop` | Stops AEGIS. Containers and the database are kept |
+| `install` | Checks and installs what is missing, creates the local files, sets up sign-in, starts IndTrana, creates demo accounts |
+| `start` | Starts IndTrana. If it is already running, says so and prints the address (nothing new is started) |
+| `stop` | Stops IndTrana. Containers and the database are kept |
 | `status` | Shows what runs and whether it answers. Exit 0 when running, 3 when stopped or not answering |
 | `doctor` | Finds and fixes the common problems below, without deleting data |
 
@@ -49,7 +49,7 @@ Every step prints one line: `OK`, `fixed`, `needs you` or `FAIL`, and the last l
 
 | Problem | Fix |
 |---|---|
-| AEGIS containers (running or stopped) from another checkout or system | Nothing is touched; the script stops and names the container |
+| IndTrana containers (running or stopped) from another checkout or system | Nothing is touched; the script stops and names the container |
 | Docker installed but not running | Starts it, waits up to three minutes |
 | No `.env` | Copies `.env.example` |
 | No connector key (needed by the proactive watch) | Generates one into `.env`, never shown |
@@ -58,7 +58,7 @@ Every step prints one line: `OK`, `fixed`, `needs you` or `FAIL`, and the last l
 | Broken leftover containers of this project (`dead`/`created`) | Removes those containers only; volumes are kept |
 | A service does not answer | Restarts that one service once, then shows its last 30 log lines |
 | The image build fails | Builds once more without the cache (only a build failure triggers this; a start failure does not) |
-| Port 3000 or 8000 taken by another program | Moves AEGIS to the next free port (below) |
+| Port 3000 or 8000 taken by another program | Moves IndTrana to the next free port (below) |
 
 Nothing deletes the database volume. Nothing stops or removes a container that does not belong to this project.
 
@@ -155,7 +155,7 @@ manual-only by policy** (see [CI_COST_POLICY.md](CI_COST_POLICY.md)); this guide
 Nothing is provisioned by this repository, and nothing here has been run on a cloud VM. If you create a Linux virtual
 machine yourself, use Ubuntu 22.04/24.04 (or another distribution listed above). **Amazon Linux images need Docker
 installed by hand first**; the script stops on them with instructions. This cloud-init user data installs and starts
-AEGIS for the default user on Ubuntu:
+IndTrana for the default user on Ubuntu:
 
 ```yaml
 #cloud-config
@@ -169,7 +169,7 @@ runcmd:
 (On Azure the default user is the admin name you chose, not `ubuntu`.) Then reach it through an SSH tunnel:
 `ssh -L 3000:localhost:3000 -L 8000:localhost:8000 ubuntu@<host>`.
 
-- AEGIS publishes its ports on `127.0.0.1` only. **Do not open 3000, 8000 or 8443 in a security group or network
+- IndTrana publishes its ports on `127.0.0.1` only. **Do not open 3000, 8000 or 8443 in a security group or network
   security group.** Anything beyond a private tunnel needs TLS and a reverse proxy in front, and a proper identity
   provider instead of the local Keycloak.
 - Government hosting requirements in [GOVT_DEPLOYMENT_READINESS.md](GOVT_DEPLOYMENT_READINESS.md) still apply. A cloud
@@ -185,7 +185,7 @@ volume (see `scripts/verify-backup-restore.ps1` for the restore check used on Wi
 
 ## Worker nodes, Kubernetes, Docker Swarm or several replicas: not supported
 
-AEGIS must run as **exactly one instance**, so it is not supported on worker nodes, Kubernetes, Docker Swarm, behind a
+IndTrana must run as **exactly one instance**, so it is not supported on worker nodes, Kubernetes, Docker Swarm, behind a
 load balancer or with more than one replica of any service. The reasons:
 
 - The two-person approval, the department inbox and the response loop rely on row locks, version checks and one

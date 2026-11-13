@@ -2,7 +2,7 @@
 # One account per role: <prefix>-maker, <prefix>-checker, <prefix>-auditor, <prefix>-admin, plus two department
 # accounts for the Department Inbox: <prefix>-dept-control (control room) and <prefix>-dept-infra (infrastructure).
 # Two synthetic response-team accounts for My Team: <prefix>-team-rescue (syn-team-rescue-01) and
-# <prefix>-team-medical (syn-team-health-01). Exercise only: nobody is contacted outside AEGIS.
+# <prefix>-team-medical (syn-team-health-01). Exercise only: nobody is contacted outside IndTrana.
 # Department and team accounts need scripts/update-local-idp.ps1 to have been run once (it adds their roles).
 # - Existing accounts are left exactly as they are (no password reset, no deletion).
 # - Passwords are generated here, never printed, and saved only to a private file outside the repository:
@@ -64,7 +64,7 @@ done
   $file = Join-Path $env:LOCALAPPDATA 'AEGIS\local-idp\demo-credentials.txt'
   if ($created.Count -gt 0) {
     if (-not (Test-Path $file)) {
-      [IO.File]::WriteAllText($file, "AEGIS local demo sign-ins (synthetic exercise only). Keep this file private.`n", [Text.Encoding]::ASCII)
+      [IO.File]::WriteAllText($file, "IndTrana local demo sign-ins (synthetic exercise only). Keep this file private.`n", [Text.Encoding]::ASCII)
     }
     [IO.File]::AppendAllText($file, (($created | ForEach-Object { "{0}`t{1}`t{2}" -f $_.User, $_.Password, $(if ($_.Department) { "$($_.Role) ($($_.Department))" } elseif ($_.Team) { "$($_.Role) ($($_.Team))" } else { $_.Role }) }) -join "`n") + "`n", [Text.Encoding]::ASCII)
   }

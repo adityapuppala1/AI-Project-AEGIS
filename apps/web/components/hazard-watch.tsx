@@ -153,10 +153,10 @@ export function HazardWatch() {
   const toggleHazard = (hazard: string) => setHazardFilter(current => { const next = new Set(current); if (next.has(hazard)) next.delete(hazard); else next.add(hazard); return next; });
   const clearFilters = () => { setHazardFilter(new Set()); setStateFilter("all"); };
 
-  return <AppShell title="Hazard Watch" description="Multi-hazard evidence and trigger watch with bounded, human-gated decision support. Exercise only; AEGIS never sends warnings.">
+  return <AppShell title="Hazard Watch" description="Multi-hazard evidence and trigger watch with bounded, human-gated decision support. Exercise only; IndTrana never sends warnings.">
     <div className="mb-4 flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-xs leading-6 text-amber-800 dark:text-amber-200" role="note">
       <ShieldAlert className="mt-1 shrink-0" size={19} aria-hidden="true"/>
-      <p><strong>{t("Decision support only. Exercise CAP draft; AEGIS never sends warnings. Synthetic thresholds, not calibrated.")}</strong>
+      <p><strong>{t("Decision support only. Exercise CAP draft; IndTrana never sends warnings. Synthetic thresholds, not calibrated.")}</strong>
         {watch && !sample && watch.disclaimer !== DISCLAIMER ? ` ${watch.disclaimer}` : ""}</p>
     </div>
 
@@ -171,10 +171,10 @@ export function HazardWatch() {
     </Panel>
 
     {effectiveGate === "checking" && <WatchSkeleton/>}
-    {effectiveGate === "error" && <ErrorState message={t("Hazard Watch is unavailable. The rest of AEGIS is unaffected.")} />}
+    {effectiveGate === "error" && <ErrorState message={t("Hazard Watch is unavailable. The rest of IndTrana is unaffected.")} />}
     {effectiveGate === "disabled" && <Panel>
       <h2 className="flex items-center gap-2 t-title"><Radar size={18} className="text-accent" aria-hidden="true"/>{t("Hazard Watch is switched off")}</h2>
-      <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">{t("The base AEGIS stack stays fully synthetic. Start the optional proactive profile to enable the watch.")}</p>
+      <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">{t("The base IndTrana stack stays fully synthetic. Start the optional proactive profile to enable the watch.")}</p>
       <pre className="mt-4 overflow-x-auto rounded-lg bg-elevated p-4 text-xs" tabIndex={0} aria-label="Start command"><code>powershell -ExecutionPolicy Bypass -File scripts/start-windows.ps1 -NoBuild -Proactive</code></pre>
     </Panel>}
 

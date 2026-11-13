@@ -1,4 +1,4 @@
-/* AEGIS Live Earth — UI shell: top bar, search, KPIs, layers, tabs, dock, consent, toasts. Panels live in live-panels.js. */
+/* IndTrana Live Earth — UI shell: top bar, search, KPIs, layers, tabs, dock, consent, toasts. Panels live in live-panels.js. */
 export default function install(g) {
   'use strict';
   var AX = g.AX = g.AX || {}, U = AX.LiveUI = {}, LV, S, L, M, $ = function (s, r) { return (r || document).querySelector(s); }, $$ = function (s, r) { return [].slice.call((r || document).querySelectorAll(s)); };
@@ -19,7 +19,7 @@ export default function install(g) {
   U.ic = ic; U.$ = $; U.$$ = $$;
   U.el = function (tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; };
   U.esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
-  var PRESETS = [['Hyderabad', 17.385, 78.4867, 'AEGIS pilot city'], ['Chennai', 13.0827, 80.2707, 'coast · cyclones'], ['Mumbai', 19.076, 72.8777, 'coast · monsoon'], ['Kolkata', 22.5726, 88.3639, 'delta · cyclones'], ['Visakhapatnam', 17.6868, 83.2185, 'coast'], ['Bhubaneswar', 20.2961, 85.8245, 'cyclone landfalls'], ['Guwahati', 26.1445, 91.7362, 'Brahmaputra floods'], ['Kochi', 9.9312, 76.2673, 'coast · floods'], ['Shimla', 31.1048, 77.1734, 'snow'], ['Leh', 34.1526, 77.5771, 'snow · cold'], ['Port Blair', 11.6234, 92.7265, 'tsunami 2004'], ['Delhi', 28.6139, 77.209, 'heat · smog']];
+  var PRESETS = [['Hyderabad', 17.385, 78.4867, 'IndTrana pilot city'], ['Chennai', 13.0827, 80.2707, 'coast · cyclones'], ['Mumbai', 19.076, 72.8777, 'coast · monsoon'], ['Kolkata', 22.5726, 88.3639, 'delta · cyclones'], ['Visakhapatnam', 17.6868, 83.2185, 'coast'], ['Bhubaneswar', 20.2961, 85.8245, 'cyclone landfalls'], ['Guwahati', 26.1445, 91.7362, 'Brahmaputra floods'], ['Kochi', 9.9312, 76.2673, 'coast · floods'], ['Shimla', 31.1048, 77.1734, 'snow'], ['Leh', 34.1526, 77.5771, 'snow · cold'], ['Port Blair', 11.6234, 92.7265, 'tsunami 2004'], ['Delhi', 28.6139, 77.209, 'heat · smog']];
   U.PRESETS = PRESETS;
 
   U.init = function (lv) {
@@ -38,14 +38,14 @@ export default function install(g) {
     });
     var cpb = $('#compass'); if (cpb) { cpb.innerHTML = '<i><b>N</b></i>'; cpb.title = 'North. Click to face north.'; cpb.onclick = function () { LV.faceNorth(); }; }
     var sbb = $('#scalebar'); if (sbb) { sbb.innerHTML = '<i></i><span></span>'; sbb.style.display = 'none'; } LV.on('layers', function () { renderLayers(); });
-    LV.on('gate', function (m) { U.toast('Live data not enabled', m === 'disabled' ? 'Public feeds are switched off for this deployment (start AEGIS with -PublicEarth).' : 'The AEGIS API could not confirm that public feeds are enabled.', '#ffb547', 'alert'); });
+    LV.on('gate', function (m) { U.toast('Live data not enabled', m === 'disabled' ? 'Public feeds are switched off for this deployment (start IndTrana with -PublicEarth).' : 'The IndTrana API could not confirm that public feeds are enabled.', '#ffb547', 'alert'); });
     LV.on('tx', function (e) { var box = $('#txlog'); if (!box) return; var s2 = L.SOURCES[e.src], row = U.el('div', 'tx' + (e.ok ? '' : ' bad'), (e.ok ? '↓ ' : '✕ ') + U.esc(s2 ? s2.name.split(' (')[0] : e.src) + ' · ' + (e.ok ? e.ms + ' ms' : 'failed')); box.insertBefore(row, box.firstChild); while (box.children.length > 4) box.removeChild(box.lastChild); setTimeout(function () { row.remove(); }, 5200); if (U.tab === 'sources') U.refresh(); }); L.onStatus = function () { updateAttr(); if (U.tab === 'sources') U.refresh(); if (U.tab === 'earth') U.markBusy(); };
     AX.on(document, 'keydown', onKey); onLive(); onMode(); updateKpis(); setTab(U.tab || 'earth'); AX.root.classList.add('ready');
   };
 
   /* ================= top ================= */
   function buildTop() {
-    $('#top').innerHTML = '<a class="btn home" href="/" data-aj-exit title="Back to the AEGIS Command Center">' + ic('home', 15) + '<span>Home</span></a><a class="brand" href="/" data-aj-exit title="Back to the AEGIS Command Center">' + ic('globe', 18) + '<b>AEGIS</b><span>Alert Journey · Live Earth</span></a>' +
+    $('#top').innerHTML = '<a class="btn home" href="/" data-aj-exit title="Back to the IndTrana Command Center">' + ic('home', 15) + '<span>Home</span></a><a class="brand" href="/" data-aj-exit title="Back to the IndTrana Command Center">' + ic('globe', 18) + '<b>IndTrana</b><span>Alert Journey · Live Earth</span></a>' +
       '<button class="livechip" id="liveChip" title="Live public data (read-only)"><i class="dotlive"></i><span id="liveTxt">Live data: OFF</span></button>' +
       '<form class="search" id="searchForm" autocomplete="off">' + ic('zoom', 15) + '<input id="searchIn" placeholder="Search any place on Earth…" aria-label="Search a place"><div class="sugg" id="sugg"></div></form>' +
       '<div class="clockb" id="clockB"><div class="tl" id="clockT">--:--</div><div class="cl"><span id="clockP">UTC</span><small id="clockD"></small></div></div><div class="sp"></div>' +
@@ -188,11 +188,11 @@ export default function install(g) {
 
   /* ================= modals ================= */
   function buildModals() {
-    $('#consent').innerHTML = '<div class="dcard"><div class="dhead"><span class="big">' + ic('globe', 22) + '</span><div><small>OPT-IN · READ-ONLY PUBLIC DATA</small><h2>Connect the real Earth?</h2><em>Display only. AEGIS sends no alerts and writes nothing.</em></div></div>' +
+    $('#consent').innerHTML = '<div class="dcard"><div class="dhead"><span class="big">' + ic('globe', 22) + '</span><div><small>OPT-IN · READ-ONLY PUBLIC DATA</small><h2>Connect the real Earth?</h2><em>Display only. IndTrana sends no alerts and writes nothing.</em></div></div>' +
       '<p>This page will call these free public services <b>directly from your browser</b>:</p><ul class="hosts"><li><b>Open-Meteo</b> · weather, river discharge, history, terrain, geocoding</li><li><b>NASA GIBS</b> · satellite imagery · <b>NASA EONET</b> · storms and events</li><li><b>USGS</b> · earthquakes</li><li><b>CelesTrak</b> · satellite orbits</li><li><b>OpenStreetMap</b> · map tiles (and, only if you press the button, building/tower data via Overpass)</li></ul>' +
       '<p class="muted">What leaves your browser: your IP address (as with any website) and the coordinates of places you choose. No keys, no sign-in, nothing stored on a server. Results are cached in this browser for a few hours.</p>' +
-      '<p class="warn">Public reference only. Not an AEGIS assessment and not an official warning. For real alerts follow IMD, INCOIS, CWC and NDMA/SACHET.</p><p class="warn" id="cGate" role="status"></p><div class="dfoot"><button class="link" id="cNo">Stay offline</button><button class="btn big primary" id="cYes">Enable live data</button></div></div>';
-    $('#cYes').onclick = function () { var g2 = $('#cGate'); g2.textContent = 'Checking that public feeds are enabled for this deployment…'; LV.requestLive().then(function () { g2.textContent = ''; $('#consent').classList.remove('on'); }, function (e) { g2.innerHTML = (e.message === 'disabled' ? 'Public data feeds are switched off for this AEGIS deployment.' : 'The AEGIS API could not be reached to confirm that public feeds are enabled.') + ' An administrator starts AEGIS with the public-reference switch (<code>start-windows.ps1 -PublicEarth</code>). See <a href="/admin/go-live">Go-Live Setup</a>.'; }); }; $('#cNo').onclick = function () { $('#consent').classList.remove('on'); };
+      '<p class="warn">Public reference only. Not an IndTrana assessment and not an official warning. For real alerts follow IMD, INCOIS, CWC and NDMA/SACHET.</p><p class="warn" id="cGate" role="status"></p><div class="dfoot"><button class="link" id="cNo">Stay offline</button><button class="btn big primary" id="cYes">Enable live data</button></div></div>';
+    $('#cYes').onclick = function () { var g2 = $('#cGate'); g2.textContent = 'Checking that public feeds are enabled for this deployment…'; LV.requestLive().then(function () { g2.textContent = ''; $('#consent').classList.remove('on'); }, function (e) { g2.innerHTML = (e.message === 'disabled' ? 'Public data feeds are switched off for this IndTrana deployment.' : 'The IndTrana API could not be reached to confirm that public feeds are enabled.') + ' An administrator starts IndTrana with the public-reference switch (<code>start-windows.ps1 -PublicEarth</code>). See <a href="/admin/go-live">Go-Live Setup</a>.'; }); }; $('#cNo').onclick = function () { $('#consent').classList.remove('on'); };
     $('#help').innerHTML = '<div class="mwrap narrow"><button class="btn close" data-close>' + ic('x', 15) + 'Close</button><h2>How to explore</h2><div class="hgrid"><div><h4>Flow</h4><ul><li><b>1</b> Turn on live data (top bar).</li><li><b>2</b> Click the globe or search a place; read the <b>Place</b> tab.</li><li><b>3</b> Dive to <b>region</b> (satellite imagery on real terrain) or <b>city</b> (OpenStreetMap on real terrain).</li><li><b>4</b> Scrub the real forecast, try the flood scenario, run the mock alert drill.</li></ul></div><div><h4>Mouse</h4><ul><li><b>Drag</b> orbit · <b>wheel</b> zoom · <b>right-drag</b> pan (place)</li><li><b>Hover / click</b> quakes, storms, satellites, towers</li><li><b>Double-click</b> the globe to dive to a point</li></ul><h4>Keys</h4><ul><li><b>Space</b> play · <b>L</b> live panel · <b>H</b> help · <b>Esc</b> close</li></ul></div></div><p class="muted">This is a demonstration. Screening statistics use public data and fixed thresholds; they are not forecasts of record.</p></div>';
     $('#sources').innerHTML = '<div class="mwrap"><button class="btn close" data-close>' + ic('x', 15) + 'Close</button><div id="srcBody"></div></div>';
     $$('[data-close]').forEach(function (b) { b.onclick = closeModals; }); $$('.modal').forEach(function (m) { m.addEventListener('click', function (e) { if (e.target === m) closeModals(); }); });
@@ -215,7 +215,7 @@ export default function install(g) {
   function updateAttr() {
     var a = $('#attr'); if (!a) return; if (!S.live) { a.innerHTML = 'Live data off · synthetic fallback available'; return; }
     var used = Object.keys(L.status).filter(function (k) { return L.status[k].state === 'ok' || L.status[k].state === 'cached'; }); var seen = {}; var txt = used.map(function (k) { return L.SOURCES[k] ? L.SOURCES[k].attr : ''; }).filter(function (t) { if (!t || seen[t]) return false; seen[t] = 1; return true; });
-    a.innerHTML = '<b>Sources:</b> ' + txt.map(function (x) { return U.esc(x); }).join(' · ') + ' · <i>Public reference, not an AEGIS assessment.</i>';
+    a.innerHTML = '<b>Sources:</b> ' + txt.map(function (x) { return U.esc(x); }).join(' · ') + ' · <i>Public reference, not an IndTrana assessment.</i>';
   }
   function onMode() { AX.root.dataset.mode = S.mode; renderLayers(); renderDock(); U.refresh(true); var dv = $('#goLive'); if (dv) dv.classList.toggle('on', !S.live && S.mode === 'earth'); }
   function onPlace() { renderLayers(); U.refresh(true); }

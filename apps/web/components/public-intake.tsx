@@ -117,10 +117,10 @@ export function PublicIntake() {
     {refused && <PermissionState needs={pageRoles("/public-intake") ?? []} roles={session?.roles}
       what={t("The quarantine queue holds unreviewed public reports, so it is for the incident desk and administrators.")} />}
     {!refused && gate === "checking" && <Panel as="div" bodyClassName="p-4 text-sm text-muted" role="status">{t("Checking whether public intake is enabled…")}</Panel>}
-    {!refused && gate === "error" && <ErrorState message={t("Intake status is unavailable. The rest of AEGIS is unaffected.")} />}
+    {!refused && gate === "error" && <ErrorState message={t("Intake status is unavailable. The rest of IndTrana is unaffected.")} />}
     {!refused && gate === "disabled" && <Panel>
       <h2 className="flex items-center gap-2 t-title"><Inbox size={18} className="text-accent"/> {t("Public intake is switched off")}</h2>
-      <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">{t("The base AEGIS stack accepts no public input. To rehearse intake, restart with the optional profile. Reports go to an isolated quarantine table only.")}</p>
+      <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">{t("The base IndTrana stack accepts no public input. To rehearse intake, restart with the optional profile. Reports go to an isolated quarantine table only.")}</p>
       <pre className="mt-4 overflow-x-auto rounded-lg bg-elevated p-4 text-xs" tabIndex={0} aria-label="Start command"><code>powershell -ExecutionPolicy Bypass -File scripts/start-windows.ps1 -NoBuild -PublicIntake</code></pre>
     </Panel>}
 

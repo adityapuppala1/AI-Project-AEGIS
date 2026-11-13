@@ -10,6 +10,8 @@ import { OperatorAuth } from "./operator-auth";
 import { GlobalSearch } from "./global-search";
 import { LanguageSwitcher } from "./language-switcher";
 import { useT } from "./language-provider";
+import { useBrand } from "./brand-provider";
+import { BrandMark, BrandName } from "./brand-mark";
 import { PageHeader, PageHelp, Tip, ToastProvider, useNow, type Crumb } from "./ui";
 import { GROUP_CHAIN, locate, navigation, type NavItem } from "../lib/navigation";
 import { ROLE_INFO, canOpenPage, pageRoles } from "../lib/roles";
@@ -99,6 +101,7 @@ export function AppShell({ children, title, description, actions, breadcrumbs }:
   const pathname = usePathname();
   const router = useRouter();
   const t = useT();
+  const brand = useBrand();
   const [menuOpen, setMenuOpen] = useState(false);
   const openMenuRef = useRef<HTMLButtonElement>(null);
   const closeMenuRef = useRef<HTMLButtonElement>(null);
@@ -225,9 +228,9 @@ export function AppShell({ children, title, description, actions, breadcrumbs }:
         role={drawer ? "dialog" : undefined} aria-modal={drawer ? true : undefined} aria-label={drawer ? "Navigation" : undefined}
         inert={!menuOpen && !persistentRail}>
         <div className="rail-head">
-          <Link href="/" className="rail-brand" aria-label="AEGIS home">
-            <span className="brand-mark flex h-8 w-8 shrink-0 items-center justify-center"><Command size={18} aria-hidden="true"/></span>
-            <span className="rail-text"><strong className="block text-[15px] font-bold leading-tight tracking-[.12em]">AEGIS</strong><span className="block whitespace-nowrap text-[11px] font-medium leading-tight text-muted">{t("Emergency intelligence")}</span></span>
+          <Link href="/" className="rail-brand" aria-label={brand.text("IndTrana home")}>
+            <span className="brand-mark flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden"><BrandMark box={28} /></span>
+            <span className="rail-text"><strong className="block text-[15px] font-bold leading-tight tracking-[.12em]"><BrandName /></strong><span className="block whitespace-nowrap text-[11px] font-medium leading-tight text-muted">{t("Emergency intelligence")}</span></span>
           </Link>
           <button ref={closeMenuRef} className="control control-quiet control-icon lg:hidden" aria-label="Close menu" onClick={dismissMenu}><X size={18} aria-hidden="true"/></button>
         </div>
@@ -300,7 +303,7 @@ export function AppShell({ children, title, description, actions, breadcrumbs }:
                 {miniChoice ? <PanelLeftOpen size={18} aria-hidden="true" /> : <PanelLeftClose size={18} aria-hidden="true" />}
               </button>
               <p className="hidden min-w-0 truncate text-[13px] font-medium text-muted sm:@min-[15rem]:block">{section ? <><span className="hidden 2xl:inline">{t(section.group)} <span aria-hidden="true" className="mx-1 opacity-60">/</span> </span><span className="font-semibold text-ink">{t(section.label)}</span></> : t("Public safety / Hyderabad")}</p>
-              <p className="hidden min-w-0 truncate text-xs font-semibold text-muted min-[400px]:block sm:hidden">{section ? t(section.label) : "AEGIS / Exercise"}</p>
+              <p className="hidden min-w-0 truncate text-xs font-semibold text-muted min-[400px]:block sm:hidden">{section ? t(section.label) : `${brand.name} / Exercise`}</p>
             </div>
             <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
               <LanguageSwitcher />
@@ -323,7 +326,7 @@ export function AppShell({ children, title, description, actions, breadcrumbs }:
           <ToastProvider>
             <ResponseAlertToast view={alerts.view} rose={alerts.rose} />
             <div className="reveal-in">
-              <p className="print-only mb-3 text-xs">AEGIS · {t("Exercise environment")} · {t("No live warnings or dispatch")}</p>
+              <p className="print-only mb-3 text-xs">{brand.name} · {t("Exercise environment")} · {t("No live warnings or dispatch")}</p>
               <PageHeader eyebrow={section ? t(section.group) : undefined} chain={section?.page.chain} title={t(title)} description={t(description)} breadcrumbs={crumbs} actions={actions} />
               {section?.tabs && <nav aria-label={t(section.label)} className="section-tabs">
                 {section.tabs.map(({ href, label, icon: Icon }) => <Link key={href} href={href} aria-current={section.tab?.href === href ? "page" : undefined} className="section-tab"><Icon size={16} aria-hidden="true" /><span>{t(label)}</span></Link>)}

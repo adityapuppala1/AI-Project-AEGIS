@@ -70,7 +70,7 @@ export function OperatorAuth() {
               {session.username && session.username !== name && <p className="truncate text-xs text-muted">{session.username}</p>}
             </div>
           </div>
-          <div className="flex flex-wrap gap-1.5 px-2.5 pb-2.5">{roles.length > 0 ? roles.map(item => <RoleChip key={item} role={item} />) : <span className="text-xs text-muted">{t("No role that AEGIS recognises")}</span>}</div>
+          <div className="flex flex-wrap gap-1.5 px-2.5 pb-2.5">{roles.length > 0 ? roles.map(item => <RoleChip key={item} role={item} />) : <span className="text-xs text-muted">{t("No role that IndTrana recognises")}</span>}</div>
           <dl className="grid grid-cols-[5.5rem_minmax(0,1fr)] items-center gap-x-2 gap-y-1.5 border-t border-stroke px-2.5 py-2.5 text-xs">
             {session.agencyId && <><dt className="text-muted">{t("Agency")}</dt><dd><RecordRef id={session.agencyId} /></dd></>}
             {session.departmentId && <><dt className="text-muted">{t("Department")}</dt><dd className="font-semibold" title={session.departmentId}>{t(codeLabel(session.departmentId))}</dd></>}
@@ -80,7 +80,7 @@ export function OperatorAuth() {
           </dl>
           <div className="menu-sep" role="separator" />
           <Menu.Item asChild><Link href="/admin/users" className="menu-item"><KeyRound size={16} aria-hidden="true" className="text-muted" />{t("Users and access")}</Link></Menu.Item>
-          <Menu.Item asChild><Link href="/about" className="menu-item"><Info size={16} aria-hidden="true" className="text-muted" />{t("About AEGIS")}</Link></Menu.Item>
+          <Menu.Item asChild><Link href="/about" className="menu-item"><Info size={16} aria-hidden="true" className="text-muted" />{t("About IndTrana")}</Link></Menu.Item>
           <div className="menu-sep" role="separator" />
           <Menu.Item className="menu-item" data-danger="" disabled={busy} onSelect={event => { event.preventDefault(); void signOut(); }} aria-label={t("Sign out of operator session")}>
             <LogOut size={16} aria-hidden="true" />{busy ? t("Signing out…") : t("Sign out")}

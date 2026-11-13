@@ -1,4 +1,4 @@
-"""Deterministic, non-operational readiness for synthetic AEGIS exercises.
+"""Deterministic, non-operational readiness for synthetic IndTrana exercises.
 
 No flood forecasting, numeric risk inference, real dispatch recommendations,
 real asset impact claims, or operational approval is generated here.

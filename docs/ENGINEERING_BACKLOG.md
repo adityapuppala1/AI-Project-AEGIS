@@ -1,4 +1,4 @@
-# AEGIS delivery ownership and implementation backlog
+# IndTrana delivery ownership and implementation backlog
 
 Current extensions: [saved proposal-context revalidation](PROPOSAL_CONTEXT_REVALIDATION.md)
 and [single-instance local operation guards](SINGLE_INSTANCE_LOCAL_RUNTIME.md)

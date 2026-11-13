@@ -1,4 +1,4 @@
-# AEGIS design-system feasibility — Magic UI + shadcn + operational UX
+# IndTrana design-system feasibility — Magic UI + shadcn + operational UX
 
 Last reviewed: 2026-10-16
 
@@ -15,16 +15,16 @@ individual source files. The catalog is at
 https://magicui.design/docs/components and its upstream project is at
 https://github.com/magicuidesign/magicui.
 
-**Repository-control rule:** AEGIS commits and pushes go ONLY to
+**Repository-control rule:** IndTrana commits and pushes go ONLY to
 `adityapuppala1/AI-Project-AEGIS`. During this milestone we **did not clone,
 pull, fork, install or copy code from any other GitHub repository**. The original
 `signal-surface` CSS uses a restrained pattern inspired by general animated
-UI techniques; it is authored in AEGIS. The optional Magic UI registry
+UI techniques; it is authored in IndTrana. The optional Magic UI registry
 integration requires source/dependency/license review before adoption.
 
 ## Integration feasibility matrix
 
-| Component/pattern | Fit | AEGIS location | Policy / benefit |
+| Component/pattern | Fit | IndTrana location | Policy / benefit |
 |---|---|---|---|
 | Grid Pattern (static) | High | Welcome panel and Help Center | Low-cost texture; low contrast; no data occlusion |
 | Animated Grid Pattern | Moderate | Optional onboarding illustration | Disable with reduced-motion; only off critical screens |

@@ -1,5 +1,7 @@
 # Local synthetic demo handoff — 17 October 2026
 
+> Note (13 November 2026): on branch `Aegis_IndTrana` the product was renamed from AEGIS to IndTrana (see docs/BRANDING.md). The rounds below are historical and keep the name used at the time.
+
 Branch: `feat/aegis-local-demo-continuation`.
 Baseline: `b71172cd93038148a2e9eafdc7bf91196f9eada1` (`feat/ciphercop-integrated-demo-rc`).
 Previous implementation commit: `917d13ec55bbc01556b8ef97e9f6f46043982ddf`.

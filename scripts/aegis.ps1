@@ -1,4 +1,4 @@
-# AEGIS one-step installer and service control for Windows (Windows PowerShell 5.1 or PowerShell 7).
+# IndTrana one-step installer and service control for Windows (Windows PowerShell 5.1 or PowerShell 7).
 # Usage: aegis.cmd [install|start|stop|status|doctor|help] [-Yes] [-Ci] [-NoBuild] [-NoSignIn] [-NoPublicEarth]
 #        [-NoProactive] [-LocalCopilot] [-PublicIntake] [-StaffEmail] [-StatisticalForecast] [-ProactiveScheduler]
 # It reuses the reviewed scripts (start-windows.ps1, stop-windows.ps1, prepare-local-idp.ps1, update-local-idp.ps1,
@@ -345,7 +345,7 @@ function Get-StartArguments {
 function Start-Stack {
   if (Test-Running) {
     $ports = Read-State; Use-Ports $ports
-    Say 'OK' 'AEGIS is already running (one copy only; nothing new started)'
+    Say 'OK' 'IndTrana is already running (one copy only; nothing new started)'
     Confirm-Healthy $ports -Repair
     return $ports
   }
@@ -372,7 +372,7 @@ function Start-Stack {
       }
     }
   }
-  Say 'info' ('Starting AEGIS with ' + ($arguments -join ' '))
+  Say 'info' ('Starting IndTrana with ' + ($arguments -join ' '))
   if ((Invoke-Reviewed 'start-windows.ps1' $arguments) -ne 0) { Stop-WithMessage 'Start failed. Run aegis.cmd doctor, then aegis.cmd start.' }
   Confirm-Healthy $ports -Repair
   Sync-SignInOrigins $ports.AEGIS_WEB_PORT
@@ -389,15 +389,15 @@ function Invoke-Install {
   return $ports
 }
 function Invoke-Stop {
-  if (-not (Test-Running) -and @(Get-OwnContainers).Count -eq 0) { Say 'OK' 'AEGIS is already stopped'; return }
+  if (-not (Test-Running) -and @(Get-OwnContainers).Count -eq 0) { Say 'OK' 'IndTrana is already stopped'; return }
   if ((Invoke-Reviewed 'stop-windows.ps1') -ne 0) { Stop-WithMessage 'Stop failed. Run aegis.cmd doctor.' }
-  Say 'OK' 'AEGIS stopped; containers and the database volume are kept'
+  Say 'OK' 'IndTrana stopped; containers and the database volume are kept'
 }
 function Invoke-Status {
   $ports = Read-State
   $containers = @(Get-OwnContainers)
   foreach ($item in $containers) { Say 'info' "running: $($item.Service) ($($item.Name))" }
-  if (-not (Test-Running)) { Say 'info' 'AEGIS is not running. Start it with: aegis.cmd start'; return $false }
+  if (-not (Test-Running)) { Say 'info' 'IndTrana is not running. Start it with: aegis.cmd start'; return $false }
   $ok = $true
   foreach ($check in @(@('API', "http://localhost:$($ports.AEGIS_API_PORT)/health"), @('Web', "http://localhost:$($ports.AEGIS_WEB_PORT)/"))) {
     if (Test-Http $check[1]) { Say 'OK' "$($check[0]) answers at $($check[1])" } else { Say 'needs you' "$($check[0]) does not answer at $($check[1]); run aegis.cmd doctor"; $ok = $false }
@@ -412,7 +412,7 @@ function Invoke-Doctor {
     Confirm-Healthy $ports -Repair
     Sync-SignInOrigins $ports.AEGIS_WEB_PORT
   } else {
-    Say 'info' 'AEGIS is stopped; checking the ports it would use'
+    Say 'info' 'IndTrana is stopped; checking the ports it would use'
     $null = Resolve-Ports
   }
 }
@@ -420,7 +420,7 @@ function Assert-AegisSingleRuntimeQuiet {
   $state = Read-State; Use-Ports $state
   try { Invoke-AegisLocalOperation -Name 'aegis.ps1 inventory' -Action { Assert-AegisSingleRuntime | Out-Null } }
   catch { if ($_.Exception.Message -eq 'AEGIS_STOP') { throw }; Stop-WithMessage $_.Exception.Message }
-  Say 'OK' 'Exactly one AEGIS copy (or none) and no competing AEGIS job'
+  Say 'OK' 'Exactly one IndTrana copy (or none) and no competing IndTrana job'
 }
 function Assert-OwnContainers {
   # Before any sign-in bootstrap: refuse containers started by another checkout, another system or a one-off job.
@@ -429,11 +429,11 @@ function Assert-OwnContainers {
 }
 function Show-Help {
   Write-Host @'
-AEGIS one-step control (Windows)
+IndTrana one-step control (Windows)
   aegis.cmd install   first-time setup: dependencies, local files, sign-in, start, demo accounts
-  aegis.cmd start     start AEGIS (does nothing if it is already running)
-  aegis.cmd stop      stop AEGIS (data is kept)
-  aegis.cmd status    show whether AEGIS is running and answering (exit 0 running, 3 stopped or not answering)
+  aegis.cmd start     start IndTrana (does nothing if it is already running)
+  aegis.cmd stop      stop IndTrana (data is kept)
+  aegis.cmd status    show whether IndTrana is running and answering (exit 0 running, 3 stopped or not answering)
   aegis.cmd doctor    find and fix common problems without deleting data
 Options: -Yes (no questions) -Ci (no questions, no colour) -NoBuild -NoSignIn -NoPublicEarth -NoProactive
          -LocalCopilot -PublicIntake -StaffEmail -StatisticalForecast -ProactiveScheduler
@@ -457,7 +457,7 @@ try {
   Show-Platform
   switch ($Command) {
     'status' {
-      if (-not (Get-Command docker -ErrorAction SilentlyContinue) -or -not (Test-DockerDaemon)) { Say 'info' 'Docker is not running, so AEGIS is not running.'; $exitCode = 3; break }
+      if (-not (Get-Command docker -ErrorAction SilentlyContinue) -or -not (Test-DockerDaemon)) { Say 'info' 'Docker is not running, so IndTrana is not running.'; $exitCode = 3; break }
       if (-not (Invoke-Status)) { $exitCode = 3 }
     }
     'stop' { Confirm-Dependencies; Assert-OwnContainers; Invoke-Stop }
@@ -465,7 +465,7 @@ try {
     default {
       Confirm-Dependencies; Assert-OwnContainers; Confirm-EnvFile; Confirm-SignInFiles
       if ($Command -eq 'install') { $ports = Invoke-Install } else { $ports = Start-Stack }
-      Say 'OK' "AEGIS is running: http://localhost:$($ports.AEGIS_WEB_PORT)"
+      Say 'OK' "IndTrana is running: http://localhost:$($ports.AEGIS_WEB_PORT)"
     }
   }
 } catch {

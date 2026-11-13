@@ -163,7 +163,7 @@ export default function ApprovalWorkbench() {
         <LockKeyhole className="mx-auto mb-4 text-accent" size={35}/>
         <h2 className="text-xl font-bold">Verified operator sign-in required</h2>
         <p className="mt-3 text-sm leading-6 text-muted">
-          {auth.configured ? "Sign in with your approved AEGIS identity provider to access scoped incident proposals." :
+          {auth.configured ? "Sign in with your approved IndTrana identity provider to access scoped incident proposals." :
           "The trusted identity provider is not configured yet. This page intentionally cannot create or approve proposals using pretend identities."}
         </p>
         {auth.configured && <a href="/api/auth/login" className={buttonClass({ variant: "primary", className: "mt-5" })}>Sign in securely</a>}

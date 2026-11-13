@@ -23,7 +23,7 @@ export function RehearsalNote({ className = "" }: Readonly<{ className?: string 
     <ShieldAlert size={18} aria-hidden="true" className="mt-0.5 shrink-0 text-amber-700 dark:text-amber-300" />
     <p className="text-xs leading-5 text-amber-800 dark:text-amber-200">
       <strong>{t("This is a rehearsal.")}</strong>{" "}
-      {t("A request alerts only people signed in to AEGIS. Nobody is called, texted or radioed. The teams are invented exercise teams, and travel times are planning estimates.")}
+      {t("A request alerts only people signed in to IndTrana. Nobody is called, texted or radioed. The teams are invented exercise teams, and travel times are planning estimates.")}
     </p>
   </div>;
 }

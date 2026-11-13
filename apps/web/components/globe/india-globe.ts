@@ -1,7 +1,7 @@
 // The shared Earth used by the two public pages (landing and sign-in): India as its own weather satellites see it.
 // An illustration, not data: NASA Blue Marble / Black Marble imagery (self-hosted, bundled as build assets, never
 // fetched from another host), a simplified outline of India, procedural cloud, and a daylight line computed from the
-// visitor's clock. Nothing here reads an AEGIS record. Sources and licences: research/real-data/LICENCES.md.
+// visitor's clock. Nothing here reads an IndTrana record. Sources and licences: research/real-data/LICENCES.md.
 import * as THREE from "three";
 
 import dayGlobal from "./assets/earth-day.jpg";

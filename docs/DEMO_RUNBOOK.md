@@ -5,7 +5,7 @@ acceptance record is [DEMO_REHEARSAL.md](DEMO_REHEARSAL.md); decisions behind th
 [DELIVERY_COMPLETION_PLAN.md](DELIVERY_COMPLETION_PLAN.md) (D4, D5, D6).
 
 Rules that never change: this is a synthetic exercise. No live warning, dispatch or agency message exists. Do not
-claim forecasting accuracy. Public NASA and USGS data is labelled reference context, not an AEGIS assessment.
+claim forecasting accuracy. Public NASA and USGS data is labelled reference context, not an IndTrana assessment.
 
 ## 1. Profiles (decide before leaving the desk)
 
@@ -58,7 +58,7 @@ Never run two stacks, native dev servers beside Compose, or overlapping builds (
 | Earth Watch shows stale or unavailable | That is the designed behaviour; say so and move on |
 | Page error or stack not responding | `powershell -ExecutionPolicy Bypass -File scripts\start-windows.ps1 -NoBuild` (guarded; safe to repeat) |
 | Data looks wrong or database damaged | Restore the newest backup into a **separate** database and inspect before touching the live one (see `verify-backup-restore.ps1`). Never reset the volume |
-| Port 3000 or 8000 busy | `scripts\check-local-runtime.ps1` first; stop only the inspected AEGIS duplicate. Never kill all node, python or docker processes |
+| Port 3000 or 8000 busy | `scripts\check-local-runtime.ps1` first; stop only the inspected IndTrana duplicate. Never kill all node, python or docker processes |
 | Judges ask for live data or real alerts | "This is a rehearsal environment. It cannot send warnings or dispatch anyone; real feeds and agency integration are a separate, authorised programme." |
 
 ## 5. Safe answers

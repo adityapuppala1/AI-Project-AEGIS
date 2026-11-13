@@ -3,7 +3,7 @@ import { codeLabel } from "../../lib/labels";
 import { ErrorState, Panel } from "../../components/ui";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Activity, Database, LockKeyhole, Plug, Rocket, Settings2, ShieldCheck, SlidersHorizontal } from "lucide-react";
+import { Activity, Database, LockKeyhole, Palette, Plug, Rocket, Settings2, ShieldCheck, SlidersHorizontal } from "lucide-react";
 import { AppShell } from "../../components/app-shell";
 import { useT } from "../../components/language-provider";
 import { StatStrip, StatTile, StatusPill } from "../../components/ui";
@@ -60,7 +60,10 @@ export default function AdminPage() {
         <Link href="/admin/connectors" className="flex items-start gap-3 rounded-lg border border-stroke p-4 transition-colors hover:border-accent hover:bg-elevated">
           <Plug size={20} className="mt-0.5 shrink-0 text-accent" aria-hidden="true"/><span><strong className="text-sm">Connectors</strong><span className="mt-1 block text-xs leading-5 text-muted">Enter data-source keys and switch connectors on or off. Needs a platform administrator.</span></span>
         </Link>
-        <Link href="/admin/go-live" className="flex items-start gap-3 rounded-lg border border-stroke p-4 transition-colors hover:border-accent hover:bg-elevated">
+        <Link href="/admin/brand" className="flex items-start gap-3 rounded-lg border border-stroke p-4 transition-colors hover:border-accent hover:bg-elevated">
+          <Palette size={20} className="mt-0.5 shrink-0 text-accent" aria-hidden="true"/><span><strong className="text-sm">Brand</strong><span className="mt-1 block text-xs leading-5 text-muted">Change the product name and logo shown in the browser, or restore the defaults. Needs a platform administrator.</span></span>
+        </Link>
+        <Link href="/admin/go-live"className="flex items-start gap-3 rounded-lg border border-stroke p-4 transition-colors hover:border-accent hover:bg-elevated">
           <Rocket size={20} className="mt-0.5 shrink-0 text-accent" aria-hidden="true"/><span><strong className="text-sm">Go-Live Setup</strong><span className="mt-1 block text-xs leading-5 text-muted">Every key, switch and agreement needed before real use, and what is still missing.</span></span>
         </Link>
       </div>

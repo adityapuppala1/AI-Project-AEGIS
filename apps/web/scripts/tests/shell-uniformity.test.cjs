@@ -34,7 +34,7 @@ test('codeLabel gives reviewed labels for known codes and never shows a raw code
   assert.equal(labels.codeLabel('nasa_firms'), 'NASA FIRMS');
   assert.equal(labels.codeLabel('some_new_reason_code'), 'Some new reason code');
   assert.equal(labels.codeLabel('sla_target-elapsed'), 'SLA target elapsed');
-  assert.equal(labels.codeLabel('aegis.exercise.policy.v1'), 'Aegis exercise policy v1');
+  assert.equal(labels.codeLabel('aegis.exercise.policy.v1'), 'IndTrana exercise policy v1');
   for (const empty of [null, undefined, '', '   ']) assert.equal(labels.codeLabel(empty), 'Not known');
   for (const key of ['__proto__', 'constructor', 'toString']) assert.equal(typeof labels.codeLabel(key), 'string');
   for (const code of labels.KNOWN_LABEL_CODES) {

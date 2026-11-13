@@ -1,5 +1,5 @@
 // Browser proxy for the team response loop (docs/RESPONSE_LOOP.md). Exercise only: nothing here calls, texts,
-// emails or pushes to anyone; it forwards to the AEGIS API only. These checks mirror the server role rules as a
+// emails or pushes to anyone; it forwards to the IndTrana API only. These checks mirror the server role rules as a
 // convenience layer; services/api/app/response_routes.py stays the control. Scope (agency, department, team, actor)
 // travels only inside the signed access token, never in a body or query this proxy forwards.
 import { NextResponse } from "next/server";

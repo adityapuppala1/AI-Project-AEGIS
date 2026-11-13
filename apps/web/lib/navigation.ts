@@ -18,7 +18,7 @@ export const GROUP_CHAIN: Record<string, readonly ChainStep[]> = { Observe: ["Se
 export const navigation: NavGroup[] = [
   { label: "Overview", items: [
     { href: "/", label: "Command Center", description: "System overview and geospatial map", icon: LayoutDashboard },
-    { href: "/about", label: "About AEGIS", description: "What AEGIS is, why it was built and how an alert travels", icon: Info },
+    { href: "/about", label: "About IndTrana", description: "What IndTrana is, why it was built and how an alert travels", icon: Info },
     { href: "/demo", label: "Exercise Walkthrough", description: "Step-by-step guided exercise", icon: Route },
     { href: "/alert-journey", label: "Alert Journey", description: "3D story of an alert, and live public Earth data", icon: Satellite },
   ]},

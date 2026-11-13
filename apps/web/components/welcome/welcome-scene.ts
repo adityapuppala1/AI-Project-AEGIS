@@ -1,7 +1,7 @@
 // Scroll-driven 3D illustration for the public landing page (/ when signed out, and /welcome): India as its own
 // weather satellites see it, with one hazard at a time and the six steps an alert takes. Stage 0 is the overview;
 // stages 1-6 follow the page (sense, predict, decide, hand over, reach people, learn). Decoration that explains the
-// workflow: nothing here is AEGIS data, live imagery or a map of record. The Earth itself is shared with the sign-in
+// workflow: nothing here is IndTrana data, live imagery or a map of record. The Earth itself is shared with the sign-in
 // page (components/globe/india-globe.ts).
 import * as THREE from "three";
 
@@ -139,7 +139,7 @@ export function startWelcomeScene(canvas: HTMLCanvasElement, still: boolean, hoo
   const authorityRing = ringMesh(0.1, 0.13, GREEN, "handover"); flatOn(authorityRing, authority); globe.add(authorityRing);
   const authorityMark = ringMesh(0.045, 0.07, SAFFRON, "authority"); flatOn(authorityMark, authority); globe.add(authorityMark);
 
-  // Step 5: the official channel reaches places; AEGIS is not on these lines.
+  // Step 5: the official channel reaches places; IndTrana is not on these lines.
   const reach = PLACES.map(place => {
     const at = onSphere(place[0], place[1], R * 1.005), path = arcPoints(authority, at, 0.42); tube(path, 0.0045, flatMaterial(SAFFRON, "reach", 0.6));
     const ring = ringMesh(0.05, 0.068, SAFFRON, "reach"); flatOn(ring, at); globe.add(ring);

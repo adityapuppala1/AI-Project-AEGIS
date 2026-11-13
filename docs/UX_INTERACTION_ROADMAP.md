@@ -1,4 +1,4 @@
-# AEGIS Product Experience, Discovery and Interaction Roadmap
+# IndTrana Product Experience, Discovery and Interaction Roadmap
 
 Updated: 2026-10-16 · **Exercise-only**
 
@@ -7,7 +7,7 @@ Updated: 2026-10-16 · **Exercise-only**
 > Added since that grep (2026-11-02): a chart-to-table toggle on the Command Center telemetry chart, and a Telugu and Hindi interface (shell, navigation, banners, the full Public Intake form and the main Earth Watch and Command Center labels; machine-written, **native-speaker review pending**, everything else falls back to English). Core Web Vitals were measured on nine key pages and are within budget at normal speed.
 >
 > **Closed by decision (not built, with reasons), 2026-11-02:**
-> - *Notification preferences* and *bulk actions*: AEGIS deliberately sends no notifications and grants no write shortcut around independent maker-checker approval, so these would contradict a core safety rule.
+> - *Notification preferences* and *bulk actions*: IndTrana deliberately sends no notifications and grants no write shortcut around independent maker-checker approval, so these would contradict a core safety rule.
 > - *Realtime events*: the data is synthetic and replayed; a push channel would imply live operational feeds, which are out of scope.
 > - *Spatial exposure overlay*: needs authorised GIS layers and domain validation; the explorer stays "geographic candidates only".
 > - *Saved views, advanced filters, density preferences*: useful but not needed for the exercise; recorded as future work, not required for the demonstration.

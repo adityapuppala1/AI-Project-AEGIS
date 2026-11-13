@@ -1,4 +1,4 @@
-/* AEGIS Live Earth — the real Earth: NASA GIBS imagery, real day/night terminator, real satellites (TLE + SGP4),
+/* IndTrana Live Earth — the real Earth: NASA GIBS imagery, real day/night terminator, real satellites (TLE + SGP4),
  * USGS earthquakes, NASA EONET events and storm tracks, tsunami wavefront. Display only. */
 export default function install(g) {
   'use strict';

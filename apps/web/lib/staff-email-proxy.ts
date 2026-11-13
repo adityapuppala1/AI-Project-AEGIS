@@ -1,4 +1,4 @@
-// Browser proxy for staff email notices (docs/COMMUNICATION_CHANNELS.md). It forwards to the AEGIS API only; the API
+// Browser proxy for staff email notices (docs/COMMUNICATION_CHANNELS.md). It forwards to the IndTrana API only; the API
 // (services/api/app/staff_messages.py) is the one place that sends, and it repeats every check made here. The email
 // address is never accepted from the browser: the API reads it from the verified sign-in token. Only the opt-in flag
 // travels in a body. Role lists mirror the API: any staff role for the preference and the self-test, platform_admin

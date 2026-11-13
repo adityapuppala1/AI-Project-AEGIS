@@ -13,9 +13,9 @@ function Invoke-AegisLocalOperation([string]$Name, [scriptblock]$Action) {
       $lease = [IO.File]::Open((Get-AegisOperationLockPath), [IO.FileMode]::OpenOrCreate,
         [IO.FileAccess]::ReadWrite, [IO.FileShare]::None)
     } catch [IO.IOException] {
-      throw 'Another AEGIS local operation is active. Wait for it to finish; do not launch a second build/start/test job.'
+      throw 'Another IndTrana local operation is active. Wait for it to finish; do not launch a second build/start/test job.'
     }
-    Write-Host "AEGIS single-operation guard: $Name"
+    Write-Host "IndTrana single-operation guard: $Name"
     & $Action
   } finally {
     if ($null -ne $lease) { $lease.Dispose() }
@@ -57,7 +57,7 @@ function Assert-AegisProjectOwnership([string]$Root) {
     $directory = $null
     foreach ($pair in ($labelText -split ',')) { if ($pair -like 'com.docker.compose.project.working_dir=*') { $directory = ($pair -split '=', 2)[1] } }
     if (-not $directory -or [IO.Path]::GetFullPath($directory).TrimEnd([char[]]'\/') -ne [IO.Path]::GetFullPath($Root).TrimEnd([char[]]'\/')) {
-      throw "AEGIS container belongs to another checkout or system: $name (any state). Refusing to recreate, start or remove it."
+      throw "IndTrana container belongs to another checkout or system: $name (any state). Refusing to recreate, start or remove it."
     }
   }
 }
@@ -65,20 +65,20 @@ function Assert-AegisProjectOwnership([string]$Root) {
 function Test-AegisRuntimeInventory([object[]]$Containers, [string]$Root, [switch]$RequireRunning) {
   foreach ($item in $Containers) {
     if ($item.Project -ne 'ai-project-aegis') {
-      throw "Another AEGIS Compose project is running: $($item.Name). Inspect ownership before stopping it."
+      throw "Another IndTrana Compose project is running: $($item.Name). Inspect ownership before stopping it."
     }
     if (-not $item.WorkingDirectory -or
         [IO.Path]::GetFullPath($item.WorkingDirectory).TrimEnd([char[]]'\/') -ne
         [IO.Path]::GetFullPath($Root).TrimEnd([char[]]'\/')) {
-      throw "AEGIS container belongs to another checkout: $($item.Name). Refusing to take over its project/volume."
+      throw "IndTrana container belongs to another checkout: $($item.Name). Refusing to take over its project/volume."
     }
-    if ($item.OneOff) { throw "An AEGIS one-off job is active: $($item.Name). Wait for it to finish." }
+    if ($item.OneOff) { throw "An IndTrana one-off job is active: $($item.Name). Wait for it to finish." }
   }
   foreach ($role in @('api', 'web', 'db', 'migrate', 'seed')) {
     $count = @($Containers | Where-Object { $_.Service -eq $role }).Count
-    if ($count -gt 1) { throw "Duplicate AEGIS service '$role': $count running containers. Inspect and stop only confirmed duplicates." }
+    if ($count -gt 1) { throw "Duplicate IndTrana service '$role': $count running containers. Inspect and stop only confirmed duplicates." }
     if ($role -in @('api', 'web', 'db') -and $RequireRunning -and $count -ne 1) {
-      throw "Expected exactly one running AEGIS '$role'; found $count."
+      throw "Expected exactly one running IndTrana '$role'; found $count."
     }
   }
 }
@@ -103,7 +103,7 @@ function Assert-AegisSingleRuntime([switch]$RequireRunning) {
     $processes = @(Get-CimInstance Win32_Process -ErrorAction Stop)
     $composeJobs = @($processes | Where-Object { Test-AegisComposeOperation -Process $_ -Root $root })
     if ($composeJobs.Count -gt 0) {
-      throw "An AEGIS Compose operation is still active (PID $($composeJobs.ProcessId -join ',')). Inspect it before starting another job."
+      throw "An IndTrana Compose operation is still active (PID $($composeJobs.ProcessId -join ',')). Inspect it before starting another job."
     }
     # Only classify explicitly owned server commands. Never print raw command
     # lines (which may contain secrets) or kill all node/python processes.
@@ -113,7 +113,7 @@ function Assert-AegisSingleRuntime([switch]$RequireRunning) {
       $_.CommandLine -match 'uvicorn|next-server|next[\\/].*bin[\\/]next|server\.js'
     })
     if ($native.Count -gt 0) {
-      throw "Native AEGIS server process detected (PID $($native.ProcessId -join ',')). Use one Compose stack; inspect before stopping."
+      throw "Native IndTrana server process detected (PID $($native.ProcessId -join ',')). Use one Compose stack; inspect before stopping."
     }
     # Host ports may be moved by scripts/aegis.ps1 (saved in LocalAppData/AEGIS/runtime-ports.env); defaults otherwise.
     $webPort = 3000; $apiPort = 8000
@@ -122,10 +122,10 @@ function Assert-AegisSingleRuntime([switch]$RequireRunning) {
     foreach ($portRole in @(@($webPort, 'web'), @($apiPort, 'api'))) {
       $listeners = @(Get-NetTCPConnection -State Listen -LocalPort $portRole[0] -ErrorAction SilentlyContinue)
       if ($listeners.Count -gt 0 -and @($containers | Where-Object { $_.Service -eq $portRole[1] }).Count -eq 0) {
-        throw "Port $($portRole[0]) is occupied without its AEGIS container. Refusing a competing service; inspect its owner."
+        throw "Port $($portRole[0]) is occupied without its IndTrana container. Refusing a competing service; inspect its owner."
       }
     }
   }
-  foreach ($item in $containers) { Write-Host "AEGIS running: $($item.Service) / $($item.Name)" }
-  Write-Host 'PASS: no duplicate AEGIS core service or conflicting managed job detected.'
+  foreach ($item in $containers) { Write-Host "IndTrana running: $($item.Service) / $($item.Name)" }
+  Write-Host 'PASS: no duplicate IndTrana core service or conflicting managed job detected.'
 }

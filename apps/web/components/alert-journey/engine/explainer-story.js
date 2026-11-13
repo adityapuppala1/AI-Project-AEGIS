@@ -1,4 +1,4 @@
-/* AEGIS Alert Journey explainer — scenario data (phases, events, AI insights, decisions, towers, teams, hubs).
+/* IndTrana Alert Journey explainer — scenario data (phases, events, AI insights, decisions, towers, teams, hubs).
  * SYNTHETIC EXERCISE. Names are fictional or generic; operator names only describe the real-world ecosystem
  * (no affiliation, no integration). Nothing here is a forecast, an accuracy claim, or a live message. */
 export default function install(g) {
@@ -22,25 +22,25 @@ export default function install(g) {
   /* ---------- phases ---------- */
   var PHASES = [
     { id: 'detect', name: 'Detect', t0: -72, t1: -54, color: '#38e1ff', icon: 'satellite',
-      title: 'Space keeps watch', blurb: 'Weather, rain-radar and SAR satellites see a depression form over the Bay. AEGIS may only read licence-checked public feeds.',
+      title: 'Space keeps watch', blurb: 'Weather, rain-radar and SAR satellites see a depression form over the Bay. IndTrana may only read licence-checked public feeds.',
       aegis: ['Reads public satellite and model data', 'Stamps every record with source, time and licence'], humans: ['Duty analyst watches the feed'],
-      not: ['Does not predict yet: evidence is thin and AEGIS says so'], tryIt: 'Drag the globe, then press “Dive to region”.' },
+      not: ['Does not predict yet: evidence is thin and IndTrana says so'], tryIt: 'Drag the globe, then press “Dive to region”.' },
     { id: 'predict', name: 'Predict', t0: -54, t1: -30, color: '#9b7bff', icon: 'brain',
       title: 'AI predicts, with citations', blurb: 'An ensemble of tracks narrows into a cone. A flood-risk map appears with an uncertainty band that shrinks as new evidence arrives.',
       aegis: ['Fuses tracks, rainfall and river data', 'Shows cited evidence and honest uncertainty', 'Abstains where data is stale'], humans: ['Analysts review the cited briefing'],
       not: ['Statistics are rehearsal numbers, never “accuracy”', 'Recommendation only: nothing is tasked'], tryIt: 'Turn on “Predicted flood” and “Forecast cone” in Layers.' },
     { id: 'decide', name: 'Decide', t0: -30, t1: -17.8, color: '#4be3a0', icon: 'check',
-      title: 'Humans decide', blurb: 'AI recommends where to stage teams and drafts the public message. A different person must approve. AEGIS cannot send anything.',
+      title: 'Humans decide', blurb: 'AI recommends where to stage teams and drafts the public message. A different person must approve. IndTrana cannot send anything.',
       aegis: ['Recommends pre-positioning (greedy + exact bound)', 'Drafts a private CAP 1.2 XML (status=Draft)'], humans: ['Commander approves staging', 'Maker drafts, a different checker approves'],
       not: ['No send button exists (level L4 = never)', 'Urgency/severity/certainty stay “Unknown” in the draft'], tryIt: 'Make the checker decision when the clock pauses.' },
     { id: 'alert', name: 'Alert', t0: -17.8, t1: -14, color: '#ffb547', icon: 'radio',
       title: 'Official hand-over', blurb: 'An authorised officer takes the approved draft to the government channel. NDMA/SACHET adds the area, signs and pushes cell broadcast through each operator.',
       aegis: ['Exports the approved draft file', 'Records approval and rationale in the audit'], humans: ['Authority sets area and severity, signs, transmits'],
-      not: ['AEGIS stops at the dashed line', 'Operators act on the authority, not on AEGIS'], tryIt: 'Open the Network tab and click a node.' },
+      not: ['IndTrana stops at the dashed line', 'Operators act on the authority, not on IndTrana'], tryIt: 'Open the Network tab and click a node.' },
     { id: 'respond', name: 'Respond', t0: -14, t1: 6, color: '#ff5d6c', icon: 'siren',
-      title: 'Evacuate, deploy, adapt', blurb: 'Phones buzz, people move, roads flood, towers fail and satellites carry the second alert. Teams act on agency orders; AEGIS tracks the exercise.',
+      title: 'Evacuate, deploy, adapt', blurb: 'Phones buzz, people move, roads flood, towers fail and satellites carry the second alert. Teams act on agency orders; IndTrana tracks the exercise.',
       aegis: ['Re-forecasts as new data lands', 'Flags closed roads and failing towers', 'Suggests reroutes and relief priorities'], humans: ['Commander tasks teams', 'Field crews decide on the ground'],
-      not: ['Does not dispatch or notify anyone itself', 'Satellite messaging is operator-side, not an AEGIS API'], tryIt: 'Click any tower, team or vehicle to inspect it.' },
+      not: ['Does not dispatch or notify anyone itself', 'Satellite messaging is operator-side, not an IndTrana API'], tryIt: 'Click any tower, team or vehicle to inspect it.' },
     { id: 'recover', name: 'Recover', t0: 6, t1: 24, color: '#6ea8ff', icon: 'refresh',
       title: 'Recover and learn', blurb: 'Water recedes, crews restore power and towers, and rehearsal statistics feed a reviewed learning loop.',
       aegis: ['Compares plan vs outcome (rehearsal basis)', 'Proposes threshold changes as stats-only diffs'], humans: ['Maker/checker review changes', 'Platform admin applies, with audit'],
@@ -54,7 +54,7 @@ export default function install(g) {
   /* ---------- lanes (who acts) ---------- */
   var LANES = [
     { id: 'space', name: 'Satellites & data', color: '#38e1ff' },
-    { id: 'ai', name: 'AEGIS AI', color: '#9b7bff' },
+    { id: 'ai', name: 'IndTrana AI', color: '#9b7bff' },
     { id: 'human', name: 'Humans (maker · checker · commander)', color: '#4be3a0' },
     { id: 'auth', name: 'Authority (NDMA / SACHET)', color: '#ffb547' },
     { id: 'telco', name: 'Telcos & towers', color: '#ff7ab0' },
@@ -70,10 +70,10 @@ export default function install(g) {
     { t: -48, lane: 'ai', icon: 'target', title: 'Track ensemble & cone', text: 'Eight ensemble tracks fan out; the cone of uncertainty narrows toward the Nadipur coast.' },
     { t: -36, lane: 'ai', icon: 'waves', title: 'Flood-risk map v1', text: 'Predicted inundation zone with an uncertainty band appears on the terrain.' },
     { t: -30, lane: 'human', icon: 'users', title: 'Commander: staging plan', text: 'AI recommends 3 high-ground staging sites. A human commander must choose.', decision: 'staging' },
-    { t: -26, lane: 'field', icon: 'truck', title: 'Teams roll to staging', text: 'Agency-tasked teams move to the approved staging sites (outside AEGIS).' },
+    { t: -26, lane: 'field', icon: 'truck', title: 'Teams roll to staging', text: 'Agency-tasked teams move to the approved staging sites (outside IndTrana).' },
     { t: -20, lane: 'human', icon: 'edit', title: 'Maker drafts CAP', text: 'Private draft message prepared from the cited briefing. Status = Draft.' },
     { t: -18, lane: 'human', icon: 'shield', title: 'Checker decision', text: 'A different person reviews and approves, or requests changes.', decision: 'cap' },
-    { t: -17.5, lane: 'auth', icon: 'radio', title: 'Hand-over to authority', text: 'Approved file leaves AEGIS. The authority adds area and severity, signs and transmits.' },
+    { t: -17.5, lane: 'auth', icon: 'radio', title: 'Hand-over to authority', text: 'Approved file leaves IndTrana. The authority adds area and severity, signs and transmits.' },
     { t: -17.2, lane: 'telco', icon: 'signal', title: 'Operators’ CBCs push', text: 'Cell Broadcast Centres of each operator send to towers in the target cells.' },
     { t: -16.9, lane: 'public', icon: 'phone', title: 'Phones buzz', text: 'Compatible phones in the area show the alert in local languages within minutes.' },
     { t: -16, lane: 'public', icon: 'users', title: 'Evacuation begins', text: 'Residents walk and drive to shelters on high ground; traffic control reroutes.' },
@@ -91,7 +91,7 @@ export default function install(g) {
   /* ---------- decisions (playback pauses until you decide) ---------- */
   var DECISIONS = [
     { id: 'staging', t: -30, title: 'Commander decision · where to stage teams?', who: 'Incident commander (human)', icon: 'users',
-      intro: 'AEGIS recommends. It cannot task teams. The agency commander chooses.',
+      intro: 'IndTrana recommends. It cannot task teams. The agency commander chooses.',
       options: [
         { id: 'B', label: 'Plan B · AI-recommended high-ground sites', badge: 'recommended', text: '3 staging sites on high ground (NE ridge, SW ridge, rural school). Roads stay open longest.', cites: ['Predicted zone ≥ 1.4 m above these sites', 'Route risk lowest for 3 of 3 sites'] },
         { id: 'A', label: 'Plan A · Central depot at City Hall', badge: 'convenient', text: 'One central yard near the river. Short drives now, but it sits inside the predicted flood zone.', cites: ['Yard ≈0.9 below the predicted peak', 'Road cut-off likely ≈ T+0h'] }
@@ -131,17 +131,17 @@ export default function install(g) {
   var INSIGHTS = [
     { t: -72, type: 'observe', title: 'Closed circulation detected', body: 'Satellite IR and scatterometer agree on a closed low in the Bay. Intensity: Depression. No impact claim is made.', ev: ['ir'], conf: 0.62, why: ['Two independent passes agree on position (±1.5°)', 'Intensity is a classification, not a forecast'] },
     { t: -66, type: 'observe', title: 'Open data online', body: 'Ingestion running on 3 licence-checked sources. IMD and India-WRIS are excluded until written terms exist, so gaps are shown, not filled.', ev: ['om', 'glofas'], conf: null, why: ['Allow-listed HTTPS sources only', 'Excluded sources are never silently replaced'] },
-    { t: -60, type: 'abstain', title: 'AEGIS abstains on flood level', body: 'Track spread is ±1,000 km-equivalent and gauge G-2 is 3 h stale. Publishing a flood number now would be a guess, so none is shown.', ev: ['g2', 'ir'], conf: null, why: ['Fail-closed rule: stale or conflicting inputs → “not comparable”', 'Agreement between models is not corroboration'] },
+    { t: -60, type: 'abstain', title: 'IndTrana abstains on flood level', body: 'Track spread is ±1,000 km-equivalent and gauge G-2 is 3 h stale. Publishing a flood number now would be a guess, so none is shown.', ev: ['g2', 'ir'], conf: null, why: ['Fail-closed rule: stale or conflicting inputs → “not comparable”', 'Agreement between models is not corroboration'] },
     { t: -48, type: 'predict', title: 'Track cone published', body: 'Eight ensemble tracks converge on the Nadipur coast within ±60 km-equivalent. Landfall window: T−6h to T+6h.', ev: ['ir', 'om'], conf: 0.55, why: ['Ensemble spread narrows as new passes arrive', 'Uncertainty cone drawn from the spread, not from a claimed accuracy'] },
     { t: -36, type: 'predict', title: 'Flood-risk map v1', body: 'Predicted inundation of the river plain and coast with a wide band. Estimated peak is shown as a range, and it will move.', ev: ['om', 'glofas', 'dem'], conf: 0.5, why: ['Model discharge, not gauge data', 'Band is wide because upstream rain has not arrived'] },
     { t: -30, type: 'recommend', title: 'Pre-position teams (recommendation)', body: 'Greedy plan with exact bound suggests 3 staging sites on high ground, and abstains on a 4th site (no road data). It does not move or notify anyone.', ev: ['dem', 'osm', 'pop'], conf: 0.7, why: ['Synthetic teams and cited exposure only', 'The commander’s decision is required next'] },
     { t: -20, type: 'handoff', title: 'Draft alert prepared', body: 'Private CAP 1.2 draft assembled from templates: fixed wording, integer and closed-code placeholders only. No model text is rendered into it.', ev: ['om', 'g3'], conf: null, why: ['Urgency/severity/certainty stay “Unknown”: the authority decides', 'Translations remain pending native sign-off'] },
-    { t: -17.4, type: 'handoff', title: 'Hand-over recorded', body: 'Approved file exported with the checker’s rationale. From here the authority, operators and field teams act. AEGIS only observes.', ev: [], conf: null, why: ['Audit keeps maker, checker, time and rationale'] },
+    { t: -17.4, type: 'handoff', title: 'Hand-over recorded', body: 'Approved file exported with the checker’s rationale. From here the authority, operators and field teams act. IndTrana only observes.', ev: [], conf: null, why: ['Audit keeps maker, checker, time and rationale'] },
     { t: -16.5, type: 'alert', title: 'Delivery observed (exercise)', body: 'Cell-broadcast delivery in the target cells: reported reach is shown with its coverage gaps, not rounded up. Hill villages without towers rely on sirens and volunteers.', ev: ['cbc', 'tw'], conf: null, why: ['Coverage ≠ delivery', 'Incompatible handsets are listed as unreached'] },
     { t: -12, type: 'predict', title: 'Forecast refreshed: ±0.24', body: 'River gauges rising on schedule. Predicted peak moved and the uncertainty band narrowed. New evidence is cited.', ev: ['g1', 'g2', 'gpm'], conf: 0.74, why: ['Re-run on every new ingest', 'Previous estimates stay in the audit trail'] },
     { t: -8, type: 'recommend', title: 'Roads at the zone edge closing', body: 'Three arterial segments will be under water within ~6 h. Suggested reroute shown in green; traffic control is a human task.', ev: ['osm', 'g3'], conf: 0.68, why: ['Closure = predicted depth > 0.3 m on road cells'] },
     { t: -6.2, type: 'human', title: 'Escalation needs a human', body: 'Forecast confidence ±0.16 and rain bands arriving. Commander is asked to expand Zone B and open emergency mode.', ev: ['gpm', 'g3'], conf: 0.8, why: ['AI can recommend, never escalate'] },
-    { t: -4.5, type: 'field', title: 'Hotspots ranked', body: 'Six hotspots ranked by exposed population × predicted depth × access. Agency teams are tasked by their commander; AEGIS records the exercise.', ev: ['pop', 'sar'], conf: 0.72, why: ['Ranking is explainable: each factor is shown'] },
+    { t: -4.5, type: 'field', title: 'Hotspots ranked', body: 'Six hotspots ranked by exposed population × predicted depth × access. Agency teams are tasked by their commander; IndTrana records the exercise.', ev: ['pop', 'sar'], conf: 0.72, why: ['Ranking is explainable: each factor is shown'] },
     { t: -2.2, type: 'alert', title: 'Update #2 · surge', body: 'Second alert prepared and approved. Coastal towers are already down, so reach there falls back to satellite-capable phones only.', ev: ['tw', 'cbc'], conf: null, why: ['Satellite path = operator-side, compatible handsets only'] },
     { t: 0, type: 'observe', title: 'Landfall observed', body: 'Eye crossing the coast. Observed surge consistent with the forecast band (synthetic rehearsal).', ev: ['ir', 'g3'], conf: null, why: ['Observation, not a claim of forecast accuracy'] },
     { t: 1.9, type: 'observe', title: 'Peak flood in the band', body: 'Observed peak level is inside the predicted band. Rehearsal statistics only, not accuracy.', ev: ['sar', 'g3'], conf: null, why: ['Basis: this synthetic scenario'] },
@@ -200,7 +200,7 @@ export default function install(g) {
   var FACILITY_DEFS = [
     { id: 'fac_hosp', name: 'District Hospital', kind: 'hospital', x: 6, z: 10 },
     { id: 'fac_sub', name: 'Power substation', kind: 'substation', x: 24, z: 12 },
-    { id: 'fac_eoc', name: 'State EOC · AEGIS Ops Desk', kind: 'eoc', x: 2, z: 6 },
+    { id: 'fac_eoc', name: 'State EOC · IndTrana Ops Desk', kind: 'eoc', x: 2, z: 6 },
     { id: 'fac_gs', name: 'Satellite ground station', kind: 'dish', x: -36, z: -4 },
     { id: 'fac_radar', name: 'Weather radar (synthetic)', kind: 'radar', x: -12, z: -21 },
     { id: 'fac_light', name: 'Lighthouse', kind: 'lighthouse', x: 50, z: 30 }
@@ -258,12 +258,12 @@ export default function install(g) {
     te: { head: 'అప్‌డేట్ · ఉప్పెన హెచ్చరిక', body: 'తుఫాను అలలు పెరుగుతున్నాయి. ఆశ్రయంలోనే ఉండండి. ఇంటికి తిరగవద్దు.', lang: 'తెలుగు' }
   };
 
-  /* ---------- "Ask AEGIS" (grounded intents; anything else → abstain) ---------- */
+  /* ---------- "Ask IndTrana" (grounded intents; anything else → abstain) ---------- */
   var ASK = [
     { id: 'first', q: 'Which areas flood first?', re: /(flood\w*|inundat\w*).*(first|early|where)|(first|early).*(flood|area)|which area/i },
     { id: 'stage', q: 'Where should teams stage?', re: /(stage|staging|position|pre-?position|deploy|where.*team)/i },
     { id: 'why', q: 'Why did you abstain?', re: /(abstain|why.*(no|not)|refus|can.?t.*(say|tell))/i },
-    { id: 'send', q: 'Can AEGIS send the alert?', re: /(send|transmit|broadcast|push).*(alert|message|sms|phone)|can you (send|alert)/i },
+    { id: 'send', q: 'Can IndTrana send the alert?', re: /(send|transmit|broadcast|push).*(alert|message|sms|phone)|can you (send|alert)/i },
     { id: 'conf', q: 'How confident is the forecast?', re: /(confiden|uncertain|accura|sure|reliab)/i },
     { id: 'towers', q: 'Which towers are at risk?', re: /(tower|bts|network|signal|telecom|coverage)/i },
     { id: 'reach', q: 'How many people were reached?', re: /(reach|deliver|receiv|how many.*(people|phone))/i }
@@ -333,10 +333,10 @@ export default function install(g) {
 
   /* ---------- "reality check" panel ---------- */
   var REALITY = [
-    { h: 'Can AEGIS send alerts to Airtel / Jio / BSNL / Vi users?', v: 'NO · by design', k: 'no',
-      p: 'Repo rules (AGENTS.md, roadmap level L4 “never”): no SMTP, webhook, CAP feed or telco transport. AEGIS can only export a private draft CAP 1.2 XML after a different human checker approves.',
+    { h: 'Can IndTrana send alerts to Airtel / Jio / BSNL / Vi users?', v: 'NO · by design', k: 'no',
+      p: 'Repo rules (AGENTS.md, roadmap level L4 “never”): no SMTP, webhook, CAP feed or telco transport. IndTrana can only export a private draft CAP 1.2 XML after a different human checker approves.',
       li: ['In India public alerts run through the government channel: NDMA / SACHET (built by C-DOT on CAP), which instructs operators’ Cell Broadcast Centres.', 'Telcos do not take commands from a private platform; a formal agreement with the authority would be required.'] },
-    { h: 'What AEGIS legitimately does', v: 'YES · prepare & hand over', k: 'yes',
+    { h: 'What IndTrana legitimately does', v: 'YES · prepare & hand over', k: 'yes',
       li: ['Watches licence-checked sources and shows cited evidence; abstains when data is stale.', 'Recommends staging and drafts a message; humans decide (maker ≠ checker).', 'Hands the approved file to an authorised officer.', 'Rehearses the whole chain in exercises and drills.'] },
     { h: 'Public / open API access', v: 'PARTLY · per source', k: 'mix', table: [
       ['Open-Meteo (weather, GloFAS-derived flood)', 'y', 'usable · CC BY 4.0, non-commercial'], ['USGS quakes · NASA EONET · GIBS imagery', 'y', 'usable · credit required'],
@@ -347,7 +347,7 @@ export default function install(g) {
       p: 'Not legal advice; the repo holds no patent search. The broad concept is crowded prior art: CAP, SACHET, NavIC messaging, ETWS/WEA cell broadcast, direct-to-cell alerts.',
       li: ['Narrower combinations might be protectable (fail-closed cited gating + independent maker-checker + signed-scope hand-over).', 'India’s Patents Act s.3(k) restricts software “per se”; a technical effect must be shown.', 'See an Indian patent attorney and run a prior-art search before any public disclosure (demos can affect novelty).'] },
     { h: 'Real path to end users', v: 'Needs authority + operators', k: 'mix',
-      li: ['Partnership with the state SDMA / NDMA for an authorised CAP feed.', 'Operator onboarding: Cell Broadcast Centre per operator.', 'Satellite fallback is operator/agency-side (NavIC messaging, direct-to-cell), not an API AEGIS can call.', 'Message wording needs native-speaker sign-off.'] }
+      li: ['Partnership with the state SDMA / NDMA for an authorised CAP feed.', 'Operator onboarding: Cell Broadcast Centre per operator.', 'Satellite fallback is operator/agency-side (NavIC messaging, direct-to-cell), not an API IndTrana can call.', 'Message wording needs native-speaker sign-off.'] }
   ];
 
   /* ---------- director (auto camera) and camera presets ---------- */

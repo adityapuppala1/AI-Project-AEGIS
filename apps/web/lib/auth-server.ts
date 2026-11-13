@@ -1,4 +1,4 @@
-/** AEGIS browser backend-for-frontend authentication.
+/** IndTrana browser backend-for-frontend authentication.
  * OIDC Authorization Code + PKCE. Access tokens never enter browser JS.
  * Short-lived encrypted HttpOnly sessions; no refresh tokens are persisted.
  *

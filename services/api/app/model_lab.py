@@ -1,4 +1,4 @@
-"""Deterministic synthetic-only AEGIS model laboratory.
+"""Deterministic synthetic-only IndTrana model laboratory.
 
 NO live inference, external data, public warnings or dispatch. The held-out
 metrics describe generated cases only, NOT real flood forecasting skill.

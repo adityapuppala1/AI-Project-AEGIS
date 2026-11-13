@@ -1,4 +1,4 @@
-/* AEGIS Live Earth — statistics, hazard screening, geodesy, sun position and DEM hydrology (pure functions, Node-testable).
+/* IndTrana Live Earth — statistics, hazard screening, geodesy, sun position and DEM hydrology (pure functions, Node-testable).
  * Everything here is a SCREENING aid computed from public data. It is not an official warning or a forecast of record. */
 export default function install(g) {
   'use strict';

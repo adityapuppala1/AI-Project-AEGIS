@@ -1,4 +1,4 @@
-/* AEGIS Alert Journey explainer — places: roads, city, rural, hills, coast, facilities, shelters, gauges, towers, satellites, hubs. */
+/* IndTrana Alert Journey explainer — places: roads, city, rural, hills, coast, facilities, shelters, gauges, towers, satellites, hubs. */
 export default function install(g) {
   'use strict';
   var AX = g.AX = g.AX || {};
@@ -175,8 +175,8 @@ export default function install(g) {
           var out = S.powerOutage(F.t), dep = Math.max(0, F.st.flood - C.H(d.x, d.z));
           var rows = [['Ground level', C.H(d.x, d.z).toFixed(2) + ' m'], ['Flood depth now', dep.toFixed(2) + ' m']];
           if (d.kind === 'substation') return { status: { tone: out ? 'bad' : dep > 0.1 ? 'warn' : 'ok', text: out ? 'Tripped by flooding' : 'Energised' }, rows: rows.concat([['Restores (model)', 'T' + (S.SUB_SCHED.restore >= 0 ? '+' : '−') + Math.abs(S.SUB_SCHED.restore).toFixed(1) + 'h']]), note: 'City windows go dark when this substation trips. Crews re-energise it after the water falls.' };
-          if (d.kind === 'hospital') return { status: { tone: out ? 'warn' : 'ok', text: out ? 'On generator' : 'Normal power' }, rows: rows.concat([['Beds (synthetic)', '320'], ['Access road', dep > 0.3 ? 'Flooded: boats/ambulances only' : 'Open']]), note: 'AEGIS shows access risk. Patient transfer decisions belong to the hospital.' };
-          if (d.kind === 'eoc') return { status: { tone: 'info', text: 'AEGIS Ops Desk' }, rows: rows.concat([['Role', 'Human commander + maker/checker'], ['AEGIS can', 'recommend, draft, record'], ['AEGIS cannot', 'send, dispatch, notify']]), note: 'Exercise-only. No live warning or dispatch path exists.' };
+          if (d.kind === 'hospital') return { status: { tone: out ? 'warn' : 'ok', text: out ? 'On generator' : 'Normal power' }, rows: rows.concat([['Beds (synthetic)', '320'], ['Access road', dep > 0.3 ? 'Flooded: boats/ambulances only' : 'Open']]), note: 'IndTrana shows access risk. Patient transfer decisions belong to the hospital.' };
+          if (d.kind === 'eoc') return { status: { tone: 'info', text: 'IndTrana Ops Desk' }, rows: rows.concat([['Role', 'Human commander + maker/checker'], ['IndTrana can', 'recommend, draft, record'], ['IndTrana cannot', 'send, dispatch, notify']]), note: 'Exercise-only. No live warning or dispatch path exists.' };
           if (d.kind === 'radar') return { status: { tone: 'ok', text: 'Sweeping' }, rows: rows.concat([['Rain here', F.st.rainMmh + ' mm/h (model)']]), note: 'Synthetic weather radar feeding the rain layer.' };
           if (d.kind === 'dish') return { status: { tone: 'ok', text: 'Tracking' }, rows: rows.concat([['Downlinks', 'SAR · rain-radar · weather']]), note: 'Satellite ground station feeding open data to the Ops Desk.' };
           return { status: { tone: 'info', text: 'Navigation light' }, rows: rows };
@@ -214,14 +214,14 @@ export default function install(g) {
       var gr = new T.Group(), ring = new T.Mesh(new T.RingGeometry(1.6, 1.9, 36).rotateX(-Math.PI / 2), new T.MeshBasicMaterial({ color: 0x38e1ff, transparent: true, opacity: 0.8, side: T.DoubleSide, depthWrite: false })); ring.position.y = 0.15;
       var pole = new T.Mesh(new T.CylinderGeometry(0.03, 0.03, 2.6, 5).translate(0, 1.3, 0), new T.MeshBasicMaterial({ color: 0x38e1ff })); gr.add(ring, pole); at(gr, d.x, d.z); ctx.add('teams', gr); P.markers.push({ g: gr, d: d, ring: ring });
       ctx.reg({ id: d.id, kind: 'staging', name: d.name, icon: 'target', color: '#38e1ff', anchor: gr, lblY: 2.8, layer: 'teams', prio: 4, pick: [ring], describe: function (F) {
-        return { status: { tone: 'info', text: ctx.decision.staging ? 'Approved by commander' : 'AEGIS recommendation' }, rows: [['Ground level', C.H(d.x, d.z).toFixed(2) + ' m'], ['Above predicted peak', (C.H(d.x, d.z) - C.FLOOD_PEAK.level).toFixed(2) + ' m'], ['Chosen by', ctx.decision.staging ? 'Human commander' : 'Waiting for a human']], note: 'Pre-positioning is a recommendation. Agency commanders task the teams.' };
+        return { status: { tone: 'info', text: ctx.decision.staging ? 'Approved by commander' : 'IndTrana recommendation' }, rows: [['Ground level', C.H(d.x, d.z).toFixed(2) + ' m'], ['Above predicted peak', (C.H(d.x, d.z) - C.FLOOD_PEAK.level).toFixed(2) + ' m'], ['Chosen by', ctx.decision.staging ? 'Human commander' : 'Waiting for a human']], note: 'Pre-positioning is a recommendation. Agency commanders task the teams.' };
       } });
     });
     S.HOTSPOTS.forEach(function (d) {
       var ring = new T.Mesh(new T.RingGeometry(1.2, 1.5, 32).rotateX(-Math.PI / 2), new T.MeshBasicMaterial({ color: 0xff5d6c, transparent: true, opacity: 0.8, side: T.DoubleSide, depthWrite: false })); at(ring, d.x, d.z, 0.2); ctx.add('risk', ring);
       ctx.reg({ id: d.id, kind: 'hotspot', name: d.name, icon: 'alert', color: '#ff5d6c', anchor: ring, lblY: 1.5, layer: 'risk', prio: 4, pick: [ring], describe: function (F) {
         var depth = Math.max(0, F.st.flood - C.H(d.x, d.z));
-        return { status: { tone: depth > 0.5 ? 'bad' : depth > 0.1 ? 'warn' : 'info', text: depth > 0.05 ? 'Flooded ' + depth.toFixed(2) + ' m' : 'Predicted hotspot' }, rows: [['Predicted depth at peak', Math.max(0, (F.st.pred.has ? F.st.pred.level : C.FLOOD_PEAK.level) - C.H(d.x, d.z)).toFixed(2) + ' m'], ['Ranking factors', 'people × depth × access']], note: 'Ranked and explained by AEGIS; teams are tasked by humans.' };
+        return { status: { tone: depth > 0.5 ? 'bad' : depth > 0.1 ? 'warn' : 'info', text: depth > 0.05 ? 'Flooded ' + depth.toFixed(2) + ' m' : 'Predicted hotspot' }, rows: [['Predicted depth at peak', Math.max(0, (F.st.pred.has ? F.st.pred.level : C.FLOOD_PEAK.level) - C.H(d.x, d.z)).toFixed(2) + ' m'], ['Ranking factors', 'people × depth × access']], note: 'Ranked and explained by IndTrana; teams are tasked by humans.' };
       } }); d.ring = ring;
     });
 
@@ -268,8 +268,8 @@ export default function install(g) {
       cone.visible = false; gr.add(cone); ctx.add('satellites', gr); d.group = gr; d.cone = cone; d.model = m; P.sats[d.id] = d;
       ctx.reg({ id: d.id, kind: 'satellite', name: d.name, icon: 'satellite', color: d.color, anchor: gr, lblY: 2.4, layer: 'satellites', prio: 8, pick: [m], describe: function (F) {
         return { status: { tone: 'info', text: d.kind === 'geo' ? 'Geostationary-type · fixed in the sky' : 'Low orbit · passes every ' + Math.round(d.period * 1.5) + ' min (schematic)' },
-          rows: [['What it does', d.role], ['Product', d.product], ['Used by AEGIS?', d.id === 'sat_navic' || d.id === 'sat_d2c' ? 'No: operator/agency-side service' : 'Yes, as licence-checked public data']],
-          note: d.id === 'sat_navic' || d.id === 'sat_d2c' ? 'AEGIS cannot call this link; it can only be reached through the authority and operators.' : 'Illustrative class of satellite; no live feed is used.', ev: d.id === 'sat_sar' ? ['sar'] : d.id === 'sat_gpm' ? ['gpm'] : d.id === 'sat_wx' ? ['ir'] : [] };
+          rows: [['What it does', d.role], ['Product', d.product], ['Used by IndTrana?', d.id === 'sat_navic' || d.id === 'sat_d2c' ? 'No: operator/agency-side service' : 'Yes, as licence-checked public data']],
+          note: d.id === 'sat_navic' || d.id === 'sat_d2c' ? 'IndTrana cannot call this link; it can only be reached through the authority and operators.' : 'Illustrative class of satellite; no live feed is used.', ev: d.id === 'sat_sar' ? ['sar'] : d.id === 'sat_gpm' ? ['gpm'] : d.id === 'sat_wx' ? ['ir'] : [] };
       } });
     });
     S.HUBS.forEach(function (d) {
@@ -283,7 +283,7 @@ export default function install(g) {
       ctx.reg({ id: d.id, kind: 'hub', name: d.name, icon: d.icon === 'server' ? 'server' : d.icon, color: d.color, anchor: gr, lblY: 3.4, layer: 'comms', prio: 8, pick: [core, inner], describe: function (F) {
         var bc = BCAST.some(function (b) { return F.t >= b[0] && F.t <= b[1]; }), op = d.op;
         var rows = d.id === 'hub_open' ? [['Feeds', 'Open-Meteo · NASA GIBS · Copernicus (licence-checked)'], ['Rule', 'Fixed HTTPS allow-list; stale data is flagged'], ['Excluded', 'IMD · India-WRIS until written terms']]
-          : d.id === 'hub_ndma' ? [['Role', 'Authority: sets area and severity, signs, transmits'], ['Protocol', 'CAP 1.2 → SACHET → operators'], ['AEGIS relation', 'Receives an approved file from a human; AEGIS never sends']]
+          : d.id === 'hub_ndma' ? [['Role', 'Authority: sets area and severity, signs, transmits'], ['Protocol', 'CAP 1.2 → SACHET → operators'], ['IndTrana relation', 'Receives an approved file from a human; IndTrana never sends']]
           : [['Role', 'Cell Broadcast Centre (CBC) pushes the alert to towers in the target cells'], ['Operators act on', 'the authority’s instruction'], ['Hosted towers', S.TOWERS.filter(function (t) { return t.hosts.indexOf(op) > -1; }).length + ' in this region']];
         return { status: { tone: bc && d.id !== 'hub_open' ? 'warn' : 'info', text: bc && d.id !== 'hub_open' ? 'Pushing broadcast' : 'Standing by' }, rows: rows, note: d.id.indexOf('cbc') > 0 ? 'Operator names describe the real-world ecosystem only: no affiliation or integration.' : '', ev: d.id === 'hub_open' ? ['om', 'glofas'] : ['cbc'] };
       } });

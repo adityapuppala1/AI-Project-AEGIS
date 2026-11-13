@@ -5,7 +5,7 @@ export const runtime = "nodejs";
 
 // Display-only relay for public satellite orbital elements (CelesTrak). One shared server-side cache means many
 // browsers cause at most one upstream request per group every 3 hours (CelesTrak refreshes about every 2 hours and
-// blocks clients that poll more often). Nothing is stored in the database or used by AEGIS workflows.
+// blocks clients that poll more often). Nothing is stored in the database or used by IndTrana workflows.
 const GROUPS: Record<string, string> = {
   weather: "GROUP=weather", resource: "GROUP=resource", noaa: "GROUP=noaa",
   navic: "NAME=IRNSS", insat: "NAME=INSAT", cartosat: "NAME=CARTOSAT", sentinel: "NAME=SENTINEL",

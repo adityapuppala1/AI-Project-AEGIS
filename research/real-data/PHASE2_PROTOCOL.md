@@ -15,7 +15,7 @@ Non-goals:
 
 - No operational forecast, warning, alert, dispatch or public message of any kind.
 - No claim of forecasting skill, forecast accuracy or predictive ability for real floods.
-- No input to the AEGIS application, its workflow, approvals or Model Lab, unless a later reviewed decision says
+- No input to the IndTrana application, its workflow, approvals or Model Lab, unless a later reviewed decision says
   so; any such display must be labelled "Real historical retrospective" and stay read-only.
 - No hourly analysis (see section 5).
 

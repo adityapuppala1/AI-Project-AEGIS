@@ -1,4 +1,4 @@
-# Earth Watch enhancement plan — IndTrana-inspired capabilities for AEGIS
+# Earth Watch enhancement plan — IndTrana-inspired capabilities for IndTrana
 
 Status: **plan written on the owner's instruction of 2026-11-02; E0 and E1/E2 started.**
 Branch: `feat/aegis-local-demo-continuation`. Time zone: Asia/Kolkata (IST).
@@ -9,13 +9,13 @@ trigger or label is authorized by this plan.
 
 A review of the public IndTrana prototype (`Cyberekta-Security-Solutions/indtrana`,
 read-only; no code copied, and the repository has no licence file) showed that it
-is visibly strong where AEGIS is thin: real satellite imagery, real public hazard
+is visibly strong where IndTrana is thin: real satellite imagery, real public hazard
 markers, honest freshness and staleness, citizen-style report intake and a simple
-team-availability view. It is weak where AEGIS is strong: persistence, identity,
+team-availability view. It is weak where IndTrana is strong: persistence, identity,
 independent approval, audit, tests and governance.
 
-The goal is **AEGIS governance plus IndTrana-style visibility**. We borrow ideas,
-write our own code, and never weaken an AEGIS control.
+The goal is **IndTrana governance plus IndTrana-style visibility**. We borrow ideas,
+write our own code, and never weaken an IndTrana control.
 
 ## Scope baseline (what is already done, what is pending)
 
@@ -30,7 +30,7 @@ claims. This plan adds capability; it does not close those gates.
 
 ## Capability comparison that drives the plan
 
-| IndTrana idea | AEGIS today | Plan item |
+| IndTrana idea | IndTrana today | Plan item |
 |---|---|---|
 | Live USGS earthquakes + NASA EONET events | none (synthetic only) | E1 |
 | NASA GIBS satellite imagery with date picker | OSM base map only | E2 |
@@ -57,7 +57,7 @@ claims. This plan adds capability; it does not close those gates.
    time, a `stale` flag, and the upstream's own caveats. Failure never substitutes
    demo data. "No markers" never means "safe".
 5. **Never a warning service.** No alert, dispatch, notification or CAP is derived
-   from public data. The label "Public reference data — not an AEGIS assessment"
+   from public data. The label "Public reference data — not an IndTrana assessment"
    stays visible.
 6. **Labels stay separate.** Synthetic and public records use different colours,
    legend entries and the `source` classification field; the UI refuses payloads
@@ -106,7 +106,7 @@ E5 is the first item to drop if time is short; nothing else depends on it.
 
 | Risk | Mitigation |
 |---|---|
-| Public data mistaken for an AEGIS assessment or warning | Permanent labels, separate legend, display-only rule, no workflow link |
+| Public data mistaken for an IndTrana assessment or warning | Permanent labels, separate legend, display-only rule, no workflow link |
 | Upstream outage or rate limits | Server TTL cache, stale labelling, single in-flight fetch per feed, no client-side direct calls |
 | SSRF or open proxy | Fixed URL allowlist, no redirects, size/time limits, no user-controlled host |
 | Licence or terms change | Attribution shown in UI; re-check USGS, NASA EONET and GIBS terms before any release review |

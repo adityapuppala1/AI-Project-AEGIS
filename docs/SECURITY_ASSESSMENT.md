@@ -1,6 +1,6 @@
 # Security assessment — 10 November 2026
 
-Scope: the AEGIS prototype as run locally on one Windows laptop with Docker Compose (web BFF, API, PostgreSQL, local
+Scope: the IndTrana prototype as run locally on one Windows laptop with Docker Compose (web BFF, API, PostgreSQL, local
 identity provider), branch `feat/landing-ux-security-hardening`. Tested by the development assistant, white-box, as an
 unauthenticated attacker on the same machine. **This is a developer self-assessment. It is not an independent
 penetration test and does not replace the CERT-In empanelled audit that government hosting requires.**
@@ -35,7 +35,7 @@ penetration test and does not replace the CERT-In empanelled audit that governme
 Notes on the four DAST non-passes: the citizen-intake route answered "disabled" (correct, it is switched off); two
 routes answer without a session by design (the read-only review preview, and sign-out); the HTTP client refused to
 send a TRACE request; and port 5432 on this laptop is open, but it belongs to **another program on the laptop, not to
-AEGIS** (the AEGIS database port is not published). The owner may want to check that other program, because it
+IndTrana** (the IndTrana database port is not published). The owner may want to check that other program, because it
 listens on all network interfaces.
 
 ## Findings and what was done
@@ -72,7 +72,7 @@ AES-256-GCM connector vault; relay allow-list (HTTPS only, fixed hosts, no redir
 | Active attack scan (ZAP full scan, Burp) | Not run. It would have pushed junk requests through the relay to third-party public services |
 | Semgrep, SonarQube, container image CVE scan (Trivy) | Not run on this machine. Run them in CI or on the audit machine |
 | Network testing, cloud (AWS/GCP/Azure) testing, Kubernetes testing | Not applicable yet: there is no network, cloud account or cluster, only one laptop |
-| Desktop application testing | Not applicable: AEGIS is a web application |
+| Desktop application testing | Not applicable: IndTrana is a web application |
 | Social engineering, red team / blue team exercise, agentic exposure validation | Not done. These test an organisation and its people and need written authorisation, a real deployment and an independent team |
 | Debrief session | To be held with the owner; this document is the written part |
 

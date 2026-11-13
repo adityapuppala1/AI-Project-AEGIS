@@ -1,4 +1,4 @@
-# AEGIS — Project Execution and Delivery Tracker
+# IndTrana — Project Execution and Delivery Tracker
 
 Current extensions: [saved proposal-context revalidation](PROPOSAL_CONTEXT_REVALIDATION.md)
 and [single-instance local operation guards](SINGLE_INSTANCE_LOCAL_RUNTIME.md)

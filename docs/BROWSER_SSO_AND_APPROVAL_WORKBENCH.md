@@ -1,4 +1,4 @@
-# AEGIS secure browser operator access — exercise milestone
+# IndTrana secure browser operator access — exercise milestone
 
 This milestone introduces a Next.js **backend-for-frontend** (BFF) for signed-in
 operator sessions and a role-scoped exercise approval workbench at `/approvals`.

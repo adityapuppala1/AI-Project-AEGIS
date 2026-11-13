@@ -224,7 +224,7 @@ export function SetupChecklist({ evidenceCount, refreshed, triggerCount, onPrevi
     { title: t("Enable a connector"), body: t("A platform admin switches on at least one data connector, such as Open-Meteo."), done: evidenceCount > 0, action: <Link href="/admin/connectors" className={buttonClass({ size: "sm" })}><Plug size={14} aria-hidden="true"/>{t("Open connectors")}</Link> },
     { title: t("Press Refresh evidence"), body: t("An incident operator or platform admin fetches evidence once. Nothing runs in the background."), done: refreshed || evidenceCount > 0,
       action: <Button size="sm" type="button" onClick={onRefresh} disabled={!canRefresh || refreshing}><RefreshCw size={14} aria-hidden="true"/>{t("Refresh evidence")}</Button> },
-    { title: t("Review the queue"), body: t("Triggers appear in the queue. A person reviews each one; AEGIS never sends warnings."), done: triggerCount > 0, action: null },
+    { title: t("Review the queue"), body: t("Triggers appear in the queue. A person reviews each one; IndTrana never sends warnings."), done: triggerCount > 0, action: null },
   ];
   const current = steps.findIndex(step => !step.done);
   return <Panel aria-labelledby="setup-title">

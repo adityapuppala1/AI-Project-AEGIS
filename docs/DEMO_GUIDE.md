@@ -1,7 +1,7 @@
-# AEGIS demo guide for the presenter
+# IndTrana demo guide for the presenter
 
 A 25-minute walkthrough with the demo accounts. Written 11 November 2026 for the local laptop setup.
-Everything shown is synthetic exercise data. AEGIS does not send warnings and has no government approval. Say that
+Everything shown is synthetic exercise data. IndTrana does not send warnings and has no government approval. Say that
 once at the start and once at the end.
 
 ## Ten minutes before
@@ -19,7 +19,7 @@ Sessions last 15 minutes. If you see "Your session ended", choose Sign in again;
 
 ## The one-sentence story
 
-"AEGIS gathers the evidence, estimates the risk, and makes sure two different officers approve an alert before it is
+"IndTrana gathers the evidence, estimates the risk, and makes sure two different officers approve an alert before it is
 handed to the official warning channel. The software prepares and explains. People decide. The authority warns."
 
 ## Who is who
@@ -49,7 +49,7 @@ every action is recorded against a named person. That only works if each person 
 ### Part 2. Sign in as the maker (2 min)
 
 - Click **Sign in**, then **Continue to sign in**.
-- Say: "AEGIS has no password box. You are sent to your own agency's sign-in. AEGIS only receives a signed
+- Say: "IndTrana has no password box. You are sent to your own agency's sign-in. IndTrana only receives a signed
   statement of who you are and your role."
 - Sign in as `demo-maker`. You land on the Command Center.
 - Point at the top right: name and role "Maker". Open the menu: agency, session time left, sign out.
@@ -61,7 +61,7 @@ every action is recorded against a named person. That only works if each person 
 - **Exercise Walkthrough** (menu, Overview): the guided 11-stage exercise. Use it if you want the app to lead you.
 - **Incident Registry** (Observe): open one case. Show the evidence list and that every finding cites its records.
 - **Source Freshness** (Observe): each data source and how old its last reading is. Some show as stale; say that this
-  is on purpose in the sample data, and that AEGIS flags stale sources instead of hiding them.
+  is on purpose in the sample data, and that IndTrana flags stale sources instead of hiding them.
 - Each page has **How this page works**: what it shows, what you can do, what it will never do.
 
 ### Part 4. Alert Journey and Live Earth (4 min, optional, needs internet) — menu: Alert Journey
@@ -82,7 +82,7 @@ every action is recorded against a named person. That only works if each person 
 4. Open **Approval Workbench**. Open the submitted proposal, read the cited evidence, write a reason, approve.
 5. Back in the maker window, refresh: both keys are turned.
 6. Say: "Only now can anything go further, and what goes further is a draft handed to the alerting authority.
-   AEGIS itself has no way to send a public warning."
+   IndTrana itself has no way to send a public warning."
 
 ### Part 6. After the decision (3 min)
 
@@ -95,7 +95,7 @@ every action is recorded against a named person. That only works if each person 
 
 ### Part 6b. Teams respond and the incident is updated (4 min)
 
-This is a rehearsal inside AEGIS. Say it out loud: "Nobody is called, texted or radioed. The teams are invented."
+This is a rehearsal inside IndTrana. Say it out loud: "Nobody is called, texted or radioed. The teams are invented."
 
 1. As `demo-maker`, on the approved proposal in **Approval Workbench**, prepare the department tasks.
 2. As `demo-dept-control`, open **Department Inbox** and acknowledge the task (write a short reason).
@@ -114,7 +114,7 @@ This is a rehearsal inside AEGIS. Say it out loud: "Nobody is called, texted or 
 ### Part 7. Administration (1 min, optional)
 
 - Sign in as `demo-admin`. Open **Administration**, tab **Users and access**: the table of what each role may do.
-- Say: "Accounts are created and removed in the agency's identity provider, not inside AEGIS."
+- Say: "Accounts are created and removed in the agency's identity provider, not inside IndTrana."
 
 ## Closing lines
 

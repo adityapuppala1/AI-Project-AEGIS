@@ -38,7 +38,7 @@ export function GeoMap({ incidents, selectedId, onSelect }: {
         if (disposed || !containerRef.current) return;
         maplibregl.setWorkerUrl("/maplibre/maplibre-gl-worker.mjs?v=6.14.0");
         map = new maplibregl.Map({
-          // Tiles go through the AEGIS relay: tile servers never see the operator, and the page CSP stays "this site only".
+          // Tiles go through the IndTrana relay: tile servers never see the operator, and the page CSP stays "this site only".
           transformRequest: relayTileRequest,
           container: containerRef.current,
           center: [78.4772, 17.385],

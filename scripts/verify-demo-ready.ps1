@@ -22,7 +22,7 @@ Invoke-AegisLocalOperation -Name "verify-demo-ready.ps1" -Action {
     if ($LASTEXITCODE -ne 0) { return "0" } else { return "$code".Trim() }
   }
 
-  Write-Host "AEGIS DEMO-READINESS PREFLIGHT (read-only)" -ForegroundColor Cyan
+  Write-Host "IndTrana DEMO-READINESS PREFLIGHT (read-only)" -ForegroundColor Cyan
   $branch = (git rev-parse --abbrev-ref HEAD).Trim(); $sha = (git rev-parse --short HEAD).Trim()
   $dirty = @(git status --short | Where-Object { $_ -notmatch '^\?\? (\.vscode|graphify-out)/' }).Count
   Write-Host "Source: $branch @ $sha; uncommitted changes: $dirty"

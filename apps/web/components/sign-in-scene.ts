@@ -1,5 +1,5 @@
 // 3D illustration for the sign-in page: the same Earth as the landing page, resting on India, in a calmer mood (no
-// hazards). A token leaves the AEGIS desk for the identity provider, is checked there, and comes back approved.
+// hazards). A token leaves the IndTrana desk for the identity provider, is checked there, and comes back approved.
 // Decoration only: nothing here takes part in the real sign-in, and it is not live imagery or a map of record.
 import * as THREE from "three";
 
@@ -24,7 +24,7 @@ export function startSignInScene(canvas: HTMLCanvasElement, still: boolean, hook
   for (const item of orbiters.materials) item.material.opacity = item.base * 0.8;
 
   const flat = (colour: number, opacity = 1) => keep(new THREE.MeshBasicMaterial({ color: colour, transparent: true, opacity, side: THREE.DoubleSide, depthWrite: false }));
-  // The AEGIS desk on the globe.
+  // The IndTrana desk on the globe.
   const desk = onSphere(78.5, 19, R * 1.006), normal = desk.clone().normalize(), east = new THREE.Vector3(0, 1, 0).cross(normal).normalize(), north = normal.clone().cross(east);
   const lay = (mesh: Obj) => { mesh.position.copy(desk); mesh.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(east, north, normal)); globe.add(mesh); return mesh; };
   const deskMark = lay(new THREE.Mesh(keep(new THREE.RingGeometry(0.04, 0.066, 40)), flat(0xffffff)));

@@ -7,7 +7,7 @@ export async function POST(request: Request) {
   if (!config) return NextResponse.json({ error: "Authentication not configured" }, { status: 503 });
   if (!sameOrigin(request, config)) return NextResponse.json({ error: "Invalid request origin" }, { status: 403 });
   // Clearing the local session cookies is the primary, always-successful step: an operator must be
-  // able to sign out of AEGIS even if the identity provider is briefly unreachable. Ending the
+  // able to sign out of IndTrana even if the identity provider is briefly unreachable. Ending the
   // provider's own browser SSO session is a second, best-effort step layered on top of that — without
   // it, a same-browser "sign in" immediately after "sign out" can silently re-authenticate with no
   // login prompt, because the provider still sees an active session. No id_token (or any other extra

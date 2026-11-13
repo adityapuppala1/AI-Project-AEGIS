@@ -1,4 +1,4 @@
-/* AEGIS Alert Journey explainer — small three.js helpers (glow points, ribbons, canvas textures, line batches). */
+/* IndTrana Alert Journey explainer — small three.js helpers (glow points, ribbons, canvas textures, line batches). */
 export default function install(g) {
   'use strict';
   var AX = g.AX = g.AX || {};

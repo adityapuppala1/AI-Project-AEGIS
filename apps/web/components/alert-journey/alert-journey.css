@@ -1,5 +1,5 @@
 @keyframes aj-glow{50%{box-shadow:0 0 0 6px rgba(56,225,255,.18)}}
-/* AEGIS Alert Journey — mission-control styling, scoped to .aj-root so it cannot affect other pages.
+/* IndTrana Alert Journey — mission-control styling, scoped to .aj-root so it cannot affect other pages.
    Generated from the original explainer styles; edit here. */
 @keyframes aj-vig{50%{opacity:.55}}
 @keyframes aj-pulse{50%{transform:scale(1.5);opacity:.6}}

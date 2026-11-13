@@ -1,4 +1,4 @@
-/* AEGIS Live Earth — app shell: state/event bus, renderer, camera rig, picking, live-data bootstrap, render loop. */
+/* IndTrana Live Earth — app shell: state/event bus, renderer, camera rig, picking, live-data bootstrap, render loop. */
 export default function install(g) {
   'use strict';
   var AX = g.AX = g.AX || {}, T = g.THREE, M = AX.model, L = AX.live, Q = new URLSearchParams(location.search), $ = function (s) { return document.querySelector(s); };

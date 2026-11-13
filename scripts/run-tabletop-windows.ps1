@@ -20,7 +20,7 @@ Invoke-AegisLocalOperation -Name "run-tabletop-windows.ps1" -Action {
     }
     $arguments += @("--run-id", $value.ToString())
   }
-  Write-Host "AEGIS: adding three fictional readings to existing local history." -ForegroundColor Cyan
+  Write-Host "IndTrana: adding three fictional readings to existing local history." -ForegroundColor Cyan
   Write-Host "This does not call live sensors, agencies, SMS or warning systems."
   & docker @arguments
   if ($LASTEXITCODE -ne 0) {

@@ -165,7 +165,7 @@ def test_one_recipient_per_call_fixed_template_and_no_leaks(env, caplog):
     assert call['url'] == 'https://api.sendgrid.com/v3/mail/send' and call['method'] == 'POST' and call['hosts'] == ('api.sendgrid.com',)
     payload = json.loads(call['data'])
     assert payload['personalizations'] == [{'to': [{'email': ADDRESS}]}] and 'cc' not in json.dumps(payload)
-    assert payload['subject'].startswith('[AEGIS exercise]')
+    assert payload['subject'].startswith('[IndTrana exercise]')
     body = payload['content'][0]['value']
     assert 'rehearsal notice' in body and 'http://localhost:3000/help' in body
     as_user('admin-1', ('platform_admin',))
@@ -207,7 +207,7 @@ def test_unknown_template_or_placeholder_is_refused():
         staff_messages.render('approval_waiting', {'note': 'free text'})
     for template_id in staff_messages.TEMPLATES:
         subject, body = staff_messages.render(template_id, {})
-        assert subject.startswith('[AEGIS exercise] ') and 'rehearsal notice' in body
+        assert subject.startswith('[IndTrana exercise] ') and 'rehearsal notice' in body
 
 
 def submit_with(monkeypatch, maker='maker-1', roles=('incident_operator',)):

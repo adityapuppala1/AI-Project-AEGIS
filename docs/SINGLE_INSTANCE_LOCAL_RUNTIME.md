@@ -1,4 +1,4 @@
-# One local AEGIS stack and one managed operation
+# One local IndTrana stack and one managed operation
 
 Use the existing Compose project **`ai-project-aegis`**. `compose.yaml` now pins
 that name, preserving the current `ai-project-aegis_pgdata` volume. Do not use
@@ -45,9 +45,9 @@ Run the lock regression **separately**, outside any held lease:
 It tests real cross-process exclusion and exception recovery, plus inventory
 refusal cases; it starts/stops no services and changes no database data.
 
-Preflight recognizes AEGIS by its canonical project, checkout directory name or
+Preflight recognizes IndTrana by its canonical project, checkout directory name or
 API/web image name. It inspects running Docker metadata, rejects duplicate core services,
-active AEGIS one-off jobs, conflicting AEGIS Compose projects and containers
+active IndTrana one-off jobs, conflicting IndTrana Compose projects and containers
 owned by another checkout. Windows also checks explicitly repo-owned native
 server commands and ports 3000/8000 occupied without their managed container.
 It does not print raw process arguments, environment values or credentials.
@@ -55,7 +55,7 @@ Unknown port owners and ambiguous processes cause refusal, not automatic kills.
 
 If duplicates are found, inspect container labels, checkout, command identity,
 port ownership and any active operation first. Stop only the confirmed extra
-AEGIS container/PID and recheck. Never stop Docker Desktop, shared Ollama,
+IndTrana container/PID and recheck. Never stop Docker Desktop, shared Ollama,
 unrelated applications, every node/python process, or remove volumes as cleanup.
 One Node server may have several worker/helper processes; that alone does not
 prove duplicate application instances.

@@ -160,5 +160,5 @@ test('the four browser routes use the proxy and stay behind the sign-in gate; th
   assert.doesNotMatch(gate, /api\/response/);
   const proxy = fs.readFileSync(path.join(root, 'lib/response-proxy.ts'), 'utf8');
   assert.doesNotMatch(proxy, /twilio|nodemailer|web-push|sendgrid|smtp|Notification\(|navigator\./i);
-  assert.equal((proxy.match(/fetch\(/g) || []).length, 1, 'one fetch, to the AEGIS API only');
+  assert.equal((proxy.match(/fetch\(/g) || []).length, 1, 'one fetch, to the IndTrana API only');
 });

@@ -1,4 +1,4 @@
-# Install AEGIS and load the demo data (Windows)
+# Install IndTrana and load the demo data (Windows)
 
 This is the one place that describes a first install from a fresh clone. It replaces the scattered start-up notes in
 the README and is linked from there. Everything runs on one laptop in Docker. It is a **synthetic exercise**: no real
@@ -12,7 +12,9 @@ From the cloned folder, double-click `aegis.cmd` and choose **Install**, or run 
 to 5 below for you (Git and Docker Desktop through winget if missing, `.env`, connector key, private sign-in files,
 certificate copy and one Windows confirmation box to trust it, start with `-SignIn -PublicEarth -Proactive`,
 `update-local-idp.ps1`, `new-demo-accounts.ps1`). Afterwards use `aegis.cmd start`, `stop`, `status` and `doctor`.
-macOS and Linux use `./aegis.sh install`. Ports, repairs and other systems: [DEPLOYMENT.md](DEPLOYMENT.md). The manual
+macOS and Linux use `./aegis.sh install`. (`indtrana.cmd` and `./indtrana.sh` are the same commands under the product
+name. After install, an administrator can set the product name and logo on Administration > Brand; see
+[BRANDING.md](BRANDING.md).) Ports, repairs and other systems: [DEPLOYMENT.md](DEPLOYMENT.md). The manual
 steps below remain valid and are what the installer runs.
 
 ## What you need
@@ -55,7 +57,7 @@ refuses to overwrite files that already exist.
 
 ## Step 4: switch on local sign-in (one time)
 
-AEGIS never handles passwords itself. Locally, a Keycloak container plays the part of the agency's identity provider,
+IndTrana never handles passwords itself. Locally, a Keycloak container plays the part of the agency's identity provider,
 behind a small HTTPS proxy. Run these lines one at a time in the same PowerShell window, from the repository folder.
 
 ```powershell
@@ -95,7 +97,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\update-local-idp.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\new-demo-accounts.ps1
 ```
 
-The first script gives the provider's sign-in pages the AEGIS look, sets 15-minute tokens and adds the department
+The first script gives the provider's sign-in pages the IndTrana look, sets 15-minute tokens and adds the department
 and response-team roles. It is safe to run again, and it is also what brings an older install up to date. The second creates the accounts:
 
 | Account | Shown in the app as | What it can do |
@@ -115,7 +117,7 @@ them. They are never printed or committed. Running the script again leaves exist
 
 All accounts belong to the one demo agency. The signed-in user's name and role are shown at the top right of every
 page; the full list of what each role may do is under Administration, "Users and access". Accounts are created and
-removed in the identity provider, never inside AEGIS.
+removed in the identity provider, never inside IndTrana.
 
 ## Step 6: sign in and look around
 
@@ -184,8 +186,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\start-windows.ps1 -SignIn -Pu
 
 | What you see | What to do |
 |---|---|
-| "Another AEGIS local operation is active" | A start, build or test is still running. Wait for it to finish. |
-| Port 3000, 8000 or 8443 is in use | AEGIS never takes over a port. `aegis.cmd start` moves the web app or API to the next free port and prints the address; with `start-windows.ps1` close the other program. Port 8443 is never moved: close the program holding it. |
+| "Another IndTrana local operation is active" | A start, build or test is still running. Wait for it to finish. |
+| Port 3000, 8000 or 8443 is in use | IndTrana never takes over a port. `aegis.cmd start` moves the web app or API to the next free port and prints the address; with `start-windows.ps1` close the other program. Port 8443 is never moved: close the program holding it. |
 | Browser warns about the certificate at `aegis-idp.localhost:8443` | Step 4c was skipped or refused. Run it again and choose Yes. |
 | Sign-in returns to the sign-in page with an error | Run step 4d and 4e again, then check `docker compose --project-name ai-project-aegis logs --tail 50 web api`. |
 | "Sign-in is not set up yet" from the start script | Finish steps 3 and 4. |

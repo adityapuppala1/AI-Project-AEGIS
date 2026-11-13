@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @config "../tailwind.config.ts";
 
-/* AEGIS operations desk. Same family as the public landing page: deep navy, one saffron accent, Anek Latin.
+/* IndTrana operations desk. Same family as the public landing page: deep navy, one saffron accent, Anek Latin.
    Saffron marks "you are here" and the single primary action of a view; amber stays reserved for warnings. */
 :root {
   --canvas: 242 245 249;

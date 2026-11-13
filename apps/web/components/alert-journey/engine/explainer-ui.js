@@ -1,4 +1,4 @@
-/* AEGIS Alert Journey explainer — mission-control UI: HUD, timeline, copilot, teams, network, inspector, minimap, labels, decisions. */
+/* IndTrana Alert Journey explainer — mission-control UI: HUD, timeline, copilot, teams, network, inspector, minimap, labels, decisions. */
 export default function install(g) {
   'use strict';
   var AX = g.AX = g.AX || {}, C = AX.core, S = AX.story, U = AX.UI = {};
@@ -51,12 +51,12 @@ export default function install(g) {
 
   /* ================= top bar ================= */
   function buildTop() {
-    $('#top').innerHTML = '<a class="btn home" href="/" data-aj-exit title="Back to the AEGIS Command Center">' + ic('home', 15) + '<span>Home</span></a><a class="brand" href="/" data-aj-exit title="Back to the AEGIS Command Center">' + ic('shield', 18) + '<b>AEGIS</b><span>Alert Journey</span></a>' +
-      '<div class="incident"><span class="dotlive"></span><b>' + S.INCIDENT.title + '</b><em class="synth">' + S.INCIDENT.tag + ' · AEGIS sends nothing</em></div>' +
+    $('#top').innerHTML = '<a class="btn home" href="/" data-aj-exit title="Back to the IndTrana Command Center">' + ic('home', 15) + '<span>Home</span></a><a class="brand" href="/" data-aj-exit title="Back to the IndTrana Command Center">' + ic('shield', 18) + '<b>IndTrana</b><span>Alert Journey</span></a>' +
+      '<div class="incident"><span class="dotlive"></span><b>' + S.INCIDENT.title + '</b><em class="synth">' + S.INCIDENT.tag + ' · IndTrana sends nothing</em></div>' +
       '<div class="clockb"><div class="tl" id="tLabel">T−72h</div><div class="cl"><span id="clock">15:30</span><small id="dayLabel">Day −3</small></div></div>' +
       '<div class="sp"></div>' +
       '<a class="btn" href="?mode=live" data-aj-mode="live" title="Real map, real weather, real satellites (opt-in live public data)">' + ic('globe', 15) + '<span>Live Earth</span></a>' +
-      '<button class="btn" id="btnReal" title="Can AEGIS send? Patents? Open data?">' + ic('alert', 15) + '<span>Reality check</span></button>' +
+      '<button class="btn" id="btnReal" title="Can IndTrana send? Patents? Open data?">' + ic('alert', 15) + '<span>Reality check</span></button>' +
       '<button class="btn icon" id="btnHelp" aria-label="Help and shortcuts" title="Help (H)">' + ic('help', 16) + '</button>' +
       '<button class="btn icon" id="btnQ" aria-label="Quality" title="Quality">' + ic('gear', 16) + '</button>' +
       '<button class="btn icon" id="btnFs" aria-label="Fullscreen" title="Fullscreen (F)">' + ic('expand', 16) + '</button>';
@@ -122,8 +122,8 @@ export default function install(g) {
     var p = $('#tab-story'), h = '<div class="phases">';
     S.PHASES.forEach(function (x) { h += '<button class="ph-chip' + (x.id === ph.id ? ' on' : '') + '" style="--c:' + x.color + '" data-t="' + x.t0 + '">' + ic(x.icon, 14) + '<span>' + x.name + '</span></button>'; });
     h += '</div><div class="card story" style="--c:' + ph.color + '"><div class="k">' + ph.name.toUpperCase() + ' · ' + C.fmtT(ph.t0) + ' → ' + C.fmtT(ph.t1) + '</div><h2>' + ph.title + '</h2><p>' + ph.blurb + '</p>';
-    h += '<div class="cols"><div><h5>' + ic('sparkles', 13) + 'AEGIS AI does</h5><ul>' + ph.aegis.map(function (x) { return '<li class="ok">' + x + '</li>'; }).join('') + '</ul></div><div><h5>' + ic('users', 13) + 'Humans do</h5><ul>' + ph.humans.map(function (x) { return '<li class="hu">' + x + '</li>'; }).join('') + '</ul></div></div>';
-    h += '<h5>' + ic('ban', 13) + 'AEGIS does not</h5><ul>' + ph.not.map(function (x) { return '<li class="no">' + x + '</li>'; }).join('') + '</ul>';
+    h += '<div class="cols"><div><h5>' + ic('sparkles', 13) + 'IndTrana AI does</h5><ul>' + ph.aegis.map(function (x) { return '<li class="ok">' + x + '</li>'; }).join('') + '</ul></div><div><h5>' + ic('users', 13) + 'Humans do</h5><ul>' + ph.humans.map(function (x) { return '<li class="hu">' + x + '</li>'; }).join('') + '</ul></div></div>';
+    h += '<h5>' + ic('ban', 13) + 'IndTrana does not</h5><ul>' + ph.not.map(function (x) { return '<li class="no">' + x + '</li>'; }).join('') + '</ul>';
     h += '<div class="try">' + ic('crosshair', 14) + '<span>' + ph.tryIt + '</span></div></div>';
     if (em) h += cmdBoard();
     h += '<div class="card next" id="nextCard"></div>';
@@ -133,12 +133,12 @@ export default function install(g) {
     $$('.ph-chip', p).forEach(function (b) { b.onclick = function () { app.setTime(parseFloat(b.dataset.t) + 0.01); app.sim.playing = false; U.onPlayState(); }; });
     $('#stFollow').onclick = function () { app.director = false; U.onDirector(); app.mode === 'ground' ? (app.follow('person', 'p0'), app.goPreset('cityLow', { keepFollow: true })) : app.goPreset('dive'); };
     $('#stReal').onclick = function () { openModal('reality'); }; $('#stRestart').onclick = function () { app.restart(); };
-    $$('.cmd .go', p).forEach(function (b) { b.onclick = function () { b.parentNode.classList.add('done'); b.textContent = 'Recorded'; toast('Exercise action recorded', 'AEGIS logs the commander’s decision. Nothing is sent or dispatched.', '#4be3a0', 'check'); }; });
+    $$('.cmd .go', p).forEach(function (b) { b.onclick = function () { b.parentNode.classList.add('done'); b.textContent = 'Recorded'; toast('Exercise action recorded', 'IndTrana logs the commander’s decision. Nothing is sent or dispatched.', '#4be3a0', 'check'); }; });
     updateNext();
   }
   function cmdBoard() {
     var items = [['Reroute the relief convoy via the NE ridge road', 'Road segment at Zone B edge closes in ~2 h', 'route'], ['Open the overflow wing at Shelter S2', 'Occupancy projected > 90 % by T−3h', 'home'], ['Keep the hospital generator fuelled', 'Substation at risk when water > 1.7 m', 'zap'], ['Send the second alert via satellite-capable channel', 'Coastal towers failing: reach drops there', 'satellite']];
-    return '<div class="card cmdb"><div class="k red">COMMAND BOARD · AI-RANKED, HUMAN-DECIDED</div>' + items.map(function (x, i) { return '<div class="cmd"><span class="n">' + (i + 1) + '</span><div><b>' + x[0] + '</b><small>' + x[1] + '</small></div><button class="btn go">Approve</button></div>'; }).join('') + '<small class="muted">Approve = commander records the intent. Agencies carry out the action; AEGIS never dispatches.</small></div>';
+    return '<div class="card cmdb"><div class="k red">COMMAND BOARD · AI-RANKED, HUMAN-DECIDED</div>' + items.map(function (x, i) { return '<div class="cmd"><span class="n">' + (i + 1) + '</span><div><b>' + x[0] + '</b><small>' + x[1] + '</small></div><button class="btn go">Approve</button></div>'; }).join('') + '<small class="muted">Approve = commander records the intent. Agencies carry out the action; IndTrana never dispatches.</small></div>';
   }
   function outcomeCard() {
     var a = ctx ? ctx.rescueTimes('A') : [], b = ctx ? ctx.rescueTimes('B') : []; if (!a.length) return '';
@@ -154,7 +154,7 @@ export default function install(g) {
   function renderCopilot(force) {
     var p = $('#tab-copilot'), list = S.INSIGHTS.filter(function (x) { return x.t <= F.t; });
     if (!p.firstChild) {
-      p.innerHTML = '<div class="orb"><div class="orbv"><i></i><i></i><i></i></div><div><b>AEGIS Copilot</b><small id="tick">—</small></div></div><div class="legend2"><span class="lg ai">AI proposes</span><span class="lg hu">Human decides</span><span class="lg au">Authority acts</span></div><div id="feed"></div><div class="ask"><h5>' + ic('help', 13) + 'Ask AEGIS (grounded questions only)</h5><div class="chips" id="askChips"></div><form id="askForm"><input id="askIn" maxlength="140" placeholder="Ask about this exercise…" autocomplete="off"><button class="btn" aria-label="Ask">' + ic('send', 14) + '</button></form><div id="askOut"></div></div>';
+      p.innerHTML = '<div class="orb"><div class="orbv"><i></i><i></i><i></i></div><div><b>IndTrana Copilot</b><small id="tick">—</small></div></div><div class="legend2"><span class="lg ai">AI proposes</span><span class="lg hu">Human decides</span><span class="lg au">Authority acts</span></div><div id="feed"></div><div class="ask"><h5>' + ic('help', 13) + 'Ask IndTrana (grounded questions only)</h5><div class="chips" id="askChips"></div><form id="askForm"><input id="askIn" maxlength="140" placeholder="Ask about this exercise…" autocomplete="off"><button class="btn" aria-label="Ask">' + ic('send', 14) + '</button></form><div id="askOut"></div></div>';
       var ch = $('#askChips'); S.ASK.forEach(function (a) { var b = el('button', 'chip', a.q); b.onclick = function () { ask(a.id, a.q); }; ch.appendChild(b); });
       $('#askForm').onsubmit = function (e) { e.preventDefault(); var v = $('#askIn').value.trim(); if (!v) return; ask(null, v); };
     }
@@ -173,11 +173,11 @@ export default function install(g) {
     if (id) a = S.ASK.filter(function (x) { return x.id === id; })[0];
     else if (/[\u0000-\u001f]/.test(text) || text.length > 140) a = null; else a = S.ASK.filter(function (x) { return x.re.test(text); })[0] || null;
     var t = F.t, html;
-    if (!a) html = '<div class="ans abstain"><b>' + ic('ban', 14) + 'AEGIS abstains</b><p>I can only answer from validated exercise data and cited items. That question is outside what I can ground, so I will not guess. Try one of the suggested questions.</p></div>';
+    if (!a) html = '<div class="ans abstain"><b>' + ic('ban', 14) + 'IndTrana abstains</b><p>I can only answer from validated exercise data and cited items. That question is outside what I can ground, so I will not guess. Try one of the suggested questions.</p></div>';
     else if (a.id === 'first') html = '<div class="ans"><b>' + ic('waves', 14) + 'Predicted order of flooding</b><p>' + S.HOTSPOTS.slice().sort(function (x, y) { return C.H(x.x, x.z) - C.H(y.x, y.z); }).map(function (h) { var tf = tFlood(C.H(h.x, h.z)); return '<span class="li">' + h.name + ' · water arrives ≈ ' + (isFinite(tf) ? C.fmtT(tf) : 'not in this scenario') + '</span>'; }).join('') + '</p><small>From the terrain grid and the current flood forecast (' + (F.st.pred.has ? F.st.pred.level.toFixed(1) + ' ± ' + F.st.pred.sigma.toFixed(2) + ' m' : 'no claim yet') + '). Synthetic.</small></div>';
-    else if (a.id === 'stage') html = '<div class="ans"><b>' + ic('target', 14) + 'Recommended staging (a recommendation)</b><p>' + S.STAGING_SITES.map(function (s) { return '<span class="li">' + s.name + ' · ' + (C.H(s.x, s.z) - C.FLOOD_PEAK.level).toFixed(1) + ' m above predicted peak</span>'; }).join('') + '</p><small>The central yard is ≈0.9 m below the peak. A human commander chooses; AEGIS cannot task teams.</small></div>';
+    else if (a.id === 'stage') html = '<div class="ans"><b>' + ic('target', 14) + 'Recommended staging (a recommendation)</b><p>' + S.STAGING_SITES.map(function (s) { return '<span class="li">' + s.name + ' · ' + (C.H(s.x, s.z) - C.FLOOD_PEAK.level).toFixed(1) + ' m above predicted peak</span>'; }).join('') + '</p><small>The central yard is ≈0.9 m below the peak. A human commander chooses; IndTrana cannot task teams.</small></div>';
     else if (a.id === 'why') html = '<div class="ans"><b>' + ic('ban', 14) + 'Why I abstained at ' + C.fmtT(-60) + '</b><p>The track spread was too wide and gauge G-2 was 3 h stale. A flood-level number would have been a guess. The rule is fail-closed: stale or conflicting inputs lead to “not comparable”, not to a smoothed answer.</p></div>';
-    else if (a.id === 'send') html = '<div class="ans no"><b>' + ic('lock', 14) + 'No. AEGIS cannot send alerts.</b><p>There is no send path: only a private draft CAP file that a different human checker approves. The authority (NDMA / SACHET) adds the area, signs and transmits through each operator’s Cell Broadcast Centre.</p></div>';
+    else if (a.id === 'send') html = '<div class="ans no"><b>' + ic('lock', 14) + 'No. IndTrana cannot send alerts.</b><p>There is no send path: only a private draft CAP file that a different human checker approves. The authority (NDMA / SACHET) adds the area, signs and transmits through each operator’s Cell Broadcast Centre.</p></div>';
     else if (a.id === 'conf') html = '<div class="ans"><b>' + ic('chart', 14) + 'Forecast confidence now</b><p>' + (F.st.pred.has ? 'Peak flood level ' + F.st.pred.level.toFixed(2) + ' m, band ±' + F.st.pred.sigma.toFixed(2) + ' m. The band narrows as river and rain evidence arrive.' : 'No claim yet: evidence is too thin.') + '</p><small>Rehearsal statistics on a synthetic scenario. Not an accuracy claim.</small></div>';
     else if (a.id === 'towers') html = '<div class="ans"><b>' + ic('tower', 14) + 'Towers at risk (forecast)</b><p>' + S.TOWERS.filter(function (x) { return isFinite(x.fail); }).sort(function (x, y) { return x.fail - y.fail; }).map(function (x) { return '<span class="li">' + x.name + ' · water at cabinet ≈ ' + C.fmtT(x.fail) + '</span>'; }).join('') + '</p><small>Fail when water exceeds ground + 0.55 m.</small></div>';
     else html = '<div class="ans"><b>' + ic('phone', 14) + 'Alert reach so far</b><p>' + (F.kpi ? 'Alert 1 reached ' + fP(F.kpi.reached1) + ' of residents (cell broadcast, SMS, volunteers). Update 2 reached ' + fP(F.kpi.reached2) + '. Gaps: hill villages without towers, incompatible handsets, and failed towers.' : 'n/a') + '</p><small>Coverage is not delivery.</small></div>';
@@ -200,14 +200,14 @@ export default function install(g) {
       var s = ctx.actorsTeamAt(d, F.t, F.plan), row = $('#tr_' + d.id), w = F.plan === 'A' ? d.wpA : d.wpB; if (s.status === 'Deployed' || s.status === 'Moving to hotspot') dep++;
       var st = $('.st', row); st.textContent = s.status; st.dataset.s = s.status; $('.pb u', row).style.width = fP(C.clamp((F.t - w[0][0]) / (w[w.length - 1][0] - w[0][0]), 0, 1)); row.classList.toggle('sel', F.selected === d.id);
     });
-    $('#teamSum').textContent = 'TEAMS · ' + dep + ' of ' + S.TEAMS.length + ' on mission · tasked by agency, not AEGIS';
+    $('#teamSum').textContent = 'TEAMS · ' + dep + ' of ' + S.TEAMS.length + ' on mission · tasked by agency, not IndTrana';
     S.HOTSPOTS.forEach(function (h) { var depth = Math.max(0, F.st.flood - C.H(h.x, h.z)); $('.hs[data-id=' + h.id + '] small').textContent = depth > 0.05 ? 'flooded ' + depth.toFixed(2) + ' m' : 'predicted peak depth ' + Math.max(0, (F.st.pred.has ? F.st.pred.level : C.FLOOD_PEAK.level) - C.H(h.x, h.z)).toFixed(2) + ' m'; });
   }
 
   /* ---- Network ---- */
   var NET = [
     { id: 'n_src', x: 8, y: 6, w: 92, label: 'Satellites\n& open APIs', ent: 'hub_open', act: function (t) { return t > -72; } },
-    { id: 'n_ai', x: 8, y: 52, w: 92, label: 'AEGIS AI\ningest · predict', ent: 'fac_eoc', act: function (t) { return t > -66; } },
+    { id: 'n_ai', x: 8, y: 52, w: 92, label: 'IndTrana AI\ningest · predict', ent: 'fac_eoc', act: function (t) { return t > -66; } },
     { id: 'n_hum', x: 8, y: 98, w: 92, label: 'Maker →\nChecker', ent: 'fac_eoc', act: function (t) { return t > -20 && t < -17; }, human: true },
     { id: 'n_auth', x: 128, y: 98, w: 92, label: 'NDMA / SACHET\n(authority)', ent: 'hub_ndma', act: function (t) { return t > -17.6; } },
     { id: 'n_cbc', x: 128, y: 144, w: 92, label: 'Operator CBCs\nAirtel·Jio·BSNL·Vi', ent: 'hub_cbc_jio', act: function (t) { return t > -17.4; } },
@@ -222,10 +222,10 @@ export default function install(g) {
       var w = 228, svg = '<svg viewBox="0 0 ' + w + ' 280" class="netsvg"><defs><marker id="ah" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0l8 4-8 4z" fill="currentColor"/></marker></defs>';
       var byId = {}; NET.forEach(function (n) { byId[n.id] = n; });
       EDGES.forEach(function (e, i) { var a = byId[e[0]], b = byId[e[1]], ax = a.x + a.w / 2, ay = a.y + 20, bx = b.x + b.w / 2, by = b.y + 20, dx = bx - ax, dy = by - ay, x1 = ax + (Math.abs(dx) > 10 ? Math.sign(dx) * a.w / 2 : 0), y1 = ay + (Math.abs(dx) > 10 ? 0 : Math.sign(dy) * 20), x2 = bx - (Math.abs(dx) > 10 ? Math.sign(dx) * b.w / 2 : 0), y2 = by - (Math.abs(dx) > 10 ? 0 : Math.sign(dy) * 20); svg += '<path id="e' + i + '" class="edge" d="M' + x1 + ' ' + y1 + ' L' + x2 + ' ' + y2 + '" marker-end="url(#ah)"/>'; });
-      svg += '<line x1="108" y1="86" x2="108" y2="262" class="bound"/><text x="112" y="82" class="btxt">AEGIS stops here ▸</text>';
+      svg += '<line x1="108" y1="86" x2="108" y2="262" class="bound"/><text x="112" y="82" class="btxt">IndTrana stops here ▸</text>';
       NET.forEach(function (n) { var ls = n.label.split('\n'); svg += '<g class="node" id="' + n.id + '" data-ent="' + n.ent + '" transform="translate(' + n.x + ',' + n.y + ')"><rect width="' + n.w + '" height="40" rx="9"/><text x="' + n.w / 2 + '" y="17">' + ls[0] + '</text><text x="' + n.w / 2 + '" y="31" class="sub">' + (ls[1] || '') + '</text></g>'; });
       svg += '</svg>';
-      p.innerHTML = '<div class="card"><div class="k">ALERT PATH · CLICK A NODE TO SEE IT IN 3D</div>' + svg + '<small class="muted">Left column = inside AEGIS / humans. Right column = outside AEGIS: authority, operators, towers. Dashed line = boundary.</small></div><div class="card"><div class="k">HOW EACH PERSON WAS REACHED</div><div id="reachBars"></div><small class="muted">Coverage ≠ delivery. Hill villages without towers, incompatible handsets and failed towers leave gaps that sirens, volunteers and satellite messaging only partly fill.</small></div>';
+      p.innerHTML = '<div class="card"><div class="k">ALERT PATH · CLICK A NODE TO SEE IT IN 3D</div>' + svg + '<small class="muted">Left column = inside IndTrana / humans. Right column = outside IndTrana: authority, operators, towers. Dashed line = boundary.</small></div><div class="card"><div class="k">HOW EACH PERSON WAS REACHED</div><div id="reachBars"></div><small class="muted">Coverage ≠ delivery. Hill villages without towers, incompatible handsets and failed towers leave gaps that sirens, volunteers and satellite messaging only partly fill.</small></div>';
       $$('.node', p).forEach(function (n) { n.onclick = function () { var id = n.dataset.ent; if (ctx.byId[id]) { app.select(id); if (app.mode === 'ground') app.focusEntity(id); } }; });
     }
     NET.forEach(function (n) { var e = $('#' + n.id), on = n.act(F.t, F); e.classList.toggle('act', !!on); e.classList.toggle('hum', !!n.human && !!on); e.classList.toggle('fail', n.id === 'n_twr' && F.kpi && F.kpi.towersUp < F.kpi.towersTotal && F.t > -2.4); });
@@ -334,7 +334,7 @@ export default function install(g) {
     var h = '';
     if (show2) h += '<div class="msg m2"><b>' + m2.head + '</b><p>' + m2.body + '</p><em>' + via2 + '</em></div>';
     if (show1) h += '<div class="msg"><b>' + m1.head + '</b><p>' + m1.body + '</p><em>Cell broadcast · ' + m1.lang + ' · wording pending native sign-off</em></div>';
-    if (!show1) h = '<div class="idle">Standing by…<br><small>No alert yet. The draft is private; AEGIS cannot send it.</small></div>';
+    if (!show1) h = '<div class="idle">Standing by…<br><small>No alert yet. The draft is private; IndTrana cannot send it.</small></div>';
     if (show1 && k.mode === 'walk') h += '<div class="state">' + ic('route', 13) + 'Walking to the shelter</div>'; else if (k.mode === 'sheltered') h += '<div class="state ok">' + ic('home', 13) + 'Safe at the shelter</div>';
     $('#pMsgs').innerHTML = h;
   }
@@ -369,7 +369,7 @@ export default function install(g) {
   };
   var revision = 0;
   function capPreview() {
-    return '<div class="cap"><div class="caph">' + ic('lock', 14) + 'PRIVATE DRAFT · CAP 1.2 · status=Draft · scope=Private' + (revision ? ' · v2 (maker revised)' : ' · v1') + '</div><table><tr><th>Event</th><td>EXERCISE · flood and cyclone landfall (fixed template)</td></tr><tr><th>Urgency / Severity / Certainty</th><td><b class="unk">Unknown</b> · set by the authority, not AEGIS</td></tr><tr><th>Area</th><td>Not set · the authority defines cells and polygons</td></tr><tr><th>Instruction</th><td>“Move to higher ground. Leave the river bank and low roads.” (integer/closed-code placeholders only)</td></tr><tr><th>Evidence</th><td>3 cited items · forecast ±0.31 m · no model-generated text</td></tr><tr><th>Sender / addressee</th><td>aegis@exercise.invalid → none (never transmitted)</td></tr></table></div>';
+    return '<div class="cap"><div class="caph">' + ic('lock', 14) + 'PRIVATE DRAFT · CAP 1.2 · status=Draft · scope=Private' + (revision ? ' · v2 (maker revised)' : ' · v1') + '</div><table><tr><th>Event</th><td>EXERCISE · flood and cyclone landfall (fixed template)</td></tr><tr><th>Urgency / Severity / Certainty</th><td><b class="unk">Unknown</b> · set by the authority, not IndTrana</td></tr><tr><th>Area</th><td>Not set · the authority defines cells and polygons</td></tr><tr><th>Instruction</th><td>“Move to higher ground. Leave the river bank and low roads.” (integer/closed-code placeholders only)</td></tr><tr><th>Evidence</th><td>3 cited items · forecast ±0.31 m · no model-generated text</td></tr><tr><th>Sender / addressee</th><td>aegis@exercise.invalid → none (never transmitted)</td></tr></table></div>';
   }
   U.closeDecision = function () { var m = $('#decision'); if (m) { m.classList.remove('on'); m.innerHTML = ''; } };
   U.makerRevising = function () { var m = $('#decision'); m.innerHTML = '<div class="dcard revise"><div class="spinner"></div><h2>Changes requested</h2><p>Returned to the maker with your rationale. A revised draft (v2) will come back for a new decision. This is the loop a single person cannot shortcut.</p></div>'; revision = 1; setTimeout(function () { if (!AX.alive) return; var d = S.DECISIONS.filter(function (x) { return x.id === 'cap'; })[0]; U.openDecision(d); }, 2600); };
@@ -379,7 +379,7 @@ export default function install(g) {
   };
   function toast(a, b, c, d) { U.toast(a, b, c, d); }
   U.onEnd = function () {
-    var m = $('#decision'); m.innerHTML = '<div class="dcard"><div class="dhead"><span class="big">' + ic('check', 22) + '</span><div><small>EXERCISE COMPLETE · ' + C.fmtT(C.TMAX) + '</small><h2>What this showed</h2></div></div><ul class="sum"><li>Satellites and open data gave days of warning; the AI abstained when evidence was thin.</li><li>Two humans (maker ≠ checker) approved the draft; AEGIS never sent anything.</li><li>The authority and operators carried the alert; towers failed in the flood and satellite fallback covered only compatible phones.</li><li>Staging on high ground (Plan B) reached hotspots hours earlier than the central yard (Plan A).</li></ul><div class="dfoot"><button class="link" id="eRev">Reality check</button><button class="btn big" id="eAgain">Replay</button></div></div>'; m.classList.add('on'); $('#eAgain').onclick = function () { U.closeDecision(); app.restart(); }; $('#eRev').onclick = function () { U.closeDecision(); openModal('reality'); };
+    var m = $('#decision'); m.innerHTML = '<div class="dcard"><div class="dhead"><span class="big">' + ic('check', 22) + '</span><div><small>EXERCISE COMPLETE · ' + C.fmtT(C.TMAX) + '</small><h2>What this showed</h2></div></div><ul class="sum"><li>Satellites and open data gave days of warning; the AI abstained when evidence was thin.</li><li>Two humans (maker ≠ checker) approved the draft; IndTrana never sent anything.</li><li>The authority and operators carried the alert; towers failed in the flood and satellite fallback covered only compatible phones.</li><li>Staging on high ground (Plan B) reached hotspots hours earlier than the central yard (Plan A).</li></ul><div class="dfoot"><button class="link" id="eRev">Reality check</button><button class="btn big" id="eAgain">Replay</button></div></div>'; m.classList.add('on'); $('#eAgain').onclick = function () { U.closeDecision(); app.restart(); }; $('#eRev').onclick = function () { U.closeDecision(); openModal('reality'); };
   };
   U.suggestQuality = function () { toast('Running slowly?', 'Open Display (gear icon) and choose Medium or Low for smoother motion.', '#ffb547', 'gear'); };
 

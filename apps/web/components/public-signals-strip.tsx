@@ -83,6 +83,6 @@ export function PublicSignalsStrip() {
       <div className="rounded-lg bg-elevated/40 p-3"><dt className="text-[11px] text-muted">Strongest recent quake in region</dt>
         <dd className="mt-1 text-sm font-semibold">{strongest ? `${strongest.title} · ${formatIst(strongest.observed_at)}` : "None reported in this window"}</dd></div>
     </dl>
-    <p className="mt-3 text-[11px] leading-5 text-muted">Public NASA and USGS reference data. It is not an AEGIS assessment, does not create cases, approvals, tasks or warnings, and no markers does not mean safe.</p>
+    <p className="mt-3 text-[11px] leading-5 text-muted">Public NASA and USGS reference data. It is not an IndTrana assessment, does not create cases, approvals, tasks or warnings, and no markers does not mean safe.</p>
   </Panel>;
 }

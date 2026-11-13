@@ -1,4 +1,4 @@
-# AEGIS verified delivery status — 17 October 2026
+# IndTrana verified delivery status — 17 October 2026
 
 > **Historical snapshot (17 October 2026), superseded by [LOCAL_DEMO_HANDOFF.md](LOCAL_DEMO_HANDOFF.md)** for current status and results.
 

@@ -10,9 +10,9 @@ import { useT } from "./language-provider";
 export function SystemPage({ code, title, body, children }: Readonly<{ code: string; title: string; body: string; children?: ReactNode }>) {
   const t = useT();
   return <main className="mx-auto flex min-h-screen max-w-xl flex-col justify-center px-5 py-10">
-    <Link href="/" className="mb-8 inline-flex min-h-11 items-center gap-3 self-start rounded-md" aria-label="AEGIS home">
+    <Link href="/" className="mb-8 inline-flex min-h-11 items-center gap-3 self-start rounded-md" aria-label="IndTrana home">
       <span className="brand-mark flex h-9 w-9 items-center justify-center"><Command size={19} aria-hidden="true" /></span>
-      <strong className="text-base font-bold tracking-[.12em]">AEGIS</strong>
+      <strong className="text-base font-bold tracking-[.12em]">IndTrana</strong>
     </Link>
     <div className="desk-strip mb-6 rounded-md border border-stroke"><span className="exercise-tape">{t("EXERCISE")}<small>{t("No live warnings or dispatch")}</small></span></div>
     <p className="tnum text-sm font-semibold text-brand">{code}</p>

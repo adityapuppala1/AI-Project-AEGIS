@@ -20,7 +20,7 @@ export function IncidentTeamResponse({ incidentId }: Readonly<{ incidentId: stri
   return <Panel title={t("Team response")} icon={Users} className="mt-5" description={t("Read-only. Requests that a department desk made to exercise teams for this incident, and what the teams answered. Nobody was called, texted or radioed.")}>
     {(status === "idle" || status === "loading") && <SkeletonRows rows={2} label={t("Loading team requests…")} />}
     {status === "error" && <ErrorState message={t(message)} onRetry={() => void refresh()} />}
-    {status === "ready" && requests.length === 0 && <p className="text-sm text-muted">{t("No team has been requested for this incident yet. An empty list does not mean no response is under way outside AEGIS.")}</p>}
+    {status === "ready" && requests.length === 0 && <p className="text-sm text-muted">{t("No team has been requested for this incident yet. An empty list does not mean no response is under way outside IndTrana.")}</p>}
     {status === "ready" && requests.length > 0 && <ul className="divide-y divide-stroke">
       {requests.map(item => {
         const last = lastReport(item);

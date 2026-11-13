@@ -14,7 +14,7 @@ naming threshold-proposal reviewers. See the runtime verification pass in `docs/
 
 ## 1. Autonomy ladder (the boundary for every feature)
 
-| Level | What the system may do | AEGIS |
+| Level | What the system may do | IndTrana |
 |---|---|---|
 | L0 | Display data | yes (Earth Watch) |
 | L1 | Detect and flag (watch items, stale/contradiction flags) | yes |

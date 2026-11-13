@@ -1,4 +1,4 @@
-/* AEGIS Alert Journey explainer — orbital scene: globe, India, cyclone seen from space, satellites and ground links. */
+/* IndTrana Alert Journey explainer — orbital scene: globe, India, cyclone seen from space, satellites and ground links. */
 export default function install(g) {
   'use strict';
   var AX = g.AX = g.AX || {};
@@ -69,8 +69,8 @@ export default function install(g) {
       sats.push({ d: d, ob: ob, ring: ring, ln: ln, sd: sd });
       ctx.reg({ id: 'sp_' + d.id, kind: 'satellite', space: true, name: sd.name, icon: 'satellite', color: sd.color, anchor: ob, lblY: 0.45, layer: 'satellites', prio: 8, pick: [ob], describe: function () { return { status: { tone: 'info', text: d.geo ? 'Geostationary-type' : 'Low orbit' }, rows: [['What it does', sd.role], ['Product', sd.product]], note: 'Illustrative class of satellite; no live feed is used.' }; } });
     });
-    ctx.reg({ id: 'sp_region', kind: 'place', space: true, name: 'Nadipur basin (synthetic)', sub: 'AEGIS exercise region', icon: 'pin', color: '#38e1ff', anchor: REG, lblY: 0.4, layer: 'labels', prio: 9, pick: [REG], style: 'place', describe: function () { return { status: { tone: 'info', text: 'Exercise region' }, rows: [['Dive in', 'Use “Dive to region” to descend to ground level']], note: 'Fictional basin on a coastal east-India style coastline.' }; } });
-    ctx.reg({ id: 'sp_delhi', kind: 'place', space: true, name: 'New Delhi · NDMA / SACHET', sub: 'authority', icon: 'building', color: '#ffb547', anchor: DEL, lblY: 0.4, layer: 'labels', prio: 9, pick: [DEL], style: 'place', describe: function () { return { status: { tone: 'info', text: 'Authority' }, rows: [['Role', 'Receives an approved CAP draft from a human; sets area and severity; transmits via operators']], note: 'AEGIS never sends. This is the official channel.' }; } });
+    ctx.reg({ id: 'sp_region', kind: 'place', space: true, name: 'Nadipur basin (synthetic)', sub: 'IndTrana exercise region', icon: 'pin', color: '#38e1ff', anchor: REG, lblY: 0.4, layer: 'labels', prio: 9, pick: [REG], style: 'place', describe: function () { return { status: { tone: 'info', text: 'Exercise region' }, rows: [['Dive in', 'Use “Dive to region” to descend to ground level']], note: 'Fictional basin on a coastal east-India style coastline.' }; } });
+    ctx.reg({ id: 'sp_delhi', kind: 'place', space: true, name: 'New Delhi · NDMA / SACHET', sub: 'authority', icon: 'building', color: '#ffb547', anchor: DEL, lblY: 0.4, layer: 'labels', prio: 9, pick: [DEL], style: 'place', describe: function () { return { status: { tone: 'info', text: 'Authority' }, rows: [['Role', 'Receives an approved CAP draft from a human; sets area and severity; transmits via operators']], note: 'IndTrana never sends. This is the official channel.' }; } });
 
     // hand-over arcs from Delhi
     var arcs = cities.concat([REG]).map(function (c) {

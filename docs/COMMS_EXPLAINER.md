@@ -12,7 +12,7 @@
   `.aj-root` with `aj-` keyframes so no other page is affected).
 - Dependencies added (exact pins): `three@0.128.0`, `satellite.js@4.1.4` (both MIT). No vendored scripts remain.
 - Nav label "Alert Journey" has Telugu/Hindi entries in `lib/translations.ts` (machine-drafted; native review pending).
-- The page is immersive (full screen, no app rail); the AEGIS brand link returns to the Command Center.
+- The page is immersive (full screen, no app rail); the IndTrana brand link returns to the Command Center.
 - **Design note:** the engine is imperative three.js mounted by React, not a JSX rewrite of every panel. That kept the
   visuals and motion identical; converting individual panels to React components can follow incrementally.
 - **Decision taken (owner delegated it, 10 Nov 2026):** Live mode needs both the viewer's consent and the deployment
@@ -62,24 +62,24 @@ teams. Everything on screen is a deterministic function of one simulated clock, 
   into a three.js world: mountains, hills, river, coast, farmland, a city (instanced buildings that light up at night),
   roads, traffic, 540 residents, 12 cell towers, 12 response teams, day/night, rain, wind, lightning, a cyclone cloud
   structure, forecast ensemble and cone, predicted-flood overlay, and a flood plane that rises with the model.
-- **Comms streams:** satellites → ground station → AEGIS Ops Desk → human gate → NDMA/SACHET → operator Cell Broadcast
+- **Comms streams:** satellites → ground station → IndTrana Ops Desk → human gate → NDMA/SACHET → operator Cell Broadcast
   Centres → towers → phones; satellite fallback (NavIC / direct-to-cell class) when towers fail; team telemetry.
 - **Human-in-the-loop:** three decision gates pause playback (staging plan, maker≠checker CAP approval with required
   rationale, escalation to emergency mode). Plan A (central yard) vs Plan B (AI high-ground sites) changes the outcome.
 - **Controls:** orbit/pan/zoom, mouse parallax, hover names, click to inspect, double-click to fly, cinematic director,
   layer toggles, 18 camera presets, minimap, "who acts when" swim-lanes, keyboard shortcuts (press **H**).
-- **AI copilot:** cited insights with confidence and "why this?", explicit abstentions, grounded "Ask AEGIS" questions
+- **AI copilot:** cited insights with confidence and "why this?", explicit abstentions, grounded "Ask IndTrana" questions
   (anything outside the fixed intents is refused, not guessed).
 
 ## Boundaries (unchanged project rules)
 
-- Synthetic exercise only. No live data, warning, dispatch or message exists; AEGIS still exports a private Draft CAP
+- Synthetic exercise only. No live data, warning, dispatch or message exists; IndTrana still exports a private Draft CAP
   only (level L4 "send" = never). The CAP preview keeps urgency/severity/certainty **Unknown** and sets no area.
 - Terrain, geography, timings and the flood shape are schematic. No accuracy or forecasting claim. Prediction numbers
   are rehearsal statistics on this one scenario.
 - Operator names (Airtel, Jio, BSNL, Vi, ACT-style backhaul) describe the real ecosystem only. No affiliation or
   integration. Towers are drawn as shared infrastructure.
-- Teams are agency-tasked; AEGIS recommends and records. Hindi/Telugu text is illustrative and pending native review
+- Teams are agency-tasked; IndTrana recommends and records. Hindi/Telugu text is illustrative and pending native review
   (`docs/NATIVE_LANGUAGE_REVIEW.csv`).
 - Open-data statements come from `research/real-data/LICENCES.md` (checked 2026-11-02). The patent note is general
   information, not legal advice; no patent search was run.
@@ -137,7 +137,7 @@ bar and back). Same files folder, no build step, no `package.json` change. **Off
 
 ## Boundaries and honest limits
 
-- Public reference only, never an AEGIS assessment, never feeds proposals/CAP/alerts (AGENTS.md rules unchanged).
+- Public reference only, never an IndTrana assessment, never feeds proposals/CAP/alerts (AGENTS.md rules unchanged).
 - The map is OpenStreetMap, not Google Maps (Google's tiles need a billed key and forbid scraping; the project forbids paid
   infrastructure). IMD and India-WRIS stay excluded; GDACS is not used.
 - OSM mapped masts are patchy: none were found in the central-Hyderabad square on 10 Nov 2026. Real tower coverage needs

@@ -1,13 +1,13 @@
-"""Staff email notices: the ONLY module in AEGIS that calls a message send endpoint (docs/COMMUNICATION_CHANNELS.md).
+"""Staff email notices: the ONLY module in IndTrana that calls a message send endpoint (docs/COMMUNICATION_CHANNELS.md).
 
-Owner decision, 12 November 2026: email notices to AEGIS's own signed-in staff who have opted in. Still forbidden:
+Owner decision, 12 November 2026: email notices to IndTrana's own signed-in staff who have opted in. Still forbidden:
 SMS, WhatsApp, push, public warnings, messages to outside agencies, any transport in the team response loop, and any
 free text or case content in a message.
 
 Two switches, both default off: the host switch AEGIS_STAFF_EMAIL=1 (compose.staff-email.yaml; without it every route
 here answers 404 and nothing sends) and the `comms_email` connector, which a platform_admin enables and which is the
 kill switch read before every send. Messages come only from the fixed TEMPLATES below (English, integer or closed-code
-placeholders only, a fixed AEGIS path at most). One recipient per provider call. Every attempt past the host switch
+placeholders only, a fixed IndTrana path at most). One recipient per provider call. Every attempt past the host switch
 writes one append-only log row with a fixed reason code; addresses, provider bodies, exception text and the key never
 reach a response, a log row or a log line.
 """
@@ -46,19 +46,19 @@ RESERVED_TLDS = frozenset({"invalid", "test", "localhost", "local", "example"})
 
 # Closed set of messages. "params" maps each allowed placeholder to a validator (integers or closed codes only).
 # Both current templates take no placeholders. No template may carry incident, proposal, rationale or personal content.
-_PREAMBLE = ("This is a rehearsal notice from AEGIS, a local exercise system. It is not a real warning and asks for no "
-             "action outside AEGIS.")
+_PREAMBLE = ("This is a rehearsal notice from IndTrana, a local exercise system. It is not a real warning and asks for no "
+             "action outside IndTrana.")
 _FOOTER = ("This message carries no incident, proposal, rationale or personal details. You receive it because you "
-           "turned on Email notices in AEGIS. You can turn them off there at any time.")
+           "turned on Email notices in IndTrana. You can turn them off there at any time.")
 TEMPLATES = {
     "test_notice": {
-        "subject": "[AEGIS exercise] Test notice",
-        "line": "You asked AEGIS to send a test notice to check that email notices reach you. No action is needed.",
+        "subject": "[IndTrana exercise] Test notice",
+        "line": "You asked IndTrana to send a test notice to check that email notices reach you. No action is needed.",
         "path": "/help", "params": {},
     },
     "approval_waiting": {
-        "subject": "[AEGIS exercise] A proposal is waiting for review",
-        "line": "A proposal in your agency was submitted for review. Sign in to AEGIS to see it.",
+        "subject": "[IndTrana exercise] A proposal is waiting for review",
+        "line": "A proposal in your agency was submitted for review. Sign in to IndTrana to see it.",
         "path": "/approvals", "params": {},
     },
 }
@@ -93,7 +93,7 @@ def render(template_id: str, params: dict) -> tuple[str, str]:
         raise ValueError("unknown_placeholder")
     values = {name: check(params[name]) for name, check in spec["params"].items()}
     origin = _origin()
-    link = f"Open AEGIS: {origin}{spec['path']}\n\n" if origin else ""
+    link = f"Open IndTrana: {origin}{spec['path']}\n\n" if origin else ""
     body = f"{_PREAMBLE}\n\n{spec['line'].format(**values)}\n\n{link}{_FOOTER}\n"
     return spec["subject"], body
 

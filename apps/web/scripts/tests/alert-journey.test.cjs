@@ -121,7 +121,7 @@ test('maps on every page load their tiles through the relay', () => {
 
 test('sign-in page never collects a password and only starts the provider flow', () => {
   const page = read('components/sign-in-experience.tsx');
-  assert.ok(!/<input|type="password"|<form/i.test(page), 'no credential fields in AEGIS');
+  assert.ok(!/<input|type="password"|<form/i.test(page), 'no credential fields in IndTrana');
   assert.ok(page.includes('"/api/auth/login"') && page.includes('href={loginHref}'), 'the only action is a link to the sign-in endpoint');
   const callback = read('app/api/auth/callback/route.ts');
   assert.ok(callback.includes('"/sign-in?error=verify"') && !/searchParams\.get\("(returnTo|next|redirect)"\)/.test(callback), 'fixed redirect targets only');
@@ -176,7 +176,7 @@ test('orbit relay: rejects unexpected upstream content and backs off instead of 
   assert.equal(denied.response.status, 502);
 });
 
-// ---- general relay: the browser talks only to AEGIS; AEGIS fetches the reviewed source ----
+// ---- general relay: the browser talks only to IndTrana; IndTrana fetches the reviewed source ----
 const enc = encodeURIComponent;
 async function relayAny(target, { method = 'GET', body, enabled = true, upstreamBody = '{"ok":true}', type = 'application/json', status = 200, route, headers = { origin: 'http://localhost:3000' } } = {}) {
   route = route ?? loadTs('app/api/alert-journey/relay/route.ts', { 'next/server': { NextResponse } });
@@ -296,7 +296,7 @@ test('public-page globe loads only bundled imagery and keeps its honesty labels'
   const landing = read('components/welcome/welcome-experience.tsx'), signIn = read('components/sign-in-experience.tsx');
   for (const page of [landing, signIn]) assert.ok(page.includes('not an authoritative boundary') && page.includes('not live'), 'outline and imagery are labelled');
   assert.ok(landing.includes('import("./welcome-scene")') && signIn.includes('import("./sign-in-scene")'), '3D code is loaded after first paint');
-  assert.ok(landing.includes('AEGIS does not send warnings') && landing.includes('synthetic exercise data'));
+  assert.ok(/(IndTrana|\{brand\.name\}) does not send warnings/.test(landing) && landing.includes('synthetic exercise data'));
 });
 
 // ---- sign-in gate: nothing but the landing page and sign-in is open to a signed-out visitor ----

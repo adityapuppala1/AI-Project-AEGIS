@@ -105,7 +105,7 @@ const SECTION_TITLE: Record<string, string> = {
 /** Deterministic Markdown export; only cited template lines from the API. */
 export function handoverMarkdown(brief: Handover): string {
   const out = [
-    "# AEGIS shift-handover brief — EXERCISE ONLY", "",
+    "# IndTrana shift-handover brief — EXERCISE ONLY", "",
     "> **SYNTHETIC.** Agency-scoped exercise records. Not a warning, forecast, approval or dispatch. Synthetic SLA targets are rehearsal targets, not contractual SLAs.",
     "> Generated from a fixed template; no AI model wrote any text below.", "",
     `Window: ${ist(brief.since)} to ${ist(brief.generated_at)} (${brief.hours} h)`,

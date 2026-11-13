@@ -83,7 +83,7 @@ export function SessionProvider({ children }: Readonly<{ children: ReactNode }>)
       {!stayed && <IconButton variant="quiet" size="sm" icon={X} label={t("Dismiss")} onClick={() => setDismissed(true)}/>}
     </div>}
     <Dialog open={ended} onOpenChange={open => { if (!open) stay(); }} title={t("Your session ended")}
-      description={t("For safety AEGIS signs you out after a while. Sign in again and you will come back to this page. Anything you typed but did not save stays on this page until you leave it, so copy it first if you need it.")}
+      description={t("For safety IndTrana signs you out after a while. Sign in again and you will come back to this page. Anything you typed but did not save stays on this page until you leave it, so copy it first if you need it.")}
       footer={<>
         <Button variant="quiet" type="button"  onClick={stay}>{t("Stay on this page")}</Button>
         <a className={buttonClass({ variant: "primary" })} href={again}><LogIn size={16} aria-hidden="true" />{t("Sign in again")}</a>

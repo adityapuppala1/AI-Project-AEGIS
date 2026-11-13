@@ -1,4 +1,4 @@
-/* AEGIS Live Earth — a real place in 3D: Copernicus terrain + NASA MODIS (region) or OpenStreetMap (city) imagery,
+/* IndTrana Live Earth — a real place in 3D: Copernicus terrain + NASA MODIS (region) or OpenStreetMap (city) imagery,
  * driven by the real hourly forecast. Terrain-based flood scenario, optional OSM buildings/towers, mock alert drill. */
 export default function install(g) {
   'use strict';

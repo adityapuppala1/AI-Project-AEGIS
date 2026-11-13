@@ -1,4 +1,4 @@
-// Pure helpers for the AEGIS UI kit. No React or DOM imports so they can be unit tested directly.
+// Pure helpers for the IndTrana UI kit. No React or DOM imports so they can be unit tested directly.
 
 export const TONES = ["neutral", "info", "success", "warning", "danger", "sample"] as const;
 export type Tone = (typeof TONES)[number];

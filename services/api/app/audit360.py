@@ -1,4 +1,4 @@
-"""AEGIS Audit360 export of PUBLIC SYNTHETIC fixtures only.
+"""IndTrana Audit360 export of PUBLIC SYNTHETIC fixtures only.
 
 Not a signed legal audit, operational approval history, or access to private
 agency records. Bundle is a bounded read-only demonstration artifact.

@@ -3,7 +3,7 @@
 Status (2026-11-02): **Phase 0 complete; a bounded Phase 1 pilot is approved to start under the conditions in
 the approval table** (delegated decision, see below). The licence register is
 [`research/real-data/LICENCES.md`](../research/real-data/LICENCES.md). No real data has been downloaded yet and none
-is connected to the application. AEGIS remains a local synthetic demonstration. Each phase
+is connected to the application. IndTrana remains a local synthetic demonstration. Each phase
 below needs explicit owner approval before it starts. Phase 3 also needs a
 separate safety and licensing review.
 
@@ -11,7 +11,7 @@ separate safety and licensing review.
 
 Measure honestly how well simple, explainable flood-risk indicators would have
 performed on **past Hyderabad events**, using public historical data. The aim
-is evidence, not a forecasting product. A good result here does not make AEGIS
+is evidence, not a forecasting product. A good result here does not make IndTrana
 an operational warning system.
 
 ## Non-goals

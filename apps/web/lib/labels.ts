@@ -42,7 +42,7 @@ const LABELS: Record<string, string> = {
   reachable: "The service answered", upstream_status: "The service answered with an error",
   secret_missing: "The key for this connector has not been entered", network_error: "Could not reach the service",
   exporter_valid_exercise_only: "Exercise alert file checked; nothing is ever sent", connector_key_missing: "The server's connector vault key is not set",
-  connector_secret_unreadable: "The stored key could not be read; enter it again", invalid_response: "The service sent an answer AEGIS could not read",
+  connector_secret_unreadable: "The stored key could not be read; enter it again", invalid_response: "The service sent an answer IndTrana could not read",
   no_send_path: "This connector cannot send anything, by design", terms_not_accepted: "The source's terms have not been confirmed",
   credentials_accepted_nothing_sent: "The provider accepted the credentials; no message was sent", credentials_rejected: "The provider refused the credentials",
   key_lacks_mail_send: "The key is valid but lacks the Mail Send permission", setting_missing: "A required setting is empty or not valid", built_in_no_transport: "Built in; nothing leaves this server",
@@ -56,8 +56,18 @@ const LABELS: Record<string, string> = {
   store_unavailable: "The message log could not be written", verified_email_required: "Your sign-in account has no verified email address", undeliverable_address: "Your sign-in address uses a reserved test domain that cannot receive email",
   test_notice: "Test notice", approval_waiting: "Proposal waiting for review",
   sent: "Sent", suppressed: "Not sent (blocked by a rule)",
-  stale_contact: "This person has not used AEGIS in the last 24 hours", send_lock_unavailable: "Another email was being prepared; try again",
+  stale_contact: "This person has not used IndTrana in the last 24 hours", send_lock_unavailable: "Another email was being prepared; try again",
   test_in_flight: "A test email is already on its way",
+  // Brand settings (services/api/app/brand.py codes; docs/BRANDING.md)
+  name_set: "Name changed", logo_set: "Logo changed", reset: "Defaults restored",
+  brand_name_invalid: "Enter a name", brand_name_length: "The name must be 2 to 40 characters",
+  brand_name_characters: "Use only letters, digits, single spaces and . - & '",
+  brand_name_control_character: "The name contains a hidden or control character",
+  brand_logo_empty: "Choose a logo file", brand_logo_too_large: "The logo is larger than 256 KB",
+  brand_logo_unsupported_type: "Only PNG, JPEG or WebP images are accepted",
+  brand_logo_malformed: "The file is damaged or is not a complete image", brand_logo_dimensions: "The image is larger than 4096 × 4096 pixels",
+  brand_logo_not_set: "No logo is set", brand_version_conflict: "Someone else changed the brand first; the latest settings are shown",
+  brand_unavailable: "Brand settings are unavailable right now",
 };
 
 /**
@@ -112,7 +122,8 @@ export function isMachineCode(value: string): boolean {
 export function sentenceCase(code: string): string {
   const words = code.replace(/[_.\-\s]+/g, " ").trim().toLowerCase().split(" ").filter(Boolean);
   if (words.length === 0) return "";
-  return words.map((word, index) => ACRONYMS.has(word) ? word.toUpperCase() : index === 0 ? word.charAt(0).toUpperCase() + word.slice(1) : word).join(" ");
+  // Ids keep the old technical prefix "aegis" (docs/BRANDING.md); people read the product name.
+  return words.map((word, index) => word === "aegis" ? "IndTrana" : ACRONYMS.has(word) ? word.toUpperCase() : index === 0 ? word.charAt(0).toUpperCase() + word.slice(1) : word).join(" ");
 }
 
 /** Plain label for a code. Known codes use the table; anything else gets the sentence-cased fallback; empty gives "Not known". */

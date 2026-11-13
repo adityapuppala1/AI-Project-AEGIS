@@ -44,7 +44,7 @@ Accepted limits of this local demo (each needs an owner decision before any expo
    container, so one noisy client can exhaust it and deny others (also the daily cap). It is also
    per process, so several API workers would multiply it.
 2. **Queue read (closed 12 November 2026).** `GET /v1/public-intake/reports` and `/v1/public-intake/status` now need
-   a verified operator token (every AEGIS role), and the queue only for the exercise agency; the web route forwards
+   a verified operator token (every IndTrana role), and the queue only for the exercise agency; the web route forwards
    the session token server-side. Submission (`POST /v1/public-intake/reports`) is unchanged: still public, opt-in,
    quarantine-only, with the controls above. Since 12 November 2026 the queue read is limited to the incident
    desk and administrators (`INTAKE_QUEUE_ROLES`; the web GET checks the same roles and answers 403 otherwise).

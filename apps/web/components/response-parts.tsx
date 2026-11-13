@@ -1,7 +1,7 @@
 "use client";
 // The shared pieces of the team response loop screens: state pill, attention flag, lifecycle stepper, report history
 // and the one report form (note with a live count, code select when the kind needs one, Confirm and Cancel).
-// Exercise only. Nothing here calls, texts or radios anyone; a report is a line in AEGIS. See docs/RESPONSE_LOOP.md.
+// Exercise only. Nothing here calls, texts or radios anyone; a report is a line in IndTrana. See docs/RESPONSE_LOOP.md.
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { Flag, MessageSquareText } from "lucide-react";
 import { useT } from "./language-provider";

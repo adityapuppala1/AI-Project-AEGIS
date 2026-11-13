@@ -1,5 +1,7 @@
 # Current local synthetic demo handoff
 
+> Note (13 November 2026): on branch `Aegis_IndTrana` the product was renamed from AEGIS to IndTrana (see docs/BRANDING.md). The rounds below are historical and keep the name used at the time.
+
 Updated: 18 October 2026 (IST). Repository: `adityapuppala1/AI-Project-AEGIS`.
 Branch: `feat/aegis-local-demo-continuation`; integration baseline `b71172c`.
 Latest continuation scripts: `e10ebeeb03a786953449998049c5072361b7d6d2`
@@ -17,6 +19,37 @@ context-panel source `061e35a`; prior staged-task source `413dd97`, proxy
 follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
+
+## Round 19: product renamed to IndTrana; brand name and logo settings (branch Aegis_IndTrana only) — 13 November 2026 (Windows laptop)
+
+Owner request: new branch Aegis_IndTrana, replace the product name AEGIS with IndTrana, and add an option to change the
+brand name and upload a logo. This work is on branch Aegis_IndTrana only; Ai_AEGIS and main stay at 67044f3.
+
+- **Rename (completed):** 658 visible-text replacements in 167 files (UI, titles, docs prose, script messages, email
+  notice subjects). Kept on purpose: environment variables, token claims, the Compose project and volume, realm and
+  client ids, the private AEGIS folder, cookie and storage keys, version ids, file and function names, commands, applied
+  migrations and seeds, the CI workflow, CAP sender text and the native-review CSV, and the historical rounds below.
+  Wrappers indtrana.cmd and indtrana.sh call aegis.cmd and aegis.sh.
+- **Brand settings (completed):** /admin/brand (platform administrator): name, logo (PNG, JPEG or WebP by content, at
+  most 256 KB and 4096 x 4096), restore defaults, audit without file bytes. Migration 019. Public read of name and logo
+  at /api/brand and /api/brand/logo (deliberately open, listed in the session gate and the route inventory). The
+  configured name never reaches email templates, CAP text, exports or audit text. See docs/BRANDING.md.
+- **Review:** independent read-only security review. One high finding (the private folder name had been renamed in two
+  scripts only) and five others were fixed: CAP and native-review text reverted, page-wide text rewriting removed, brand
+  reads cached, body size capped before reading, audit table protected from TRUNCATE.
+- **Checks run on this laptop:** API pytest 1324 passed / 30 skipped; app.model_lab --check PASS; npm run typecheck
+  clean; web tests 353 pass; stack rebuilt with start-windows.ps1 -SignIn -PublicEarth -Proactive -StatisticalForecast
+  -StaffEmail; migration 019 applied on the existing volume; aegis.cmd status and verify-windows.ps1 passed.
+- **Browser check (Chrome, demo-admin):** signed in, set a test name and uploaded a generated PNG on /admin/brand; the
+  app shell showed the name and the logo loaded; a signed-out /sign-in at 390 px showed the name in its title and text
+  with no sideways scroll; an SVG renamed .png was refused in the page and by the server (415); a name with markup was
+  refused (422); the logo was served as image/png with nosniff and a restrictive policy; Restore defaults put back
+  IndTrana; the audit held no file bytes; no page errors. This also confirms sign-in works after round 17.
+- **Not done:** a custom name does not appear in tooltips or on the sign-in provider's own pages; the running local
+  provider may still show the old display name (realm.json is only read on first import); the 669 pending strings need
+  native review; Linux and macOS were not exercised on this branch.
+- **Slip, corrected:** a test command ran npm install in the repository root and created package.json,
+  package-lock.json and node_modules there; all three were moved out before any commit.
 
 ## Round 18: one-step install and start for Windows, macOS and Linux — 13 November 2026 (Windows laptop)
 

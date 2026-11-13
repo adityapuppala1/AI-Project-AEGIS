@@ -11,7 +11,7 @@ export const PAGE_HELP: Record<string, PageHelp> = {
     never: "It never sends a warning, dispatches anyone or shows live operations. Map locators are symbols, not flood extent or severity.",
   },
   "/about": {
-    shows: "What AEGIS is for, the six steps an alert takes, and the limits of this exercise build.",
+    shows: "What IndTrana is for, the six steps an alert takes, and the limits of this exercise build.",
     can: "Read how the steps fit together and jump to the page that serves each step.",
     never: "It never describes real capability or real accuracy. Everything named here is rehearsal on synthetic data.",
   },
@@ -43,7 +43,7 @@ export const PAGE_HELP: Record<string, PageHelp> = {
   "/earth-watch": {
     shows: "Public reference feeds from USGS and NASA: earthquakes, natural events and satellite imagery.",
     can: "Browse the feeds and the map layers, and see how old each item is.",
-    never: "It never saves these records or uses them in cases, proposals or alerts. It is public reference, not an AEGIS assessment.",
+    never: "It never saves these records or uses them in cases, proposals or alerts. It is public reference, not an IndTrana assessment.",
   },
   "/public-intake": {
     shows: "Reports sent in by the public, held in quarantine for review.",
@@ -63,12 +63,12 @@ export const PAGE_HELP: Record<string, PageHelp> = {
   "/department-tasks": {
     shows: "Approved tasks assigned to your department, and for an acknowledged task the exercise teams requested for it and their answers.",
     can: "Acknowledge a task and close it with a note. On an acknowledged task, request a team, record an answer for it, stand it down or mark a flagged request handled.",
-    never: "It never shows another department's tasks, and a team request never calls, texts or radios anyone: it alerts only people signed in to AEGIS. Time targets are rehearsal targets, not contractual.",
+    never: "It never shows another department's tasks, and a team request never calls, texts or radios anyone: it alerts only people signed in to IndTrana. Time targets are rehearsal targets, not contractual.",
   },
   "/my-team": {
     shows: "The requests that department desks made to your exercise team, where each one stands, and what has been reported so far.",
     can: "Accept or decline a request, then report that you are en route, on site and completed. Send a situation report or ask for support while a request is active.",
-    never: "It never shows another team's requests, and nobody is called, texted or radioed. Your answers reach people signed in to AEGIS only. Teams and travel times are invented exercise data.",
+    never: "It never shows another team's requests, and nobody is called, texted or radioed. Your answers reach people signed in to IndTrana only. Teams and travel times are invented exercise data.",
   },
   "/agency-sync": {
     shows: "Fictional acknowledgements and timelines from the departments in the exercise.",
@@ -129,6 +129,11 @@ export const PAGE_HELP: Record<string, PageHelp> = {
     shows: "The six roles, what each one can do, and the account you are signed in with.",
     can: "Check what your role allows and where accounts are managed.",
     never: "It never creates, changes or removes an account. That is done in your agency's identity provider.",
+  },
+  "/admin/brand": {
+    shows: "The product name and logo people see in the browser, and every change made to them.",
+    can: "An administrator sets a new name, uploads a PNG, JPEG or WebP logo, or restores the defaults.",
+    never: "It never changes staff email, alert drafts, exports or audit text, which keep the built-in name.",
   },
   "/admin/go-live": {
     shows: "Every key, switch and agreement that real use would need.",

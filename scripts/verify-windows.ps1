@@ -1,4 +1,4 @@
-# Read-only Windows P0 integration checks for AEGIS exercise stack.
+# Read-only Windows P0 integration checks for IndTrana exercise stack.
 # No sample insertion, migration, replay, database reset, real alert or dispatch.
 # Run after: docker compose up --build -d
 $ErrorActionPreference = "Stop"
@@ -8,7 +8,7 @@ Invoke-AegisLocalOperation -Name "verify-windows.ps1" -Action {
   Set-Location (Resolve-Path (Join-Path $PSScriptRoot ".."))
 
   function Assert-True([bool]$Condition, [string]$Message) {
-    if (-not $Condition) { throw "AEGIS P0 smoke FAILED: $Message" }
+    if (-not $Condition) { throw "IndTrana P0 smoke FAILED: $Message" }
     Write-Host "PASS: $Message" -ForegroundColor Green
   }
   function Get-Json([string]$Url) {
@@ -18,7 +18,7 @@ Invoke-AegisLocalOperation -Name "verify-windows.ps1" -Action {
     $code = (& curl.exe -sS --connect-timeout 5 --max-time 15 -o NUL -w "%{http_code}" -X $Method $Url).Trim()
     Assert-True ($LASTEXITCODE -eq 0 -and $Allowed -contains $code) ("$Label [HTTP $code]")
   }
-  Write-Host "AEGIS P0 LOCAL EXERCISE-ONLY smoke. No data will be modified." -ForegroundColor Cyan
+  Write-Host "IndTrana P0 LOCAL EXERCISE-ONLY smoke. No data will be modified." -ForegroundColor Cyan
 
   # Compose must already be built and running; these checks never start or stop it.
   $ready = $false
@@ -85,5 +85,5 @@ Invoke-AegisLocalOperation -Name "verify-windows.ps1" -Action {
   # Security regression: HTTP write to operational warning is forbidden.
   Check-Status "http://localhost:8000/v1/live/public-warning" @("403") "Live public warning blocked" "POST"
   Check-Status "http://localhost:8000/v1/exercise/proposals" @("401","503") "Anonymous governance workflow stays locked"
-  Write-Host "AEGIS P0 smoke PASSED. Browser keyboard/mobile testing remains a manual release gate." -ForegroundColor Green
+  Write-Host "IndTrana P0 smoke PASSED. Browser keyboard/mobile testing remains a manual release gate." -ForegroundColor Green
 }

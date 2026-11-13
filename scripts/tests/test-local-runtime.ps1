@@ -14,11 +14,11 @@ function Fixture([string]$Role, [string]$Name) {
 }
 $healthy = @((Fixture 'api' 'api-1'), (Fixture 'web' 'web-1'), (Fixture 'db' 'db-1'))
 Test-AegisRuntimeInventory -Containers $healthy -Root $root -RequireRunning
-Expect-Failure { Test-AegisRuntimeInventory -Containers @($healthy + (Fixture 'api' 'api-2')) -Root $root } 'Duplicate AEGIS'
+Expect-Failure { Test-AegisRuntimeInventory -Containers @($healthy + (Fixture 'api' 'api-2')) -Root $root } 'Duplicate IndTrana'
 Expect-Failure { Test-AegisRuntimeInventory -Containers @() -Root $root -RequireRunning } 'exactly one'
 $other = Fixture 'api' 'other-project-api'
 $other.Project = 'another-aegis'
-Expect-Failure { Test-AegisRuntimeInventory -Containers @($other) -Root $root } 'Another AEGIS'
+Expect-Failure { Test-AegisRuntimeInventory -Containers @($other) -Root $root } 'Another IndTrana'
 $other.Project = 'ai-project-aegis'
 $other.WorkingDirectory = Join-Path $root 'another-checkout'
 Expect-Failure { Test-AegisRuntimeInventory -Containers @($other) -Root $root } 'another checkout'
@@ -47,7 +47,7 @@ try {
   Invoke-AegisLocalOperation -Name 'test contender' -Action { throw 'UNEXPECTED_ACQUIRE' }
   exit 12
 } catch {
-  if (`$_.Exception.Message -match 'Another AEGIS local operation') { exit 23 }
+  if (`$_.Exception.Message -match 'Another IndTrana local operation') { exit 23 }
   Write-Error 'Unexpected lock-test result'
   exit 24
 }

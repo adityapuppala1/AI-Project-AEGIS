@@ -5,7 +5,7 @@ Everything here is prepared for people to act on. None of it has been reviewed, 
 ## Telugu and Hindi wording
 - File: `docs/NATIVE_LANGUAGE_REVIEW.csv` (opens in Excel; UTF-8 with BOM). One row per interface string.
 - The reviewer fills `telugu_ok` / `hindi_ok` with y or n, adds a correction where n, then signs with name and date.
-- Check first: the safety rows (112 emergency line, "not an AEGIS assessment", quarantine wording). Wrong wording there matters more than style.
+- Check first: the safety rows (112 emergency line, "not an IndTrana assessment", quarantine wording). Wrong wording there matters more than style.
 - After corrections come back, update `apps/web/lib/translations.ts` and run `node --test scripts/tests/translations.test.cjs`.
 
 ## Heavy-rain candidates (hydrology reviewer)

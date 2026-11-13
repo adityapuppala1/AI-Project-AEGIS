@@ -1,6 +1,6 @@
 """Team response loop rules (docs/RESPONSE_LOOP.md). Pure: no database and no I/O beyond the team fixture.
 
-Exercise only. A team is "alerted" only by a request appearing inside AEGIS; this module has no transport and
+Exercise only. A team is "alerted" only by a request appearing inside IndTrana; this module has no transport and
 none may be added. Answers never change a proposal, an approval, a CAP draft or an incident status.
 """
 import math

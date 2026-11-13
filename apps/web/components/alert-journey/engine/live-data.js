@@ -1,4 +1,4 @@
-/* AEGIS Live Earth — read-only public data clients (fixed HTTPS allow-list, caching, backoff, per-source status).
+/* IndTrana Live Earth — read-only public data clients (fixed HTTPS allow-list, caching, backoff, per-source status).
  * Display only. Nothing here writes anywhere, creates cases/warnings, or sends messages. Off until the user opts in. */
 export default function install(g) {
   'use strict';
@@ -24,7 +24,7 @@ export default function install(g) {
     overpass: { name: 'OpenStreetMap data (Overpass)', attr: '© OpenStreetMap contributors (ODbL)', licence: 'ODbL 1.0 · public instance for human-operated tools', url: 'https://wiki.openstreetmap.org/wiki/Overpass_API' },
     s2: { name: 'Sentinel-2 cloudless imagery (EOX)', attr: 'Sentinel-2 cloudless – https://s2maps.eu by EOX IT Services GmbH (Contains modified Copernicus Sentinel data 2020)', licence: 'CC BY-NC-SA 4.0 · non-commercial · attribution', url: 'https://s2maps.eu/' },
     ensemble: { name: 'Open-Meteo Ensemble (GFS 31 members)', attr: 'Ensemble forecast: NOAA GEFS via Open-Meteo.com', licence: 'CC BY 4.0 · non-commercial', url: 'https://open-meteo.com/en/docs/ensemble-api' },
-    tle: { name: 'CelesTrak orbital elements (via AEGIS relay, cached 3 h)', attr: 'Orbital elements: CelesTrak (T. S. Kelso), or SatNOGS DB (CC BY-SA 4.0) when CelesTrak is unavailable', licence: 'Public; cache and do not poll more than needed', url: 'https://celestrak.org/webmaster.php' }
+    tle: { name: 'CelesTrak orbital elements (via IndTrana relay, cached 3 h)', attr: 'Orbital elements: CelesTrak (T. S. Kelso), or SatNOGS DB (CC BY-SA 4.0) when CelesTrak is unavailable', licence: 'Public; cache and do not poll more than needed', url: 'https://celestrak.org/webmaster.php' }
   };
   L.status = {}; L.onStatus = null;
   function emit() { if (L.onStatus) try { L.onStatus(L.status); } catch (e) { /* UI listener must not break fetches */ } }
@@ -33,10 +33,10 @@ export default function install(g) {
   function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
   function host(u) { try { var x = new URL(u); if (SELF && x.origin === SELF) return x.pathname.indexOf('/api/alert-journey/') === 0 ? 'self' : null; return x.protocol === 'https:' ? x.hostname : null; } catch (e) { return null; } }
   L.log = []; L.onRequest = null;
-  /* Privacy: every third-party request goes through the AEGIS relay, so sources never see the viewer's address. */
+  /* Privacy: every third-party request goes through the IndTrana relay, so sources never see the viewer's address. */
   L.relay = !!SELF;
   function via(url) { return L.relay && host(url) !== 'self' ? SELF + '/api/alert-journey/relay?u=' + encodeURIComponent(url) : url; }
-  function logTx(src, url, ok, ms, what) { var h = host(url), e = { t: Date.now(), src: src, host: h === 'self' ? 'AEGIS server relay' : h, ok: ok, ms: ms || 0, what: what || '' }; L.log.push(e); if (L.log.length > 80) L.log.shift(); if (L.onRequest) try { L.onRequest(e); } catch (x) { /* listeners must not break fetches */ } }
+  function logTx(src, url, ok, ms, what) { var h = host(url), e = { t: Date.now(), src: src, host: h === 'self' ? 'IndTrana server relay' : h, ok: ok, ms: ms || 0, what: what || '' }; L.log.push(e); if (L.log.length > 80) L.log.shift(); if (L.onRequest) try { L.onRequest(e); } catch (x) { /* listeners must not break fetches */ } }
   function allowed(u) { var h = host(u); if (!(h && ALLOW[h])) return false; var p = PATHS[h]; return !p || new URL(u).pathname.indexOf(p) === 0; }
   L.allowed = allowed;
 
@@ -107,7 +107,7 @@ export default function install(g) {
     return { lat: j.latitude, lon: j.longitude, elev: j.elevation, tz: j.timezone, utcOffset: j.utc_offset_seconds * 1000, hours: hours, days: dly, current: { t: c.time * 1000, temp: c.temperature_2m, feels: c.apparent_temperature, rh: c.relative_humidity_2m, precip: c.precipitation, snowfall: c.snowfall, code: c.weather_code, cloud: c.cloud_cover, pressure: c.pressure_msl, wind: c.wind_speed_10m, windDir: c.wind_direction_10m, gust: c.wind_gusts_10m, isDay: c.is_day } };
   };
 
-  /* ---------------- optional statistical forecast (TimesFM on the AEGIS server; display-only) ---------------- */
+  /* ---------------- optional statistical forecast (TimesFM on the IndTrana server; display-only) ---------------- */
   // The last 400 days of modelled discharge, oldest first, for the pattern model to read.
   L.floodRecent = async function (lat, lon) {
     var iso = function (ms) { return new Date(ms).toISOString().slice(0, 10); };

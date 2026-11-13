@@ -1,4 +1,4 @@
-/* AEGIS Alert Journey explainer — app shell: renderer, simulation clock, decisions, camera rig, picking, render loop. */
+/* IndTrana Alert Journey explainer — app shell: renderer, simulation clock, decisions, camera rig, picking, render loop. */
 export default function install(g) {
   'use strict';
   var AX = g.AX = g.AX || {}, C = AX.core, S = AX.story, T = g.THREE;

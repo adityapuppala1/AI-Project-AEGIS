@@ -1,9 +1,21 @@
-# AEGIS — Adaptive Emergency Geospatial Intelligence System
+# IndTrana — Adaptive Emergency Geospatial Intelligence System
 
 AI-powered disaster prediction, preparedness and accountable response.
 
-> **Local synthetic exercise system.** AEGIS sends no real warnings, dispatches no responders and
+> **Local synthetic exercise system.** IndTrana sends no real warnings, dispatches no responders and
 > makes no validated forecasting claims. All metrics are synthetic unless a registered protocol says otherwise.
+
+## Product name and brand settings
+
+The product is now called **IndTrana** (renamed from AEGIS on this branch, 13 November 2026). Only the name people
+read changed; technical identifiers such as `AEGIS_*` variables, `aegis_*` token claims, the `ai-project-aegis`
+Compose project, the `aegis-exercise` sign-in realm and the `aegis.cmd` / `aegis.sh` launchers keep their names so
+existing installs, sign-in and the database keep working. `indtrana.cmd` (Windows) and `./indtrana.sh` (macOS/Linux)
+are thin wrappers that call the same launchers with the same commands.
+
+An administrator can change the product name and logo shown in the browser, or restore the defaults, on
+**Administration > Brand** (`/admin/brand`). Logos: PNG, JPEG or WebP, at most 256 KB. Staff email, alert drafts
+(CAP), exports and audit text always keep the built-in name. See [docs/BRANDING.md](docs/BRANDING.md).
 
 ## Install and run in one step
 
@@ -14,8 +26,8 @@ AI-powered disaster prediction, preparedness and accountable response.
 | macOS | `./aegis.sh install` (written for macOS, not yet run on one) | as Linux |
 
 The installer checks for Git and Docker (with Compose) and installs what is missing after asking once, starts Docker if
-it is not running, creates the local settings and private sign-in files, and starts **exactly one** copy of AEGIS with
-sign-in. If AEGIS is already running it just prints the address. If port 3000 or 8000 is taken by another program it
+it is not running, creates the local settings and private sign-in files, and starts **exactly one** copy of IndTrana with
+sign-in. If IndTrana is already running it just prints the address. If port 3000 or 8000 is taken by another program it
 moves to the next free port and says which; port 8443 (sign-in) is never moved. `doctor` finds and fixes common
 problems without deleting data. Add `--ci` (Linux/macOS) or `-Ci` (Windows) for pipelines. Open the address on the last
 line, normally http://localhost:3000.
@@ -25,7 +37,7 @@ Docker Desktop, cloud VMs, CI pipelines, plain Docker Compose, and why worker no
 
 ## What it is
 
-AEGIS is a decision-support workbench for emergency operations centres. It gathers hazard evidence,
+IndTrana is a decision-support workbench for emergency operations centres. It gathers hazard evidence,
 correlates it with incidents on a map, drafts response proposals with cited evidence, and routes them
 through an **independent two-person (maker–checker) approval** before any exercise task or CAP
 warning draft is produced. Automation prepares and explains; humans decide; the authority issues.
@@ -59,7 +71,7 @@ were made: [docs/media/NARRATION.md](docs/media/NARRATION.md).
 
 | Video | Shows |
 |---|---|
-| [01 About AEGIS](docs/media/01-about-aegis.mp4) | The public landing page: the six steps from signal to warning, who it helps, what the AI may and may not do |
+| [01 About IndTrana](docs/media/01-about-aegis.mp4) | The public landing page: the six steps from signal to warning, who it helps, what the AI may and may not do |
 | [02 Sign-in](docs/media/02-sign-in.mp4) | The sign-in page and a real sign-in through the local identity provider |
 | [03 Alert Journey exercise](docs/media/03-alert-journey-exercise.mp4) | The 3D exercise story with its three human decision gates |
 | [04 Live Earth](docs/media/04-live-earth.mp4) | Live public reference data on the globe, a city view and the Flood tab |
@@ -131,7 +143,7 @@ incidents with evidence, data sources, map assets, department tasks and exposure
 data: `scripts\replay-windows.ps1` and `scripts\run-tabletop-windows.ps1 -ConfirmExercise`.
 
 Optional switches (default off): `-PublicEarth`, `-Proactive`, `-StaffEmail` (needs `-Proactive`), `-StatisticalForecast`, `-LocalCopilot`,
-`-PublicIntake`. Run one AEGIS stack at a time ([single-instance rules](docs/SINGLE_INSTANCE_LOCAL_RUNTIME.md)).
+`-PublicIntake`. Run one IndTrana stack at a time ([single-instance rules](docs/SINGLE_INSTANCE_LOCAL_RUNTIME.md)).
 
 **Local checks**
 
@@ -161,7 +173,7 @@ and sign-in pages, grouped menu, Alert Journey with Live Earth, approvals, depar
 An optional local-only scenario refresh (`scripts/run-tabletop-windows.ps1 -ConfirmExercise`) appends three fictional readings without deleting source history. The `/demo` page guides the original scenario through the rule-only index, case evidence, playbook, human approval gate, scripted AgencySync acknowledgements and Audit360 export. No official provider is connected.
 
 Use the [single-instance local helpers](docs/SINGLE_INSTANCE_LOCAL_RUNTIME.md):
-one AEGIS stack and one managed startup/build/test/replay operation at a time.
+one IndTrana stack and one managed startup/build/test/replay operation at a time.
 Do not launch native dev servers alongside Compose or stop unrelated projects.
 
 ## Current continuation and validation

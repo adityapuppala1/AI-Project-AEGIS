@@ -1,9 +1,9 @@
-# Brings the LOCAL exercise identity provider (Keycloak container) up to what the current AEGIS code expects.
+# Brings the LOCAL exercise identity provider (Keycloak container) up to what the current IndTrana code expects.
 # Safe to run again: every step checks first and changes nothing that is already right.
-#   1. Access tokens last 15 minutes (the AEGIS session cap), not 5.
+#   1. Access tokens last 15 minutes (the IndTrana session cap), not 5.
 #   2. The department_operator role exists.
 #   3. A department can be recorded on an account (administrators only) and is signed into the access token.
-#   4. The provider's own sign-in pages use the AEGIS look (ops/local-idp/theme; styles only).
+#   4. The provider's own sign-in pages use the IndTrana look (ops/local-idp/theme; styles only).
 #   5-7. The response_team role, an aegis_team_id account attribute (administrators only) and its access-token mapper.
 #   8. Only an administrator can change an account's email address (staff email notices trust the verified address).
 # It never creates, changes or deletes an account and never prints a secret.
@@ -41,7 +41,7 @@ Invoke-AegisLocalOperation -Name 'update-local-idp.ps1' -Action {
   } else {
     $needTheme = $realm.loginTheme -ne 'aegis'
     if ($needTheme) { Invoke-Idp '$K update realms/aegis-exercise -s loginTheme=aegis >/dev/null' | Out-Null }
-    Say 'Provider sign-in pages use the AEGIS look' $needTheme
+    Say 'Provider sign-in pages use the IndTrana look' $needTheme
   }
 
   # 2. Department role
@@ -55,7 +55,7 @@ Invoke-AegisLocalOperation -Name 'update-local-idp.ps1' -Action {
   $needAttribute = -not (@($profile.attributes | ForEach-Object { $_.name }) -contains 'aegis_department_id')
   if ($needAttribute) {
     $attribute = [PSCustomObject]@{
-      name = 'aegis_department_id'; displayName = 'AEGIS department'; multivalued = $false
+      name = 'aegis_department_id'; displayName = 'IndTrana department'; multivalued = $false
       validations = [PSCustomObject]@{ options = [PSCustomObject]@{ options = @('control_room', 'infrastructure', 'communications') } }
       permissions = [PSCustomObject]@{ view = @('admin'); edit = @('admin') }
     }
@@ -77,7 +77,7 @@ Invoke-AegisLocalOperation -Name 'update-local-idp.ps1' -Action {
   }
   Say 'Department is signed into the access token' $needMapper
 
-  # 5. Response team role (docs/RESPONSE_LOOP.md). Exercise only: teams answer inside AEGIS, nobody is contacted.
+  # 5. Response team role (docs/RESPONSE_LOOP.md). Exercise only: teams answer inside IndTrana, nobody is contacted.
   $needTeamRole = -not ($roles -contains 'response_team')
   if ($needTeamRole) { Invoke-Idp '$K create clients/$CID/roles -r aegis-exercise -s name=response_team >/dev/null 2>&1' | Out-Null }
   Say 'Role response_team exists' $needTeamRole
@@ -87,7 +87,7 @@ Invoke-AegisLocalOperation -Name 'update-local-idp.ps1' -Action {
   $needTeamAttribute = -not (@($profile.attributes | ForEach-Object { $_.name }) -contains 'aegis_team_id')
   if ($needTeamAttribute) {
     $attribute = [PSCustomObject]@{
-      name = 'aegis_team_id'; displayName = 'AEGIS synthetic response team'; multivalued = $false
+      name = 'aegis_team_id'; displayName = 'IndTrana synthetic response team'; multivalued = $false
       validations = [PSCustomObject]@{ options = [PSCustomObject]@{ options = @('syn-team-rescue-01', 'syn-team-rescue-02', 'syn-team-health-01', 'syn-team-fire-01', 'syn-team-municipal-01') } }
       permissions = [PSCustomObject]@{ view = @('admin'); edit = @('admin') }
     }

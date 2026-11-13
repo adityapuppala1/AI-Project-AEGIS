@@ -4,7 +4,7 @@ $ErrorActionPreference = "Stop"
 Invoke-AegisLocalOperation -Name "security-smoke-windows.ps1" -Action {
   if (Get-Command docker -ErrorAction SilentlyContinue) { Assert-AegisSingleRuntime }
   $base = "http://localhost:3000"
-  Write-Host "Checking AEGIS local exercise security posture..."
+  Write-Host "Checking IndTrana local exercise security posture..."
   $session = Invoke-RestMethod -Uri "$base/api/auth/session" -Method GET -TimeoutSec 10
   if ($session.authenticated) { throw "Unexpected authenticated session in a fresh PowerShell client." }
   Write-Host "PASS: No implicit operator identity"

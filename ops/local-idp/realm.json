@@ -1,7 +1,7 @@
 {
   "realm": "aegis-exercise",
   "enabled": true,
-  "displayName": "AEGIS LOCAL SYNTHETIC EXERCISE",
+  "displayName": "IndTrana LOCAL SYNTHETIC EXERCISE",
   "sslRequired": "all",
   "registrationAllowed": false,
   "resetPasswordAllowed": false,

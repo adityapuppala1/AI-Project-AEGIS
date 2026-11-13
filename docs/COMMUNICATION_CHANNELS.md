@@ -1,9 +1,9 @@
 # Communication channels
 
-How AEGIS reaches its own staff (operators, department desks, response teams), what an
+How IndTrana reaches its own staff (operators, department desks, response teams), what an
 administrator can set up today, and what is still locked.
 
-Public warnings are a different subject. AEGIS never sends them; an authorised officer hands the
+Public warnings are a different subject. IndTrana never sends them; an authorised officer hands the
 approved CAP draft to the alerting authority (NDMA / SDMA through SACHET). Nothing on this page
 changes that.
 
@@ -11,7 +11,7 @@ changes that.
 
 Asked "Do you want real sending for staff messages? If yes, say so explicitly, because it lifts the
 no-dispatch rule", the owner answered "yes please proceed". The no-dispatch rule is lifted for **one
-thing only: email notices to AEGIS's own signed-in staff who have opted in.**
+thing only: email notices to IndTrana's own signed-in staff who have opted in.**
 
 Still forbidden: SMS, WhatsApp, push, public warnings, messages to outside agencies, any transport in
 the team response loop (docs/RESPONSE_LOOP.md), and any free text or case content in a message.
@@ -20,13 +20,13 @@ the team response loop (docs/RESPONSE_LOOP.md), and any free text or case conten
 
 | Channel | State | Who it reaches | Leaves this server? |
 |---|---|---|---|
-| In-app alerts | In use | People signed in to AEGIS: counts on the menu, the Department Inbox, My Team, Approvals | No |
-| Email (Twilio SendGrid) | Can send, off by default (two switches) | AEGIS staff in the same agency who turned on **Email notices**, at their verified sign-in address | Yes, when both switches are on |
+| In-app alerts | In use | People signed in to IndTrana: counts on the menu, the Department Inbox, My Team, Approvals | No |
+| Email (Twilio SendGrid) | Can send, off by default (two switches) | IndTrana staff in the same agency who turned on **Email notices**, at their verified sign-in address | Yes, when both switches are on |
 | SMS (Twilio) | Credentials only, sending locked | Nobody | Only the credential check |
 | WhatsApp (Meta Cloud API) | Credentials only, sending locked | Nobody | Only the credential check |
 | Mobile app push | Not built | Nobody | No |
 
-"Sending locked" means there is no code in AEGIS that calls that provider's send endpoint.
+"Sending locked" means there is no code in IndTrana that calls that provider's send endpoint.
 
 ## Email notices
 
@@ -68,8 +68,8 @@ the team response loop (docs/RESPONSE_LOOP.md), and any free text or case conten
 
 Only fixed English templates in `services/api/app/staff_messages.py` (Telugu and Hindi need native
 review first). Placeholders may only be integers or closed codes; both current templates take none.
-Every subject starts `[AEGIS exercise]`, every body says it is a rehearsal notice, carries no incident,
-proposal, rationale or personal content, and at most one fixed AEGIS page link under `APP_ORIGIN`.
+Every subject starts `[IndTrana exercise]`, every body says it is a rehearsal notice, carries no incident,
+proposal, rationale or personal content, and at most one fixed IndTrana page link under `APP_ORIGIN`.
 
 | Template | When | To |
 |---|---|---|
@@ -124,12 +124,12 @@ In the local Keycloak realm, `scripts/update-local-idp.ps1` (step 8, run on 13 N
 email address editable by an administrator only, so a person cannot replace their own address and keep
 it marked verified. **Still open:** the realm does not send confirmation links (`verifyEmail` is off,
 and turning it on needs a mail server in the provider), so an address is only as good as the
-administrator who entered it. The demo accounts carry `example.invalid` addresses, which AEGIS
+administrator who entered it. The demo accounts carry `example.invalid` addresses, which IndTrana
 refuses as undeliverable. An agency's own provider must confirm addresses before real use.
 
 ## Setting up a provider (administrator)
 
-1. Start AEGIS with `-Proactive` and make sure `AEGIS_CONNECTOR_KEY` is set
+1. Start IndTrana with `-Proactive` and make sure `AEGIS_CONNECTOR_KEY` is set
    (`scripts/new-connector-key.ps1`). The key encrypts every stored credential. Add `-StaffEmail` to
    allow email notices.
 2. Sign in as a platform administrator and open **Administration → Connectors**. The providers are
@@ -148,7 +148,7 @@ the HTTP status and the time taken in the connector audit. The email check also 
 lacks the Mail Send permission. A check made before the last save no longer counts, so check again
 after changing a value. Secrets are write-only: the page shows an 8-character fingerprint, never the value.
 
-All three providers are paid services. The owner opens and pays for any account; AEGIS does not need
+All three providers are paid services. The owner opens and pays for any account; IndTrana does not need
 one to run.
 
 ## Rules in the code

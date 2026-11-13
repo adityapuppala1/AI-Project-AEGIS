@@ -1,7 +1,7 @@
 "use client";
 // The "Team response" section of an acknowledged task in the Department Inbox: the task's team requests with the
 // desk's actions (record for the team, stand down, mark handled), and "Request a team" with the facts behind the
-// suggestion. Exercise only: nobody is called, texted or radioed; a request is a line the team sees in AEGIS.
+// suggestion. Exercise only: nobody is called, texted or radioed; a request is a line the team sees in IndTrana.
 // Scope (agency, department) comes from the verified token on the server. See docs/RESPONSE_LOOP.md.
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { Clock3, MapPin, Users, Wrench } from "lucide-react";

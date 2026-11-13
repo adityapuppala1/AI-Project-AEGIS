@@ -145,7 +145,7 @@ export function EarthWatch() {
         if (disposed || !containerRef.current) return;
         maplibregl.setWorkerUrl("/maplibre/maplibre-gl-worker.mjs?v=6.14.0");
         map = new maplibregl.Map({
-          // Tiles go through the AEGIS relay: tile servers never see the operator, and the page CSP stays "this site only".
+          // Tiles go through the IndTrana relay: tile servers never see the operator, and the page CSP stays "this site only".
           transformRequest: relayTileRequest,
           container: containerRef.current, center: [80, 22], zoom: 3.2, minZoom: 1.5, maxZoom: 12,
           attributionControl: { compact: true },
@@ -274,17 +274,17 @@ export function EarthWatch() {
   };
   const visibleList = records.slice(0, 120);
 
-  return <AppShell title="Earth Watch" description="A read-only view of public satellite imagery and hazard reports, kept separate from every AEGIS case, approval and task.">
+  return <AppShell title="Earth Watch" description="A read-only view of public satellite imagery and hazard reports, kept separate from every IndTrana case, approval and task.">
     <div className="mb-5 flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-xs leading-6 text-amber-800 dark:text-amber-200" role="note">
       <ShieldAlert className="mt-1 shrink-0" size={19}/>
-      <p><strong>{t("Public reference data, not an AEGIS assessment.")}</strong>{t(" NASA and USGS reports are delayed, incomplete and sometimes preliminary. Nothing here creates a case, evidence, approval, task or warning. No markers does not mean an area is safe.")}</p>
+      <p><strong>{t("Public reference data, not an IndTrana assessment.")}</strong>{t(" NASA and USGS reports are delayed, incomplete and sometimes preliminary. Nothing here creates a case, evidence, approval, task or warning. No markers does not mean an area is safe.")}</p>
     </div>
 
     {gate === "checking" && <Panel as="div" bodyClassName="p-4 text-sm text-muted" role="status">Checking whether public Earth feeds are enabled…</Panel>}
-    {gate === "error" && <ErrorState message={"Earth Watch status is unavailable. The rest of AEGIS is unaffected."} />}
+    {gate === "error" && <ErrorState message={"Earth Watch status is unavailable. The rest of IndTrana is unaffected."} />}
     {gate === "disabled" && <Panel>
       <h2 className="flex items-center gap-2 t-title"><Globe2 size={18} className="text-accent"/> Public feeds are switched off</h2>
-      <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">The base AEGIS stack stays fully synthetic. To view USGS earthquakes, NASA EONET events and NASA satellite imagery,
+      <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">The base IndTrana stack stays fully synthetic. To view USGS earthquakes, NASA EONET events and NASA satellite imagery,
         restart the API with the optional display-only profile. Data is fetched on demand, held in memory only and never written to the database.</p>
       <pre className="mt-4 overflow-x-auto rounded-lg bg-elevated p-4 text-xs" tabIndex={0} aria-label="Start command"><code>powershell -ExecutionPolicy Bypass -File scripts/start-windows.ps1 -NoBuild -PublicEarth</code></pre>
     </Panel>}

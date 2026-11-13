@@ -1,6 +1,6 @@
 """Fail-closed OIDC JWT resource-server authentication for exercise workflows.
 
-Only a trusted identity provider may assert AEGIS roles and agency scope.
+Only a trusted identity provider may assert IndTrana roles and agency scope.
 No developer override, hardcoded token, unsigned JWT, or browser-supplied
 subject/role is supported by this module.
 """

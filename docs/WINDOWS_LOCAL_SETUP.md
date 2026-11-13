@@ -1,4 +1,4 @@
-# AEGIS Windows local development — 16 GB RAM
+# IndTrana Windows local development — 16 GB RAM
 
 > **Current install steps are in [INSTALL.md](INSTALL.md)** (sign-in setup, demo accounts, demo data). This page is kept for its
 > troubleshooting notes; its branch names and the `/docs` and `/admin` links describe older milestones. Never run
@@ -20,7 +20,7 @@ git switch feat/aegis-local-demo-continuation
 powershell -ExecutionPolicy Bypass -File .\scripts\check-local-runtime.ps1 -RequireRunning
 powershell -ExecutionPolicy Bypass -File .\scripts\start-windows.ps1
 ```
-`start-windows.ps1` accepts `-NoBuild`, `-LocalCopilot`, `-PublicEarth` and `-PublicIntake`. Run one AEGIS operation at a time and preserve the existing database volume; see [Single-instance local runtime](SINGLE_INSTANCE_LOCAL_RUNTIME.md) and the current status in [LOCAL_DEMO_HANDOFF.md](LOCAL_DEMO_HANDOFF.md). The older per-feature `git switch` branches further below are historical milestones, not startup instructions.
+`start-windows.ps1` accepts `-NoBuild`, `-LocalCopilot`, `-PublicEarth` and `-PublicIntake`. Run one IndTrana operation at a time and preserve the existing database volume; see [Single-instance local runtime](SINGLE_INSTANCE_LOCAL_RUNTIME.md) and the current status in [LOCAL_DEMO_HANDOFF.md](LOCAL_DEMO_HANDOFF.md). The older per-feature `git switch` branches further below are historical milestones, not startup instructions.
 Open http://localhost:3000 (command center), http://localhost:3000/admin (admin preview) and http://localhost:8000/docs (API reference).
 
 ## Fix for Windows error: `listen tcp4 127.0.0.1:5432: bind ... forbidden by its access permissions`

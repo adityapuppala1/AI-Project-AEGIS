@@ -164,7 +164,7 @@ export function ProactiveRunPanel({ triggerEventId, triggerKey = null, canOperat
       {run && <>
         <p className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs font-semibold leading-5 text-amber-800 dark:text-amber-200" role="note">
           <ShieldAlert size={16} className="mt-0.5 shrink-0" aria-hidden="true"/>
-          {run.status === "review_ready" ? t("Stopped at a human. An accountable person must review the draft; AEGIS sends nothing.") : t("Exercise only. This run stops at a human and AEGIS sends nothing.")}</p>
+          {run.status === "review_ready" ? t("Stopped at a human. An accountable person must review the draft; IndTrana sends nothing.") : t("Exercise only. This run stops at a human and IndTrana sends nothing.")}</p>
         <Stepper run={run} active={active} busy={busy}/>
         <p className="text-xs text-muted" role="status" aria-live="polite">{t("Run status")}: <strong>{run.status === "running" ? t("running") : run.status === "review_ready" ? t("review ready") : t("cancelled")}</strong>{run.next_step ? ` · ${t("Next step")}: ${t(STEP_LABEL[run.next_step])}` : ""}</p>
 

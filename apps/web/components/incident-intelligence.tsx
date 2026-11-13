@@ -218,7 +218,7 @@ export function IncidentIntelligence({ workspace }: { workspace: IncidentWorkspa
         <section className="rounded-lg border border-stroke bg-elevated/30 p-5" aria-label={t("Human decision boundary")}>
           <h3 className="flex items-center gap-2 text-sm font-bold"><ShieldCheck size={18} aria-hidden="true" className="text-accent"/> {t("Human decision boundary")}</h3>
           <p className="mt-3 text-sm leading-6 text-muted">
-            {t("AEGIS may document simulated analyses and internal proposals. Real alerting, emergency dispatch and life-safety commands are not connected. Any future operational workflow requires authorized human oversight.")}
+            {t("IndTrana may document simulated analyses and internal proposals. Real alerting, emergency dispatch and life-safety commands are not connected. Any future operational workflow requires authorized human oversight.")}
           </p>
           <p className="mt-4 text-xs text-muted">{t("Response generated")} {timeInIndia(workspace.generated_at)}</p>
           <Link href="/model-lab" className="mt-4 inline-flex min-h-9 items-center gap-2 text-xs font-semibold text-accent hover:underline">{t("Explore offline synthetic model evaluation")} <ArrowRight size={14} aria-hidden="true"/></Link>

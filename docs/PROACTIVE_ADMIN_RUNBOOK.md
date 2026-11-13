@@ -6,7 +6,7 @@ It supersedes nothing; it is linked from [PROACTIVE_MULTI_HAZARD_PLAN.md](PROACT
 and [PROACTIVE_IMPLEMENTATION_CONTRACT.md](PROACTIVE_IMPLEMENTATION_CONTRACT.md).
 
 Everything is off by default. Nothing here sends a warning, dispatches anyone, or contacts an
-authority. Keys you enter only let AEGIS **read** public data and, optionally, ask TypeSafe/Jev
+authority. Keys you enter only let IndTrana **read** public data and, optionally, ask TypeSafe/Jev
 for typed judgments over cited records.
 
 ## 1. One-time setup (Windows laptop)
@@ -49,7 +49,7 @@ conflict, someone else changed it: reload and retry.
   hand to human). Without a Jev key the judgments come from a labelled deterministic test double.
   The result is advisory: `recommended`, `needs review` or `blocked`.
 - The CAP file is an **Exercise** draft for a human to give to the authority's own SACHET/NavIC
-  process. AEGIS never transmits it.
+  process. IndTrana never transmits it.
 
 ## 4. Safe-testing checklist (do these in order)
 
@@ -138,7 +138,7 @@ the proactive overlay. Default **off**; base Compose and `compose.proactive.yaml
   Hazard Watch shows a "Scheduler: on/off, last tick, next tick" strip. `next_tick_at` and
   `running` describe the API worker that answered.
 
-**Enable on the running stack** (one AEGIS operation at a time; no volume reset):
+**Enable on the running stack** (one IndTrana operation at a time; no volume reset):
 
 ```powershell
 scripts/check-local-runtime.ps1 -RequireRunning
@@ -239,7 +239,7 @@ no redirects, no proxy, size and time caps) and parse JSON only (no XML parser i
 - **Testing:** the admin page lists both connectors from the registry. *Test* sends one bounded
   request (GDACS: 1-day window; Google: one status search) and keeps only status and latency.
   Unit tests use hand-authored offline fixtures (`services/api/tests/fixtures/`), not live captures.
-- Feed events are third-party references, not AEGIS assessments; they pass through the same impact
+- Feed events are third-party references, not IndTrana assessments; they pass through the same impact
   rules (25 km GDACS footprint, 8 km gauge footprint) and never create cases or warnings.
 
 ## 11. Pre-positioning plan and run observability (A5)

@@ -1,4 +1,4 @@
-/* AEGIS Alert Journey explainer — environment: sky, lights, terrain, sea/flood water, river, rain, wind, lightning, cyclone, forecast cone. */
+/* IndTrana Alert Journey explainer — environment: sky, lights, terrain, sea/flood water, river, rain, wind, lightning, cyclone, forecast cone. */
 export default function install(g) {
   'use strict';
   var AX = g.AX = g.AX || {};

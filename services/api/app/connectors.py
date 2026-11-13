@@ -94,7 +94,7 @@ TWILIO_ACCOUNT_SID = r"AC[0-9a-fA-F]{32}"
 SMS_SENDER = r"\+[1-9][0-9]{7,14}|[A-Za-z0-9]{3,11}"
 WHATSAPP_NUMBER_ID = r"[0-9]{5,20}"
 COMMS_LOCKED = "Credentials are checked only. No message is sent: this build has no send code and the channel cannot be enabled."
-COMMS_EMAIL_SEND = ("When enabled and the host switch AEGIS_STAFF_EMAIL is on, AEGIS sends fixed rehearsal notices to its own "
+COMMS_EMAIL_SEND = ("When enabled and the host switch AEGIS_STAFF_EMAIL is on, IndTrana sends fixed rehearsal notices to its own "
                     "staff who opted in with a verified address. Disabling stops sending at the next attempt.")
 
 
@@ -139,7 +139,7 @@ REGISTRY = {
     "gdacs": {
         "name": "GDACS global disaster alerts (event feed)", "category": "multi-hazard events",
         "licence": ("GDACS public event feed (UN / European Commission JRC); attribution required. Terms of use to be "
-                    "confirmed by owner: " + GDACS_TERMS_URL + ". A GDACS alert is a third-party reference, not an AEGIS assessment."),
+                    "confirmed by owner: " + GDACS_TERMS_URL + ". A GDACS alert is a third-party reference, not an IndTrana assessment."),
         "hosts": ("www.gdacs.org",), "fields": (),
         "settings": {"area": (INDIA_BBOX, _fixed(INDIA_BBOX)), "event_types": (GDACS_EVENT_TYPES, _fixed(GDACS_EVENT_TYPES)),
                      "days": (3, _int_range(1, 7))},
@@ -172,7 +172,7 @@ REGISTRY = {
     # checks credentials only and can never be enabled; "send" (email only) can be enabled as described above.
     "comms_in_app": {
         "name": "In-app alerts (signed-in users)", "category": "communications", "delivery": "built_in",
-        "licence": "Built in. Requests, tasks and approvals appear only to people signed in to AEGIS; nothing leaves this server.",
+        "licence": "Built in. Requests, tasks and approvals appear only to people signed in to IndTrana; nothing leaves this server.",
         "hosts": (), "fields": (), "settings": {"mode": ("signed_in_users_only", _fixed("signed_in_users_only"))},
     },
     "comms_email": {

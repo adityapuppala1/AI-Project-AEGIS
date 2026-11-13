@@ -14,7 +14,7 @@ git rev-parse HEAD
 powershell -ExecutionPolicy Bypass -File .\scripts\check-local-runtime.ps1 -RequireRunning
 ```
 
-Stop and investigate if the checkout is unexpectedly dirty, a required service is absent, or duplicate AEGIS services are reported. Do not stop unrelated laptop processes.
+Stop and investigate if the checkout is unexpectedly dirty, a required service is absent, or duplicate IndTrana services are reported. Do not stop unrelated laptop processes.
 
 Automated proxies exist for parts of A1, A2, A5 and A6 (see the handoff for the latest executed results). They reduce the chance of avoidable findings but are **not** outcomes for this record: fill A1–A9 only from what the named tester observes with their own keyboard, zoom setting and assistive technology.
 

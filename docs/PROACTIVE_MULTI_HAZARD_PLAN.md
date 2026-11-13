@@ -7,7 +7,7 @@
 
 ## 1. What was asked
 
-Make AEGIS proactive: watch many live sources (weather, water levels, wind, satellite imagery,
+Make IndTrana proactive: watch many live sources (weather, water levels, wind, satellite imagery,
 fire detections, landslide risk, cyclone tracks), learn from historical patterns, predict where
 natural hazards will hurt people, show live and predicted side by side on a 3D map, simulate
 options, recommend a decision quickly, and get warnings to the public and to local authorities
@@ -36,8 +36,8 @@ because lives depend on the decisions.**
     [MediaTek press room](https://www.mediatek.com/press-room/mediatek-demonstrates-emergency-satellite-services-for-mobile-devices-with-starlink-mobile).
   - **Galileo EWSS** (Europe): satellite emergency warning service, initial service planned 2026;
     not applicable to India. Source: [Xataka Móvil](https://www.xatakamovil.com/conectividad/dana-dejo-claro-problema-alert-depende-antenas-que-pueden-caerse-solucion-llega-via-satelite).
-- **Conclusion:** the only lawful, reachable route is **AEGIS → CAP message → the authority's
-  SACHET/NavIC uplink**. AEGIS can prepare, validate and hand over a CAP-compliant alert; it must
+- **Conclusion:** the only lawful, reachable route is **IndTrana → CAP message → the authority's
+  SACHET/NavIC uplink**. IndTrana can prepare, validate and hand over a CAP-compliant alert; it must
   never broadcast. This also satisfies the existing repository rule (no live warnings).
 
 ### 2.2 Prediction: use authoritative open models first; train only inside the registered protocol
@@ -80,7 +80,7 @@ No language model can be guaranteed never to hallucinate. What **can** be guaran
 
 1. **LLMs never originate facts.** Every number, place, time and threshold shown comes from a
    stored, checksummed source record with a UUID; the model only **selects, classifies or ranks**
-   over those records (AEGIS already does this for guide questions and review focus).
+   over those records (IndTrana already does this for guide questions and review focus).
 2. **LLMs never issue, send or approve.** Warnings are drafted from templates filled by code,
    checked by a human, and handed to the authority as CAP.
 3. **Every judgment carries a probability and a confidence band; below threshold → human.**
@@ -97,9 +97,9 @@ No language model can be guaranteed never to hallucinate. What **can** be guaran
   (personal data, terms of service), and the main source of false alarms. Use structured official
   feeds only. Unverified public reports already have a quarantined path (public intake).
 - **Training a bespoke multi-hazard forecaster now:** too few labelled local events; AIFS, GloFAS,
-  LHASA and IMD outperform anything trainable here. AEGIS adds value as the **trigger, fusion,
+  LHASA and IMD outperform anything trainable here. IndTrana adds value as the **trigger, fusion,
   explanation and decision-support layer**, not as a new weather model.
-- **Any direct public broadcast from AEGIS.**
+- **Any direct public broadcast from IndTrana.**
 
 ## 3. Target architecture (extends the existing stack, no rewrite)
 
@@ -123,7 +123,7 @@ No language model can be guaranteed never to hallucinate. What **can** be guaran
                  Human maker → independent checker (existing two-person approval)
                          │
                          ▼
-                 Hand-over: CAP file/feed for SACHET / NavIC uplink by the authority  ← never sent by AEGIS
+                 Hand-over: CAP file/feed for SACHET / NavIC uplink by the authority  ← never sent by IndTrana
                  Authority notification: email/API only when the authority has enrolled (owner decision)
 
  UI: Command Center 3D (existing MapLibre + schematic locators) + hazard surfaces (deck.gl or
@@ -179,8 +179,8 @@ Policy in code: act-free. ≥0.9 confidence shows "recommended"; 0.5–0.9 shows
 
 ## 7. What stays true throughout
 
-- AEGIS is decision support. The national/state authority issues warnings.
-- No live broadcast, dispatch or external message from AEGIS. CAP is handed over, not sent.
+- IndTrana is decision support. The national/state authority issues warnings.
+- No live broadcast, dispatch or external message from IndTrana. CAP is handed over, not sent.
 - Real data results are reported with the registered protocol; synthetic results stay labelled.
 - Two-person approval, immutable snapshots, agency scope and audit are preserved.
 - No scraping, no social media, no webcams.

@@ -3,7 +3,7 @@ import { apiAuthHeaders, signInRequired, upstreamAuthFailure } from "../../../..
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-// Display-only public reference data. Nothing here is stored or sent to AEGIS workflows.
+// Display-only public reference data. Nothing here is stored or sent to IndTrana workflows.
 const FEEDS = new Set(["status", "earthquakes", "events", "imagery"]);
 const HEADERS = { "Cache-Control": "no-store" };
 const isObject = (value: unknown): value is Record<string, unknown> =>

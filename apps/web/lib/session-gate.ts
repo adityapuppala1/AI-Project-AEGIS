@@ -1,4 +1,4 @@
-// Coarse sign-in gate for middleware.ts: "does this request carry an unexpired AEGIS session, and for which agency?"
+// Coarse sign-in gate for middleware.ts: "does this request carry an unexpired IndTrana session, and for which agency?"
 // It only decrypts the session cookie that lib/auth-server.ts issued (same key, same algorithms). Every protected
 // route still does its own full check (roles, agency, department) with readSession(); this gate only keeps
 // signed-out visitors away from pages and data.
@@ -34,10 +34,13 @@ export async function gateSession(cookieValue: string | undefined): Promise<Gate
   } catch { return null; }
 }
 
-// What a visitor may open without signing in: the landing page, the sign-in page and the sign-in endpoints.
+// What a visitor may open without signing in: the landing page, the sign-in page, the sign-in endpoints and the
+// brand read (name and logo, needed by the signed-out pages; docs/BRANDING.md). Exact paths only: /api/brand/admin/*
+// stays behind the gate.
 const PUBLIC_PAGES = new Set(["/", "/welcome", "/sign-in"]);
+const PUBLIC_API = new Set(["/api/brand", "/api/brand/logo"]);
 export function isPublicPath(pathname: string): boolean {
-  return PUBLIC_PAGES.has(pathname) || pathname.startsWith("/api/auth/");
+  return PUBLIC_PAGES.has(pathname) || PUBLIC_API.has(pathname) || pathname.startsWith("/api/auth/");
 }
 
 // Where a visitor may be sent back to after signing in. Only a plain in-app page path is accepted: letters, digits,

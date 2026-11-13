@@ -1,7 +1,7 @@
 """Every API data route needs a verified operator, an explicit role list and (for records) the exercise agency.
 
-Only /health, the readiness diagnostic used by the start/verify scripts, the live-warning 403 stub and the
-opt-in public intake submission are reachable without a token. See docs/SECURITY_ASSESSMENT.md.
+Only /health, the readiness diagnostic used by the start/verify scripts, the live-warning 403 stub, the
+opt-in public intake submission and the public brand read (name and logo) are reachable without a token. See docs/SECURITY_ASSESSMENT.md.
 Test doubles here stand in for verified tokens; they never establish real sign-in.
 """
 from uuid import UUID
@@ -25,6 +25,9 @@ OPEN_ALLOWLIST = {
     ("GET", "/v1/exercise/system/readiness"),
     ("POST", "/v1/live/public-warning"),
     ("POST", "/v1/public-intake/reports"),  # opt-in public submission; its own trust model (PUBLIC_INTAKE_SECURITY.md)
+    # Brand name and logo for the signed-out sign-in and welcome pages; name, logo version and image only (BRANDING.md).
+    ("GET", "/v1/brand"),
+    ("GET", "/v1/brand/logo"),
 }
 
 # Every route that answered without a token before this change: (method, path, json body, needs agency check).

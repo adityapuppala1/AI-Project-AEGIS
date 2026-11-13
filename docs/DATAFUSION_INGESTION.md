@@ -1,4 +1,4 @@
-# AEGIS DataFusion — strict synthetic ingestion and reproducible replay
+# IndTrana DataFusion — strict synthetic ingestion and reproducible replay
 
 **Status:** feature branch `feat/datafusion-exercise-ingestion`
 **Purpose:** provide the first measurable, safe event-processing vertical slice

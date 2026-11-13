@@ -5,7 +5,7 @@
 
 ## Purpose and deliberate meaning
 
-AEGIS users need to explore which **simulated data sources** and **fictional
+IndTrana users need to explore which **simulated data sources** and **fictional
 infrastructure points** are geographically close to a synthetic incident.
 
 This feature does **not** compute statistical correlation, model flood spread,

@@ -1,6 +1,6 @@
 "use client";
 
-// AEGIS operator sign-in. This page never collects a password: the button starts the OpenID Connect flow
+// IndTrana operator sign-in. This page never collects a password: the button starts the OpenID Connect flow
 // (/api/auth/login), and the operator authenticates on the organisation's identity provider. The picture is the same
 // Earth as the landing page, resting on India. It is decoration only: loaded after first paint, drawn still for
 // reduced-motion users and replaced by a still picture when WebGL is unavailable.
@@ -8,6 +8,8 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import "@fontsource-variable/anek-latin/wdth.css";
 import { ArrowLeft, ArrowRight, Command, Fingerprint, KeyRound, LockKeyhole, ShieldCheck, TimerReset, TriangleAlert } from "lucide-react";
+import { useBrand } from "./brand-provider";
+import { BrandMark, BrandName } from "./brand-mark";
 import stillView from "./globe/assets/india-globe-still.webp";
 import { indiaDaylight, istClock } from "./globe/sun";
 import type { SignInPhase } from "./sign-in-scene";
@@ -16,12 +18,12 @@ import "./sign-in.css";
 type Session = { authenticated: boolean; configured: boolean; subject?: string; roles?: string[] };
 
 const NEXT = [
-  { title: "You leave for your agency’s sign-in", text: "The button opens your organisation’s identity provider. AEGIS has no password box of its own." },
+  { title: "You leave for your agency’s sign-in", text: "The button opens your organisation’s identity provider. IndTrana has no password box of its own." },
   { title: "Password and second factor, there", text: "You prove who you are on your agency’s page, with whatever second factor it requires." },
-  { title: "You return with a signed role", text: "The provider sends you back with a signed statement of your role and agency. AEGIS checks the signature before it lets you in." },
+  { title: "You return with a signed role", text: "The provider sends you back with a signed statement of your role and agency. IndTrana checks the signature before it lets you in." },
 ];
 const FACTS = [
-  { icon: KeyRound, title: "Your password never reaches AEGIS", text: "It is typed only on your organisation’s identity provider." },
+  { icon: KeyRound, title: "Your password never reaches IndTrana", text: "It is typed only on your organisation’s identity provider." },
   { icon: Fingerprint, title: "Verified hand-back", text: "Provider signature, one-time state and nonce, and a PKCE proof are all checked." },
   { icon: ShieldCheck, title: "Role and agency come from the signed token", text: "Nothing typed in the browser can grant a role." },
   { icon: TimerReset, title: "Short, sealed session", text: "An encrypted, HTTP-only cookie that expires within 15 minutes." },
@@ -36,6 +38,7 @@ const ROLES = [
 export function SignInExperience({ failed, expired = false, next = null }: Readonly<{ failed: boolean; expired?: boolean; next?: string | null }>) {
   const loginHref = next ? `/api/auth/login?next=${encodeURIComponent(next)}` : "/api/auth/login";
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const brand = useBrand(), b = brand.text;
   const [session, setSession] = useState<Session | null>(null);
   const [leaving, setLeaving] = useState(false);
   const [webgl, setWebgl] = useState(true);
@@ -89,11 +92,11 @@ export function SignInExperience({ failed, expired = false, next = null }: Reado
           {webgl && <canvas ref={canvasRef} />}
         </div>
         <div className="si-top">
-          <Link href="/" className="si-mark" aria-label="AEGIS, back to the overview"><span><Command size={18} aria-hidden="true" /></span>AEGIS</Link>
-          <Link href="/" className="si-back"><ArrowLeft size={16} aria-hidden="true" />What is AEGIS?</Link>
+          <Link href="/" className="si-mark" aria-label={brand.text("IndTrana, back to the overview")}><span className="overflow-hidden"><BrandMark box={24} /></span><BrandName /></Link>
+          <Link href="/" className="si-back"><ArrowLeft size={16} aria-hidden="true" />What is {brand.name}?</Link>
         </div>
         <div className="si-caption" aria-hidden="true">
-          <p className="si-claim">You sign in at your own organisation. AEGIS only receives the result.</p>
+          <p className="si-claim">You sign in at your own organisation. {brand.name} only receives the result.</p>
           <p className="si-fix">India from orbit{now && <>, {istClock(now)} IST, {indiaDaylight(now)} over India</>}. Illustration, not live imagery. The outline is schematic, not an authoritative boundary.</p>
         </div>
       </div>
@@ -126,11 +129,11 @@ export function SignInExperience({ failed, expired = false, next = null }: Reado
                 <p><b>Operator sign-in is not set up on this server yet.</b> Nobody can sign in until an administrator finishes three things:</p>
                 <ol>
                   <li>Create the private sign-in settings and connect an identity provider.</li>
-                  <li>Restart AEGIS with sign-in switched on.</li>
+                  <li>Restart {brand.name} with sign-in switched on.</li>
                   <li>On a rehearsal laptop, create the local demo accounts.</li>
                 </ol>
                 <p>The exact steps are in the install guide, <code>docs/INSTALL.md</code>, in the project folder.</p>
-                <Link href="/" className="si-quiet">Read what AEGIS is</Link>
+                <Link href="/" className="si-quiet">Read what {brand.name} is</Link>
               </div>
             </div>}
           </div>
@@ -139,7 +142,7 @@ export function SignInExperience({ failed, expired = false, next = null }: Reado
         <section className="si-next" aria-labelledby="sign-in-next">
           <h2 id="sign-in-next">What happens next</h2>
           <ol>
-            {NEXT.map((step, index) => <li key={step.title} data-on={phase === index || undefined}><b aria-hidden="true">{index + 1}</b><span><strong>{step.title}</strong><small>{step.text}</small></span></li>)}
+            {NEXT.map((step, index) => <li key={step.title} data-on={phase === index || undefined}><b aria-hidden="true">{index + 1}</b><span><strong>{step.title}</strong><small>{b(step.text)}</small></span></li>)}
           </ol>
         </section>
 
@@ -154,7 +157,7 @@ export function SignInExperience({ failed, expired = false, next = null }: Reado
         <section className="si-more" aria-labelledby="sign-in-safe">
           <h2 id="sign-in-safe">How this sign-in is protected</h2>
           <ul className="si-facts">
-            {FACTS.map(fact => <li key={fact.title}><span><fact.icon size={17} aria-hidden="true" /></span><span><b>{fact.title}</b><small>{fact.text}</small></span></li>)}
+            {FACTS.map(fact => <li key={fact.title}><span><fact.icon size={17} aria-hidden="true" /></span><span><b>{b(fact.title)}</b><small>{b(fact.text)}</small></span></li>)}
           </ul>
           <p className="si-foot">Trouble signing in? Contact your agency administrator.</p>
         </section>

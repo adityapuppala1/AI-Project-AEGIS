@@ -48,7 +48,7 @@ FEEDS = {
 ALLOWED_HOSTS = {urlparse(url).hostname for url, _, _ in FEEDS.values()}
 LIMITATIONS = {
     "earthquakes": ["USGS M2.5+ reports from the past 7 days; some are preliminary.",
-                    "Public reference data, not an AEGIS assessment or warning.",
+                    "Public reference data, not an IndTrana assessment or warning.",
                     "Earthquake data compiled by the U.S. Geological Survey. No USGS endorsement is implied."],
     "events": ["EONET is a curated, incomplete catalogue of open events, not a warning service.",
                "Only the latest point observation per event is shown; no hazard footprint.",
@@ -303,7 +303,7 @@ def clear_cache() -> None:
 def earth_watch_status(_operator: Operator = Depends(EARTH_WATCH_READ)):
     return {"classification": "public_reference", "enabled": enabled(),
             "feeds": sorted(FEEDS), "display_only": True, "writes_to_database": False,
-            "notice": "Public reference data only; not an AEGIS assessment, warning or dispatch input."}
+            "notice": "Public reference data only; not an IndTrana assessment, warning or dispatch input."}
 
 
 @router.get("/{feed}")

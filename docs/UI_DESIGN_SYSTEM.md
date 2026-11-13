@@ -1,8 +1,8 @@
-# AEGIS UI/UX system — Operations Graphite
+# IndTrana UI/UX system — Operations Graphite
 
 ## Purpose
 
-AEGIS is a high-stakes, exercise-only public-safety decision-support prototype. The interface prioritizes legibility, evidence provenance, uncertainty and explicit human control. Visual depth helps operators scan the workspace; it must never imply that synthetic data is live or that a proposed response has been executed.
+IndTrana is a high-stakes, exercise-only public-safety decision-support prototype. The interface prioritizes legibility, evidence provenance, uncertainty and explicit human control. Visual depth helps operators scan the workspace; it must never imply that synthetic data is live or that a proposed response has been executed.
 
 ## Implemented foundation
 

@@ -70,7 +70,7 @@ contacts NASA or Natural Earth: the files are imported by the page code and serv
 
 The owner asked for real free public APIs to be called in the explainer. the in-app page `/alert-journey?mode=live` (`apps/web/components/alert-journey/`) does
 this under the same discipline as Earth Watch: **opt-in (off until the user consents), read-only, fixed HTTPS allow-list,
-no keys, nothing written to PostgreSQL or any server, labelled "public reference, not an AEGIS assessment"**, and it never
+no keys, nothing written to PostgreSQL or any server, labelled "public reference, not an IndTrana assessment"**, and it never
 feeds proposals, CAP drafts or alerts. Hosts called: api / flood-api / archive-api / climate-api / marine-api /
 geocoding-api `.open-meteo.com`, `earthquake.usgs.gov`, `eonet.gsfc.nasa.gov`, `gibs.earthdata.nasa.gov`,
 `tile.openstreetmap.org`, `celestrak.org`, `overpass-api.de` (+ `overpass.kumi.systems` fallback) and
@@ -193,7 +193,7 @@ geocoding-api `.open-meteo.com`, `earthquake.usgs.gov`, `eonet.gsfc.nasa.gov`, `
   this service."** Access may be blocked without notice.
 - Fact: attribution "© OpenStreetMap contributors", visible on the map and linking to the copyright page.
 - Inference: OSM map **data** is ODbL (not re-verified on this run).
-- Consequence for AEGIS: live viewing with normal browser caching is within the policy; pre-seeding, bundling or
+- Consequence for IndTrana: live viewing with normal browser caching is within the policy; pre-seeding, bundling or
   caching tiles for an offline demo is not. The app already shows the attribution and degrades to markers and lists
   when tiles fail. For a venue without internet, do **not** pre-cache OSM tiles; use the list and marker fallback,
   or move to a self-hosted or offline-permitted tile source (separate decision and work).
@@ -234,7 +234,7 @@ geocoding-api `.open-meteo.com`, `earthquake.usgs.gov`, `eonet.gsfc.nasa.gov`, `
 - **Owner action, ready to send:** a drafted inquiry for the GDACS contact form is in
   `docs/GDACS_INQUIRY_DRAFT.md`. Send it from the owner's own identity; nothing here was sent.
 - Conditions already in code, independent of the licence question: fixed host, JSON only, no redirects, India
-  bounding box, alert level only; shown as a third-party reference, not an AEGIS assessment or official warning;
+  bounding box, alert level only; shown as a third-party reference, not an IndTrana assessment or official warning;
   the disclaimer's own "not for decision-making without confirmation" point is already honoured by the maker-
   checker gate before anything derived from it reaches a draft.
 
@@ -242,7 +242,7 @@ geocoding-api `.open-meteo.com`, `earthquake.usgs.gov`, `eonet.gsfc.nasa.gov`, `
 
 - Fetched 4 November 2026: https://developers.google.com/flood-forecasting. Confirms: public API, **no charge**,
   data licensed **CC BY 4.0** (exact attribution wording not specified beyond the licence itself). Attribution
-  used in AEGIS: "Google Flood Forecasting (CC BY 4.0)".
+  used in IndTrana: "Google Flood Forecasting (CC BY 4.0)".
 - **Owner's exact next step:** fill the waitlist form —
   https://docs.google.com/forms/d/e/1FAIpQLSfcKhe3CHsncM-_NQ66zLheEfXKnNbDPBtuIT7BSYCqYkmOaA/viewform —
   with a Google account. After approval, Google emails next steps; the page says to reply with the Google
@@ -260,7 +260,7 @@ geocoding-api `.open-meteo.com`, `earthquake.usgs.gov`, `eonet.gsfc.nasa.gov`, `
 - Licence: Open Database License 1.0, https://www.openstreetmap.org/copyright. Attribution "© OpenStreetMap
   contributors". Each imported row stores licence `ODbL-1.0` and that attribution.
 - Conditions: the owner supplies a local extract (for example a Geofabrik or Overpass export made by the owner); the
-  assistant downloads nothing. Derived databases shared publicly would trigger ODbL share-alike; AEGIS keeps the table
+  assistant downloads nothing. Derived databases shared publicly would trigger ODbL share-alike; IndTrana keeps the table
   local and does not redistribute it. Distinct from row 8 (tile servers).
 
 ## 12. WorldPop population grids (CC BY 4.0) for the exposure importer

@@ -1,4 +1,4 @@
-"""AEGIS exercise-only API foundation; no live alerts or dispatch."""
+"""IndTrana exercise-only API foundation; no live alerts or dispatch."""
 import os
 from datetime import datetime, timezone
 from uuid import UUID
@@ -10,7 +10,7 @@ from app.security import EXERCISE_RECORD_ROLES, Operator, scoped_operator
 
 # Interactive API documentation is off unless explicitly switched on for local development (AEGIS_API_DOCS=1).
 _DOCS_ON = os.environ.get("AEGIS_API_DOCS") == "1"
-app = FastAPI(title="AEGIS Exercise API", version="0.1.0", docs_url="/docs" if _DOCS_ON else None,
+app = FastAPI(title="IndTrana Exercise API", version="0.1.0", docs_url="/docs" if _DOCS_ON else None,
               redoc_url=None, openapi_url="/openapi.json" if _DOCS_ON else None)
 
 # Every data route needs a verified operator, an explicit role list and the exercise-agency check.
@@ -89,6 +89,8 @@ from app.proactive_run import router as proactive_run_router
 app.include_router(proactive_connectors_router)
 from app.staff_messages import router as staff_messages_router
 app.include_router(staff_messages_router)
+from app.brand import router as brand_router
+app.include_router(brand_router)
 app.include_router(proactive_watch_router)
 app.include_router(proactive_run_router)
 # Opt-in L3 scheduled watch loop; refuses to start unless AEGIS_PROACTIVE_SCHEDULER=1 with a valid agency.

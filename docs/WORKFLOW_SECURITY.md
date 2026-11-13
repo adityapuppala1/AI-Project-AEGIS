@@ -1,6 +1,6 @@
 # Exercise workflow — security and database migrations
 
-The AEGIS maker-checker pipeline uses transactional PostgreSQL state transitions,
+The IndTrana maker-checker pipeline uses transactional PostgreSQL state transitions,
 row-level write locking, an independent-checker database trigger, one-approval-per-proposal
 uniqueness, and audit-event writes within each operation's transaction.
 

@@ -16,7 +16,7 @@ export const RUN_STEPS = ["gather_evidence", "simulate_variants", "judge", "draf
 export const LEGACY_RUN_STEPS: readonly RunStep[] = ["gather_evidence", "simulate_variants", "judge", "draft_cap", "hand_to_human"];
 export type RunStep = (typeof RUN_STEPS)[number];
 export const TRIGGER_STATES: readonly TriggerState[] = ["clear", "watch", "candidate"];
-export const DISCLAIMER = "Decision support only. Exercise CAP draft; AEGIS never sends warnings. Synthetic thresholds, not calibrated.";
+export const DISCLAIMER = "Decision support only. Exercise CAP draft; IndTrana never sends warnings. Synthetic thresholds, not calibrated.";
 
 export const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export const isUuid = (value: unknown): value is string => typeof value === "string" && UUID_PATTERN.test(value);
@@ -57,7 +57,7 @@ export interface Connector {
   id: string; name: string; category: string; licence: string; hosts: string[]; enabled: boolean; version: number;
   updated_at: string | null; updated_by: string | null; settings: Record<string, string | number | boolean>;
   fields: ConnectorField[]; last_test: TestResult | null;
-  /** Set only on communication channels: "built_in" stays inside AEGIS, "locked" stores and checks credentials only and can
+  /** Set only on communication channels: "built_in" stays inside IndTrana, "locked" stores and checks credentials only and can
    *  never be enabled, "send" (email only) can be enabled by an administrator to send fixed notices to opted-in staff. */
   delivery?: "built_in" | "locked" | "send" | null;
 }
@@ -104,7 +104,7 @@ export const BAND_STYLE: Record<DecisionBand, string> = {
   blocked: "bg-rose-500/10 text-rose-700 dark:text-rose-300 ring-rose-500/30",
 };
 export const BAND_POLICY: Record<DecisionBand, string> = {
-  recommended: "Playbook confidence and citation cleanliness are high and staleness risk is low. A human still reviews before anything leaves AEGIS.",
+  recommended: "Playbook confidence and citation cleanliness are high and staleness risk is low. A human still reviews before anything leaves IndTrana.",
   needs_review: "Confidence is mixed. An accountable human must review the evidence before using this draft.",
   blocked: "Playbook confidence is low or citations are not clean. The draft must not be used.",
 };

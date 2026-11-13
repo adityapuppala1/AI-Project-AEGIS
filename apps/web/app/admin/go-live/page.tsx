@@ -1,6 +1,6 @@
 "use client";
 
-// Go-Live Setup: one read-only inventory of every external API, key, secret, switch and agreement AEGIS needs,
+// Go-Live Setup: one read-only inventory of every external API, key, secret, switch and agreement IndTrana needs,
 // where each is configured and what this page can detect. It never shows, accepts or stores a secret value.
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -17,8 +17,8 @@ type Section = { id: string; title: string; summary: string; items: Item[] };
 
 const SECTIONS: Section[] = [
   { id: "identity", title: "1 · Sign-in and roles (OIDC)", summary: "Without these, nobody can sign in and every protected workflow stays locked. Roles and agency come from signed token claims.", items: [
-    { name: "OIDC_ISSUER · OIDC_AUDIENCE · OIDC_JWKS_URL", kind: "setting", needed: "Required to go live", where: "Host .env file (read by Compose for API and web)", how: "From your identity provider (for example Keycloak or Entra ID). Tokens must carry the signed AEGIS agency UUID and roles.", check: "session" },
-    { name: "OIDC_CLIENT_ID", kind: "setting", needed: "Required for browser sign-in", where: "Host .env file", how: "Register AEGIS as a web application with redirect URL APP_ORIGIN/api/auth/callback." },
+    { name: "OIDC_ISSUER · OIDC_AUDIENCE · OIDC_JWKS_URL", kind: "setting", needed: "Required to go live", where: "Host .env file (read by Compose for API and web)", how: "From your identity provider (for example Keycloak or Entra ID). Tokens must carry the signed IndTrana agency UUID and roles.", check: "session" },
+    { name: "OIDC_CLIENT_ID", kind: "setting", needed: "Required for browser sign-in", where: "Host .env file", how: "Register IndTrana as a web application with redirect URL APP_ORIGIN/api/auth/callback." },
     { name: "OIDC_CLIENT_SECRET", kind: "secret", needed: "Only if your provider requires a confidential client", where: "Host .env file (never in the repository)", how: "Issued by the identity provider when the client is registered." },
     { name: "BFF_SESSION_KEY_BASE64", kind: "secret", needed: "Required for browser sign-in", where: "Host .env file (never in the repository)", how: "32 random bytes, base64. Generate locally; the PowerShell one-liner is in .env.example." },
     { name: "APP_ORIGIN", kind: "setting", needed: "Required (public URL of this site)", where: "Host .env file", how: "For example https://aegis.example.gov. Must match the redirect URL registered with the provider." },
@@ -29,7 +29,7 @@ const SECTIONS: Section[] = [
     { name: "AEGIS_CONNECTOR_KEY", kind: "secret", needed: "Required to store connector keys", where: "Host .env file", how: "Run scripts/new-connector-key.ps1. It encrypts connector secrets at rest; losing it means re-entering every key." },
     { name: "TLS certificate and reverse proxy", kind: "agreement", needed: "Required outside a laptop", where: "Your hosting environment", how: "Serve the site over HTTPS only. Not part of this repository." },
   ]},
-  { id: "switches", title: "3 · Feature switches (all default OFF)", summary: "Chosen when AEGIS is started. Each stays off unless its switch is given.", items: [
+  { id: "switches", title: "3 · Feature switches (all default OFF)", summary: "Chosen when IndTrana is started. Each stays off unless its switch is given.", items: [
     { name: "-StatisticalForecast (AEGIS_TIMESFM, AEGIS_TIMESFM_CACHE)", kind: "switch", needed: "Optional: statistical river forecast in Live Earth", where: "scripts/start-windows.ps1 -StatisticalForecast", how: "Download the TimesFM 2.5 weights once on the host and point AEGIS_TIMESFM_CACHE at the cache folder. Display-only; adds about 1.6 GB. Use 2.5 only: the 3.0 weights are not licensed for production." },
     { name: "-PublicEarth (AEGIS_PUBLIC_EARTH_FEEDS)", kind: "switch", needed: "Needed for Earth Watch and Alert Journey live mode", where: "scripts/start-windows.ps1 -PublicEarth", how: "Display-only public reference data. Never stored or used by cases, approvals or alerts.", check: "earth", link: { href: "/alert-journey?mode=live", label: "Open Alert Journey live mode" } },
     { name: "-PublicIntake (AEGIS_PUBLIC_INTAKE)", kind: "switch", needed: "Optional", where: "scripts/start-windows.ps1 -PublicIntake", how: "Quarantine-only public reports. Needs owner and security-review approval before real use.", check: "intake" },
@@ -64,13 +64,13 @@ const SECTIONS: Section[] = [
     { name: "GIGW 3.0 and accessibility (WCAG 2.1 AA) conformance", kind: "agreement", needed: "Required for government websites", where: "Not started: STQC website quality certification", how: "Full accessibility audit with assistive technology. The 3D Alert Journey needs an equivalent non-visual path." },
     { name: "CERT-In Directions (April 2022)", kind: "agreement", needed: "Required of the operating organisation", where: "Not started: hosting and operations team", how: "Report listed cyber incidents to CERT-In within 6 hours, keep ICT logs in India for 180 days, synchronise clocks to NIC/NPL time servers, name a point of contact." },
     { name: "Hosting in India on NIC or a MeitY-empanelled cloud", kind: "agreement", needed: "Expected for government workloads (confirm with MeitY/NIC)", where: "Not started: your hosting environment", how: "Includes TLS, backups, monitoring, patching and a tested restore. This repository is a single-node exercise stack." },
-    { name: "Personal data duties (DPDP Act 2023 and Rules 2025)", kind: "agreement", needed: "Applies once real operator or citizen data is held", where: "Not started: your data protection lead", how: "Notice, purpose limitation, retention, breach notification to the Data Protection Board. AEGIS today holds synthetic data only." },
+    { name: "Personal data duties (DPDP Act 2023 and Rules 2025)", kind: "agreement", needed: "Applies once real operator or citizen data is held", where: "Not started: your data protection lead", how: "Notice, purpose limitation, retention, breach notification to the Data Protection Board. IndTrana today holds synthetic data only." },
     { name: "Third-party calls from the viewer's browser", kind: "agreement", needed: "Partly done", where: "Not finished: older map pages", how: "Alert Journey now sends every request through this server (a cached, allow-listed relay), so outside services never see a viewer's address. The older Earth Watch page and the Command Center map still load NASA and OpenStreetMap tiles directly. For official use, relay those too or mirror the data in India; the server's own address is still visible to the sources." },
   ]},
-  { id: "never", title: "8 · Cannot be enabled by any key", summary: "Sending real public alerts is outside AEGIS by design.", items: [
-    { name: "Live public warning, SMS, cell broadcast or dispatch", kind: "agreement", needed: "Government channel only", where: "Not in AEGIS: NDMA / state SDMA → SACHET (C-DOT) → each operator's cell-broadcast centre", how: "AEGIS prepares a private CAP draft that a different human approves, then an authorised officer hands it over. A formal agency partnership is required; no configuration here turns on sending." },
+  { id: "never", title: "8 · Cannot be enabled by any key", summary: "Sending real public alerts is outside IndTrana by design.", items: [
+    { name: "Live public warning, SMS, cell broadcast or dispatch", kind: "agreement", needed: "Government channel only", where: "Not in IndTrana: NDMA / state SDMA → SACHET (C-DOT) → each operator's cell-broadcast centre", how: "IndTrana prepares a private CAP draft that a different human approves, then an authorised officer hands it over. A formal agency partnership is required; no configuration here turns on sending." },
   ]},
-  { id: "channels", title: "9 · Staff message channels (email to opted-in staff; SMS and WhatsApp locked)", summary: "How AEGIS reaches its own operators, department desks and response teams. In-app alerts are always on. Since the owner's decision of 12 November 2026, email can send fixed rehearsal notices to AEGIS staff who turned them on, when both the -StaffEmail server switch and the Email switch on the Connectors page are on. SMS and WhatsApp credentials can be checked, but no text or WhatsApp message leaves AEGIS. Details are in docs/COMMUNICATION_CHANNELS.md.", items: [
+  { id: "channels", title: "9 · Staff message channels (email to opted-in staff; SMS and WhatsApp locked)", summary: "How IndTrana reaches its own operators, department desks and response teams. In-app alerts are always on. Since the owner's decision of 12 November 2026, email can send fixed rehearsal notices to IndTrana staff who turned them on, when both the -StaffEmail server switch and the Email switch on the Connectors page are on. SMS and WhatsApp credentials can be checked, but no text or WhatsApp message leaves IndTrana. Details are in docs/COMMUNICATION_CHANNELS.md.", items: [
     { name: "In-app alerts", kind: "none", needed: "In use · nothing to set", where: "Nothing to configure", how: "Requests, tasks and approvals appear on the page and as a number on the menu, only for people who are signed in." },
     { name: "Email · SendGrid API key and sender address", kind: "key", needed: "Paid account · optional", where: "Connectors page", how: "Create an API key with the Mail Send permission and verify the sender address or domain in SendGrid. Staff turn notices on for themselves under Email notices on the Help page; the address comes from their verified sign-in account." },
     { name: "SMS · Twilio Account SID, auth token and sender", kind: "key", needed: "Paid account · optional", where: "Connectors page", how: "From the Twilio console. Texts to Indian numbers also need the sender and every message template registered on an operator's DLT portal." },
@@ -122,8 +122,8 @@ function ProbePill({ state }: { state: Probe | undefined }) {
 
 export default function GoLivePage() {
   const { probes, signedIn } = useProbes();
-  return <AppShell title="Go-Live Setup" description="Every external API, key, secret, switch and agreement AEGIS needs, where each is configured and what is still missing. Read-only: no secret is shown or entered on this page.">
-    <Panel className="mb-4" title="How configuration works in AEGIS" icon={LockKeyhole}>
+  return <AppShell title="Go-Live Setup" description="Every external API, key, secret, switch and agreement IndTrana needs, where each is configured and what is still missing. Read-only: no secret is shown or entered on this page.">
+    <Panel className="mb-4" title="How configuration works in IndTrana" icon={LockKeyhole}>
         <p className="text-sm leading-6">Secrets live in two places only: the host <code>.env</code> file (set by whoever runs the server) and the encrypted connector vault (entered by a signed-in platform administrator on the Connectors page). This page is a checklist; it cannot read or change either.</p>
     </Panel>
     <Panel className="mb-4" title="Start here">

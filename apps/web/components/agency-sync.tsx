@@ -127,7 +127,7 @@ export function AgencySync() {
     </div>
     {error && <ErrorState className="mb-4" message={error + ". " + t("No past result is treated as current.")} onRetry={() => setRevision(value => value+1)}/>}
     <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-      <p className="flex flex-wrap items-center gap-2 text-xs text-muted">Version: AEGIS urban flood exercise v0.1 · {board ? when(board.as_of) : "Awaiting local database"}{board && <DataFreshness observedAt={board.as_of} staleAfterHours={1}/>}</p>
+      <p className="flex flex-wrap items-center gap-2 text-xs text-muted">Version: IndTrana urban flood exercise v0.1 · {board ? when(board.as_of) : "Awaiting local database"}{board && <DataFreshness observedAt={board.as_of} staleAfterHours={1}/>}</p>
       <Button type="button" onClick={() => setRevision(value => value+1)} disabled={loading}>
         <RefreshCw size={16} className={loading ? "animate-spin" : ""}/> Refresh scripted tasks
       </Button>

@@ -1,5 +1,5 @@
 // Browser calls to the same-origin team response routes (lib/response-proxy.ts). Exercise only: nothing here contacts
-// anyone outside AEGIS. Every answer is re-validated before the screens use it, and every failure becomes one plain
+// anyone outside IndTrana. Every answer is re-validated before the screens use it, and every failure becomes one plain
 // sentence. The server's own sentence is shown for a refused write (409/400/422); it never carries a raw exception.
 import { RESPONSE_FAILURE_TEXTS as TEXT } from "./labels";
 import { cleanRequest, cleanRequests, cleanSuggestions, type ResponseRequest, type TeamSuggestions } from "./response-ui";

@@ -21,7 +21,7 @@ export interface BriefReadiness {
 export function buildSituationBrief(workspace: IncidentWorkspace, readiness: BriefReadiness | null, generatedAt: Date): string {
   const incident = workspace.incident;
   const lines: string[] = [
-    "# AEGIS situation brief — EXERCISE ONLY",
+    "# IndTrana situation brief — EXERCISE ONLY",
     "",
     "> **SYNTHETIC.** This is a fictional training case. It is not a warning, a forecast, a dispatch instruction or an official record.",
     "> Generated from a fixed template; no AI model wrote any text below.",
@@ -82,7 +82,7 @@ export function buildSituationBrief(workspace: IncidentWorkspace, readiness: Bri
   lines.push(
     "", "## Scope and limits",
     "- All records above are synthetic exercise fixtures. No real risk probability, asset impact or responder status is claimed.",
-    "- A human reviewer must decide any action; independent maker-checker approval is still required in AEGIS.",
+    "- A human reviewer must decide any action; independent maker-checker approval is still required in IndTrana.",
     "- Public NASA/USGS reference data from Earth Watch is intentionally **not** included in this brief.",
     "",
   );

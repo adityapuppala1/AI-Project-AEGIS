@@ -1,12 +1,12 @@
 # Source Health & Freshness Observatory
 
-**Milestone:** AEGIS DataFusion source-quality foundation · 2026-10-16
+**Milestone:** IndTrana DataFusion source-quality foundation · 2026-10-16
 **Branch:** `feat/source-health-freshness` · **Mode:** Synthetic exercise only
 
 ## Operational problem and goal
 
 A prediction based on an observation from ten minutes ago is not equivalent
-to a prediction based on one from six hours ago. AEGIS must expose source
+to a prediction based on one from six hours ago. IndTrana must expose source
 provenance, event time, ingestion time, timeliness and evidence quality **before**
 any model or human relies on its signals.
 

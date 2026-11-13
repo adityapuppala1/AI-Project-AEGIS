@@ -41,9 +41,9 @@ const META: Record<string, Meta> = {
   google_flood_forecasting: { icon: Waves, can: "Read Google flood gauge forecasts near the Hyderabad grid.", cannot: "Run before a platform admin saves an approved API key.", where: "An API key from the Google Flood Forecasting waitlist (approval pending).", url: "https://developers.google.com/flood-forecasting", urlLabel: "Google Flood Forecasting" },
   typesafe_jev: { icon: Sparkles, can: "Judge among fixed playbook options using cited evidence.", cannot: "Write proposals, approve or send anything.", where: "An API key from your TypeSafe account (paid)." },
   cap_handover: { icon: FileOutput, can: "Export an Exercise CAP file that a person downloads.", cannot: "Transmit the file anywhere.", where: "Nothing to enter." },
-  authority_notification: { icon: Ban, can: "Show that hand-over is a human step.", cannot: "Ever be enabled. AEGIS sends no notifications.", where: "Nothing to enter." },
-  comms_in_app: { icon: BellRing, can: "Show requests, tasks and approvals to people signed in to AEGIS.", cannot: "Reach anyone who is not signed in.", where: "Nothing to enter." },
-  comms_email: { icon: Mail, can: "Send fixed rehearsal notices to AEGIS staff who turned on email notices, once switched on here and on the server.", cannot: "Send SMS, WhatsApp, public warnings, messages outside AEGIS staff, or any case details.", where: "An API key and a verified sender address from your SendGrid account (paid).", url: "https://app.sendgrid.com/settings/api_keys", urlLabel: "SendGrid API keys" },
+  authority_notification: { icon: Ban, can: "Show that hand-over is a human step.", cannot: "Ever be enabled. IndTrana sends no notifications.", where: "Nothing to enter." },
+  comms_in_app: { icon: BellRing, can: "Show requests, tasks and approvals to people signed in to IndTrana.", cannot: "Reach anyone who is not signed in.", where: "Nothing to enter." },
+  comms_email: { icon: Mail, can: "Send fixed rehearsal notices to IndTrana staff who turned on email notices, once switched on here and on the server.", cannot: "Send SMS, WhatsApp, public warnings, messages outside IndTrana staff, or any case details.", where: "An API key and a verified sender address from your SendGrid account (paid).", url: "https://app.sendgrid.com/settings/api_keys", urlLabel: "SendGrid API keys" },
   comms_sms: { icon: MessageSquareText, can: "Keep the SMS provider's credentials and check that the provider accepts them.", cannot: "Send a text message. Sending is locked.", where: "The Account SID, auth token and a sender number from your Twilio console (paid). Indian numbers also need DLT registration.", url: "https://console.twilio.com/", urlLabel: "Twilio console" },
   comms_whatsapp: { icon: MessageCircle, can: "Keep the WhatsApp Business token and check that Meta accepts it.", cannot: "Send a WhatsApp message. Sending is locked.", where: "A permanent access token and the phone number ID from your Meta WhatsApp Business account (paid per conversation).", url: "https://developers.facebook.com/docs/whatsapp/cloud-api/get-started", urlLabel: "WhatsApp Cloud API setup" },
 };
@@ -181,7 +181,7 @@ function ConnectorCard({ connector, masterKey, preview, now, onToast, onSaved }:
       <span className="rounded-full bg-elevated px-2.5 py-1 text-[11px] font-semibold text-muted ring-1 ring-stroke">{connector.category || t("other")}</span>
       <StatusPill connector={connector}/>
       {preview && <SampleBadge/>}
-      {!switchable ? <span className="inline-flex min-h-9 items-center gap-1.5 text-sm font-semibold"><Lock size={14} aria-hidden="true"/>{channel === "built_in" ? t("Always on inside AEGIS") : t("Sending locked")}</span>
+      {!switchable ? <span className="inline-flex min-h-9 items-center gap-1.5 text-sm font-semibold"><Lock size={14} aria-hidden="true"/>{channel === "built_in" ? t("Always on inside IndTrana") : t("Sending locked")}</span>
       : <label className="inline-flex min-h-9 items-center gap-2 text-sm font-semibold" htmlFor={`${base}-enabled`}>
         <input id={`${base}-enabled`} type="checkbox" role="switch" className="h-5 w-5 accent-[rgb(var(--accent))]" checked={enabled} disabled={readOnly || busy !== ""}
           aria-describedby={`${base}-can`} onChange={event => setEnabled(event.target.checked)}/>
@@ -192,13 +192,13 @@ function ConnectorCard({ connector, masterKey, preview, now, onToast, onSaved }:
       <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted"><KeyRound size={13} aria-hidden="true"/>{t(meta.where)}
         {meta.url && <a href={meta.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-9 items-center gap-1 font-semibold text-accent underline underline-offset-2">{meta.urlLabel}<ExternalLink size={12} aria-hidden="true"/><span className="sr-only">({t("opens in a new tab")})</span></a>}</p>
       {readOnly && <p className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs leading-5 text-amber-800 dark:text-amber-200" role="note">
-        <Lock size={16} className="mt-0.5 shrink-0" aria-hidden="true"/>{t("Read-only. AEGIS never sends warnings or notifications to authorities; this connector cannot be enabled. Hand-over is a CAP file a human downloads.")}</p>}
+        <Lock size={16} className="mt-0.5 shrink-0" aria-hidden="true"/>{t("Read-only. IndTrana never sends warnings or notifications to authorities; this connector cannot be enabled. Hand-over is a CAP file a human downloads.")}</p>}
       {channel && <p className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs leading-5 text-amber-800 dark:text-amber-200" role="note">
         <Lock size={16} className="mt-0.5 shrink-0" aria-hidden="true"/>{channel === "built_in"
-          ? t("This is how AEGIS alerts people today: a request, task or approval shows on the page and as a number on the menu, only for people who are signed in. Nothing leaves this server.")
+          ? t("This is how IndTrana alerts people today: a request, task or approval shows on the page and as a number on the menu, only for people who are signed in. Nothing leaves this server.")
           : channel === "send"
-          ? t("When this switch is on and the server was started with -StaffEmail, AEGIS emails fixed rehearsal notices to its own staff who turned on email notices, at their verified sign-in address. Today the only notice is a proposal waiting for a checker, plus a test a person sends to themselves. No case details are included. Switching off stops sending at the next attempt.")
-          : t("You can save and check this provider's credentials here. AEGIS sends nothing through it: this build has no sending code, and adding it needs the owner's decision and a security review.")}</p>}
+          ? t("When this switch is on and the server was started with -StaffEmail, IndTrana emails fixed rehearsal notices to its own staff who turned on email notices, at their verified sign-in address. Today the only notice is a proposal waiting for a checker, plus a test a person sends to themselves. No case details are included. Switching off stops sending at the next attempt.")
+          : t("You can save and check this provider's credentials here. IndTrana sends nothing through it: this build has no sending code, and adding it needs the owner's decision and a security review.")}</p>}
 
       {requiredPlain.map(plainField)}
 
@@ -363,7 +363,7 @@ export function ConnectorAdmin() {
   const view = preview ? samplePayload : payload;
   const showBody = isAdmin;
 
-  return <AppShell title="Connectors" description="Configure the data and decision connectors used by Hazard Watch. Secrets are write-only and AEGIS never sends warnings.">
+  return <AppShell title="Connectors" description="Configure the data and decision connectors used by Hazard Watch. Secrets are write-only and IndTrana never sends warnings.">
     {isAdmin && <Panel as="div" className="mb-4" bodyClassName="flex flex-wrap items-center gap-3 p-3">
       <button type="button" role="switch" aria-checked={preview} aria-describedby="preview-help" onClick={() => { setPreview(value => !value); setNotice(null); nowRef.current = Date.now(); }}
         className="inline-flex min-h-10 items-center gap-3 rounded-lg px-1 text-sm font-semibold">
@@ -393,7 +393,7 @@ export function ConnectorAdmin() {
           return <section key={String(channels)} aria-labelledby={channels ? "channels-title" : undefined} className={channels ? "mt-8" : undefined}>
             {channels && <>
               <h2 id="channels-title" className="t-title mb-1">{t("Communication channels")}</h2>
-              <p className="helper mb-4 max-w-3xl">{t("How AEGIS reaches its own staff. In-app alerts are always on. Email can send fixed rehearsal notices to staff who turned them on, once switched on here and on the server. SMS and WhatsApp credentials can be checked here, but nothing is sent through them. Public warnings never go through AEGIS.")}</p>
+              <p className="helper mb-4 max-w-3xl">{t("How IndTrana reaches its own staff. In-app alerts are always on. Email can send fixed rehearsal notices to staff who turned them on, once switched on here and on the server. SMS and WhatsApp credentials can be checked here, but nothing is sent through them. Public warnings never go through IndTrana.")}</p>
             </>}
             <div className="grid items-start gap-5 xl:grid-cols-2">
               {group.map(connector => <ConnectorCard key={`${preview ? "sample" : "live"}-${connector.id}-${connector.version}`} connector={connector} masterKey={view.master_key_configured} preview={preview} now={nowRef.current}

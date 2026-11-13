@@ -55,9 +55,9 @@ export function PermissionState({ needs, roles, what, where, className = "" }: R
         <dt className="text-xs font-semibold text-muted">{t("It needs")}</dt>
         <dd className="flex flex-wrap gap-1.5">{needs.map(role => <RoleChip key={role} role={role} />)}</dd>
         <dt className="text-xs font-semibold text-muted">{t("You are signed in as")}</dt>
-        <dd className="flex flex-wrap gap-1.5">{held.length > 0 ? held.map(role => <RoleChip key={role} role={role} />) : <span className="text-muted">{t("No role that AEGIS recognises")}</span>}</dd>
+        <dd className="flex flex-wrap gap-1.5">{held.length > 0 ? held.map(role => <RoleChip key={role} role={role} />) : <span className="text-muted">{t("No role that IndTrana recognises")}</span>}</dd>
       </dl>
-      <p className="helper">{t("Roles are given in your agency's identity provider, not in AEGIS. Ask your administrator if you need a different one.")}{needs.length === 1 ? " " + t(ROLE_INFO[needs[0]].summary) : ""}</p>
+      <p className="helper">{t("Roles are given in your agency's identity provider, not in IndTrana. Ask your administrator if you need a different one.")}{needs.length === 1 ? " " + t(ROLE_INFO[needs[0]].summary) : ""}</p>
       <div className="flex flex-wrap gap-2">
         {where && <Link href={where.href} className="control control-sm">{where.label}</Link>}
         <Link href="/admin/users" className="control control-quiet control-sm">{t("See what each role can do")}</Link>

@@ -1,6 +1,6 @@
 # Synthetic Source Comparison Diagnostics
 
-AEGIS can compare only synthetic observations whose source records explicitly
+IndTrana can compare only synthetic observations whose source records explicitly
 share a comparison group, unit, time window and absolute tolerance. It never
 infers compatibility from geography, labels or units alone.
 

@@ -66,7 +66,7 @@ export function AssessmentReadiness({ incidentId }: { incidentId: string }) {
   async function copyExerciseReview() {
     if (!result) return;
     const rationale = [
-      "AEGIS SIMULATION ONLY: fictional case " + result.incident_id,
+      "IndTrana SIMULATION ONLY: fictional case " + result.incident_id,
       "Playbook: " + result.playbook.version,
       "Human-review checklist: " + result.recommendation_draft.join(" "),
       "Synthetic evidence IDs: " + result.playbook.synthetic_evidence_ids.join(", "),

@@ -15,7 +15,7 @@ services:
     volumes:
       - local_idp_data:/opt/keycloak/data
       - ${AEGIS_LOCAL_IDP_PRIVATE_DIR:?Set a private directory outside the XAMPP web root}/realm.json:/opt/keycloak/data/import/aegis-exercise.json:ro
-      # AEGIS look for the provider's own sign-in pages (styles only; see ops/local-idp/theme).
+      # IndTrana look for the provider's own sign-in pages (styles only; see ops/local-idp/theme).
       - ./ops/local-idp/theme:/opt/keycloak/themes/aegis:ro
     mem_limit: 768m
   local-idp-tls:

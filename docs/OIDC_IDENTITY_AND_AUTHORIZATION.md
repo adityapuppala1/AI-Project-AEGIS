@@ -1,8 +1,8 @@
-# AEGIS OIDC resource-server integration — security milestone
+# IndTrana OIDC resource-server integration — security milestone
 
 ## Implemented scope
 
-- AEGIS accepts only signed **RS256 access JWTs** issued by a configured HTTPS identity provider (IdP).
+- IndTrana accepts only signed **RS256 access JWTs** issued by a configured HTTPS identity provider (IdP).
 - Every protected proposal request validates issuer, audience, cryptographic signature, expiration, issued-at and subject; signing keys are obtained from the configured JWKS endpoint and cached.
 - Agency and role claims come **only from the verified token**. Request bodies cannot assert or override an actor, agency or role.
 - Agency-scope checks are repeated in PostgreSQL for creation, listing and review. Out-of-scope incidents/proposals return 404 to reduce enumeration.

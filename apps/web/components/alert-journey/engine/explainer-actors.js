@@ -1,4 +1,4 @@
-/* AEGIS Alert Journey explainer — actors: residents (alert reception, evacuation, rescue), traffic, response teams, communication streams, KPIs. */
+/* IndTrana Alert Journey explainer — actors: residents (alert reception, evacuation, rescue), traffic, response teams, communication streams, KPIs. */
 export default function install(g) {
   'use strict';
   var AX = g.AX = g.AX || {};
@@ -129,7 +129,7 @@ export default function install(g) {
         var s = teamAt(d, F.t, F.plan), nx = s.next, eta = nx && s.moving ? Math.max(0, nx[0] - F.t) : 0;
         var tone = s.status === 'Cut off' ? 'bad' : s.status === 'Deployed' || s.status === 'Moving to hotspot' ? 'ok' : 'info';
         return { status: { tone: tone, text: s.status }, rows: [['Crew', d.info.crew + ' people (synthetic)'], ['Mission', d.info.mission], ['Hotspot', d.info.hotspot], ['Staging plan', F.plan === 'B' ? 'Plan B · AI high-ground sites' : 'Plan A · central yard'], ['Next step', nx ? (nx[3] + (eta ? ' in ' + eta.toFixed(1) + ' h' : '')) : 'Mission complete']],
-          note: 'Tasked by the agency commander. AEGIS records the exercise and never dispatches.', actions: [{ id: 'follow', label: 'Follow this team' }, { id: 'route', label: 'Show planned route' }] };
+          note: 'Tasked by the agency commander. IndTrana records the exercise and never dispatches.', actions: [{ id: 'follow', label: 'Follow this team' }, { id: 'route', label: 'Show planned route' }] };
       } });
     });
     var routeLines = [];

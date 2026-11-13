@@ -82,7 +82,7 @@ def replay_tabletop(run_id: UUID, *, as_of: datetime | None = None) -> dict:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Offline AEGIS synthetic observation scenario")
+    parser = argparse.ArgumentParser(description="Offline IndTrana synthetic observation scenario")
     parser.add_argument("--confirm-synthetic", action="store_true",
                         help="Explicitly permit adding three fictional sample rows")
     parser.add_argument("--run-id", type=UUID, default=None,

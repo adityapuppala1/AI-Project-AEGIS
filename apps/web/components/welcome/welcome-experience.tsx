@@ -1,6 +1,6 @@
 "use client";
 
-// Public landing page: what AEGIS is, why it exists and how an alert travels. Explanation only. Nothing here
+// Public landing page: what IndTrana is, why it exists and how an alert travels. Explanation only. Nothing here
 // reads operational data. The 3D stage is an illustration of India seen from orbit: it is loaded after first paint,
 // replaced by a still picture without WebGL, and drawn without movement for reduced motion.
 // Signed-out visitors can only go on to /sign-in, so every call to action leads there until a session exists.
@@ -8,6 +8,8 @@ import { Fragment, useCallback, useEffect, useRef, useState, type KeyboardEvent 
 import Link from "next/link";
 import "@fontsource-variable/anek-latin/wdth.css";
 import { ArrowDown, Ban, Bot, Building2, Check, Command, FileCheck2, Landmark, LogIn, Minus, Play, RadioTower, Satellite, Smartphone, UserCheck, Users, UsersRound } from "lucide-react";
+import { useBrand } from "../brand-provider";
+import { BrandMark, BrandName } from "../brand-mark";
 import stillView from "../globe/assets/india-globe-still.webp";
 import { indiaDaylight, istClock } from "../globe/sun";
 import type { HazardId, WelcomeScene } from "./welcome-scene";
@@ -16,7 +18,7 @@ import "./welcome.css";
 const HAZARDS: Array<{ id: HazardId; label: string; sense: string; predict: string; mark: string; where: string; drawn: string }> = [
   { id: "cyclone", label: "Cyclone", mark: "A storm turning over the Bay of Bengal", where: "Bay of Bengal and the Odisha coast", drawn: "A storm, turning the way they do north of the equator", sense: "Weather satellites and coastal gauges follow a storm forming over the Bay of Bengal, days before landfall.", predict: "Several possible storm tracks are compared. The districts most likely to flood are marked, with the evidence behind each one listed." },
   { id: "flood", label: "River flood", mark: "Water rising along the Brahmaputra", where: "Brahmaputra valley, Assam", drawn: "The Brahmaputra, with the Ganga and Godavari for context", sense: "Rainfall estimates and river gauges show water rising upstream, long before it reaches the towns below.", predict: "The river level is compared with past years to say how unusual it is, and which low-lying areas would flood first." },
-  { id: "earthquake", label: "Earthquake", mark: "Shaking spreading from an epicentre", where: "Himalayan arc, Uttarakhand", drawn: "The Himalayan seismic belt, drawn schematically", sense: "Seismic networks report a strong earthquake within minutes of it happening.", predict: "Earthquakes cannot be predicted, and AEGIS says so. It estimates who was shaken and what may follow, such as landslides." },
+  { id: "earthquake", label: "Earthquake", mark: "Shaking spreading from an epicentre", where: "Himalayan arc, Uttarakhand", drawn: "The Himalayan seismic belt, drawn schematically", sense: "Seismic networks report a strong earthquake within minutes of it happening.", predict: "Earthquakes cannot be predicted, and IndTrana says so. It estimates who was shaken and what may follow, such as landslides." },
   { id: "heatwave", label: "Heatwave", mark: "Heat building over the plains", where: "North-west and central plains", drawn: "Heat building over the land", sense: "Temperature and humidity forecasts show several dangerous days ahead.", predict: "Forecast heat is compared with local records to flag the districts where the health risk is highest." },
 ];
 
@@ -26,8 +28,8 @@ const STEPS: Step[] = [
   { title: "Sense the hazard", rail: "Sense", text: hazard => hazard.sense, ai: "Reads many sources at once and flags the ones that are late or disagree.", people: "Decide which sources the agency trusts.", key: [["sea", "Readings arriving from satellites and gauges"], ["hazard", "The hazard being watched"], SATELLITE_KEY] },
   { title: "Estimate the risk", rail: "Predict", text: hazard => hazard.predict, ai: "Gives a range, cites every source, and says “not enough evidence” when that is the truth.", people: "Read the evidence and question it.", key: [["ink", "Possible paths, not one certain line"], ["risk", "Area most at risk, inside a wider likely range"]] },
   { title: "Two people decide", rail: "Decide", text: () => "One officer drafts the alert. A different officer checks it and approves or sends it back with a reason. No single person can approve alone, and software cannot approve at all.", ai: "Points the checker to the evidence that matters most.", people: "Draft, check, approve. Their names and reasons are recorded.", key: [["sea", "The maker, who drafts"], ["ink", "The checker, a different officer"], ["green", "Approved by both"]] },
-  { title: "Hand over to the authority", rail: "Hand over", text: () => "The approved draft goes to the alerting authority in the standard alert format (Common Alerting Protocol). AEGIS stops here. It has no way to send a public warning.", ai: "Fills a fixed template. It does not write free text into an alert.", people: "The authority decides whether, where and when to warn.", key: [["green", "The approved draft"], ["ink", "The one gate out of AEGIS"]] },
-  { title: "Reach people", rail: "Reach", text: () => "The authority’s own system passes the warning to telecom operators, who broadcast it to phones in the affected area. Response teams receive their tasks from their departments.", ai: "Suggests where teams could wait, as a recommendation only.", people: "Departments task their teams. Operators deliver the broadcast.", key: [["saffron", "The authority’s own channel. AEGIS is not on these lines."]] },
+  { title: "Hand over to the authority", rail: "Hand over", text: () => "The approved draft goes to the alerting authority in the standard alert format (Common Alerting Protocol). IndTrana stops here. It has no way to send a public warning.", ai: "Fills a fixed template. It does not write free text into an alert.", people: "The authority decides whether, where and when to warn.", key: [["green", "The approved draft"], ["ink", "The one gate out of IndTrana"]] },
+  { title: "Reach people", rail: "Reach", text: () => "The authority’s own system passes the warning to telecom operators, who broadcast it to phones in the affected area. Response teams receive their tasks from their departments.", ai: "Suggests where teams could wait, as a recommendation only.", people: "Departments task their teams. Operators deliver the broadcast.", key: [["saffron", "The authority’s own channel. IndTrana is not on these lines."]] },
   { title: "Learn from what happened", rail: "Learn", text: () => "After the event, what was estimated is compared with what happened. Any change to a threshold goes through the same two-person approval before it is used.", ai: "Reports how its estimates compared, without calling it accuracy.", people: "Approve or reject each proposed change.", key: [["sea", "What happened, returning to the desk"]] },
 ];
 
@@ -42,16 +44,16 @@ const FIGURES = [
 const PEOPLE = [
   { icon: Landmark, who: "Government and agencies", today: ["Information arrives from many systems and in many formats", "Hard to show later who decided what, and on which evidence"], with: ["One desk shows the sources, how fresh they are and what they imply", "Every decision keeps its evidence, its two approvers and their reasons"] },
   { icon: UsersRound, who: "Response teams", today: ["Tasks reach teams late or through phone calls", "Shift changes lose context"], with: ["Departments see approved tasks in one inbox", "A handover note is prepared for the next shift, with every line traceable"] },
-  { icon: Users, who: "Citizens", today: ["Warnings can be late, vague or contradictory", "False alarms reduce trust in the next warning"], with: ["A warning is drafted earlier and checked by two officers before it goes to the authority", "Citizens still hear from the official channel only, never from AEGIS"] },
+  { icon: Users, who: "Citizens", today: ["Warnings can be late, vague or contradictory", "False alarms reduce trust in the next warning"], with: ["A warning is drafted earlier and checked by two officers before it goes to the authority", "Citizens still hear from the official channel only, never from IndTrana"] },
 ];
 
 const CHAIN = [
   { icon: Satellite, title: "Sensors", text: "Satellites, gauges and public feeds", outside: false, detail: "Each reading arrives with its time. Sources that are late, missing or in disagreement are flagged, so nobody leans on stale data." },
-  { icon: Command, title: "AEGIS desk", text: "Evidence gathered and risk estimated", outside: false, detail: "The desk lines up the evidence and gives a range for the risk, with every source cited. When the evidence is thin it says so instead of guessing." },
+  { icon: Command, title: "IndTrana desk", text: "Evidence gathered and risk estimated", outside: false, detail: "The desk lines up the evidence and gives a range for the risk, with every source cited. When the evidence is thin it says so instead of guessing." },
   { icon: UserCheck, title: "Maker and checker", text: "Two officers approve a draft alert", outside: false, detail: "One officer drafts the alert. A different officer approves it or sends it back with a reason. Their names and reasons are recorded." },
   { icon: Building2, title: "Alerting authority", text: "NDMA or the state authority issues the warning", outside: true, detail: "The authority receives the approved draft in the Common Alerting Protocol. It alone decides whether, where and when to warn." },
-  { icon: RadioTower, title: "Telecom operators", text: "Cell broadcast and SMS to the affected area", outside: true, detail: "Operators broadcast the authority’s warning to phones in the affected area. AEGIS has no connection to them." },
-  { icon: Smartphone, title: "People", text: "Phones, sirens, local officials", outside: true, detail: "People hear from the official channel and from local officials. They never receive a message from AEGIS." },
+  { icon: RadioTower, title: "Telecom operators", text: "Cell broadcast and SMS to the affected area", outside: true, detail: "Operators broadcast the authority’s warning to phones in the affected area. IndTrana has no connection to them." },
+  { icon: Smartphone, title: "People", text: "Phones, sirens, local officials", outside: true, detail: "People hear from the official channel and from local officials. They never receive a message from IndTrana." },
 ] as const;
 const GATE_AFTER = 2;
 
@@ -101,6 +103,7 @@ function Figure({ value, share, text }: Readonly<{ value: string; share: number;
 export function WelcomeExperience() {
   const rootRef = useRef<HTMLDivElement>(null), canvasRef = useRef<HTMLCanvasElement>(null), sceneRef = useRef<WelcomeScene | null>(null), stepsRef = useRef<HTMLDivElement>(null);
   const [hazardId, setHazardId] = useState<HazardId>("cyclone");
+  const brand = useBrand(), b = brand.text;
   const [active, setActive] = useState(0);
   const [webgl, setWebgl] = useState(true);
   const [live, setLive] = useState(false);
@@ -213,7 +216,7 @@ export function WelcomeExperience() {
     <div className="wl" ref={rootRef} data-hazard={hazardId}>
       <header className="wl-top">
         <div className="wl-wrap">
-          <Link href={signedIn ? "/welcome" : "/"} className="wl-mark" aria-label="AEGIS, about this project"><span><Command size={18} aria-hidden="true" /></span>AEGIS</Link>
+          <Link href={signedIn ? "/welcome" : "/"} className="wl-mark" aria-label={brand.text("IndTrana, about this project")}><span className="overflow-hidden"><BrandMark box={24} /></span><BrandName /></Link>
           <nav aria-label="Main">
             <a href="#wl-how" className="wl-hide-s">How it works</a>
             <a href="#wl-ai" className="wl-hide-s">Safeguards</a>
@@ -252,7 +255,7 @@ export function WelcomeExperience() {
           <div className="wl-steps" ref={stepsRef}>
             <section className="wl-hero" data-stage="0" aria-labelledby="wl-title">
               <h1 id="wl-title">From the first signal to a warning people can trust</h1>
-              <p>AEGIS is a decision desk for India’s disaster agencies. It gathers the evidence, estimates the risk, and makes sure two accountable officers approve an alert before it goes to the official channel.</p>
+              <p>{brand.name} is a decision desk for India’s disaster agencies. It gathers the evidence, estimates the risk, and makes sure two accountable officers approve an alert before it goes to the official channel.</p>
               <div className="wl-actions">
                 {signedIn
                   ? <Link href="/" className="wl-btn wl-solid">Open the Command Center</Link>
@@ -260,14 +263,14 @@ export function WelcomeExperience() {
                 <button type="button" className="wl-btn wl-ghost" onClick={() => goTo(1)}>See how an alert travels<ArrowDown size={18} aria-hidden="true" /></button>
               </div>
               {hazardPicker("Follow a")}
-              <p className="wl-note">This is a prototype for rehearsal. Everything shown uses synthetic exercise data. AEGIS does not send warnings.</p>
+              <p className="wl-note">This is a prototype for rehearsal. Everything shown uses synthetic exercise data. {brand.name} does not send warnings.</p>
             </section>
 
             {STEPS.map((step, index) => (
               <section key={step.title} className="wl-step" data-stage={index + 1} data-current={active === index + 1 || undefined} aria-labelledby={`wl-step-${index}`}>
                 <span className="wl-step-n">Step {index + 1} of {STEPS.length}</span>
                 <h2 id={`wl-step-${index}`}>{step.title}</h2>
-                <p key={index < 2 ? hazardId : "fixed"} className={index < 2 ? "wl-swap" : undefined}>{step.text(hazard)}</p>
+                <p key={index < 2 ? hazardId : "fixed"} className={index < 2 ? "wl-swap" : undefined}>{b(step.text(hazard))}</p>
                 <div className="wl-split">
                   <div className="wl-lane-ai"><Bot size={20} aria-hidden="true" /><span><b>AI helps: </b>{step.ai}</span></div>
                   <div className="wl-lane-people"><UserCheck size={20} aria-hidden="true" /><span><b>People decide: </b>{step.people}</span></div>
@@ -295,7 +298,7 @@ export function WelcomeExperience() {
                 <article key={group.who}>
                   <header><span><group.icon size={24} aria-hidden="true" /></span><h3>{group.who}</h3></header>
                   <div className="wl-before"><h4>Without a shared desk</h4><ul>{group.today.map(line => <li key={line}><Minus size={18} aria-hidden="true" /><span>{line}</span></li>)}</ul></div>
-                  <div className="wl-after"><h4>With AEGIS</h4><ul>{group.with.map(line => <li key={line}><Check size={18} aria-hidden="true" /><span>{line}</span></li>)}</ul></div>
+                  <div className="wl-after"><h4>With <BrandName /></h4><ul>{group.with.map(line => <li key={line}><Check size={18} aria-hidden="true" /><span>{b(line)}</span></li>)}</ul></div>
                 </article>
               ))}
             </div>
@@ -314,7 +317,7 @@ export function WelcomeExperience() {
                 </ul>
               </div>
               <div className="wl-never">
-                <h3>AEGIS never</h3>
+                <h3>{brand.name} never</h3>
                 <ul>
                   {["Sends a public warning, SMS or cell broadcast", "Approves an alert, or lets one person approve alone", "Dispatches, moves or tasks a team", "Writes free text into an official alert", "Claims a forecast accuracy it has not earned", "Stores public feed data as if it were an agency record"].map(line => <li key={line}><Ban size={20} aria-hidden="true" /><span>{line}</span></li>)}
                 </ul>
@@ -331,7 +334,7 @@ export function WelcomeExperience() {
             <div className="wl-chain-head">
               <div>
                 <h2 id="wl-chain">How a warning reaches a phone</h2>
-                <p className="wl-lede">AEGIS prepares and hands over. The official channel warns. The line between the two is deliberate.</p>
+                <p className="wl-lede">{brand.name} prepares and hands over. The official channel warns. The line between the two is deliberate.</p>
               </div>
               <button type="button" className="wl-btn wl-light" onClick={() => { setNode(0); setPlaying(true); }} disabled={playing}><Play size={18} aria-hidden="true" />{playing ? "Following the alert" : "Follow the alert"}</button>
             </div>
@@ -340,16 +343,16 @@ export function WelcomeExperience() {
                 <Fragment key={item.title}><li className={item.outside ? "wl-outside" : undefined} data-state={index === node ? "on" : index < node ? "done" : undefined}>
                   <button type="button" aria-current={index === node ? "step" : undefined} tabIndex={index === node ? 0 : -1} onClick={() => pickNode(index)}>
                     <span><item.icon size={22} aria-hidden="true" /></span>
-                    <span><b>{item.title}</b><small>{item.text}</small></span>
+                    <span><b>{b(item.title)}</b><small>{item.text}</small></span>
                   </button>
-                  <p className="wl-node-inline">{item.detail}</p>
+                  <p className="wl-node-inline">{b(item.detail)}</p>
                 </li>
-                {index === GATE_AFTER && <li className="wl-gate" data-state={node > GATE_AFTER ? "done" : undefined}><span><FileCheck2 size={18} aria-hidden="true" /></span><p>AEGIS stops here. Only an approved draft crosses.</p></li>}</Fragment>
+                {index === GATE_AFTER && <li className="wl-gate" data-state={node > GATE_AFTER ? "done" : undefined}><span><FileCheck2 size={18} aria-hidden="true" /></span><p>{brand.name} stops here. Only an approved draft crosses.</p></li>}</Fragment>
               ))}
             </ol>
             <div className="wl-node" aria-live="polite">
-              <span>{current.outside ? "Official channel, outside AEGIS" : "Inside AEGIS"}</span>
-              <p key={node}><b>{current.title}. </b>{current.detail}</p>
+              <span>{b(current.outside ? "Official channel, outside IndTrana" : "Inside IndTrana")}</span>
+              <p key={node}><b>{b(current.title)}. </b>{b(current.detail)}</p>
             </div>
           </div>
         </section>
@@ -362,9 +365,9 @@ export function WelcomeExperience() {
                 <p className="wl-lede" style={{ marginTop: 0 }}>Open, widely used components that a government team can audit, host in India and maintain.</p>
               </div>
               <dl>
-                <div><dt>Sign-in</dt><dd>The agency’s own identity provider (OpenID Connect). AEGIS never sees a password. Role and agency come from the signed token.</dd></div>
+                <div><dt>Sign-in</dt><dd>The agency’s own identity provider (OpenID Connect). {brand.name} never sees a password. Role and agency come from the signed token.</dd></div>
                 <div><dt>Approval</dt><dd>Maker and checker must be different people, enforced on the server and recorded in an audit trail.</dd></div>
-                <div><dt>Privacy</dt><dd>The browser talks only to the AEGIS server. Outside map and data sources never see who is looking.</dd></div>
+                <div><dt>Privacy</dt><dd>The browser talks only to the {brand.name} server. Outside map and data sources never see who is looking.</dd></div>
                 <div><dt>Maps and 3D</dt><dd>PostGIS for geography, MapLibre for maps, three.js for the 3D views.</dd></div>
                 <div><dt>Application</dt><dd>Next.js and React in the browser, Python FastAPI services, PostgreSQL database, Docker containers.</dd></div>
                 <div><dt>Standards</dt><dd>Alerts are drafted in the Common Alerting Protocol used by national alerting systems.</dd></div>
@@ -403,7 +406,7 @@ export function WelcomeExperience() {
 
       <footer className="wl-foot">
         <div className="wl-wrap">
-          <span>AEGIS, exercise prototype. Synthetic data. Not a warning service.</span>
+          <span>{brand.name}, exercise prototype. Synthetic data. Not a warning service.</span>
           <span>The globe is an illustration built from NASA imagery. It is not live and not a map of record. India’s outline is schematic, not an authoritative boundary.</span>
         </div>
       </footer>

@@ -15,7 +15,7 @@ Earth Watch: opt-in public reference layer, case context, team board, situation 
 
 ## Summary
 
-Adds IndTrana-style visibility to AEGIS without weakening its governance. Everything public is display-only,
+Adds IndTrana-style visibility to IndTrana without weakening its governance. Everything public is display-only,
 opt-in and off in base Compose.
 
 - **Earth Watch** (`/earth-watch`, Command Center strip): USGS earthquakes, NASA EONET events, NASA GIBS imagery

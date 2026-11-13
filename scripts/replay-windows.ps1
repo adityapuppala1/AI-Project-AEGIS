@@ -6,7 +6,7 @@ $ErrorActionPreference = "Stop"
 Invoke-AegisLocalOperation -Name "replay-windows.ps1" -Action {
   Assert-AegisSingleRuntime
   Set-Location (Resolve-Path (Join-Path $PSScriptRoot ".."))
-  Write-Host "AEGIS SYNTHETIC ONLY: replaying the bundled, reviewed fixture."
+  Write-Host "IndTrana SYNTHETIC ONLY: replaying the bundled, reviewed fixture."
   Write-Host "No real warnings, dispatch, external APIs or production sensors are involved."
   if ($IncidentId -eq [Guid]::Empty) {
     docker compose exec -T api python -m app.replay

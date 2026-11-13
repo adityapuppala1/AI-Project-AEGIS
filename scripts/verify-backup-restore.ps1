@@ -1,4 +1,4 @@
-# Recovery drill: back up the running AEGIS database, restore it into a separate throwaway database, run the
+# Recovery drill: back up the running IndTrana database, restore it into a separate throwaway database, run the
 # schema audits against the copy, compare row counts, then drop only the throwaway database.
 # The application database and its volume are only read. The backup file is kept under .git/backups/ (untracked).
 #   powershell -ExecutionPolicy Bypass -File .\scripts\verify-backup-restore.ps1

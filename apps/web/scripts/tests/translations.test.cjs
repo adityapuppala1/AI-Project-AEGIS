@@ -43,8 +43,8 @@ test('safety-critical wording keeps its anchors in every language', () => {
   assert.match(emergency[1], /112/); assert.match(emergency[2], /112/);
   const footer = tr.TRANSLATION_ENTRIES.find(entry => entry[0].startsWith('Synthetic exercise data.'));
   for (const text of footer.slice(1)) assert.match(text, /NASA\/USGS/);
-  const banner = tr.TRANSLATION_ENTRIES.find(entry => entry[0] === 'Public reference data, not an AEGIS assessment.');
-  for (const text of banner.slice(1)) assert.match(text, /AEGIS/);
+  const banner = tr.TRANSLATION_ENTRIES.find(entry => entry[0] === 'Public reference data, not an IndTrana assessment.');
+  for (const text of banner.slice(1)) assert.match(text, /IndTrana/);
   for (const english of ['Quarantined · not a case', 'stored · read-only · not cases', 'It is unverified, creates no case and notifies no responder.']) {
     assert.ok(tr.TRANSLATION_ENTRIES.some(entry => entry[0] === english), english);
   }

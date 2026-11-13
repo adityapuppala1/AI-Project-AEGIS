@@ -15,7 +15,7 @@ export const ROLE_INFO: Record<RoleId, RoleInfo> = {
   incident_checker: { id: "incident_checker", label: "Checker", tone: "checker", summary: "Approves or rejects what a different person submitted. Cannot draft or submit." },
   incident_auditor: { id: "incident_auditor", label: "Auditor", tone: "auditor", summary: "Reads proposals, decisions and their audit trail. Cannot change anything." },
   department_operator: { id: "department_operator", label: "Department desk", tone: "department", summary: "Works the approved tasks of one department. Sees no other department's tasks." },
-  response_team: { id: "response_team", label: "Response team", tone: "team", summary: "Answers requests for its own synthetic team inside AEGIS. Sees no other team's requests, proposals or audit." },
+  response_team: { id: "response_team", label: "Response team", tone: "team", summary: "Answers requests for its own synthetic team inside IndTrana. Sees no other team's requests, proposals or audit." },
   platform_admin: { id: "platform_admin", label: "Administrator", tone: "admin", summary: "Sets up connectors and holds the kill switch. Cannot draft, submit or approve proposals." },
 };
 

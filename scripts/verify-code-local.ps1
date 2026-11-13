@@ -1,4 +1,4 @@
-# AEGIS: budget-first local checks, using existing developer Python/npm installs.
+# IndTrana: budget-first local checks, using existing developer Python/npm installs.
 # Run from repository root: powershell -ExecutionPolicy Bypass -File .\scripts\verify-code-local.ps1 -Suite api
 # No GitHub Actions minutes or external infrastructure. No DB reset, CI dispatch, or real emergency actions.
 param(
@@ -12,7 +12,7 @@ $ErrorActionPreference = "Stop"
 Invoke-AegisLocalOperation -Name "verify-code-local.ps1" -Action {
   if (Get-Command docker -ErrorAction SilentlyContinue) { Assert-AegisSingleRuntime }
   Set-Location (Resolve-Path (Join-Path $PSScriptRoot ".."))
-  Write-Host "AEGIS local-only CI replacement; selected suite: $Suite" -ForegroundColor Cyan
+  Write-Host "IndTrana local-only CI replacement; selected suite: $Suite" -ForegroundColor Cyan
 
   function Require-Command([string]$Name) {
     if (-not (Get-Command $Name -ErrorAction SilentlyContinue)) {

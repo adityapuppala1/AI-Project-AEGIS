@@ -1,4 +1,4 @@
-# AEGIS — Product vision
+# IndTrana — Product vision
 
 **Focus:** AI-powered disaster response
 

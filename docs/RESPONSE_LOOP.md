@@ -2,11 +2,11 @@
 
 Added 12 November 2026. **Exercise only.** It closes the last gap in the chain: after two officers approve a
 proposal and a department desk accepts its task, the desk can request synthetic response teams, the teams answer
-inside AEGIS, and every answer is logged against the incident.
+inside IndTrana, and every answer is logged against the incident.
 
 ## What it is and is not
 
-- An in-app loop between people who are signed in to AEGIS. A team is "alerted" by a request appearing on its
+- An in-app loop between people who are signed in to IndTrana. A team is "alerted" by a request appearing on its
   **My Team** page and by a count on the menu. **Nobody is called, texted, emailed or radioed.** There is no
   transport of any kind in this feature and none may be added without the owner lifting the no-dispatch rule.
 - Teams are the five invented teams in `services/api/app/fixtures/synthetic_teams.v1.json`. They are not real units,

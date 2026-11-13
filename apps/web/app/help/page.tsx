@@ -18,7 +18,7 @@ type Guide = {
 const guides: Guide[] = [
   { title: "What does the Model Evaluation Lab measure?", category: "AI transparency", description: "Synthetic holdout testing is not forecasting accuracy",
     answer: "The lab tests a reproducible logistic baseline on artificially generated scenarios. Entire scenario groups are held out to help demonstrate leakage prevention and the evaluation pipeline. ROC AUC, Brier score and confusion counts apply only to this synthetic dataset; they do not establish real flood predictive skill or calibrated warning probabilities.", href: "/model-lab" },
-  { title: "How do I start AEGIS on Windows?", category: "Getting started", description: "Run the Docker Compose development environment",
+  { title: "How do I start IndTrana on Windows?", category: "Getting started", description: "Run the Docker Compose development environment",
     answer: "Open PowerShell in the AI-Project-AEGIS folder, run docker compose up --build -d, and visit http://localhost:3000. Use docker compose ps and docker compose logs if containers do not start." },
   { title: "Why is my Approval Workbench locked?", category: "Security", description: "Understanding secure operator sign-in",
     answer: "Approval actions require a trusted OIDC provider and signed agency/role claims. No demo operator account or unrestricted login bypass is provided. A separate verified checker must review submitted proposals.", href: "/approvals" },
@@ -27,7 +27,7 @@ const guides: Guide[] = [
   { title: "Why are the map tiles blank?", category: "Getting started", description: "Troubleshooting MapLibre and internet access",
     answer: "This demo requests public OSM map tiles and requires WebGL support plus a network connection. Incident records should remain available in the registry even if map tiles cannot load.", href: "/incidents" },
   { title: "Can AI automatically dispatch responders?", category: "AI transparency", description: "Understanding human oversight",
-    answer: "No. AEGIS cannot issue real public alerts or dispatch responders from its exercise interface. In a future authorized deployment, consequential decisions must remain gated behind accountable human approval." },
+    answer: "No. IndTrana cannot issue real public alerts or dispatch responders from its exercise interface. In a future authorized deployment, consequential decisions must remain gated behind accountable human approval." },
   { title: "Is the rain-risk chart an actual forecast?", category: "AI transparency", description: "Distinguish AI outputs from illustrative telemetry",
     answer: "No. The exercise chart displays a fixed synthetic telemetry fixture and the sample hazard index is not a calibrated probability. Future trained predictions will require independent datasets, uncertainty, holdout validation, drift checks and model versioning." },
   { title: "How do I search all incidents?", category: "Getting started", description: "Find cases with filters and pagination",

@@ -1,4 +1,4 @@
-# AEGIS Model Evaluation Lab — versioned, synthetic-only foundation
+# IndTrana Model Evaluation Lab — versioned, synthetic-only foundation
 
 **Milestone:** `feat/synthetic-model-evaluation`
 **Application route:** `/model-lab`

@@ -1,10 +1,10 @@
 # Optional staff email notices (owner decision 12 November 2026). Default off; use with compose.proactive.yaml,
-# because the SendGrid key lives in the encrypted connector vault. Sends only fixed rehearsal templates to AEGIS staff
+# because the SendGrid key lives in the encrypted connector vault. Sends only fixed rehearsal templates to IndTrana staff
 # who opted in with a verified email address. No SMS, WhatsApp, push, public warnings or outside agencies.
 # See docs/COMMUNICATION_CHANNELS.md.
 services:
   api:
     environment:
       AEGIS_STAFF_EMAIL: "1"
-      # Only used to print one fixed AEGIS page path in a notice; never a case, proposal or person.
+      # Only used to print one fixed IndTrana page path in a notice; never a case, proposal or person.
       APP_ORIGIN: ${APP_ORIGIN:-http://localhost:3000}
