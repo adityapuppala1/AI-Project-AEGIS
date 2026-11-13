@@ -118,10 +118,14 @@ only the opt-in flag and never an address.
 
 The address is trusted because the identity provider says it is verified. So the provider must mark an
 address verified only after confirming it (for example a confirmation link), and must reset that flag
-when a user changes the address. **Open item:** the local Keycloak realm used for the demo does not
-turn on email verification (`verifyEmail` is not set), and the demo accounts are created with
-`emailVerified=true` on `example.invalid` addresses (refused by AEGIS as undeliverable). Before real
-use, the realm or the agency's provider must enforce verification; this change did not alter the realm.
+when a user changes the address.
+
+In the local Keycloak realm, `scripts/update-local-idp.ps1` (step 8, run on 13 November 2026) makes the
+email address editable by an administrator only, so a person cannot replace their own address and keep
+it marked verified. **Still open:** the realm does not send confirmation links (`verifyEmail` is off,
+and turning it on needs a mail server in the provider), so an address is only as good as the
+administrator who entered it. The demo accounts carry `example.invalid` addresses, which AEGIS
+refuses as undeliverable. An agency's own provider must confirm addresses before real use.
 
 ## Setting up a provider (administrator)
 

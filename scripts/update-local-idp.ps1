@@ -5,6 +5,7 @@
 #   3. A department can be recorded on an account (administrators only) and is signed into the access token.
 #   4. The provider's own sign-in pages use the AEGIS look (ops/local-idp/theme; styles only).
 #   5-7. The response_team role, an aegis_team_id account attribute (administrators only) and its access-token mapper.
+#   8. Only an administrator can change an account's email address (staff email notices trust the verified address).
 # It never creates, changes or deletes an account and never prints a secret.
 # Run:  powershell -ExecutionPolicy Bypass -File .\scripts\update-local-idp.ps1
 $ErrorActionPreference = 'Stop'
@@ -15,6 +16,8 @@ Invoke-AegisLocalOperation -Name 'update-local-idp.ps1' -Action {
   $container = @(& docker ps --filter 'label=com.docker.compose.project=ai-project-aegis' --filter 'label=com.docker.compose.service=local-idp' --format '{{.ID}}')
   if ($container.Count -ne 1) { throw 'The local identity provider is not running. Finish the sign-in setup in docs/INSTALL.md first.' }
   $id = $container[0]
+  # Windows PowerShell may put a byte-order mark in front of JSON piped into the container, and the provider rejects
+  # it, so every write below strips one with sed before saving the file.
 
   # Shell snippets contain no double quotes: Windows PowerShell 5.1 mangles them in native arguments.
   $login = 'K=/opt/keycloak/bin/kcadm.sh; $K config credentials --server http://localhost:8080 --realm master --user $KC_BOOTSTRAP_ADMIN_USERNAME --password $KC_BOOTSTRAP_ADMIN_PASSWORD >/dev/null 2>&1 || { echo ADMIN_LOGIN_FAILED; exit 0; }; '
@@ -57,7 +60,7 @@ Invoke-AegisLocalOperation -Name 'update-local-idp.ps1' -Action {
       permissions = [PSCustomObject]@{ view = @('admin'); edit = @('admin') }
     }
     $profile.attributes = @($profile.attributes) + $attribute
-    Invoke-Idp 'cat > /tmp/aegis-profile.json; $K update users/profile -r aegis-exercise -f /tmp/aegis-profile.json >/dev/null; code=$?; rm -f /tmp/aegis-profile.json; exit $code' ($profile | ConvertTo-Json -Depth 32 -Compress) | Out-Null
+    Invoke-Idp 'sed 1s/^\\xEF\\xBB\\xBF// > /tmp/aegis-profile.json; $K update users/profile -r aegis-exercise -f /tmp/aegis-profile.json >/dev/null; code=$?; rm -f /tmp/aegis-profile.json; exit $code' ($profile | ConvertTo-Json -Depth 32 -Compress) | Out-Null
   }
   Say 'Accounts can carry a department (administrators only)' $needAttribute
 
@@ -70,7 +73,7 @@ Invoke-AegisLocalOperation -Name 'update-local-idp.ps1' -Action {
       config = [PSCustomObject]@{ 'user.attribute' = 'aegis_department_id'; 'claim.name' = 'aegis_department_id'; 'jsonType.label' = 'String'
         'access.token.claim' = 'true'; 'id.token.claim' = 'false'; 'userinfo.token.claim' = 'false' }
     }
-    Invoke-Idp 'cat > /tmp/aegis-mapper.json; $K create clients/$CID/protocol-mappers/models -r aegis-exercise -f /tmp/aegis-mapper.json >/dev/null 2>&1; code=$?; rm -f /tmp/aegis-mapper.json; exit $code' ($mapper | ConvertTo-Json -Depth 8 -Compress) | Out-Null
+    Invoke-Idp 'sed 1s/^\\xEF\\xBB\\xBF// > /tmp/aegis-mapper.json; $K create clients/$CID/protocol-mappers/models -r aegis-exercise -f /tmp/aegis-mapper.json >/dev/null 2>&1; code=$?; rm -f /tmp/aegis-mapper.json; exit $code' ($mapper | ConvertTo-Json -Depth 8 -Compress) | Out-Null
   }
   Say 'Department is signed into the access token' $needMapper
 
@@ -89,7 +92,7 @@ Invoke-AegisLocalOperation -Name 'update-local-idp.ps1' -Action {
       permissions = [PSCustomObject]@{ view = @('admin'); edit = @('admin') }
     }
     $profile.attributes = @($profile.attributes) + $attribute
-    Invoke-Idp 'cat > /tmp/aegis-profile.json; $K update users/profile -r aegis-exercise -f /tmp/aegis-profile.json >/dev/null; code=$?; rm -f /tmp/aegis-profile.json; exit $code' ($profile | ConvertTo-Json -Depth 32 -Compress) | Out-Null
+    Invoke-Idp 'sed 1s/^\\xEF\\xBB\\xBF// > /tmp/aegis-profile.json; $K update users/profile -r aegis-exercise -f /tmp/aegis-profile.json >/dev/null; code=$?; rm -f /tmp/aegis-profile.json; exit $code' ($profile | ConvertTo-Json -Depth 32 -Compress) | Out-Null
   }
   Say 'Accounts can carry a response team (administrators only)' $needTeamAttribute
 
@@ -101,8 +104,19 @@ Invoke-AegisLocalOperation -Name 'update-local-idp.ps1' -Action {
       config = [PSCustomObject]@{ 'user.attribute' = 'aegis_team_id'; 'claim.name' = 'aegis_team_id'; 'jsonType.label' = 'String'
         'access.token.claim' = 'true'; 'id.token.claim' = 'false'; 'userinfo.token.claim' = 'false' }
     }
-    Invoke-Idp 'cat > /tmp/aegis-mapper.json; $K create clients/$CID/protocol-mappers/models -r aegis-exercise -f /tmp/aegis-mapper.json >/dev/null 2>&1; code=$?; rm -f /tmp/aegis-mapper.json; exit $code' ($mapper | ConvertTo-Json -Depth 8 -Compress) | Out-Null
+    Invoke-Idp 'sed 1s/^\\xEF\\xBB\\xBF// > /tmp/aegis-mapper.json; $K create clients/$CID/protocol-mappers/models -r aegis-exercise -f /tmp/aegis-mapper.json >/dev/null 2>&1; code=$?; rm -f /tmp/aegis-mapper.json; exit $code' ($mapper | ConvertTo-Json -Depth 8 -Compress) | Out-Null
   }
   Say 'Response team is signed into the access token' $needTeamMapper
+
+  # 8. Email address: only an administrator may change it. Staff email notices (docs/COMMUNICATION_CHANNELS.md) trust the
+  #    verified address in the sign-in, so a person must not be able to replace it themselves and keep it marked verified.
+  $profile = (Invoke-Idp '$K get users/profile -r aegis-exercise') -join "`n" | ConvertFrom-Json
+  $emailRule = @($profile.attributes | Where-Object { $_.name -eq 'email' })[0]
+  $needEmailLock = $null -ne $emailRule -and (@($emailRule.permissions.edit) -join ',') -ne 'admin'
+  if ($needEmailLock) {
+    $emailRule.permissions.edit = @('admin')
+    Invoke-Idp 'sed 1s/^\\xEF\\xBB\\xBF// > /tmp/aegis-profile.json; $K update users/profile -r aegis-exercise -f /tmp/aegis-profile.json >/dev/null; code=$?; rm -f /tmp/aegis-profile.json; exit $code' ($profile | ConvertTo-Json -Depth 32 -Compress) | Out-Null
+  }
+  Say 'Only an administrator can change an email address' $needEmailLock
   Write-Host 'Done. Sign out and in again to pick up the changes.'
 }

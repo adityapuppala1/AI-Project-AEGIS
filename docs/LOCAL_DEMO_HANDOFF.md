@@ -18,6 +18,22 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Round 17: local sign-in provider locks the email address — 13 November 2026 (Windows laptop)
+
+- **Gap closed:** in the local Keycloak realm a user could change their own email address and keep it marked verified,
+  which staff email notices trust. scripts/update-local-idp.ps1 step 8 now makes the address administrator-only.
+- **Script fix:** under Windows PowerShell 5.1 the JSON piped into the container began with a byte-order mark and the
+  provider rejected it (every write step was affected; earlier steps had not needed to write since). Each write now
+  strips it with sed.
+- **Executed on this laptop:** stack started with -SignIn -PublicEarth -Proactive -StatisticalForecast -StaffEmail;
+  the rule was put back to its old value and the script run twice under Windows PowerShell: first run "updated", second
+  "already set", exit 0 both times; profile read back shows email edit = admin only and the department and team
+  attributes unchanged; verify-windows.ps1 PASSED. No account was created, changed or read.
+- **Not verified:** a browser sign-in after the change (the scratch browser helpers from the earlier session are gone).
+  No API or web code changed, so the test suites were not re-run.
+- **Still open:** as round 16 (SendGrid account, a real verified address to try a send, confirmation links in the
+  provider, bounce handling, native review).
+
 ## Round 16: staff email notices (owner lifted the no-dispatch rule for this only) — 12 November 2026 (Windows laptop)
 
 Owner decision, 12 November 2026: asked whether to build real sending for staff messages, the owner answered "yes please
