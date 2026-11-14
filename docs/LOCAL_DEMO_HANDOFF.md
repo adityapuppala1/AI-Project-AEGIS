@@ -20,6 +20,27 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Round 27: submission documents rebuilt (interactive page, Word/PDF, Markdown, Archify diagrams) — 14 November 2026 (Windows laptop)
+
+Branch `Aegis_IndTrana`, on top of `a97d9fc` (tag `v0.3.0`). Documentation only: no application, API, database or
+auth code changed; no rebuild of the stack. Files in `docs/submission/`.
+
+- **Interactive page** `IndTrana-Overview-v0.3.0.html` (one offline file, about 8.5 MB): 3D layered architecture
+  explorer and 3D storm timeline (Three.js r128, MIT, inlined; 2D fallback when WebGL is missing), sortable and
+  filterable tables with copy as Markdown/CSV, a Markdown document viewer, a gallery of the seven Archify diagrams,
+  command palette (Ctrl+K), pause-motion control, dark/light, print stylesheet.
+- **Word** `.docx` (75 pages, 15 figures, 17 tables) with a **PDF** export (95 bookmarks); **Markdown edition** `.md` with
+  its `-assets` folder; seven Archify 3.2.0 diagrams (`archify/`, HTML plus PNG).
+- **Executed (Windows laptop, headless Chrome with software GL):** page checks in desktop light/dark, mobile dark and
+  reduced motion: no console errors, no requests other than file/data/blob, `verifyAgainstData()` returned no
+  differences. Archify doctor passed.
+- **Not verified:** reduced-motion run failed one step (click-to-select on the 3D canvas timed out; the list-based
+  keyboard selection is the intended alternative and the click step passed in the other runs); mobile-light and
+  no-WebGL were not re-run after the last label fix; four SwiftShader "GPU stall" driver warnings appear in WebGL runs;
+  frame rate was measured on software GL only (no real GPU); Firefox and Safari not tried; the PDF print output was not
+  viewed page by page; Word table of contents entries are not clickable (PDF bookmarks work). Not an independent audit.
+- Test counts quoted in the documents (API 1379 passed/30 skipped, web 401 passed) are from the earlier run.
+
 ## Round 26: guided tours, What's new and release notes, version 0.3.0 — 14 November 2026 (Windows laptop)
 
 Branch `Aegis_IndTrana`, on top of `a2fa398`; released as tag `v0.3.0`, the first tagged release. Compose services left

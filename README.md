@@ -35,14 +35,22 @@ visible Skip tour. Start or restart any tour from the account menu (**Tour this 
 
 ## Submission documents
 
-For readers who cannot sign in to a running copy, [docs/submission](docs/submission) holds two documents for version
-0.3.0, both stating the prototype status and limits:
+For readers who cannot sign in to a running copy, [docs/submission](docs/submission) holds the documentation for version
+0.3.0 in four forms, all stating the prototype status and limits:
 
-- [IndTrana-Technical-Architecture-v0.3.0.docx](docs/submission/IndTrana-Technical-Architecture-v0.3.0.docx): technical
-  and architecture documentation with ten diagrams, sixteen use cases and a screenshot walkthrough.
-- [IndTrana-Overview-v0.3.0.html](docs/submission/IndTrana-Overview-v0.3.0.html): the same story as one interactive
-  page that works offline (download it and open it in a browser).
-- The diagrams on their own, as PNG and SVG: [docs/submission/diagrams](docs/submission/diagrams).
+- [IndTrana-Overview-v0.3.0.html](docs/submission/IndTrana-Overview-v0.3.0.html): the interactive edition, one file that
+  works offline (download it and open it in a browser). It has a 3D layered architecture explorer, a 3D storm timeline
+  for the Resilient Sensor Link rehearsal, seven diagrams, sortable and filterable tables, a Markdown document viewer
+  and a Ctrl+K search. Three.js (MIT) is embedded; nothing is fetched from the network.
+- [IndTrana-Technical-Architecture-v0.3.0.docx](docs/submission/IndTrana-Technical-Architecture-v0.3.0.docx) and its
+  [PDF](docs/submission/IndTrana-Technical-Architecture-v0.3.0.pdf): technical and architecture documentation with
+  fifteen figures, sixteen use cases and a screenshot walkthrough.
+- [IndTrana-Technical-Architecture-v0.3.0.md](docs/submission/IndTrana-Technical-Architecture-v0.3.0.md): the same
+  documentation as Markdown, with its images in
+  [docs/submission/IndTrana-Technical-Architecture-v0.3.0-assets](docs/submission/IndTrana-Technical-Architecture-v0.3.0-assets).
+- The diagrams on their own: seven [Archify](https://archify.si) diagrams as standalone HTML and PNG in
+  [docs/submission/archify](docs/submission/archify), and the earlier hand-made figures in
+  [docs/submission/diagrams](docs/submission/diagrams).
 
 ## Patented technology
 

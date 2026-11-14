@@ -10,6 +10,15 @@ The version number lives only in `apps/web/package.json`. The same entries, in p
 `apps/web/lib/release-notes.ts` and shown on the signed-in **What's new** page (`/whats-new`). How to cut a version:
 [docs/RELEASE_PROCESS.md](docs/RELEASE_PROCESS.md).
 
+## [Unreleased]
+
+### Documentation
+- Submission documents in `docs/submission/` rebuilt: an interactive overview page with a 3D layered architecture
+  explorer, a 3D storm timeline for the Resilient Sensor Link rehearsal, seven validated Archify diagrams, sortable and
+  filterable tables and a Markdown document viewer (works offline); the Word document (now with the ERD, sign-in
+  sequence, proposal lifecycle, repository tree and version timeline) with a PDF export; and a Markdown edition with its
+  assets. Nothing in the application changed.
+
 ## [0.3.0] - 2026-11-14
 
 Branch `Aegis_IndTrana`. Windows laptop only; nothing here was run on Linux or macOS. Status and evidence per round:
