@@ -20,6 +20,82 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Round 24: signed-in security test, all-roles end-to-end test, fixes, new screenshots and videos — 14 November 2026 (Windows laptop)
+
+Branch `Aegis_IndTrana`. Code commit `3d8785d` pushed to `origin/Aegis_IndTrana` (ordinary push, no force; `main`
+not touched, still `006cd8b`); a second commit carries the videos, narration, the Live Earth consent wording and this
+round. Compose services left **running** with -SignIn -PublicEarth -Proactive -StatisticalForecast -StaffEmail,
+rebuilt three times today from the fixed code. Everything below was run on the Windows laptop only; nothing on Linux
+or macOS. Testing was done by the development assistant with the local demo accounts: it is not an independent
+penetration test and not real two-human approval.
+
+**Security testing** (full record: [SECURITY_TEST_REPORT_2026-11-14.md](SECURITY_TEST_REPORT_2026-11-14.md))
+
+- Two read-only code reviews, a live test of about 200 requests and browser checks as each demo role, `npm audit`,
+  `pip-audit` and a secret scan. No critical or high finding. `npm audit` 0, `pip-audit` none, no secret in tracked files.
+- Fixed and re-tested: missing origin check on `POST /api/exercise/risk` (now 403 for a foreign origin, confirmed
+  from Node with a real session); platform-wide administration limited to the exercise agency's administrator;
+  defensive headers on API replies (confirmed on `/health`); escaping of three public-feed values; request-model
+  gaps (unknown fields, NaN/Infinity, connector key cap, NUL characters).
+- Left open and written down: local sign-in provider in development mode with its console behind the same front
+  door (laptop only, 127.0.0.1); a copied session cookie stays usable for up to 15 minutes after sign-out; admin
+  password as an argument inside the provider container; Compose fallback password and partial container hardening;
+  no per-session limit on the public-data relay.
+
+**End-to-end test** (headless Chrome, 8 demo accounts)
+
+- 496 page loads (31 routes, 1440 px light and 390 px dark) and 1310 clicks on tabs, filters, sorts, dialogs and
+  menus across six roles: no page error and no 5xx. Workflows run with fresh synthetic records: three proposal action
+  types, maker-checker (self-approval refused, double approval refused), tasks, both department inboxes, team response
+  loop on a phone view, drill with coach report, learning (never applied), copilot, handover, Hazard Watch, Earth
+  Watch, Alert Journey, guided exercise, session and sign-out, 200% zoom, reduced motion, keyboard pass on 5 pages.
+- Defects fixed: "Ask grounded guide" did nothing; drill actions gave no message; Learning and Drills showed raw
+  codes; a NUL character in a rationale gave a server error; no Retry on the Approvals and Hazard Watch failed
+  states; stale Approve/Reject buttons after a conflict; team and department accounts sent to the wrong page from a
+  refusal; "Close rehearsal task" enabled while blocked; US-order dates on task cards; stale wording in guided
+  exercise stages 9 and 11; Retry button squeezing the message on phones.
+- Found while checking the videos and fixed: the Live Earth consent dialog said public data is fetched "directly from
+  your browser" although every such request goes through the IndTrana server relay. The dialog now says so.
+- After the fixes: each fix confirmed in the browser; crawl of 8 accounts x 29 pages x 2 views (464 loads) with no
+  finding; proposal, task, team loop, drill, copilot, handover, watch, Earth Watch, Alert Journey, sign-out flows
+  passed. Changed screens were checked at 1440 px light and 390 px dark against the owner's seven UI ground rules.
+
+**Results**
+
+- API `python -m pytest -q`: 1379 passed, 30 skipped. `python -m app.model_lab --check`: PASS.
+- Web `npm run typecheck`: clean. Node tests: 362 passed. Pending translations: 724 strings (English until native review).
+- `security-smoke-windows.ps1`: PASS. `verify-demo-ready.ps1`: GO with one warning (untracked files that are not part
+  of the product). `npm run build` ran inside the image builds; it was not run separately.
+
+**Documentation and media**
+
+- 34 screenshots in `docs/screenshots` re-captured from the rebuilt app at their original sizes; `live-earth.png` and
+  `flood-tab.png` re-captured with live public data during the video 04 session.
+- All ten walkthrough videos in `docs/media` re-recorded (Playwright 1280x720, `edge-tts` voice `en-IN-NeerjaNeural`,
+  ffmpeg); they now show the IndTrana name and today's screens. `docs/media/NARRATION.md` rewritten to match: Alert
+  Journey has six phases, the Command Center path has six steps, the Department Inbox is no longer empty, six roles.
+  Only narration sentences were sent to the speech service.
+- New: `docs/SECURITY_TEST_REPORT_2026-11-14.md`. Updated: README, `docs/ARCHITECTURE.md` (request boundary
+  hardening), `docs/SECURITY_ASSESSMENT.md` (pointer), `AGENTS.md` (request-boundary rules, UI ground rules).
+
+**Left in the local exercise database** (synthetic, created through the normal screens): roughly 25 proposals from
+the test rounds and recordings (approved, rejected and drafts, some titled "E2E-…", "Flow test", "Verify run",
+"Exercise note 14 Nov"), about 15 team requests, 14 department tasks for the control room (12 closed), several
+drills, a few learning windows and two threshold proposals (one rejected, one submitted; none applied), one kill-switch
+pause and release in the audit (state: not paused). No account, connector, brand or email setting was changed.
+
+**Not done / open**
+
+- Seen and left: the Learning status message is a small pinned line at the bottom of the window rather than beside
+  each button; the kill switch has no banner for makers; `/alert-journey` clips the clock at 390 px; some pages call
+  routes the role cannot use and log a 403 in the console (the page shows a proper refusal); the seeded source name
+  "AEGIS training infrastructure layer" and the playbook id `AEGIS-URBAN-FLOOD-EXERCISE-v0.1` are stored technical
+  values (docs/BRANDING.md) and appear in downloads.
+- Not tested: two live agencies; a real second person as checker; screen reader; colour-contrast measurement; print;
+  the statistical forecast panel with the model loaded; staff email with a real provider; Linux and macOS.
+- Still needs the owner or others: native Telugu/Hindi review (724 strings); independent security audit; database
+  row-level security (first item after the demo); real identity provider with a server-side session list.
+
 ## Round 23: demo-readiness pass; sign-out fixed — 14 November 2026 (Windows laptop)
 
 Branch `Aegis_IndTrana`, on top of `cdbf655` (local; `main` on the remote is `006cd8b`). Compose services left

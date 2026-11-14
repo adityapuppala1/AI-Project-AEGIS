@@ -1,17 +1,17 @@
 # Narration scripts
 
-These walkthrough videos were refreshed on 11 November 2026 against the redesigned app: the India-centred Earth on the landing and sign-in pages, the restyled identity provider form, the new signed-in shell (sidebar, EXERCISE desk strip with IST clock, account menu, "How this page works", two-key maker/checker markers), the About and Users and access pages, one-step sign-out, and department accounts. Each video was recorded from the locally running app (http://localhost:3000) with Playwright (headless Chromium, 1280x720). The voice-over was generated with the `edge-tts` Python package using the Indian English neural voice `en-IN-NeerjaNeural` (only the narration text is sent to Microsoft's speech service), and audio and video were joined with ffmpeg (H.264 + AAC). Each scene's audio is placed at the moment the matching scene appears on screen, and the same sentence is shown as an on-screen caption.
+These walkthrough videos were re-recorded on 14 November 2026 against the current app (all ten: 01 to 10). They show the IndTrana name, the signed-in shell (sidebar, EXERCISE desk strip with IST clock, account menu, "How this page works", two-key maker/checker markers), the six-step decision path on the Command Center, the six Alert Journey phases, the Live Earth consent text, and the changed wording on the Exercise Walkthrough (stage 9 and stage 11). Each video was recorded from the locally running app (http://localhost:3000) with Playwright driving Google Chrome (headless, 1280x720). The voice-over was generated with the `edge-tts` Python package using the Indian English neural voice `en-IN-NeerjaNeural` (only the narration text is sent to Microsoft's speech service), and audio and video were joined with ffmpeg (H.264 + AAC). Each scene's audio is placed at the moment the matching scene appears on screen, and the same sentence is shown as an on-screen caption.
 
-Videos 02 to 09 are signed in with the local demo accounts (demo-maker, demo-checker, demo-dept-control). Sign-in is done on screen through the identity provider's own form: the user name is typed visibly, the password box is masked, and no password appears in any frame, caption or narration. Passwords were read from the local credentials file at run time and are not stored in this repository. The `exercise-*` accounts were not used.
+Videos 02 to 10 are signed in with the local demo accounts (demo-maker, demo-checker, demo-dept-control, demo-team-rescue). In videos 02, 08 and 09 sign-in is done on screen through the identity provider's own form: the user name is typed, the password box is masked, and no password appears in any frame, caption or narration. In the other videos the session was established beforehand in the background with the same accounts. Passwords were read from the local credentials file at run time and are not stored in this repository. The `exercise-*` accounts were not used.
 
-Everything shown is synthetic exercise data from a prototype. IndTrana does not send warnings or dispatch teams, the India outline is schematic, and nothing here is real forecasting accuracy or government approval. The recordings created one synthetic approval proposal in the local exercise database through the normal UI (video 08: a draft submitted by the maker and approved by the checker).
+Everything shown is synthetic exercise data from a prototype. IndTrana does not send warnings or dispatch teams, the India outline is schematic, and nothing here is real forecasting accuracy or government approval. The recordings created synthetic records in the local exercise database through the normal UI: video 08 saved one draft proposal that the maker submitted and the checker approved, and video 10 prepared that proposal's department tasks and ran the team request loop on them (every task and request closed or completed). Live Earth (video 04) was opt-in and fetched public data through the IndTrana server relay; if a public service is slow or down, the panel shows a gap, as the narration says.
 
-Not covered: Hazard Watch, Public Intake, Earth Watch, Copilot, Drills, Handover and Learning pages (see docs/screenshots). The Department Inbox was empty for the department account when recorded, and the video says so.
+Not covered: Hazard Watch, Public Intake, Earth Watch, Copilot, Drills, Handover, Learning, Model Lab and the Admin connector, brand and Go-Live pages (see docs/screenshots). The Drills success sentence, the "Open My Team" refusal link and the Retry button on error boxes are not shown in these videos. The Department Inbox in video 09 shows the department's tasks (it is no longer empty).
 
 
 ## 01-about-aegis.mp4: About IndTrana (landing page, signed out)
 
-*Shown:* The landing page with the Earth centred on India (schematic saffron outline, INSAT satellites), the hazard picker that flies to Indian regions, the six steps of how an alert travels, the safeguards and project status sections, and Sign in.
+*Shown:* The landing page with the Earth centred on India, the hazard picker (cyclone, river flood, earthquake, heatwave) that flies to Indian regions, the six steps of how an alert travels, who it helps, what the AI does and never does, project status, and Sign in.
 
 1. This is IndTrana, an exercise only decision support prototype for India's disaster agencies. It gathers the evidence, estimates the risk, and makes sure two accountable officers approve an alert before it goes to the official channel.
 2. Everything you will see uses synthetic exercise data. IndTrana does not send warnings. You can follow a cyclone, a river flood, an earthquake or a heatwave. The hazard picker flies the globe to the matching Indian region. Let us pick river flood, and then earthquake.
@@ -27,7 +27,7 @@ Not covered: Hazard Watch, Public Intake, Earth Watch, Copilot, Drills, Handover
 
 ## 02-sign-in.mp4: Sign-in, the identity provider form and the account menu
 
-*Shown:* The sign-in page, Continue to sign in, the identity provider's own login form (user name typed, password masked), the signed-in Command Center and the account menu (user, role, agency, session time, Users and access, Sign out).
+*Shown:* The sign-in page, Continue to sign in, the identity provider's own login form (user name typed, password masked), the signed-in Command Center and the account menu (user, role, agency, account, session time, Users and access, Sign out).
 
 1. This is the IndTrana operator sign-in page. Operators sign in with their agency account, and IndTrana sends them to their own organisation's identity provider.
 2. There are three steps. Leave for your identity provider. Enter your password and second factor there. Then return to IndTrana with a signed role.
@@ -41,39 +41,39 @@ Not covered: Hazard Watch, Public Intake, Earth Watch, Copilot, Drills, Handover
 
 ## 03-alert-journey-exercise.mp4: Alert Journey exercise (synthetic cyclone, signed in)
 
-*Shown:* The Alert Journey at /alert-journey in director mode with its three human decision gates (staging plan, checker approval, escalation). Synthetic data only.
+*Shown:* The Alert Journey at /alert-journey with its six phases (Detect, Predict, Decide, Alert, Respond, Recover) and its three human decision gates (staging plan, checker approval, escalation). Synthetic data only.
 
-1. This is the IndTrana Alert Journey, opened after signing in. It is a synthetic exercise: a made up cyclone, played out from the first signal to people being warned. Nothing in it is real, and nothing is sent. It has five phases, and three points where a human has to decide.
-2. Phase one, sense. Satellites and gauges watch the storm as it forms. In this exercise their readings are synthetic. IndTrana collects them, and shows where each reading came from.
+1. This is the IndTrana Alert Journey, opened after signing in. It is a synthetic exercise: a made up cyclone, played out from the first signal to people being warned. Nothing in it is real, and nothing is sent. It has six phases, and three points where a human has to decide.
+2. Phase one, detect. Satellites and gauges watch the storm as it forms. In this exercise their readings are synthetic. IndTrana collects them, and shows where each reading came from.
 3. Phase two, predict. IndTrana compares possible storm tracks and estimates which areas may flood, citing the evidence behind each estimate. When the evidence is thin, it says so and abstains, instead of guessing.
 4. The first human gate. The commander must decide where response teams should wait. IndTrana recommends high ground sites, but it cannot task any team. The agency commander chooses. Here we pick plan B, and the exercise continues.
-5. The estimate keeps updating as new evidence arrives, with the range of uncertainty shown. A draft alert is being prepared for review. It is still private.
+5. Phase three, decide. The estimate keeps updating as new evidence arrives, with the range of uncertainty shown. A draft alert is being prepared for review. It is still private.
 6. The second gate, the most important one. A draft alert needs a checker who is a different person from the maker. The checker reads the cited evidence, then approves or sends the draft back, and records a reason. Software cannot approve.
-7. Phase three, approve and hand over. The approved draft is passed to the official alerting authority. IndTrana stops here. It has no way to send a public warning.
+7. Phase four, alert. The approved draft is passed to the official alerting authority. IndTrana stops here. It has no way to send a public warning. In the real world, the authority's own system passes the warning to telecom operators, who broadcast it to phones. Here, that path is only simulated, with towers and phones.
 8. The third gate. The forecast has changed and rain bands are arriving. A human must decide whether to escalate to emergency mode. Playback stays paused until they do.
-9. Phase four, deliver. In the real world, the authority's own system passes the warning to telecom operators, who broadcast it to phones in the affected area. Here, that path is only simulated, with towers and phones.
-10. Phase five, respond. Field teams act on tasks from their departments, and every decision is kept in the audit trail, with who decided, and why.
+9. Phase five, respond. Field teams act on tasks from their departments, and every decision is kept in the audit trail, with who decided, and why.
+10. Phase six, recover and learn. Water recedes, crews restore power and towers, and rehearsal statistics feed a reviewed learning loop.
 11. That is the whole exercise. Evidence, a cited estimate, three human decisions, and a handover, with IndTrana never sending anything itself. It is a prototype, running on synthetic data.
 
 ## 04-live-earth.mp4: Live Earth (opt-in public reference data) and the Flood tab
 
-*Shown:* Alert Journey in live mode: consent step, public imagery and orbits, public earthquake and storm reports, Hyderabad selected, the Flood tab and the city scene.
+*Shown:* Alert Journey in live mode: the consent step, public imagery, orbits, earthquake and storm reports, Hyderabad selected, the Flood tab and the city scene.
 
 1. Live Earth is an optional mode of the IndTrana Alert Journey. It shows real public reference data, for context only. It is not an IndTrana assessment, and nothing here is used to create alerts.
-2. The page asks first. Only after you agree does the IndTrana server fetch public data on your behalf. Nothing is stored, and the data is never used to create alerts.
+2. The page asks first. Only after you agree does the IndTrana server fetch public data on your behalf, so the public services see the server and not your address. Nothing is stored, and the data is never used to create alerts.
 3. Now the globe shows real satellite imagery, real satellite orbits, and public earthquake and storm reports. All of it comes through the IndTrana server relay, and is labelled as public reference data.
 4. Pick any place. Here we pick Hyderabad. The panel shows the real forecast, the river discharge, and how unusual the rain is, with ranges rather than false precision, and a plain note when data is missing.
-5. Now the Flood tab. It shows the river discharge for the chosen place, as public reference data. It is context for a person to read, not a flood forecast made by IndTrana, and a gap in the data is shown as a gap.
-6. Entering the city scene shows real terrain and a street map, driven by the real hourly forecast. Again, this is public context for a person to look at. It is not a forecast of impact, and it does not create a case or an alert.
+5. Now the Flood tab. It shows the river discharge for the chosen place, as public reference data. It is model discharge, not a gauge reading, and not a flood forecast made by IndTrana. It is context for a person to read, and a gap in the data is shown as a gap.
+6. Entering the city scene shows a street map with illustrative sites, driven by the real hourly forecast. Again, this is public context for a person to look at. It is not a forecast of impact, and it does not create a case or an alert.
 7. Back on the globe, the point to remember. Everything in Live Earth is public reference data, shown for context. It is fetched through the IndTrana server, never stored, and never used to create alerts. IndTrana itself still has no way to send a warning.
 
 ## 05-command-center-tour.mp4: Command Center tour (signed in as the demo maker)
 
-*Shown:* The Command Center in the new shell (sidebar, desk strip, account menu), decision path, counters, public reference signals, map and queue, the Incident Registry and one synthetic case.
+*Shown:* The Command Center in the signed-in shell (sidebar, desk strip, account menu), the six-step decision path, counters, public reference signals, map and queue, the Incident Registry and one synthetic case.
 
 1. This is the IndTrana Command Center, as seen after signing in. Everything here is synthetic exercise data, and a banner says so at the top.
 2. The top right account menu shows who is signed in, and the verified role, maker. On the left, the sidebar groups the pages as overview, observe, coordinate and govern.
-3. At the top is the decision path in three steps. One, observe and verify. Two, focus and draft. Three, approve and rehearse. The counters show five registered incidents, two awaiting human review, and zero public alerts issued, because operational alerting is disabled.
+3. At the top is the decision path in six steps: sense, predict, decide, hand over, reach and learn. The counters show five registered incidents, two awaiting human review, and zero public alerts issued, because operational alerting is disabled.
 4. Below are public signals, labelled reference only. These come from public earthquake and natural event feeds, shown for context. They are not an IndTrana assessment and they never create a case.
 5. Further down are the map and the incident queue, and a monitor of how fresh each simulated source is. Scroll on to see the hazard telemetry and the response readiness.
 6. The Incident Registry lists the five synthetic cases. You can search, sort and filter them. Two are awaiting review, and one is in progress.
@@ -83,7 +83,7 @@ Not covered: Hazard Watch, Public Intake, Earth Watch, Copilot, Drills, Handover
 
 ## 06-exercise-walkthrough.mp4: Exercise Walkthrough (/demo)
 
-*Shown:* The 11-stage guided exercise: local readiness checks, then stages 2 to 11 selected in turn.
+*Shown:* The 11-stage guided exercise: local dependency checks, then stages 1 to 11 selected in turn (stage 9 and stage 11 with their new wording).
 
 1. This is the Exercise Walkthrough. It follows one made up urban waterlogging case in Hyderabad through eleven stages. It is a tabletop simulation. It cannot forecast real floods, contact departments, or issue warnings.
 2. First, a set of local checks. They confirm that the exercise database, the sample incidents, the sources and the scripted tasks are present. A pass here does not mean sensors are connected, or that the public is safe.
@@ -93,8 +93,8 @@ Not covered: Hazard Watch, Public Intake, Earth Watch, Copilot, Drills, Handover
 6. Stage four, open the synthetic incident, and stage five, look at geographic candidates. Sources that are only nearby are candidates, never proof of cause.
 7. Stages six and seven show an illustrative hazard index, and the limits of the model. The index is an exercise tool, with the limitations written beside it. It is not a calibrated forecast.
 8. Stage eight, the response playbook. It lists review options for a person. It does not assign anyone to anything.
-9. Stage nine, the independent checker gate. The person who drafts an action cannot be the person who approves it.
-10. Stages ten and eleven show the scripted department acknowledgements, and the audit trace. Every step is recorded, and nothing is sent to any real agency.
+9. Stage nine, the independent checker gate. The person who drafts an action cannot be the person who approves it. You must be signed in, and an account that is not an operator or a checker cannot change a proposal.
+10. Stages ten and eleven show the scripted department acknowledgements, and the audit trace. Every step is recorded, and nothing is sent to any real agency. Stage eleven points you to Approvals, and a proposal's audit link.
 11. That is the walkthrough. Evidence, limits, an independent check, and an audit trail, all on synthetic data. Moving through the stages never approves, warns or dispatches anything.
 
 ## 07-inputs.mp4: Inputs: Source Freshness and DataFusion ingestion
@@ -102,7 +102,7 @@ Not covered: Hazard Watch, Public Intake, Earth Watch, Copilot, Drills, Handover
 *Shown:* Source Freshness (counts, registry, detail) and the DataFusion ingestion page (replay steps, counters, quarantine reasons).
 
 1. This video is about inputs: where the evidence comes from. First, Source Freshness. These five sources are database fixtures for the exercise. They are not connected to the India Meteorological Department, N D M A, cameras or municipal devices.
-2. The cards count the sources by freshness. Freshness is only a timestamp check. It does not prove that a signal is accurate or that any equipment is working. Here four sources are stale, because the sample readings are old.
+2. The cards count the sources by freshness. Freshness is only a timestamp check. It does not prove that a signal is accurate or that any equipment is working. Here four sources are stale, because the sample readings are old, and one has no observations at all.
 3. The registry lists each source with the time of its last observation. Selecting one opens its detail and trend, with quality notes, so a reviewer can see what a reading is based on.
 4. Now the ingestion page. It shows how a replay moves through DataFusion. Records are checked against a contract, repeated records are dropped, and invalid ones are held in quarantine, as metadata only.
 5. The counters show three accepted events, five quarantined records, and zero live ingest connections. This page is exercise only. The browser cannot send measurements, warnings or dispatch instructions.
@@ -124,24 +124,24 @@ Not covered: Hazard Watch, Public Intake, Earth Watch, Copilot, Drills, Handover
 
 ## 09-team-response.mp4: Team response, Department Inbox, Users and access and governance
 
-*Shown:* Team Availability, AgencySync with a task audit trail, Audit360, Administration, then a department account (demo-dept-control, Department desk) opening the Department Inbox (empty, as shown) and the Users and access page.
+*Shown:* Team Availability, AgencySync with a task audit trail, Audit360, Administration, then a department account (demo-dept-control, Department desk) opening the Department Inbox and the Users and access page.
 
 1. After a decision, work moves to the teams. This is Team Availability. It shows seven fictional teams and the scripted tasks they hold. This is an exercise board, not real staffing.
 2. Five tasks are open, and three are past their demo due window. The three slot capacity is only a planning setting for this rehearsal. Nothing here assigns, notifies or dispatches anyone.
 3. Now AgencySync. It lists the fictional department tasks, each tied to a case, with its state. Three are prepared, and never sent. Two have scripted acknowledgements, and two have scripted closures.
 4. Selecting a task opens its audit trail. Every message says that nothing was sent. The trail shows who acted, and when, in the scripted exercise.
-5. Selecting a task opens its audit trail. Every message says that nothing was sent. The trail shows who acted, and when, in the scripted exercise.
+5. Each line of the trail carries its time in India Standard Time, so the order of events is plain. Every one of these is a scripted line in a synthetic exercise, and none was sent.
 6. Audit360 lets you export one synthetic case as a traceable snapshot with a checksum. It is a demonstration. It is not a legally signed audit, and it leaves out private approval histories.
 7. The Administration page shows the policy in force, set on the server. Independent checker is required, and live warnings and live dispatch are locked off. Nothing on this page can be edited from the browser.
 8. Now a department account. The maker signs out from the account menu, and returns to the sign-in page.
 9. We sign in as the demo account for the control room department. The user name is typed, and the password box is masked.
-10. The Department Inbox now opens, because this account has a verified department role and a department, the control room. It shows only that department's approved tasks. Right now there are none, and the page says an empty inbox does not mean no work exists. Tasks appear only after an independent checker approves a proposal.
-11. Last, Users and access, under Administration. It shows who is signed in, the role, the department, and what each of the five roles can and cannot do. It is read only. Accounts are managed in the agency's identity provider, never in IndTrana.
+10. The Department Inbox now opens, because this account has a verified department role and a department, the control room. It shows only that department's approved tasks, each with its state, from prepared to closed, and its rehearsal target and events in India Standard Time. Tasks appear only after an independent checker approves a proposal and a maker prepares them.
+11. Last, Users and access, under Administration. It shows who is signed in, the role, the department, and what each of the six roles can and cannot do. It is read only. Accounts are managed in the agency's identity provider, never in IndTrana.
 12. That is the team response side. Tasks are scripted, every step is audited, and the controls that would send a real warning or dispatch a real team are locked off. This is a prototype for rehearsal.
 
 ## 10-team-response-loop.mp4: The team response loop (rehearsal)
 
-*Date:* 12 November 2026. *Shown:* The full loop through the real screens, each step by its own signed-in demo user. Maker (demo-maker) prepares the department tasks of an already approved proposal in the Approval Workbench. The control room desk (demo-dept-control) acknowledges the task, opens Request a team and sees the suggestion facts, requests Synthetic rescue team 01 with a note, and tries to close the task (blocked). The rescue team (demo-team-rescue, phone-sized view shown on a dark background) sees the request on My Team with the count on the menu, then presses Accept, I am en route, I am on site (situation: worse than expected) and Ask for support (equipment). The desk sees the answers and the flag and presses Mark handled. The team presses Completed, and the desk can now close its task. The maker opens the incident: Team response panel on Overview, SIMULATION lines on the Timeline tab, and the Field teams (synthetic) section of the Response Teams page. Sign-in for each user was done in the background with the demo accounts; no password is shown. Synthetic records only; nobody is called, texted or radioed.
+*Shown:* The full loop through the real screens, each step by its own signed-in demo user: maker, control room desk, rescue team (phone-sized view on a dark background), then the incident. Sign-in for the second and later users is done off camera. Synthetic records only; nobody is called, texted or radioed.
 
 1. This is a rehearsal inside IndTrana, with invented teams. It alerts only people who are signed in. Nobody is called, texted or radioed. Travel times are planning estimates. IndTrana never sends warnings or dispatches anyone, and it has no government approval. We start as the maker.
 2. In the Approval Workbench, this proposal was approved by a second person. Its department tasks are not prepared yet.
