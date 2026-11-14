@@ -13,6 +13,7 @@ import { BrandMark, BrandName } from "../brand-mark";
 import stillView from "../globe/assets/india-globe-still.webp";
 import { indiaDaylight, istClock } from "../globe/sun";
 import type { HazardId, WelcomeScene } from "./welcome-scene";
+import { PATENT } from "../../lib/patent";
 import "./welcome.css";
 
 const HAZARDS: Array<{ id: HazardId; label: string; sense: string; predict: string; mark: string; where: string; drawn: string }> = [
@@ -373,6 +374,16 @@ export function WelcomeExperience() {
                 <div><dt>Standards</dt><dd>Alerts are drafted in the Common Alerting Protocol used by national alerting systems.</dd></div>
               </dl>
             </div>
+          </div>
+        </section>
+
+        <section className="wl-band" id="wl-patent" aria-labelledby="wl-patent-title">
+          <div className="wl-wrap wl-reveal">
+            <h2 id="wl-patent-title">Patented technology</h2>
+            <p>{PATENT.title}</p>
+            <p>Indian Patent No. {PATENT.number} · granted {PATENT.granted} · Patentee: {PATENT.patentee}, co-owner of {brand.name}</p>
+            <p>Application No. {PATENT.applicationNumber} · filed {PATENT.filed}</p>
+            <p>The patent's title names a dynamic bandwidth system for sensor (IoT) networks over satellite and internet infrastructure. {brand.name} applies that idea to its Sense step and to control-room, desk and team contact, as a rehearsal. {PATENT.titleOnlyNote} After you sign in, a rehearsal simulation shows it. Nothing is transmitted.</p>
           </div>
         </section>
 

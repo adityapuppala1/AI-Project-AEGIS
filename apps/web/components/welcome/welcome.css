@@ -266,3 +266,8 @@
   .wl-stage canvas, .wl-still, .wl-btn, .wl-btn svg, .wl-hazards button, .wl-share span, .wl-chain li::after, .wl-chain button > span:first-child, .wl-step::after { transition: none; }
   .wl-btn:hover, .wl-hazards button:hover { transform: none; }
 }
+
+#wl-patent .wl-wrap { max-width: 46rem; }
+#wl-patent p { margin: .6rem 0 0; color: var(--ink-soft); line-height: 1.6; }
+#wl-patent p:nth-of-type(1) { font-weight: 600; color: inherit; }
+#wl-patent p:nth-of-type(3) { font-size: .85em; }

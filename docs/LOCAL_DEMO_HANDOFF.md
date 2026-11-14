@@ -20,6 +20,34 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Round 25: patent credit and Resilient Sensor Link rehearsal — 14 November 2026 (Windows laptop)
+
+Branch `Aegis_IndTrana`, on top of `06a0de1`. Compose services left **running** with the same five options, rebuilt
+from this code. Windows laptop only.
+
+- **Owner input:** Indian Patent No. 598835 (application 201741007139, filed 28 February 2017, granted 12 August
+  2026), "Dynamic Bandwidth System for IoT Networks via Satellite and Internet Infrastructure", patentee Bharath
+  Bejjarapu, stated by the owner to be a co-owner of IndTrana. The certificate is at
+  `docs/05_Patent_Grant_In_Satellite_Internet.pdf`. Only the certificate was available; the specification and claims
+  were not, so every sentence stays at the level of the title. See [PATENT_SENSOR_LINK.md](PATENT_SENSOR_LINK.md).
+- **Built:** a patent credit on the public landing page (text only), the signed-in About page and the new page; a new
+  signed-in page `/sensor-link` ("Resilient Sensor Link") in the Observe menu: a browser-only, deterministic
+  simulation of 12 synthetic sensors over a ground internet lane and a satellite lane, five link scenarios, a
+  "trigger near" toggle, a sensor table and a communication panel. No API call, no database, no transport. A link
+  from Source Freshness. The certificate PDF opens from the signed-in credit only.
+- **Review:** one independent read-only review. Its points were applied: wording no longer says the page
+  "demonstrates" the patent or describes its hardware; the summary sentence handles singular and plural; raising one
+  gauge's reporting can no longer take bandwidth from other life-safety gauges; the pending-translation generator
+  now collects the new tables.
+- **Verified:** web `npm run typecheck` clean; 374 Node tests passed (12 new). In the browser at 1440 px light and
+  390 px dark: page loads with no page or console error and no sideways scroll; scenario changes update the picture,
+  table and status sentence; signed-out request for the certificate redirects to sign-in (307); signed in it returns
+  200 and opens in Chrome's viewer; landing credit present with no link to the file. API code unchanged since the
+  1379-pass run. Pending translations: 841 strings.
+- **Not done:** the mapping has not been checked against the patent's specification; the simulation's priority
+  classes and switch-over rules are IndTrana's own choices; no real link, hardware or satellite capacity is involved;
+  the guided exercise and the videos do not show the new page; screen reader and 200% zoom not run on it.
+
 ## Round 24: signed-in security test, all-roles end-to-end test, fixes, new screenshots and videos — 14 November 2026 (Windows laptop)
 
 Branch `Aegis_IndTrana`. Code commit `3d8785d` pushed to `origin/Aegis_IndTrana` (ordinary push, no force; `main`

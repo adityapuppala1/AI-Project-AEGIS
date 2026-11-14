@@ -17,6 +17,10 @@ An administrator can change the product name and logo shown in the browser, or r
 **Administration > Brand** (`/admin/brand`). Logos: PNG, JPEG or WebP, at most 256 KB. Staff email, alert drafts
 (CAP), exports and audit text always keep the built-in name. See [docs/BRANDING.md](docs/BRANDING.md).
 
+## Patented technology
+
+Indian Patent No. 598835 (Application No. 201741007139, filed 28 February 2017, granted 12 August 2026), "Dynamic Bandwidth System for IoT Networks via Satellite and Internet Infrastructure". Patentee: Bharath Bejjarapu, co-owner of IndTrana. The patent's title names a dynamic bandwidth system for sensor (IoT) networks over satellite and internet infrastructure. IndTrana applies that idea to its Sense step and to control-room, desk and team contact, as a rehearsal; the signed-in Resilient Sensor Link page shows it in a simulation and nothing is transmitted. Described from the title only; the full specification has not been reviewed. See [docs/PATENT_SENSOR_LINK.md](docs/PATENT_SENSOR_LINK.md) and the [certificate](docs/05_Patent_Grant_In_Satellite_Internet.pdf).
+
 ## Install and run in one step
 
 | System | First time | Daily use |

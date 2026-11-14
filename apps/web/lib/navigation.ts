@@ -1,6 +1,6 @@
 // The one list of pages. Related pages are grouped under one menu entry as tabs, which keeps the menu short. The side navigation and the Ctrl+K search both read it, so they cannot drift apart.
 import {
-  Activity, Archive, BarChart3, BookOpenCheck, BrainCircuit, ClipboardCheck, ClipboardList, Gauge, Globe2, GraduationCap, Inbox, Info, LayoutDashboard,
+  Activity, Antenna, Archive, BarChart3, BookOpenCheck, BrainCircuit, ClipboardCheck, ClipboardList, Gauge, Globe2, GraduationCap, Inbox, Info, LayoutDashboard,
   KeyRound, LifeBuoy, ListChecks, MessagesSquare, Plug, Radar, RadioTower, Rocket, Route, Satellite, Settings2, Truck, UsersRound, Workflow, type LucideIcon,
 } from "lucide-react";
 
@@ -28,6 +28,7 @@ export const navigation: NavGroup[] = [
       { chain: "Sense", href: "/sources", label: "Source Freshness", description: "Inspect delayed and missing synthetic data feeds", icon: RadioTower },
       { chain: "Sense", href: "/ingestion", label: "DataFusion Replay", description: "Review synthetic ingestion, duplicates and quarantine", icon: Workflow },
     ] },
+    { chain: "Sense", href: "/sensor-link", label: "Resilient Sensor Link", description: "Rehearse sensor traffic moving between internet and satellite", icon: Antenna },
     { chain: "Sense", href: "/watch", label: "Hazard Watch", description: "Hazard triggers that need a human look", icon: Radar, tabs: [
       { chain: "Sense", href: "/watch", label: "Hazard Watch", description: "Hazard triggers that need a human look", icon: Radar },
       { chain: "Sense", href: "/earth-watch", label: "Earth Watch", description: "Public earthquakes, natural events and satellite imagery", icon: Globe2 },

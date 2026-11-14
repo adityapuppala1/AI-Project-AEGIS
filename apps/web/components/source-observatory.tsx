@@ -171,6 +171,7 @@ export function SourceObservatory() {
       ] as const).map((metric, index) => <StatTile key={metric.label} index={index} label={t(metric.label)} icon={metric.icon} tone={metric.tone}
         value={overview ? (metric.count ?? 0) : "—"} hint={t("Synthetic feed count")}/>)}
     </StatStrip>
+    <p className="mt-3 text-xs leading-5 text-muted">{t("Stale because a link failed?")} <Link href="/sensor-link" className="font-semibold text-accent hover:underline">{t("See how sensor traffic moves between internet and satellite")}</Link></p>
 
     <div className="mt-5 grid items-start gap-5 2xl:grid-cols-[minmax(0,1.1fr)_minmax(370px,1fr)]">
       <Panel className="min-w-0 overflow-hidden" bodyClassName="p-0" icon={RadioTower} title="Exercise Source Registry" description="Select a simulated feed to review its latest readings."

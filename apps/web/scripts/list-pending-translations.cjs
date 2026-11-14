@@ -49,6 +49,16 @@ function collect() {
   for (const match of about.matchAll(/(?:title|text|ai|people): "((?:[^"\\]|\\.)*)"/g)) found.add(JSON.parse('"' + match[1] + '"'));
   const limits = /const LIMITS = \[([\s\S]*?)\];/.exec(about);
   if (limits) for (const match of limits[1].matchAll(/"((?:[^"\\]|\\.)*)"/g)) found.add(JSON.parse('"' + match[1] + '"'));
+  // The patent rehearsal keeps its copy in tables (lib/patent.ts, and constants above the components).
+  const patent = load("lib/patent.ts");
+  for (const text of [patent.PATENT.title, patent.PATENT.howItApplies, patent.PATENT.titleOnlyNote, ...Object.values(patent.PRIORITY_LABELS), ...Object.values(patent.LINK_LABELS),
+    ...patent.SCENARIOS.map(item => item.label), ...patent.SENSORS.flatMap(item => [item.name, item.type]), ...patent.COMM_PARTIES.flatMap(item => [item.name, item.kind]),
+    ...Object.values(patent.SUMMARY_TEXTS)]) found.add(text);
+  for (const file of ["components/sensor-link.tsx", "components/patent-credit.tsx"]) {
+    const src = fs.readFileSync(path.join(root, file), "utf8").split("export function")[0];
+    for (const block of src.matchAll(/^const (?:REHEARSAL|LIMITS|STATE_LABEL|COMM_LABEL)\b[\s\S]*?;$/gm))
+      for (const match of block[0].matchAll(/"((?:[^"\\]|\\.)*)"/g)) found.add(JSON.parse('"' + match[1] + '"'));
+  }
   found.delete("");
   return found;
 }

@@ -30,6 +30,11 @@ export const PAGE_HELP: Record<string, PageHelp> = {
     can: "Filter by state and open a feed to see its recent history.",
     never: "It never contacts a real agency feed, and agreement between feeds is not proof that they are right.",
   },
+  "/sensor-link": {
+    shows: "A rehearsal of sensor readings moving between internet and satellite links, with scarce bandwidth given to the most important readings first.",
+    can: "Pick a link scenario, switch on the trigger-near option and read how each sensor and each party in the communication application is carried.",
+    never: "It never transmits anything or uses a satellite or radio link. All values are synthetic rehearsal values, not measurements.",
+  },
   "/ingestion": {
     shows: "The synthetic ingestion run: what was accepted, what was a duplicate and what was quarantined.",
     can: "Read the counts and the reasons records were set aside.",

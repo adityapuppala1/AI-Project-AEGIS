@@ -5,6 +5,7 @@ import { Ban, Bot, Building2, FlaskConical, RadioTower, Smartphone, UserCheck } 
 import { AppShell } from "./app-shell";
 import { useT } from "./language-provider";
 import { Panel, TwoKey, buttonClass } from "./ui";
+import { PatentCredit } from "./patent-credit";
 import { CHAIN, allPages, type ChainStep } from "../lib/navigation";
 
 const STEPS: Record<ChainStep, { title: string; text: string; ai: string; people: string }> = {
@@ -66,6 +67,7 @@ export function AboutAegis() {
             <div><p className="text-sm font-semibold">{t(title)}</p><p className="mt-0.5 text-xs leading-5 text-muted">{t(text)}</p></div>
           </li>)}</ul>
         </Panel>
+        <PatentCredit />
         <Panel title={t("Limits of this exercise build")} icon={FlaskConical}>
           <ul className="list-disc space-y-2 pl-4 text-sm leading-6">{LIMITS.map(item => <li key={item}>{t(item)}</li>)}</ul>
         </Panel>
