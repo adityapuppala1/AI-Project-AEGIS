@@ -19,7 +19,9 @@ An administrator can change the product name and logo shown in the browser, or r
 
 ## Patented technology
 
-Indian Patent No. 598835 (Application No. 201741007139, filed 28 February 2017, granted 12 August 2026), "Dynamic Bandwidth System for IoT Networks via Satellite and Internet Infrastructure". Patentee: Bharath Bejjarapu, co-owner of IndTrana. The patent's title names a dynamic bandwidth system for sensor (IoT) networks over satellite and internet infrastructure. IndTrana applies that idea to its Sense step and to control-room, desk and team contact, as a rehearsal; the signed-in Resilient Sensor Link page shows it in a simulation and nothing is transmitted. Described from the title only; the full specification has not been reviewed. See [docs/PATENT_SENSOR_LINK.md](docs/PATENT_SENSOR_LINK.md) and the [certificate](docs/05_Patent_Grant_In_Satellite_Internet.pdf).
+Indian Patent No. 598835 (Application No. 201741007139, filed 28 February 2017, granted 12 August 2026), "Dynamic Bandwidth System for IoT Networks via Satellite and Internet Infrastructure". Patentee: Bharath Bejjarapu, co-owner of IndTrana. The patent's title names a dynamic bandwidth system for sensor (IoT) networks over satellite and internet infrastructure. IndTrana applies that idea to its Sense step and to control-room, desk and team contact, as a rehearsal; the signed-in Resilient Sensor Link page shows it in a simulation and nothing is transmitted. Described here from the patent's title and the public publication notice; the full specification has not been reviewed for this page. See [docs/PATENT_SENSOR_LINK.md](docs/PATENT_SENSOR_LINK.md) and the [certificate](docs/05_Patent_Grant_In_Satellite_Internet.pdf). The page includes a step-by-step storm timeline that follows the idea through IndTrana's alert path.
+
+![Resilient Sensor Link rehearsal](docs/screenshots/sensor-link.png)
 
 ## Install and run in one step
 
@@ -85,6 +87,7 @@ were made: [docs/media/NARRATION.md](docs/media/NARRATION.md).
 | [08 Approvals](docs/media/08-approvals-maker-checker.mp4) | A maker drafts and submits; a different checker signs in and approves |
 | [09 Team response](docs/media/09-team-response.mp4) | Team availability, AgencySync tasks, department inbox, audit and administration |
 | [10 Team response loop](docs/media/10-team-response-loop.mp4) | A desk requests an exercise team, the team answers on a phone, and each answer is logged on the incident (rehearsal; nobody is contacted) |
+| [11 Resilient Sensor Link](docs/media/11-resilient-sensor-link.mp4) | The storm timeline: sensor traffic moving between ground internet and satellite, with the patent credit (rehearsal simulation; nothing is transmitted) |
 
 ## Architecture
 

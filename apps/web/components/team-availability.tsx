@@ -11,6 +11,7 @@ import { useT } from "./language-provider";
 import { FieldTeams } from "./field-teams";
 import { DataFreshness, EmptyState, ErrorState, SegmentedControl, SkeletonCards, StatStrip, StatTile, StatusPill, type Tone, Button, buttonClass, Panel } from "./ui";
 import { isSyntheticTaskPayload, type ExerciseAgencyTaskBoard } from "../lib/agency-sync";
+import { SENSOR_LINK_LINKS } from "../lib/patent";
 import { DEMO_CAPACITY, summarizeTeams, type TeamKind, type TeamStatus, type TeamSummary } from "../lib/team-availability";
 
 const ICONS: Record<TeamKind, LucideIcon> = {
@@ -96,6 +97,7 @@ export function TeamAvailability() {
           <RefreshCw size={15} className={loading ? "animate-spin" : ""}/> Refresh</Button>
       </div>
     </div>
+    <p className="mb-4 text-xs leading-5 text-muted"><Link href="/sensor-link#communication" className="font-semibold text-accent hover:underline">{t(SENSOR_LINK_LINKS.teams)}</Link></p>
     {loading && !board && <SkeletonCards count={3} label={t("Loading fictional team load")}/>}
     {board && teams.length > 0 && <SegmentedControl className="mb-4" label={t("Filter teams by status")} value={statusFilter} onChange={setStatusFilter}
       options={[{ value: "all", label: t("All teams") }, { value: "available", label: t("Available") }, { value: "engaged", label: t("Engaged") }, { value: "at_capacity", label: t("At planning capacity") }]}/>}

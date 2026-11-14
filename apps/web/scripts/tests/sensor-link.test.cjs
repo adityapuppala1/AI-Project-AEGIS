@@ -135,7 +135,11 @@ test('page, credit and docs carry the limits and none of the forbidden claims', 
   const page = read('components/sensor-link.tsx') + read('components/patent-credit.tsx') + read('lib/patent.ts');
   for (const phrase of [
     "This page illustrates, in a rehearsal simulation, how the idea named in the title of Indian Patent No. 598835 would serve IndTrana. The priority classes and switch-over rules shown are IndTrana's rehearsal choices, not the patent's claims.",
-    "Described here from the patent's title; the full specification has not been reviewed for this page.",
+    "Described here from the patent's title and the public publication notice; the full specification has not been reviewed for this page.",
+    'This mapping is based on the patent title and the public publication notice only. It will be checked against the full specification before any wider claim is made.',
+    'Ground network cut; life-safety gauges keep reporting over satellite, and lower-priority feeds wait.',
+    'Rain bands arrive and towers start to fail; ground capacity is reduced and the lowest-priority feeds start to wait.',
+    'Satellite capacity is reduced; life-safety gauges are served first and lower-priority feeds wait.',
     "The patent's title names a dynamic bandwidth system for sensor (IoT) networks over satellite and internet infrastructure. IndTrana applies that idea to its Sense step and to control-room, desk and team contact, as a rehearsal.",
     'Nothing is transmitted. No satellite or radio link is used.',
     'synthetic rehearsal values, not measurements',
@@ -151,6 +155,81 @@ test('page, credit and docs carry the limits and none of the forbidden claims', 
   const landing = read('components/welcome/welcome-experience.tsx');
   assert.ok(landing.includes('id="wl-patent"'));
   assert.doesNotMatch(landing.slice(landing.indexOf('id="wl-patent"'), landing.indexOf('id="wl-status"')), /href="\/sensor-link"/);
+});
+
+test('storm timeline: five ordered steps, each a valid scenario, first and last Normal, landfall Ground cut', () => {
+  assert.equal(p.STORM_STEPS.length, 5);
+  const ids = p.SCENARIOS.map(s => s.id);
+  for (const step of p.STORM_STEPS) { assert.ok(ids.includes(step.scenario), step.id); assert.ok(step.sees.length > 0 && step.moment.length > 0 && step.touches.length > 0); }
+  assert.equal(p.STORM_STEPS[0].scenario, 'normal');
+  assert.equal(p.STORM_STEPS[4].scenario, 'normal');
+  assert.equal(p.STORM_STEPS.find(s => s.id === 'landfall').scenario, 'ground_cut');
+  assert.equal(new Set(p.STORM_STEPS.map(s => s.id)).size, 5);
+  assert.doesNotMatch(p.STORM_STEPS.map(s => s.sees).join(' '), /\d\s?%|accuracy|guarantee|uptime/i);
+});
+
+test('what stays possible is derived from the allocation, as counts', () => {
+  for (const s of p.SCENARIOS) {
+    const r = p.allocate(s), f = p.stayingPossible(r);
+    const life = r.nodes.filter(n => n.node.priority === 1);
+    assert.equal(f.lifeSafetyTotal, life.length);
+    assert.equal(f.lifeSafetyReporting, life.filter(n => n.state === 'delivered' || n.state === 'reduced').length, s.id);
+    assert.equal(f.held, r.totals.held);
+    assert.equal(f.contact, p.commLink('cr', s));
+  }
+  const cut = p.stayingPossible(p.allocate(sc('ground_cut')));
+  assert.equal(cut.lifeSafetyReporting, cut.lifeSafetyTotal);
+  assert.equal(cut.contact, 'satellite');
+  const none = p.stayingPossible(p.allocate(sc('both_down')));
+  assert.equal(none.lifeSafetyReporting, 0);
+  assert.equal(none.contact, 'none');
+  assert.equal(p.PATENT.publishedDescription, 'The published application describes an aggregated IoT platform with dedicated IoT networks connected by satellite and internet infrastructure, for providing bandwidth on demand.');
+});
+
+test('new docs sections and cross-links keep the limits; guided exercise still has 11 stages', () => {
+  const section = (text, from, to) => { const a = text.indexOf(from); assert.ok(a >= 0, from); const b = text.indexOf(to, a + from.length); return text.slice(a, b < 0 ? undefined : b); };
+  const demo = read('../../docs/DEMO_GUIDE.md'), govt = read('../../docs/GOVT_DEPLOYMENT_READINESS.md'), arch = read('../../docs/ARCHITECTURE.md');
+  const scanned = section(demo, '- **Resilient Sensor Link**', '\n- Each page')
+    + section(govt, '## Sensor link resilience', '\n## Suggested order')
+    + section(arch, '## Resilient Sensor Link', '\n## Request boundary');
+  assert.ok(demo.includes('This is a rehearsal simulation of the idea in the title of Indian Patent No. 598835; nothing is transmitted.'));
+  assert.doesNotMatch(scanned, /accuracy|guarantee|uptime|\d\s?%/i);
+  assert.doesNotMatch(scanned, /IndTrana is patented/i);
+  const links = Object.values(p.SENSOR_LINK_LINKS).join(' ');
+  assert.doesNotMatch(links, /accuracy|guarantee|uptime|\d\s?%/i);
+  assert.ok(read('components/team-availability.tsx').includes('/sensor-link#communication'));
+  assert.ok(read('components/sensor-link.tsx').includes('id="communication"'));
+  assert.ok(read('components/source-health-summary.tsx').includes('href="/sensor-link"'));
+  const journey = read('components/demo-journey.tsx');
+  assert.equal((journey.match(/^    playbook: /gm) || []).length, 11);
+  assert.equal((journey.match(/also: \{/g) || []).length, 1);
+});
+
+test('per-step facts, chain names, contact sentences, both-down strip, headings, keyboard and anchors', () => {
+  const nav = load('lib/navigation.ts');
+  for (const step of p.STORM_STEPS) for (const name of step.touches) assert.ok(nav.CHAIN.includes(name), name);
+  const facts = id => p.stayingPossible(p.allocate(sc(p.STORM_STEPS.find(s => s.id === id).scenario)));
+  for (const id of ['landfall', 'peak']) { const f = facts(id); assert.equal(f.lifeSafetyReporting, f.lifeSafetyTotal, id); }
+  assert.equal(facts('recovery').held, 0);
+  assert.ok(facts('peak').held > 0);
+  assert.ok(facts('bands').held > 0, 'bands: lowest-priority feeds wait');
+  const contacts = new Set(p.SCENARIOS.map(s => p.stayingPossible(p.allocate(s)).contact));
+  assert.deepEqual([...contacts].sort(), ['ground', 'none', 'satellite']);
+  for (const key of ['contactGround', 'contactSatellite', 'contactNone']) assert.ok(p.POSSIBLE_TEXTS[key].length > 0);
+  const off = p.stayingPossible(p.allocate(sc('both_down')));
+  assert.equal(off.allOffline, true);
+  assert.equal(`${p.POSSIBLE_TEXTS.offlineHead} ${off.sensorTotal} ${p.POSSIBLE_TEXTS.offlineTail}`, 'All 12 sensors are offline in this simulation; readings wait at the sensor.');
+  assert.equal(p.stayingPossible(p.allocate(sc('ground_cut'))).allOffline, false);
+  assert.ok(read('../../docs/GOVT_DEPLOYMENT_READINESS.md').includes('\n## Suggested order\n'));
+  assert.ok(read('../../docs/GOVT_DEPLOYMENT_READINESS.md').indexOf('## Suggested order') > read('../../docs/GOVT_DEPLOYMENT_READINESS.md').indexOf('## Sensor link resilience'));
+  assert.ok(read('../../docs/DEMO_GUIDE.md').includes('\n- Each page has'));
+  assert.ok(read('../../docs/ARCHITECTURE.md').includes('\n## Request boundary'));
+  assert.equal(p.SENSOR_LINK_LINKS.commandCenter, 'Sensor link rehearsal: how readings could be prioritised when the ground network fails');
+  const page = read('components/sensor-link.tsx');
+  assert.ok(page.includes('aria-disabled={atStart}') && page.includes('aria-disabled={atEnd}'));
+  assert.doesNotMatch(page, /disabled=\{step/);
+  assert.ok(page.includes('scroll-mt-24') && read('components/patent-credit.tsx').includes('scroll-mt-24'));
+  assert.ok(read('app/response-teams/page.tsx').includes('TeamAvailability'));
 });
 
 test('the page stays behind the sign-in gate and is in the menu with help', () => {

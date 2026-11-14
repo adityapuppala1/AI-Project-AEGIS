@@ -53,6 +53,19 @@ Security test results and open findings: `docs/SECURITY_ASSESSMENT.md`.
 | Alert dissemination | Only through NDMA / state SDMA and SACHET to operator cell-broadcast centres. | Outside IndTrana by design |
 | Procurement and IP | Licences of third-party data are non-commercial; a patent or commercial plan needs legal review. | See `research/real-data/LICENCES.md` |
 
+## Sensor link resilience (Patent No. 598835)
+
+What exists: the signed-in Resilient Sensor Link page, a browser-only rehearsal simulation of the idea in the title of Indian Patent No. 598835 (sensor traffic moving between internet and satellite links, with a storm timeline). It uses synthetic sensors and values, sends nothing and uses no satellite or radio link. See `docs/PATENT_SENSOR_LINK.md`.
+
+| Requirement | Summary | State |
+|---|---|---|
+| Sensor gateways | Gateways able to use both link types. | Not started |
+| Satellite capacity | Terminals and licensed capacity from an authorised provider. | Not started |
+| Bandwidth policy | A policy agreed with the agency. | Not started |
+| Security review | Review of the links. | Not started |
+| Outage testing | Testing against real outages. | Not started |
+| Specification review | Review of the patent specification by its owner; the page is based on the title and the public publication notice only. | Not started |
+
 ## Suggested order
 
 1. Decide the hosting home (NIC or empanelled cloud) and the accountable security owner.

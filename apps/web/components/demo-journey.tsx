@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useT } from "./language-provider";
 import { ErrorState, Panel, StatusPill, Button, buttonClass } from "./ui";
 import { codeLabel, recordIdTitle } from "../lib/labels";
+import { SENSOR_LINK_LINKS } from "../lib/patent";
 import { ArrowLeft, ArrowRight, BookOpenCheck, ClipboardCheck, Compass, Database, FlaskConical, RadioTower, ShieldAlert, UsersRound, Workflow, Archive, Calculator } from "lucide-react";
 
 type ReadinessState = "ready" | "not_ready" | "unavailable";
@@ -21,7 +22,8 @@ interface Snapshot {
     reasonCode: string; nextStep: string }[];
 }
 const EXAMPLE = "22222222-2222-4222-8222-222222222222";
-const steps = [
+interface JourneyStep { title: string; subtitle: string; description: string; href: string; link: string; icon: typeof ShieldAlert; playbook: string; also?: { href: string; label: string } }
+const steps: JourneyStep[] = [
   {
     title: "Confirm the simulated environment",
     subtitle: "Startup and safety gate",
@@ -48,6 +50,7 @@ const steps = [
     link: "Open Source Observatory",
     icon: RadioTower,
     playbook: "Step 01 · Verify observations",
+    also: { href: "/sensor-link", label: SENSOR_LINK_LINKS.journey },
   },
   {
     title: "Open the synthetic incident",
@@ -198,6 +201,7 @@ export function DemoJourney({ snapshot }: { snapshot: Snapshot }) {
           <Link href={current.href} className={buttonClass({ variant: "primary" })}>
             {current.link} <ArrowRight size={16}/>
           </Link>
+          {current.also && <p className="mt-3 text-xs text-muted">{t(SENSOR_LINK_LINKS.alsoSee)}: <Link href={current.also.href} className="font-semibold text-accent hover:underline">{t(current.also.label)}</Link></p>}
         </div>
         <div className="mt-7 flex flex-wrap items-center justify-between gap-3 border-t border-stroke pt-5">
           <Button size="sm" type="button" onClick={() => setActive(index => Math.max(0,index-1))} disabled={active===0}><ArrowLeft size={15}/> Previous</Button>

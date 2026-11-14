@@ -62,6 +62,7 @@ every action is recorded against a named person. That only works if each person 
 - **Incident Registry** (Observe): open one case. Show the evidence list and that every finding cites its records.
 - **Source Freshness** (Observe): each data source and how old its last reading is. Some show as stale; say that this
   is on purpose in the sample data, and that IndTrana flags stale sources instead of hiding them.
+- **Resilient Sensor Link** (Observe, 2 min): click the five steps of the **Storm timeline** one by one (or Next). Stop at Landfall: the ground network is cut, the life-safety gauges keep reporting over satellite, and the "What stays possible" strip under the status sentence shows how many are reporting. Then scroll to **Patented technology** and open the certificate. Say: "This is a rehearsal simulation of the idea in the title of Indian Patent No. 598835; nothing is transmitted."
 - Each page has **How this page works**: what it shows, what you can do, what it will never do.
 
 ### Part 4. Alert Journey and Live Earth (4 min, optional, needs internet) — menu: Alert Journey

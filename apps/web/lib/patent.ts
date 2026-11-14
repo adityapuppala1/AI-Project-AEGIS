@@ -19,7 +19,9 @@ export const PATENT = {
   /** Served from apps/web/public, behind the sign-in gate (never added to the public path list). */
   /** Wording shared by every place that describes the patent. Only the title is relied on. */
   howItApplies: "The patent's title names a dynamic bandwidth system for sensor (IoT) networks over satellite and internet infrastructure. IndTrana applies that idea to its Sense step and to control-room, desk and team contact, as a rehearsal.",
-  titleOnlyNote: "Described here from the patent's title; the full specification has not been reviewed for this page.",
+  /** From the public publication notice, not from the specification. */
+  publishedDescription: "The published application describes an aggregated IoT platform with dedicated IoT networks connected by satellite and internet infrastructure, for providing bandwidth on demand.",
+  titleOnlyNote: "Described here from the patent's title and the public publication notice; the full specification has not been reviewed for this page.",
   certificatePath: "/patent/patent-598835-certificate.pdf",
 } as const;
 
@@ -148,6 +150,44 @@ export function summarise(result: AllocationResult, t: (text: string) => string 
     + counted(totals.reduced, SUMMARY_TEXTS.reducedOne, SUMMARY_TEXTS.reducedMany)
     + (totals.held > 0 ? counted(totals.held, SUMMARY_TEXTS.heldOne, SUMMARY_TEXTS.heldMany) : " " + t(SUMMARY_TEXTS.nothingHeld));
 }
+
+export interface StormStep { id: string; moment: string; scenario: ScenarioId; sees: string; touches: readonly string[] }
+/** The storm timeline on /sensor-link: five ordered moments, each selecting an existing scenario. `touches` uses IndTrana's alert-path step names. */
+export const STORM_STEPS: readonly StormStep[] = [
+  { id: "ahead", moment: "72 hours before landfall", scenario: "normal", sees: "All links up; every sensor reports.", touches: ["Sense"] },
+  { id: "bands", moment: "12 hours before landfall", scenario: "ground_degraded", sees: "Rain bands arrive and towers start to fail; ground capacity is reduced and the lowest-priority feeds start to wait.", touches: ["Sense"] },
+  { id: "landfall", moment: "Landfall", scenario: "ground_cut", sees: "Ground network cut; life-safety gauges keep reporting over satellite, and lower-priority feeds wait.", touches: ["Sense", "Predict"] },
+  { id: "peak", moment: "Peak", scenario: "satellite_reduced", sees: "Satellite capacity is reduced; life-safety gauges are served first and lower-priority feeds wait.", touches: ["Sense", "Reach"] },
+  { id: "recovery", moment: "Recovery", scenario: "normal", sees: "Ground links return; held feeds catch up.", touches: ["Sense", "Reach"] },
+];
+
+export interface StayingPossible { lifeSafetyReporting: number; lifeSafetyTotal: number; held: number; contact: CommLink; sensorTotal: number; allOffline: boolean }
+/** Counts for the "what stays possible" strip. Derived only from allocate() and commLink(); counts, never percentages. */
+export function stayingPossible(result: AllocationResult): StayingPossible {
+  const life = result.nodes.filter(item => item.node.priority === 1);
+  return {
+    lifeSafetyReporting: life.filter(item => item.allocated > 0).length, lifeSafetyTotal: life.length,
+    held: result.totals.held, contact: commLink("cr", result.scenario),
+    sensorTotal: result.nodes.length, allOffline: result.nodes.every(item => item.state === "offline"),
+  };
+}
+export const POSSIBLE_TEXTS = {
+  heading: "What stays possible",
+  evidence: "Evidence for Sense and Predict, life-safety sensors reporting:",
+  offlineHead: "All", offlineTail: "sensors are offline in this simulation; readings wait at the sensor.",
+  held: "Lower-priority feeds held until capacity returns:",
+  contactGround: "Control room, desks and teams can reach each other over the ground link.",
+  contactSatellite: "Control room, desks and teams can still reach each other over satellite.",
+  contactNone: "Control room, desks and teams have no link in this simulation.",
+} as const;
+
+/** Cross-links from other pages to the rehearsal. Texts live here so the translation generator collects them. */
+export const SENSOR_LINK_LINKS = {
+  commandCenter: "Sensor link rehearsal: how readings could be prioritised when the ground network fails",
+  teams: "Reaching teams when towers are down: see the communication rehearsal",
+  alsoSee: "Also see",
+  journey: "Resilient Sensor Link rehearsal",
+} as const;
 
 /** The communication application: which link each in-app party would use. Illustrative only; nothing is sent. */
 export const COMM_PARTIES = [

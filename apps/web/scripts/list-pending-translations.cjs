@@ -53,7 +53,8 @@ function collect() {
   const patent = load("lib/patent.ts");
   for (const text of [patent.PATENT.title, patent.PATENT.howItApplies, patent.PATENT.titleOnlyNote, ...Object.values(patent.PRIORITY_LABELS), ...Object.values(patent.LINK_LABELS),
     ...patent.SCENARIOS.map(item => item.label), ...patent.SENSORS.flatMap(item => [item.name, item.type]), ...patent.COMM_PARTIES.flatMap(item => [item.name, item.kind]),
-    ...Object.values(patent.SUMMARY_TEXTS)]) found.add(text);
+    ...Object.values(patent.SUMMARY_TEXTS), patent.PATENT.publishedDescription, ...patent.STORM_STEPS.flatMap(item => [item.moment, item.sees, ...item.touches]),
+    ...Object.values(patent.POSSIBLE_TEXTS), ...Object.values(patent.SENSOR_LINK_LINKS)]) found.add(text);
   for (const file of ["components/sensor-link.tsx", "components/patent-credit.tsx"]) {
     const src = fs.readFileSync(path.join(root, file), "utf8").split("export function")[0];
     for (const block of src.matchAll(/^const (?:REHEARSAL|LIMITS|STATE_LABEL|COMM_LABEL)\b[\s\S]*?;$/gm))

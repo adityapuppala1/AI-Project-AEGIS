@@ -32,7 +32,7 @@ export const PAGE_HELP: Record<string, PageHelp> = {
   },
   "/sensor-link": {
     shows: "A rehearsal of sensor readings moving between internet and satellite links, with scarce bandwidth given to the most important readings first.",
-    can: "Pick a link scenario, switch on the trigger-near option and read how each sensor and each party in the communication application is carried.",
+    can: "Step through the storm timeline, or pick a link scenario yourself, switch on the trigger-near option and read how each sensor and each party in the communication application is carried.",
     never: "It never transmits anything or uses a satellite or radio link. All values are synthetic rehearsal values, not measurements.",
   },
   "/ingestion": {

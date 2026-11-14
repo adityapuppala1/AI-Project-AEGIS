@@ -1,13 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Antenna, Building2, Check, Globe, Minus, Pause, Satellite, Target, WifiOff, Radio, type LucideIcon } from "lucide-react";
+import { Antenna, ArrowLeft, ArrowRight, Building2, Check, Globe, Minus, Pause, Satellite, Target, WifiOff, Radio, type LucideIcon } from "lucide-react";
 import { AppShell } from "./app-shell";
 import { useT } from "./language-provider";
 import { PatentCredit } from "./patent-credit";
 import { Button, EmptyState, Panel, SegmentedControl, SortableTable, StatusPill, type TableColumn, type Tone } from "./ui";
 import {
-  COMM_PARTIES, LINK_LABELS, PRIORITY_LABELS, SCENARIOS, allocate, commLink, scenarioById, summarise,
+  COMM_PARTIES, LINK_LABELS, POSSIBLE_TEXTS, PRIORITY_LABELS, SCENARIOS, STORM_STEPS, allocate, commLink, scenarioById, stayingPossible, summarise,
   type AllocationResult, type CommLink, type LinkId, type NodeAllocation, type NodeState, type ScenarioId,
 } from "../lib/patent";
 
@@ -81,9 +81,67 @@ function Schematic({ result }: Readonly<{ result: AllocationResult }>) {
   </div>;
 }
 
+/** Five ordered storm moments; each selects an existing scenario. Plain buttons, no auto-play, no animation. */
+function StormTimeline({ step, onStep }: Readonly<{ step: number | null; onStep: (index: number) => void }>) {
+  const t = useT();
+  const current = step === null ? null : STORM_STEPS[step];
+  const atStart = step === null || step === 0; // aria-disabled, not disabled: keyboard focus must stay on the button
+  const atEnd = step === STORM_STEPS.length - 1;
+  return <div className="mb-4 rounded-lg border border-stroke bg-elevated p-3">
+    <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+      <h3 className="text-sm font-semibold">{t("Storm timeline")}</h3>
+      <p className="tnum text-xs text-muted">{current ? `${t("Step")} ${(step as number) + 1} / ${STORM_STEPS.length}` : t("Custom: chosen by hand")}</p>
+    </div>
+    <ol className="mt-2 grid gap-1.5 sm:grid-cols-5" aria-label={t("Storm timeline")}>
+      {STORM_STEPS.map((item, index) => {
+        const on = index === step;
+        return <li key={item.id}><button type="button" aria-current={on ? "step" : undefined} onClick={() => onStep(index)}
+          className={`flex min-h-11 w-full items-center gap-2 rounded-md border px-2.5 py-1.5 text-left text-xs font-semibold leading-4 transition-colors motion-reduce:transition-none ${on ? "border-accent/50 bg-surface text-accent shadow-sm" : "border-transparent text-muted hover:bg-surface hover:text-ink"}`}>
+          <span className="tnum flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-current/30 text-[11px]">{index + 1}</span>
+          <span>{t(item.moment)}</span>
+        </button></li>;
+      })}
+    </ol>
+    <div className="mt-3 flex flex-wrap items-start justify-between gap-3">
+      <div className="min-w-0 max-w-2xl flex-1 basis-64">
+        {current ? <>
+          <p className="text-sm leading-6"><span className="font-semibold">{t(current.moment)}.</span> {t(current.sees)}</p>
+          <p className="mt-1 text-xs leading-5 text-muted">{t("Alert-path steps affected")}: {current.touches.map(name => t(name)).join(", ")}</p>
+        </> : <p className="text-sm leading-6 text-muted">{t("You chose a link scenario by hand. Pick a moment to follow the storm in order.")}</p>}
+      </div>
+      <div className="flex gap-2">
+        <Button size="sm" icon={ArrowLeft} aria-disabled={atStart} className={atStart ? "cursor-not-allowed opacity-50" : undefined} onClick={() => { if (!atStart && step !== null) onStep(step - 1); }}>{t("Previous")}</Button>
+        <Button size="sm" aria-disabled={atEnd} className={atEnd ? "cursor-not-allowed opacity-50" : undefined} onClick={() => { if (!atEnd) onStep(step === null ? 0 : step + 1); }}>{t("Next")}<ArrowRight size={14} aria-hidden="true" /></Button>
+      </div>
+    </div>
+  </div>;
+}
+
+/** Counts only, derived from allocate() and commLink(); worded for an operator. */
+function StayingPossible({ result }: Readonly<{ result: AllocationResult }>) {
+  const t = useT();
+  const facts = stayingPossible(result);
+  const contact = facts.contact === "ground" ? POSSIBLE_TEXTS.contactGround : facts.contact === "satellite" ? POSSIBLE_TEXTS.contactSatellite : POSSIBLE_TEXTS.contactNone;
+  return <div className="mt-2 rounded-lg border border-stroke bg-elevated px-3 py-2">
+    <h3 className="text-xs font-semibold text-muted">{t(POSSIBLE_TEXTS.heading)}</h3>
+    <ul className="mt-1 space-y-0.5 text-sm leading-6">
+      {facts.allOffline
+        ? <li>{t(POSSIBLE_TEXTS.offlineHead)} <span className="tnum font-semibold">{facts.sensorTotal}</span> {t(POSSIBLE_TEXTS.offlineTail)}</li>
+        : <>
+          <li><span>{t(POSSIBLE_TEXTS.evidence)} </span><span className="tnum font-semibold">{facts.lifeSafetyReporting} / {facts.lifeSafetyTotal}</span></li>
+          <li><span>{t(POSSIBLE_TEXTS.held)} </span><span className="tnum font-semibold">{facts.held}</span></li>
+        </>}
+      <li>{t(contact)}</li>
+    </ul>
+  </div>;
+}
+
 export function SensorLink() {
   const t = useT();
   const [scenarioId, setScenarioId] = useState<ScenarioId>("normal");
+  const [step, setStep] = useState<number | null>(null);
+  const chooseStep = (index: number) => { setStep(index); setScenarioId(STORM_STEPS[index].scenario); };
+  const chooseScenario = (id: ScenarioId) => { setStep(null); setScenarioId(id); };
   const [near, setNear] = useState(false);
   const result = useMemo(() => allocate(scenarioById(scenarioId), { triggerNear: near }), [scenarioId, near]);
   const gauge = result.nodes.find(item => item.node.near);
@@ -101,13 +159,15 @@ export function SensorLink() {
 
   return <AppShell title="Resilient Sensor Link" description="A rehearsal of moving sensor traffic between internet and satellite, giving scarce bandwidth to the most important readings first.">
     <div className="space-y-4">
-      <Panel icon={Radio} title={t("Sensor traffic across two links")} description={t("Choose what happens to the links. The picture, the table and the sentence below follow.")}>
+      <Panel icon={Radio} title={t("Sensor traffic across two links")} description={t("Follow a storm step by step, or choose the link scenario yourself. The picture, the table and the sentence below follow.")}>
         <p className="mb-3 text-xs leading-5"><a href="#patented-technology" className="font-semibold text-accent hover:underline">{t("Applies the idea of Indian Patent No. 598835 (see Patented technology below).")}</a></p>
+        <StormTimeline step={step} onStep={chooseStep} />
         <div className="flex flex-wrap items-center gap-3">
-          <SegmentedControl label={t("Link scenario")} options={options} value={scenarioId} onChange={setScenarioId} />
+          <SegmentedControl label={t("Link scenario")} options={options} value={scenarioId} onChange={chooseScenario} />
           <Button variant={near ? "primary" : "secondary"} icon={Target} aria-pressed={near} onClick={() => setNear(value => !value)}>{t("Trigger near: raise gauge reporting")}</Button>
         </div>
-        <p role="status" className="mt-3 text-sm font-semibold leading-6">{summarise(result, t)}</p>
+        <p role="status" className="mt-3 text-sm font-semibold leading-6">{step !== null && `${t(STORM_STEPS[step].moment)}. `}{summarise(result, t)}</p>
+        <StayingPossible result={result} />
         {near && <p className="text-xs leading-5 text-muted">{gauge && gauge.allocated > gauge.node.demand
           ? t("A hazard is near, so the Musi river gauge at Nayapul asks for more bandwidth. It takes the extra from capacity left after the other life-safety gauges, before lower-priority feeds.")
           : t("A hazard is near, so the Musi river gauge at Nayapul asks for more bandwidth, but no capacity is left after the other life-safety gauges.")}</p>}
@@ -122,7 +182,7 @@ export function SensorLink() {
           empty={<EmptyState title={t("No sensors")} />} />
       </Panel>
 
-      <Panel title={t("Communication application")} description={t("The same link management would keep the control room, departments and field teams able to reach each other.")}>
+      <Panel id="communication" className="scroll-mt-24" title={t("Communication application")} description={t("The same link management would keep the control room, departments and field teams able to reach each other.")}>
         <SortableTable label={t("Parties and the link each would use")} rows={COMM_PARTIES} rowKey={row => row.id}
           columns={[
             { key: "name", label: t("Party"), sortValue: row => row.name, cell: row => <span className="font-semibold">{t(row.name)}</span> },
@@ -139,7 +199,7 @@ export function SensorLink() {
 
       <Panel title={t("Limits of this rehearsal")}>
         <ul className="list-disc space-y-1.5 pl-4 text-sm leading-6">{LIMITS.map(item => <li key={item}>{t(item)}</li>)}</ul>
-        <p className="mt-3 max-w-3xl text-xs leading-5 text-muted">{t("This mapping is based on the patent title only. It will be checked against the full specification before any wider claim is made.")}</p>
+        <p className="mt-3 max-w-3xl text-xs leading-5 text-muted">{t("This mapping is based on the patent title and the public publication notice only. It will be checked against the full specification before any wider claim is made.")}</p>
       </Panel>
     </div>
   </AppShell>;

@@ -5,6 +5,7 @@ import { AlertTriangle, ArrowRight, RadioTower, ShieldAlert } from "lucide-react
 import { useT } from "./language-provider";
 import { DataFreshness, StatusPill, buttonClass, Panel } from "./ui";
 import type { SourceOverview } from "../lib/source-health";
+import { SENSOR_LINK_LINKS } from "../lib/patent";
 
 export function SourceHealthSummary() {
   const t = useT();
@@ -38,6 +39,7 @@ export function SourceHealthSummary() {
         <p className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-muted">Not a real-time device-health or official weather-service claim
           {overview && <DataFreshness observedAt={overview.as_of} staleAfterHours={1}/>}
           {overview && <StatusPill tone={attention > 0 ? "warning" : "success"}>{attention > 0 ? t("Needs attention") : t("Within demo window")}</StatusPill>}</p>
+        <p className="mt-1 text-[11px]"><Link href="/sensor-link" className="font-semibold text-accent hover:underline">{t(SENSOR_LINK_LINKS.commandCenter)}</Link></p>
       </div>
     </div>
     <Link href="/sources" className={buttonClass({ size: "sm" })}>Inspect sources <ArrowRight size={15}/></Link>

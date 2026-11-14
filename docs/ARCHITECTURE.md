@@ -164,6 +164,10 @@ not a new service architecture or universal OS supervisor. See
 [SINGLE_INSTANCE_LOCAL_RUNTIME.md](SINGLE_INSTANCE_LOCAL_RUNTIME.md) and the
 Windows acceptance in [LOCAL_DEMO_HANDOFF.md](LOCAL_DEMO_HANDOFF.md).
 
+## Resilient Sensor Link (browser-only rehearsal)
+
+No service, no schema, no network call. The allocation, the storm timeline data and the "what stays possible" counts are pure functions and constants in `apps/web/lib/patent.ts`, rendered by `components/sensor-link.tsx`. The grant certificate is a static file under `apps/web/public/patent/`, served behind the sign-in gate. See [PATENT_SENSOR_LINK.md](PATENT_SENSOR_LINK.md).
+
 ## Request boundary hardening (14 November 2026)
 
 No new service or schema. Four rules were made uniform after the signed-in security test

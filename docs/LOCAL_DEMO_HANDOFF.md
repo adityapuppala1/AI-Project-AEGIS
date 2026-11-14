@@ -44,9 +44,25 @@ from this code. Windows laptop only.
   table and status sentence; signed-out request for the certificate redirects to sign-in (307); signed in it returns
   200 and opens in Chrome's viewer; landing credit present with no link to the file. API code unchanged since the
   1379-pass run. Pending translations: 841 strings.
+- **Second part (after commit `8da2bac`):** a five-step storm timeline on the page (72 hours before landfall, 12 hours
+  before, landfall, peak, recovery), each tied to IndTrana's alert-path steps; a "What stays possible" strip under the
+  status sentence (life-safety sensors reporting, lower-priority feeds held, whether control room, desks and teams
+  have a link); short links from the Command Center source monitor, Team Availability and the guided exercise's
+  source-freshness stage (still 11 stages); sections in GOVT_DEPLOYMENT_READINESS.md, DEMO_GUIDE.md and
+  ARCHITECTURE.md; an eleventh narrated video, `docs/media/11-resilient-sensor-link.mp4`. Research: the specification
+  could not be retrieved (no Google Patents page; the Patent Office search was not reachable); one sentence from a
+  public listing of the publication notice is quoted and marked as not verified against the Patent Office record.
+- **Second review:** one independent read-only review. Applied: a heading it found deleted in
+  GOVT_DEPLOYMENT_READINESS.md restored; four sentences softened so they say only what the simulation shows;
+  Previous/Next no longer drop keyboard focus at the ends; the strip moved above the picture.
+- **Verified after the second part:** typecheck clean; 378 Node tests passed; rebuilt; in the browser at 1440 px
+  light and 390 px dark the five steps update the status sentence, strip, picture and table with no page or console
+  error and no sideways scroll; choosing a scenario by hand shows "Custom"; a response-team account can open the page.
+  Pending translations: 868 strings.
 - **Not done:** the mapping has not been checked against the patent's specification; the simulation's priority
   classes and switch-over rules are IndTrana's own choices; no real link, hardware or satellite capacity is involved;
-  the guided exercise and the videos do not show the new page; screen reader and 200% zoom not run on it.
+  the public Alert Journey story was left unchanged; screen reader and 200% zoom not run on the new page; keyboard
+  stepping was checked in code and tests, not by hand.
 
 ## Round 24: signed-in security test, all-roles end-to-end test, fixes, new screenshots and videos — 14 November 2026 (Windows laptop)
 
