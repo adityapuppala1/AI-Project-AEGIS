@@ -133,7 +133,7 @@ export function GlobalSearch() {
     </Button>
     {open && <div className="fixed inset-0 z-[100] flex items-start justify-center px-3 pt-[8vh] sm:pt-[14vh]">
       <button type="button" className="absolute inset-0 bg-[#17131f]/78 backdrop-blur-sm" aria-label="Close global search" onClick={close}/>
-      <section role="dialog" ref={dialog} onKeyDown={trapFocus} aria-modal="true" aria-label="IndTrana global search" className="relative z-10 w-full max-w-[650px] overflow-hidden rounded-lg border border-stroke bg-surface shadow-2xl">
+      <section role="dialog" ref={dialog} onKeyDown={trapFocus} aria-modal="true" aria-label={t("IndTrana global search")} className="relative z-10 w-full max-w-[650px] overflow-hidden rounded-lg border border-stroke bg-surface shadow-2xl">
         <div className="flex items-center gap-3 border-b border-stroke px-4 py-3">
           <Command size={19} className="shrink-0 text-accent"/>
           <input ref={input} className="min-w-0 flex-1 border-0 bg-transparent py-2 text-sm text-ink outline-hidden placeholder:text-muted"

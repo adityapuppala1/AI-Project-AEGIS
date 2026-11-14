@@ -20,6 +20,41 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Round 22: sign-in address move for macOS and Linux; brand name in two more labels — 14 November 2026 (Windows laptop)
+
+Branch `Aegis_IndTrana`, on top of `006cd8b` (which is also `main`). Compose services left **running**, rebuilt from
+this code with -SignIn -PublicEarth -Proactive -StatisticalForecast -StaffEmail.
+
+- **Added:** `scripts/migrate-local-idp-address.sh`, the macOS/Linux port of the Windows script, with the same
+  safeguards (verified backup with the provider stopped, in-place rename, account-id comparison, restore on failure,
+  `--rollback` with a typed time stamp or `--backup <folder>`, hold marker). `aegis.sh start` and `doctor` now offer the
+  move once on a terminal instead of stopping with manual steps; `--ci` or no terminal never moves it; `--yes` agrees
+  to it. Backups are mode 700/600. Guide: [LOCAL_IDP_ADDRESS.md](LOCAL_IDP_ADDRESS.md).
+- **Reviews:** two independent read-only reviews. No critical or high finding. Fixed: an interrupt during the rename
+  now restores the backup; the interrupt handler is set before the provider is stopped; an interrupted restore says
+  what to run; backup paths are resolved to absolute paths and refused with a colon; ids from the provider are checked
+  before use; marker and id-list writes are checked; a half-updated realm file is copied aside before it is corrected;
+  interrupt handlers are saved and put back in a way that also works on bash 3.2.
+- **Web:** the configured brand name now also reaches the global search dialog label and the error / not-found page
+  (name and home link label). Pending strings: 672.
+- **Docs:** stale status statements corrected at the top of PROJECT_EXECUTION_TRACKER.md and ENGINEERING_BACKLOG.md.
+- **Executed on this laptop:** API pytest 1341 passed / 30 skipped and app.model_lab --check PASS (before the last
+  script fixes; afterwards tests/test_one_step_installer.py again, 16 passed, including tests that run the script's
+  functions under Git Bash with a fake docker); typecheck clean; web tests 354 pass; bash -n and shellcheck clean;
+  stack rebuilt, start exit 0, verify-windows.ps1 PASSED. Browser (headless Chrome, demo-admin): with a test brand name
+  the search dialog label, the not-found page name and its home label showed the test name; defaults restored
+  (IndTrana); no page errors.
+- **Executed against throwaway containers and volumes only (from WSL, under the shared lease, none in this project):**
+  57 checks passed: backup refusals (truncated, missing store, count mismatch), restore (corrupt archive leaves data
+  intact; good restore swaps completely), permissions, realm-file name swap both ways, and an end-to-end rename on a
+  throwaway Keycloak with the old realm (ids identical, mapper repointed, second run "already migrated", rollback,
+  injected failure restored, interrupt during the rename restored). The project's own containers were not touched.
+- **Not executed:** the script's own entry point and `./aegis.sh start/doctor` on a real Linux or macOS install
+  (never run from WSL on this laptop); bash 3.2 (checked statically only); an interrupt during a real restore swap.
+- **Still open (needs the owner or others):** SendGrid account and a sign-in with a real verified address for a real
+  email; native Telugu and Hindi review (672 pending strings, CAP rows); deleting the two sign-in backup folders;
+  a clean-computer install; Linux and macOS runs; whether team requests should stop with the proactive kill switch.
+
 ## Round 21: sign-in provider moved to the IndTrana address; CAP template v3 keys (branch Aegis_IndTrana) — 13 November 2026 (Windows laptop)
 
 Owner decision: remove the remaining visible old name from the sign-in address and from new CAP drafts.

@@ -5,6 +5,7 @@
 #   ./aegis.sh install|start|stop|status|doctor|detect|help [--yes] [--ci] [options]
 # Never deletes a volume, never touches containers outside Compose project ai-project-aegis or from another checkout,
 # never touches the exercise-* accounts and never prints a secret. Local synthetic exercise only.
+# shellcheck disable=SC1091 # /etc/os-release exists only on the target system
 set -u
 set -o pipefail
 
@@ -105,6 +106,9 @@ if [ "$(uname -s)" = Darwin ]; then PRIVATE="$HOME/Library/Application Support/A
 else PRIVATE="${XDG_DATA_HOME:-$HOME/.local/share}/AEGIS"; fi
 IDP_DIR="$PRIVATE/local-idp"
 STATE_FILE="$PRIVATE/runtime-ports.env"
+# Sign-in address migration (functions only; the standalone script sources this file in library mode).
+# shellcheck source=scripts/migrate-local-idp-address.sh
+declare -F idpmig_migrate >/dev/null 2>&1 || . "$ROOT/scripts/migrate-local-idp-address.sh"
 
 # ---------- 2. dependencies ----------
 pkg_install() { # label packages...
@@ -429,11 +433,8 @@ ensure_signin_files() {
   if [ "$present" = 0 ]; then create_signin_secrets; say fixed "Private sign-in files created in $IDP_DIR (not shown)"
   elif [ "$present" -lt 3 ]; then die "Some private sign-in files are missing in $IDP_DIR. They are never overwritten automatically; move that folder aside only if you are sure, then run install again."
   else say OK 'Private sign-in files exist'; fi
-  # An install made before the rename uses the old sign-in address. This port does not move it automatically: stop
-  # with an instruction instead of guessing (docs/LOCAL_IDP_ADDRESS.md). Fresh installs use the new names from the start.
-  if grep -Eq '"realm"[[:space:]]*:[[:space:]]*"aegis-exercise"' "$IDP_DIR/realm.json"; then
-    die "This sign-in provider still uses the old address (aegis-idp.localhost / aegis-exercise). Nothing was changed. Move it with the steps in docs/LOCAL_IDP_ADDRESS.md (back up, rename the realm and client in place, keep every account), then run ./aegis.sh start again."
-  fi
+  # An install made before the rename uses the old sign-in address; confirm_idp_address offers to move it once the
+  # provider runs (docs/LOCAL_IDP_ADDRESS.md). Fresh installs use the new names from the start.
   export AEGIS_LOCAL_IDP_PRIVATE_DIR="$IDP_DIR"
   if [ -f "$IDP_DIR/root.crt" ] && [ -f "$IDP_DIR/api-ca-bundle.pem" ]; then say OK 'Sign-in certificate files exist'; return; fi
   check_idp_port
@@ -506,13 +507,14 @@ idp_container() { "${DOCKER[@]}" ps --filter "label=com.docker.compose.project=$
 # Residual risk (same as the reviewed update-local-idp.ps1): kcadm has no stdin password option, so the provider's local
 # bootstrap password is briefly on a command line inside the provider container only.
 # shellcheck disable=SC2016
-KC_LOGIN='K=/opt/keycloak/bin/kcadm.sh; $K config credentials --server http://localhost:8080 --realm master --user $KC_BOOTSTRAP_ADMIN_USERNAME --password $KC_BOOTSTRAP_ADMIN_PASSWORD >/dev/null 2>&1 || { echo ADMIN_LOGIN_FAILED; exit 0; }; '
+KC_LOGIN="$IDPMIG_KC_LOGIN"   # one definition, in scripts/migrate-local-idp-address.sh
 # shellcheck disable=SC2016
 KC_CLIENT='CID=$($K get clients -r indtrana-exercise -q clientId=indtrana-local-web --fields id --format csv --noquotes | head -1); '
 sync_signin_origins() {
   # Adds http://localhost:<web port> when the web port moved; removes origins this script added earlier (recorded in
   # the state file) once they are no longer in use. Never removes anything it did not record. Accounts untouched.
   [ "$SIGN_IN" = 1 ] || return 0
+  idp_on_old_address && return 0   # the client has the old name until the address is moved
   local origin="http://localhost:$WEB_PORT" add='' drop='' o id current update
   [ "$WEB_PORT" != "$DEFAULT_WEB" ] && add="$origin"
   for o in $ADDED_ORIGINS; do [ "$o" != "$origin" ] && drop="$drop $o"; done
@@ -544,11 +546,35 @@ print("" if (r, w, l) == before else json.dumps({"redirectUris": r, "webOrigins"
   for o in $drop; do say fixed "Removed the earlier extra sign-in address $o (added by this script)"; done
   return 0
 }
+idp_on_old_address() { [ -f "$IDP_DIR/realm.json" ] && grep -Eq '"realm"[[:space:]]*:[[:space:]]*"aegis-exercise"' "$IDP_DIR/realm.json"; }
+IDP_MOVE_HELP='Run: bash scripts/migrate-local-idp-address.sh (see docs/LOCAL_IDP_ADDRESS.md)'
+confirm_idp_address() { # $1 = 1 to offer the move (provider running), 0 to report only
+  # Port of Confirm-IdpAddress (scripts/aegis.ps1). Moving stops the provider for a backup and signs everyone out, so
+  # it is asked once on a terminal; --yes answers yes (like -Yes on Windows); --ci or no terminal never moves it. After a failed attempt or a rollback the hold
+  # marker stops further automatic attempts until the owner runs the migration script explicitly.
+  [ "$SIGN_IN" = 1 ] && [ -f "$IDP_DIR/realm.json" ] || return 0
+  if ! idp_on_old_address; then say OK 'Sign-in provider already on the IndTrana address (indtrana-idp.localhost); nothing to move'; return 0; fi
+  if [ -f "$IDP_DIR/address-migration.hold" ]; then say 'needs you' "The sign-in provider still uses the old address and automatic moving is on hold. $IDP_MOVE_HELP"; return 0; fi
+  if [ "$1" != 1 ]; then say 'needs you' "The sign-in provider still uses the old address; ./aegis.sh start offers to move it. $IDP_MOVE_HELP"; return 0; fi
+  if [ "$CI_MODE" = 1 ] || [ ! -t 0 ]; then say 'needs you' "The sign-in provider still uses the old address (sign-in will not work until it is moved). $IDP_MOVE_HELP"; return 0; fi
+  if ! confirm 'Move the sign-in provider to the IndTrana address now? (backup first, accounts kept, everyone signs in again)'; then
+    say 'needs you' "Sign-in provider not moved; sign-in will not work until it is. $IDP_MOVE_HELP"; return 0
+  fi
+  say info 'Moving the sign-in provider to the IndTrana address (backup first; accounts are kept)'
+  # Same process: the lock taken by take_lock and the ownership check already cover this step.
+  idpmig_bind "$PROJECT" "$IDP_DIR" "$PRIVATE" "$ROOT"
+  if ! idpmig_migrate; then
+    say FAIL "$IDPMIG_ERR"
+    idpmig_write_hold 'automatic attempt failed'
+    die "Moving the sign-in provider failed; automatic attempts are now on hold. Read the message above. $IDP_MOVE_HELP"
+  fi
+  say fixed 'Sign-in provider moved to indtrana-idp.localhost; everyone signs in again'
+}
 start_stack() {
   if is_running; then
     read_state; export_ports
     say OK 'IndTrana is already running (one copy only; nothing new started)'
-    confirm_healthy 1; return
+    confirm_healthy 1; confirm_idp_address 1; return
   fi
   remove_stale
   resolve_ports; export_ports
@@ -567,6 +593,7 @@ start_stack() {
   (cd "$ROOT" && "${DOCKER[@]}" "${FILES[@]}" up -d) || die 'Start failed. Run ./aegis.sh doctor, then ./aegis.sh start.'
   assert_single 1
   confirm_healthy 1
+  confirm_idp_address 1
   sync_signin_origins
 }
 demo_accounts() { # port of new-demo-accounts.ps1 for the four base roles only
@@ -626,6 +653,8 @@ status_stack() {
 }
 
 # ---------- main ----------
+# Sourced (scripts/migrate-local-idp-address.sh uses this as a library): define everything, run nothing.
+if [ "${BASH_SOURCE[0]}" != "$0" ]; then return 0; fi
 case "$COMMAND" in help) usage; exit 0 ;; esac
 [ "$STAFF_EMAIL" = 1 ] && die 'Staff email notices need scripts/update-local-idp.ps1 (it locks email changes to administrators), which is not ported to macOS/Linux yet. Start without --staff-email.'
 cd "$ROOT" || exit 1
@@ -654,8 +683,8 @@ case "$COMMAND" in
   stop) assert_ownership; stop_stack ;;
   doctor)
     assert_single 0; ensure_env_file; ensure_signin_files; remove_stale
-    if is_running; then read_state; export_ports; confirm_healthy 1; sync_signin_origins
-    else say info 'IndTrana is stopped; checking the ports it would use'; resolve_ports; fi
+    if is_running; then read_state; export_ports; confirm_healthy 1; confirm_idp_address 1; sync_signin_origins
+    else say info 'IndTrana is stopped; checking the ports it would use'; resolve_ports; confirm_idp_address 0; fi
     say OK 'Doctor finished' ;;
   install|start)
     assert_single 0; ensure_env_file; ensure_signin_files

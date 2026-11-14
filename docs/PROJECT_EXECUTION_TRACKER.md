@@ -22,7 +22,12 @@ below are unchanged.
 
 ## Current work, before historical records
 
-Use `feat/aegis-local-demo-continuation` and [the current handoff](LOCAL_DEMO_HANDOFF.md).
+Status on 14 November 2026: the current branch is `Aegis_IndTrana`, published to `main` by fast-forward (owner
+authorisation of 11 November 2026). The top rounds of [the current handoff](LOCAL_DEMO_HANDOFF.md) are the record of
+what is done, what was run and what is still open. The rest of this section, including its branch name and its
+"no push" statement, is an earlier snapshot.
+
+Earlier snapshot: use `feat/aegis-local-demo-continuation` and [the current handoff](LOCAL_DEMO_HANDOFF.md).
 Earlier PR tables, pending statements and effort estimates below are historical;
 they do not override the executed Windows evidence. The current continuation
 adds standalone/non-root web packaging and a Tailwind 4 security upgrade, with

@@ -72,8 +72,35 @@ that still uses it (a commit before this change).
 
 ## macOS and Linux
 
-`./aegis.sh` gives fresh installs the new names from the start. If it finds an install that still uses the old
-realm, it stops with an instruction and changes nothing; move that install with the Windows script or by the same
-steps by hand (back up the provider data volume with the provider stopped, then `kcadm.sh update realms/aegis-exercise
--s realm=indtrana-exercise`, `kcadm.sh update clients/<id> -r indtrana-exercise -s clientId=indtrana-local-web`, update
-the `signed-app-roles` mapper's `usermodel.clientRoleMapping.clientId`, and the two names in the private `realm.json`).
+`./aegis.sh` gives fresh installs the new names from the start. An older install is moved by
+`scripts/migrate-local-idp-address.sh`, a port of the Windows script with the same steps and checks.
+
+`./aegis.sh start` and `./aegis.sh doctor` notice the old realm and **ask once** on a terminal. `--yes` on a terminal
+counts as yes and moves it. With `--ci`, or with no terminal, they never move it; they print the command instead. After a failed attempt or a rollback they write the
+hold marker `local-idp/address-migration.hold` in the private folder and stop asking until you run the script
+yourself. The private folder is `~/Library/Application Support/AEGIS` on macOS and `~/.local/share/AEGIS` on Linux
+(or `$XDG_DATA_HOME/AEGIS`). By hand (the provider must be running):
+
+```bash
+bash scripts/migrate-local-idp-address.sh
+./aegis.sh start
+```
+
+The script takes the same lock as `./aegis.sh` and checks that this checkout owns the running containers. Backups go
+to `local-idp-backups/<date-time>/` in the private folder. Folders are mode 700 and files 600 (your user only). They
+hold the same secrets as on Windows. Delete them once sign-in works:
+
+```bash
+rm -rf ~/.local/share/AEGIS/local-idp-backups                      # Linux
+rm -rf ~/Library/Application\ Support/AEGIS/local-idp-backups      # macOS
+```
+
+Roll back:
+
+```bash
+bash scripts/migrate-local-idp-address.sh --rollback --backup "<backup folder>"
+bash scripts/migrate-local-idp-address.sh --rollback   # shows the newest backup and asks you to type its time stamp
+```
+
+The rollback works as on Windows: safety backup first, archives checked, swap only after a complete extract, both
+containers started again, hold marker written.

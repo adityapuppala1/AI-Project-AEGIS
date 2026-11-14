@@ -12,7 +12,9 @@ commands and the retained startup failure/fix are in [the handoff](LOCAL_DEMO_HA
 
 Next-stage L1–L3 agent features (scheduled watch loop, evidence-change sentinel, impact-based
 triggers, pre-positioning planner, read-only copilot, handover brief, post-event learning) with an
-explicit "never act" L4 boundary. Not implemented; owner decisions pending. See
+explicit "never act" L4 boundary. This paragraph was written as a proposal. Several of these items were built on later
+branches (pre-positioning planner, read-only copilot, handover brief, post-event learning, drills); the
+[handoff](LOCAL_DEMO_HANDOFF.md) records what was built and run. See
 [AGENTIC_PROACTIVE_ROADMAP.md](AGENTIC_PROACTIVE_ROADMAP.md).
 
 ## Earth Watch enhancement backlog — 2 November 2026
