@@ -1,12 +1,12 @@
 "use client";
 
-import { PermissionState, Button } from "./ui";
+import { PermissionState, Button, IconButton } from "./ui";
 import { pageRoles, refusalHome } from "../lib/roles";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { BarChart3, Check, FileDiff, GitPullRequest, Play, RefreshCw, ShieldCheck, X } from "lucide-react";
 import { AppShell } from "./app-shell";
 import { useT } from "./language-provider";
-import { EmptyState, ErrorState, Panel, SkeletonRows, StatusPill } from "./ui";
+import { EmptyState, ErrorState, Panel, SkeletonRows, StatusPill, TONE_CLASS, toneIcon } from "./ui";
 import { useOperatorSession } from "../lib/use-operator-session";
 import { SignInRequired } from "./sign-in-required";
 import { SortableTable, HazardGlyph, RecordRef, TwoKey, formatAbsolute, keysForStatus } from "./ui";
@@ -41,6 +41,15 @@ export function PostEventLearning() {
   const [messageFailed, setMessageFailed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const noticeRef = useRef<HTMLDivElement>(null);
+  // A new message is brought into view if it is off-screen; no smooth scroll under reduced motion.
+  useEffect(() => {
+    const node = noticeRef.current;
+    if (!message || !node) return;
+    const box = node.getBoundingClientRect();
+    if (box.top >= 0 && box.bottom <= window.innerHeight) return;
+    node.scrollIntoView({ block: "center", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  }, [message]);
 
   const load = useCallback(async () => {
     setLoading(true); setError(null);
@@ -79,7 +88,14 @@ export function PostEventLearning() {
       ? <PermissionState needs={pageRoles("/learning") ?? []} roles={session?.roles} what={t("Learning records belong to the incident desk, so they are for the incident desk and administrators.")} where={refusalHome(session?.roles, { href: "/department-tasks", label: t("Open the Department Inbox") }, t("Open My Team"))} />
       : <ErrorState message={t(error)} onRetry={() => void load()}/>)}
     {session?.authenticated && !loading && !error && <div className="space-y-4">
-      {config && <Panel title={t("Engine configuration")} icon={ShieldCheck}>
+      {/* The one status element, in normal flow at the top of the action area: it appears in place, never covers a control and can be dismissed. */}
+      <div role="status" aria-live="polite" ref={noticeRef}>
+        {message && <div className={`flex items-start gap-3 rounded-lg bg-surface p-3.5 text-sm font-medium leading-6 shadow-panel ring-1 ${TONE_CLASS[messageFailed ? "danger" : "success"]}`}>
+          {(() => { const Icon = toneIcon(messageFailed ? "danger" : "success"); return <Icon size={18} aria-hidden="true" className="mt-0.5 shrink-0" />; })()}
+          <p className="min-w-0 flex-1">{message}</p>
+          <IconButton label={t("Dismiss")} icon={X} size="sm" variant="quiet" className="-my-1 -mr-1 shrink-0" onClick={() => setMessage(null)} /></div>}
+      </div>
+      {config && <Panel data-tour="learning-config" title={t("Engine configuration")} icon={ShieldCheck}>
         <p className="text-sm">{t("Source")}: <strong className="font-semibold" title={config.config_source}>{t(codeLabel(config.config_source))}</strong></p>
         <div className="mt-3 rounded-md border border-stroke"><SortableTable label={t("Effective trigger thresholds")} minWidth="24rem" rows={Object.entries(config.thresholds)} rowKey={([name]) => name} columns={[
           { key: "hazard", label: t("Hazard"), sortValue: ([name]) => t(codeLabel(name)), cell: ([name]) => <span title={name}><HazardGlyph value={name} label={t(codeLabel(name))} /></span> },
@@ -92,7 +108,7 @@ export function PostEventLearning() {
         </details>
       </Panel>}
 
-      {isMaker && <Panel title={t("Close or replay an event window")} icon={Play}>
+      {isMaker && <Panel data-tour="learning-window" title={t("Close or replay an event window")} icon={Play}>
         <div className="grid gap-4 md:grid-cols-3">
           <div className="space-y-2">
             <label htmlFor="learn-scenario" className="field-label">{t("Replay a synthetic scenario")}</label>
@@ -118,7 +134,7 @@ export function PostEventLearning() {
         </div>
       </Panel>}
 
-      <Panel title={t("Closed event windows")} icon={BarChart3}>
+      <Panel data-tour="learning-windows" title={t("Closed event windows")} icon={BarChart3}>
         {windows.length === 0 ? <EmptyState title={t("No closed windows yet")}/> : <div className="space-y-3">{windows.map(w => <div key={w.id} className="rounded-lg border border-stroke p-3 text-sm">
           <div className="flex flex-wrap items-center gap-2">
             <strong className="font-semibold" title={w.hazard}><HazardGlyph value={w.hazard} label={t(codeLabel(w.hazard))} /></strong><span className="tnum">{w.window_start} → {w.window_end}</span>
@@ -140,7 +156,7 @@ export function PostEventLearning() {
         </div>)}</div>}
       </Panel>
 
-      <Panel title={t("Threshold proposals")} icon={GitPullRequest}>
+      <Panel data-tour="learning-proposals" title={t("Threshold proposals")} icon={GitPullRequest}>
         {proposals.length === 0 ? <EmptyState title={t("No threshold proposals yet")}/> : <div className="space-y-3">{proposals.map(p => <div key={p.id} className="rounded-lg border border-stroke p-3 text-sm">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs font-semibold" title={p.status}>{t(codeLabel(p.status))}</span><TwoKey {...keysForStatus(p.status)} />
@@ -165,9 +181,6 @@ export function PostEventLearning() {
         </div>)}</div>}
       </Panel>
       <div><Button type="button" onClick={() => void load()} disabled={busy}><RefreshCw size={16}/>{t("Refresh")}</Button></div>
-      {/* The one status element. Actions sit in several panels, so it stays pinned at the bottom of the viewport, in view next to whatever was pressed; the line is reserved so nothing jumps. */}
-      <div role="status" aria-live="polite" className="sticky bottom-3 z-10 min-h-7">
-        {message && <StatusPill tone={messageFailed ? "danger" : "success"} className="max-w-full whitespace-normal bg-surface text-left shadow-panel">{message}</StatusPill>}</div>
     </div>}
   </AppShell>;
 }

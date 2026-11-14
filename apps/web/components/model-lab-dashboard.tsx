@@ -45,7 +45,7 @@ export function ModelLabDashboard({ report }: { report: ModelReport }) {
     </InlineHelp>
 
     <section className="mt-5 grid items-start gap-5 xl:grid-cols-[minmax(0,1.25fr)_minmax(315px,.9fr)]">
-      <Panel as="article" className="min-w-0 overflow-hidden" bodyClassName="p-0" icon={FlaskConical} title="Illustrative score reliability" description="Synthetic holdout only · small bins do not establish calibration"
+      <Panel data-tour="model-reliability" as="article" className="min-w-0 overflow-hidden" bodyClassName="p-0" icon={FlaskConical} title="Illustrative score reliability" description="Synthetic holdout only · small bins do not establish calibration"
         actions={<span className="rounded-full bg-elevated px-3 py-1 text-[11px] font-semibold text-muted">5 score bins</span>}>
         <div className="h-[280px] w-full px-2 pb-4 pt-5 sm:px-5">
           <ResponsiveContainer width="100%" height="100%">
@@ -72,7 +72,7 @@ export function ModelLabDashboard({ report }: { report: ModelReport }) {
           </div>
         </details>
       </Panel>
-      <Panel as="article" className="overflow-hidden" aria-label="Synthetic holdout confusion matrix" bodyClassName="p-0" icon={Binary} title="Classification breakdown">
+      <Panel data-tour="model-matrix" as="article" className="overflow-hidden" aria-label="Synthetic holdout confusion matrix" bodyClassName="p-0" icon={Binary} title="Classification breakdown">
         <div className="p-5">
           <p className="text-xs leading-5 text-muted">Threshold: {report.model_configuration.threshold}. Counts compare model outputs against artificially generated labels.</p>
           <ResponsiveTable className="mt-4 [&>table]:min-w-0 [&>table]:text-center [&>table]:text-xs" label={t("Confusion matrix table")} caption="Synthetic holdout confusion matrix">

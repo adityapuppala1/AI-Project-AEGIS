@@ -86,9 +86,9 @@ function MyTeamBody({ team, state }: Readonly<{ team: (typeof RESPONSE_TEAMS)[nu
     {stale && <ErrorState className="mb-4" message={t(message)} onRetry={() => void refresh()} />}
     {status === "loading" && <SkeletonRows rows={2} label={t("Loading your team's requests…")} />}
     {status === "error" && <ErrorState message={t(message)} onRetry={() => void refresh()} />}
-    {status === "ready" && requests.length === 0 && <Panel as="div" bodyClassName="p-0"><EmptyState icon={ClipboardList} title={t("No requests for your team")}
+    {status === "ready" && requests.length === 0 && <Panel as="div" data-tour="myteam-requests" bodyClassName="p-0"><EmptyState icon={ClipboardList} title={t("No requests for your team")}
       body={t("A request appears here, and as a number on the menu, when a department desk asks your team for help on an approved task.")} /></Panel>}
-    {status === "ready" && requests.length > 0 && <div className="space-y-5">
+    {status === "ready" && requests.length > 0 && <div className="space-y-5" data-tour="myteam-requests">
       <section aria-labelledby="needs-answer">
         <h2 id="needs-answer" className="t-title mb-2">{t("Needs your answer")} <span className="tnum text-muted">({groups.answer.length})</span></h2>
         {groups.answer.length === 0 ? <p className="helper">{t("Nothing is waiting for an answer.")}</p> : <ul className="space-y-3">{groups.answer.map(card)}</ul>}

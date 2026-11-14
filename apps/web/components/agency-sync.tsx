@@ -141,7 +141,7 @@ export function AgencySync() {
         value={board ? board.status_counts[item.state] : "—"} hint={t("Fictional department tasks")}/>)}
     </StatStrip>
     <div className="mt-5 grid items-start gap-5 2xl:grid-cols-[minmax(0,1.25fr)_minmax(320px,1fr)]">
-      <Panel className="min-w-0 overflow-hidden" bodyClassName="p-0" icon={ClipboardList} title="Task registry" description="Select a task for its immutable scripted chronology.">
+      <Panel data-tour="sync-registry" className="min-w-0 overflow-hidden" bodyClassName="p-0" icon={ClipboardList} title="Task registry" description="Select a task for its immutable scripted chronology.">
         <div className="flex flex-wrap items-center gap-3 border-b border-stroke p-4">
           <SearchField label={t("Filter fictional task records")} value={search} onChange={setSearch} placeholder={t("Search desk, kind or case...")} className="min-w-[190px] flex-1"/>
           <label><span className="sr-only">Filter task state</span>
@@ -172,7 +172,7 @@ export function AgencySync() {
         </div>
         <p className="border-t border-stroke px-5 py-3 text-xs text-muted">{shown.length} matching of {board?.total_in_scope ?? "—"} local fictional records.</p>
       </Panel>
-      <Panel className="min-w-0 overflow-hidden" aria-label="Scripted acknowledgement timeline" bodyClassName="p-0" icon={GitBranch} title="Scripted audit trail">
+      <Panel data-tour="sync-timeline" className="min-w-0 overflow-hidden" aria-label="Scripted acknowledgement timeline" bodyClassName="p-0" icon={GitBranch} title="Scripted audit trail">
         {historyError && <ErrorState className="m-4" message={historyError} onRetry={() => setRevision(value => value+1)}/>}
         {historyLoading && <div className="p-4"><SkeletonRows rows={3} label={t("Loading chronology…")}/></div>}
         {!selectedId && <EmptyState icon={GitBranch} title={t("Select a fictional task")} body={t("Select a fictional task to inspect its scripted acknowledgement chain.")}/>}

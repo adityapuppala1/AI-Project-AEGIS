@@ -1,0 +1,149 @@
+<svg class="dg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1066" role="img" aria-label="Six rows for Sense, Predict, Decide, Hand over, Reach and Learn. Three columns: what software does, what a person decides, and where IndTrana stops." data-key="d4"><style>svg.dg{--d-bg:#FFFFFF;--d-panel:#F2F5F9;--d-card:#FFFFFF;--d-line:#8D9DBB;--d-ink:#0C183D;--d-mute:#48567A;
+--d-acc:#163E96;--d-accbg:#E6EDFB;--d-ok:#17803D;--d-okbg:#E4F4EA;--d-warn:#A35004;--d-warnbg:#FDF0DC;--d-warnline:#D9801A;
+--d-no:#B42318;--d-nobg:#FDECEA;--d-r-maker:#1A62A6;--d-r-checker:#15783A;--d-r-auditor:#475569;--d-r-dept:#0D6E67;--d-r-team:#9D174D;--d-r-admin:#A35004;}
+.dg{font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif}
+.dg .bg{fill:var(--d-bg)}
+.dg .panel{fill:var(--d-panel);stroke:var(--d-line);stroke-width:1.5}
+.dg .card{fill:var(--d-card);stroke:var(--d-line);stroke-width:2}
+.dg .soft{fill:var(--d-panel);stroke:var(--d-line);stroke-width:1.5}
+.dg .sw{fill:var(--d-accbg);stroke:var(--d-acc);stroke-width:2}
+.dg .human{fill:var(--d-warnbg);stroke:var(--d-warnline);stroke-width:2.5}
+.dg .data{fill:var(--d-okbg);stroke:var(--d-ok);stroke-width:2}
+.dg .opt{fill:var(--d-card);stroke:var(--d-acc);stroke-width:2;stroke-dasharray:9 6}
+.dg .no{fill:var(--d-nobg);stroke:var(--d-no);stroke-width:2.5;stroke-dasharray:9 6}
+.dg .todo{fill:var(--d-panel);stroke:var(--d-mute);stroke-width:2;stroke-dasharray:3 6}
+.dg .bound{fill:none;stroke:var(--d-mute);stroke-width:2;stroke-dasharray:14 8}
+.dg .t{fill:var(--d-ink)}
+.dg .tm{fill:var(--d-mute)}
+.dg .tacc{fill:var(--d-acc)}
+.dg .twarn{fill:var(--d-warn)}
+.dg .tno{fill:var(--d-no)}
+.dg .tok{fill:var(--d-ok)}
+.dg .b{font-weight:700}
+.dg .ln{fill:none;stroke:var(--d-mute);stroke-width:2.5}
+.dg .lacc{fill:none;stroke:var(--d-acc);stroke-width:2.5}
+.dg .lopt{fill:none;stroke:var(--d-acc);stroke-width:2.5;stroke-dasharray:9 6}
+.dg .lno{fill:none;stroke:var(--d-no);stroke-width:2.5;stroke-dasharray:9 6}
+.dg .lwarn{fill:none;stroke:var(--d-warnline);stroke-width:3}
+.dg .m-ln{fill:var(--d-mute)} .dg .m-acc{fill:var(--d-acc)} .dg .m-warn{fill:var(--d-warnline)} .dg .m-no{fill:var(--d-no)}
+.dg .dot{fill:var(--d-ink)}
+.dg .r-maker{fill:var(--d-r-maker)} .dg .r-checker{fill:var(--d-r-checker)} .dg .r-auditor{fill:var(--d-r-auditor)}
+.dg .r-dept{fill:var(--d-r-dept)} .dg .r-team{fill:var(--d-r-team)} .dg .r-admin{fill:var(--d-r-admin)}
+.dg .badge{fill:var(--d-ink)} .dg .badget{fill:var(--d-bg)}
+.dg .hit{fill:transparent}
+.dg [data-node]{cursor:pointer}
+.dg [data-node]:focus-visible .card,.dg [data-node]:focus-visible .sw,.dg [data-node]:focus-visible .opt{stroke:var(--d-warnline);stroke-width:5}
+.dg [data-node].on .card,.dg [data-node].on .sw,.dg [data-node].on .opt,.dg [data-node].on .data,.dg [data-node].on .human{stroke:var(--d-warnline);stroke-width:5}
+.dg .dim{opacity:.28}
+</style><defs>
+<marker id="d4a-ln" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-ln"/></marker>
+<marker id="d4a-acc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-acc"/></marker>
+<marker id="d4a-warn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-warn"/></marker>
+<marker id="d4a-no" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-no"/></marker>
+</defs><rect class="bg" x="0" y="0" width="1200" height="1066"/>
+<text x="40" y="56" class="t b" font-size="32" text-anchor="start" >Figure 1. The alert decision path</text>
+<text x="40" y="90" class="tm" font-size="21" text-anchor="start" >Six steps from signal to learning: where software assists, where a person decides, and where IndTrana stops.</text>
+<text x="205" y="138" class="tacc b" font-size="22" text-anchor="start" >Software assists</text>
+<text x="550" y="138" class="twarn b" font-size="22" text-anchor="start" >A person decides</text>
+<text x="895" y="138" class="tno b" font-size="22" text-anchor="start" >Where IndTrana stops</text>
+<rect x="40" y="160" width="150" height="110" rx="10" class="card" />
+<circle cx="62" cy="188" r="14" class="badge"/>
+<text x="62" y="195" class="badget b" font-size="20" text-anchor="middle" >1</text>
+<text x="84" y="195" class="t b" font-size="20" text-anchor="start" >Sense</text>
+<rect x="205" y="160" width="325" height="110" rx="10" class="sw" />
+<text x="221" y="194.04" class="tm" font-size="19" text-anchor="start" >Collects synthetic feeds, shows</text>
+<text x="221" y="218.35999999999999" class="tm" font-size="19" text-anchor="start" >how old each one is, holds bad</text>
+<text x="221" y="242.67999999999998" class="tm" font-size="19" text-anchor="start" >records in quarantine.</text>
+<rect x="550" y="160" width="325" height="110" rx="10" class="human" />
+<text x="566" y="194.04" class="t" font-size="19" text-anchor="start" >Reads source freshness and</text>
+<text x="566" y="218.35999999999999" class="t" font-size="19" text-anchor="start" >decides which evidence to trust.</text>
+<rect x="895" y="160" width="265" height="110" rx="10" class="soft" />
+<text x="911" y="194.04" class="tm" font-size="19" text-anchor="start" >No live agency feed is</text>
+<text x="911" y="218.35999999999999" class="tm" font-size="19" text-anchor="start" >connected.</text>
+<path d="M115 270 L115 284" class="ln" marker-end="url(#d4a-ln)" />
+<rect x="40" y="286" width="150" height="135" rx="10" class="card" />
+<circle cx="62" cy="314" r="14" class="badge"/>
+<text x="62" y="321" class="badget b" font-size="20" text-anchor="middle" >2</text>
+<text x="84" y="321" class="t b" font-size="20" text-anchor="start" >Predict</text>
+<rect x="205" y="286" width="325" height="135" rx="10" class="sw" />
+<text x="221" y="320.04" class="tm" font-size="19" text-anchor="start" >Rule-based triggers flag cases.</text>
+<text x="221" y="344.36" class="tm" font-size="19" text-anchor="start" >Rehearsal estimates carry ranges</text>
+<text x="221" y="368.68" class="tm" font-size="19" text-anchor="start" >and citations. Abstains when</text>
+<text x="221" y="393.0" class="tm" font-size="19" text-anchor="start" >evidence is thin.</text>
+<rect x="550" y="286" width="325" height="135" rx="10" class="human" />
+<text x="566" y="320.04" class="t" font-size="19" text-anchor="start" >Reviews each flagged case and its</text>
+<text x="566" y="344.36" class="t" font-size="19" text-anchor="start" >cited evidence.</text>
+<rect x="895" y="286" width="265" height="135" rx="10" class="soft" />
+<text x="911" y="320.04" class="tm" font-size="19" text-anchor="start" >Figures are rehearsal</text>
+<text x="911" y="344.36" class="tm" font-size="19" text-anchor="start" >figures, never accuracy.</text>
+<path d="M115 421 L115 435" class="ln" marker-end="url(#d4a-ln)" />
+<rect x="40" y="437" width="150" height="110" rx="10" class="card" />
+<circle cx="62" cy="465" r="14" class="badge"/>
+<text x="62" y="472" class="badget b" font-size="20" text-anchor="middle" >3</text>
+<text x="84" y="472" class="t b" font-size="20" text-anchor="start" >Decide</text>
+<rect x="205" y="437" width="325" height="110" rx="10" class="sw" />
+<text x="221" y="471.04" class="tm" font-size="19" text-anchor="start" >Attaches a cited review brief to the</text>
+<text x="221" y="495.36" class="tm" font-size="19" text-anchor="start" >draft.</text>
+<rect x="550" y="437" width="325" height="110" rx="10" class="human" />
+<text x="566" y="471.04" class="t" font-size="19" text-anchor="start" >A maker drafts and submits. A</text>
+<text x="566" y="495.36" class="t" font-size="19" text-anchor="start" >different checker approves or</text>
+<text x="566" y="519.6800000000001" class="t" font-size="19" text-anchor="start" >rejects, with a written reason.</text>
+<rect x="895" y="437" width="265" height="110" rx="10" class="soft" />
+<text x="911" y="471.04" class="tm" font-size="19" text-anchor="start" >Software cannot approve.</text>
+<text x="911" y="495.36" class="tm" font-size="19" text-anchor="start" >One person cannot do</text>
+<text x="911" y="519.6800000000001" class="tm" font-size="19" text-anchor="start" >both.</text>
+<path d="M115 547 L115 561" class="ln" marker-end="url(#d4a-ln)" />
+<rect x="40" y="563" width="150" height="110" rx="10" class="card" />
+<circle cx="62" cy="591" r="14" class="badge"/>
+<text x="62" y="598" class="badget b" font-size="20" text-anchor="middle" >4</text>
+<text x="84" y="598" class="t b" font-size="20" text-anchor="start" >Hand over</text>
+<rect x="205" y="563" width="325" height="110" rx="10" class="sw" />
+<text x="221" y="597.04" class="tm" font-size="19" text-anchor="start" >After approval, prepares a private</text>
+<text x="221" y="621.36" class="tm" font-size="19" text-anchor="start" >Draft CAP file and department</text>
+<text x="221" y="645.6800000000001" class="tm" font-size="19" text-anchor="start" >tasks.</text>
+<rect x="550" y="563" width="325" height="110" rx="10" class="human" />
+<text x="566" y="597.04" class="t" font-size="19" text-anchor="start" >An officer hands the approved</text>
+<text x="566" y="621.36" class="t" font-size="19" text-anchor="start" >draft to the alerting authority.</text>
+<rect x="895" y="563" width="265" height="110" rx="10" class="no" />
+<text x="911" y="597.04" class="tno" font-size="19" text-anchor="start" >IndTrana has no way to</text>
+<text x="911" y="621.36" class="tno" font-size="19" text-anchor="start" >send a public warning.</text>
+<path d="M115 673 L115 687" class="ln" marker-end="url(#d4a-ln)" />
+<rect x="40" y="689" width="150" height="110" rx="10" class="card" />
+<circle cx="62" cy="717" r="14" class="badge"/>
+<text x="62" y="724" class="badget b" font-size="20" text-anchor="middle" >5</text>
+<text x="84" y="724" class="t b" font-size="20" text-anchor="start" >Reach</text>
+<rect x="205" y="689" width="325" height="110" rx="10" class="sw" />
+<text x="221" y="723.04" class="tm" font-size="19" text-anchor="start" >Rehearsal only: department desks</text>
+<text x="221" y="747.36" class="tm" font-size="19" text-anchor="start" >and teams answer inside the app.</text>
+<rect x="550" y="689" width="325" height="110" rx="10" class="human" />
+<text x="566" y="723.04" class="t" font-size="19" text-anchor="start" >Desks acknowledge tasks and</text>
+<text x="566" y="747.36" class="t" font-size="19" text-anchor="start" >request teams. Team members</text>
+<text x="566" y="771.6800000000001" class="t" font-size="19" text-anchor="start" >answer.</text>
+<rect x="895" y="689" width="265" height="110" rx="10" class="no" />
+<text x="911" y="723.04" class="tno" font-size="19" text-anchor="start" >Phones are reached by the</text>
+<text x="911" y="747.36" class="tno" font-size="19" text-anchor="start" >authority&#x27;s own system.</text>
+<text x="911" y="771.6800000000001" class="tno" font-size="19" text-anchor="start" >Nobody is called or texted.</text>
+<path d="M115 799 L115 813" class="ln" marker-end="url(#d4a-ln)" />
+<rect x="40" y="815" width="150" height="135" rx="10" class="card" />
+<circle cx="62" cy="843" r="14" class="badge"/>
+<text x="62" y="850" class="badget b" font-size="20" text-anchor="middle" >6</text>
+<text x="84" y="850" class="t b" font-size="20" text-anchor="start" >Learn</text>
+<rect x="205" y="815" width="325" height="135" rx="10" class="sw" />
+<text x="221" y="849.04" class="tm" font-size="19" text-anchor="start" >Counts hits, misses and false</text>
+<text x="221" y="873.36" class="tm" font-size="19" text-anchor="start" >alarms. Proposes a threshold</text>
+<text x="221" y="897.6800000000001" class="tm" font-size="19" text-anchor="start" >change as a statistics-only</text>
+<text x="221" y="922.0000000000001" class="tm" font-size="19" text-anchor="start" >difference.</text>
+<rect x="550" y="815" width="325" height="135" rx="10" class="human" />
+<text x="566" y="849.04" class="t" font-size="19" text-anchor="start" >A maker proposes, a different</text>
+<text x="566" y="873.36" class="t" font-size="19" text-anchor="start" >checker reviews, only an</text>
+<text x="566" y="897.6800000000001" class="t" font-size="19" text-anchor="start" >administrator applies.</text>
+<rect x="895" y="815" width="265" height="135" rx="10" class="soft" />
+<text x="911" y="849.04" class="tm" font-size="19" text-anchor="start" >Approval alone never</text>
+<text x="911" y="873.36" class="tm" font-size="19" text-anchor="start" >changes the engine.</text>
+<rect x="40" y="976" width="44" height="22" rx="5" class="sw" />
+<text x="96" y="994" class="tm" font-size="19" text-anchor="start" >Software prepares or explains</text>
+<rect x="430" y="976" width="44" height="22" rx="5" class="human" />
+<text x="486" y="994" class="tm" font-size="19" text-anchor="start" >A named person decides</text>
+<rect x="820" y="976" width="44" height="22" rx="5" class="no" />
+<text x="876" y="994" class="tm" font-size="19" text-anchor="start" >Outside IndTrana</text>
+<text x="40" y="1044" class="tm" font-size="19" text-anchor="start" >IndTrana v0.3.0 · exercise prototype · synthetic data · no live warnings</text></svg>

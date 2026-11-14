@@ -1,0 +1,121 @@
+<svg class="dg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1130" role="img" aria-label="Twelve synthetic sensors in four priority classes send readings through a ground internet lane or a satellite lane to the control room. Below, a five-step storm timeline shows which lanes are available at each moment." data-key="d10"><style>svg.dg{--d-bg:#FFFFFF;--d-panel:#F2F5F9;--d-card:#FFFFFF;--d-line:#8D9DBB;--d-ink:#0C183D;--d-mute:#48567A;
+--d-acc:#163E96;--d-accbg:#E6EDFB;--d-ok:#17803D;--d-okbg:#E4F4EA;--d-warn:#A35004;--d-warnbg:#FDF0DC;--d-warnline:#D9801A;
+--d-no:#B42318;--d-nobg:#FDECEA;--d-r-maker:#1A62A6;--d-r-checker:#15783A;--d-r-auditor:#475569;--d-r-dept:#0D6E67;--d-r-team:#9D174D;--d-r-admin:#A35004;}
+.dg{font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif}
+.dg .bg{fill:var(--d-bg)}
+.dg .panel{fill:var(--d-panel);stroke:var(--d-line);stroke-width:1.5}
+.dg .card{fill:var(--d-card);stroke:var(--d-line);stroke-width:2}
+.dg .soft{fill:var(--d-panel);stroke:var(--d-line);stroke-width:1.5}
+.dg .sw{fill:var(--d-accbg);stroke:var(--d-acc);stroke-width:2}
+.dg .human{fill:var(--d-warnbg);stroke:var(--d-warnline);stroke-width:2.5}
+.dg .data{fill:var(--d-okbg);stroke:var(--d-ok);stroke-width:2}
+.dg .opt{fill:var(--d-card);stroke:var(--d-acc);stroke-width:2;stroke-dasharray:9 6}
+.dg .no{fill:var(--d-nobg);stroke:var(--d-no);stroke-width:2.5;stroke-dasharray:9 6}
+.dg .todo{fill:var(--d-panel);stroke:var(--d-mute);stroke-width:2;stroke-dasharray:3 6}
+.dg .bound{fill:none;stroke:var(--d-mute);stroke-width:2;stroke-dasharray:14 8}
+.dg .t{fill:var(--d-ink)}
+.dg .tm{fill:var(--d-mute)}
+.dg .tacc{fill:var(--d-acc)}
+.dg .twarn{fill:var(--d-warn)}
+.dg .tno{fill:var(--d-no)}
+.dg .tok{fill:var(--d-ok)}
+.dg .b{font-weight:700}
+.dg .ln{fill:none;stroke:var(--d-mute);stroke-width:2.5}
+.dg .lacc{fill:none;stroke:var(--d-acc);stroke-width:2.5}
+.dg .lopt{fill:none;stroke:var(--d-acc);stroke-width:2.5;stroke-dasharray:9 6}
+.dg .lno{fill:none;stroke:var(--d-no);stroke-width:2.5;stroke-dasharray:9 6}
+.dg .lwarn{fill:none;stroke:var(--d-warnline);stroke-width:3}
+.dg .m-ln{fill:var(--d-mute)} .dg .m-acc{fill:var(--d-acc)} .dg .m-warn{fill:var(--d-warnline)} .dg .m-no{fill:var(--d-no)}
+.dg .dot{fill:var(--d-ink)}
+.dg .r-maker{fill:var(--d-r-maker)} .dg .r-checker{fill:var(--d-r-checker)} .dg .r-auditor{fill:var(--d-r-auditor)}
+.dg .r-dept{fill:var(--d-r-dept)} .dg .r-team{fill:var(--d-r-team)} .dg .r-admin{fill:var(--d-r-admin)}
+.dg .badge{fill:var(--d-ink)} .dg .badget{fill:var(--d-bg)}
+.dg .hit{fill:transparent}
+.dg [data-node]{cursor:pointer}
+.dg [data-node]:focus-visible .card,.dg [data-node]:focus-visible .sw,.dg [data-node]:focus-visible .opt{stroke:var(--d-warnline);stroke-width:5}
+.dg [data-node].on .card,.dg [data-node].on .sw,.dg [data-node].on .opt,.dg [data-node].on .data,.dg [data-node].on .human{stroke:var(--d-warnline);stroke-width:5}
+.dg .dim{opacity:.28}
+</style><defs>
+<marker id="d10a-ln" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-ln"/></marker>
+<marker id="d10a-acc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-acc"/></marker>
+<marker id="d10a-warn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-warn"/></marker>
+<marker id="d10a-no" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-no"/></marker>
+</defs><rect class="bg" x="0" y="0" width="1200" height="1130"/>
+<text x="40" y="56" class="t b" font-size="32" text-anchor="start" >Figure 9. Resilient Sensor Link (rehearsal)</text>
+<text x="40" y="90" class="tm" font-size="21" text-anchor="start" >Browser-only simulation: sensor traffic over a ground lane and a satellite lane.</text>
+<rect x="40" y="140" width="300" height="232" rx="10" class="card" />
+<text x="56" y="173.22" class="t b" font-size="21" text-anchor="start" >12 synthetic sensors</text>
+<text x="56" y="203.1" class="tm" font-size="19" text-anchor="start" >Life-safety: 4 river and rain</text>
+<text x="56" y="227.42" class="tm" font-size="19" text-anchor="start" >gauges</text>
+<text x="56" y="251.73999999999998" class="tm" font-size="19" text-anchor="start" >Next: reservoir and 2 weather</text>
+<text x="56" y="276.06" class="tm" font-size="19" text-anchor="start" >stations</text>
+<text x="56" y="300.38" class="tm" font-size="19" text-anchor="start" >Then: soil, underpass, air</text>
+<text x="56" y="324.7" class="tm" font-size="19" text-anchor="start" >quality</text>
+<text x="56" y="349.02" class="tm" font-size="19" text-anchor="start" >Last: battery and log uploads</text>
+<rect x="430" y="140" width="340" height="86" rx="10" class="sw" />
+<text x="446" y="173.22" class="t b" font-size="21" text-anchor="start" >Ground internet lane</text>
+<text x="446" y="203.1" class="tm" font-size="19" text-anchor="start" >Used first when it is up.</text>
+<rect x="430" y="290" width="340" height="110" rx="10" class="sw" />
+<text x="446" y="323.22" class="t b" font-size="21" text-anchor="start" >Satellite lane</text>
+<text x="446" y="353.1" class="tm" font-size="19" text-anchor="start" >Takes over when ground is cut or</text>
+<text x="446" y="377.42" class="tm" font-size="19" text-anchor="start" >short.</text>
+<rect x="860" y="140" width="300" height="161" rx="10" class="human" />
+<text x="876" y="173.22" class="t b" font-size="21" text-anchor="start" >Control room, desks and</text>
+<text x="876" y="200.1" class="t b" font-size="21" text-anchor="start" >teams</text>
+<text x="876" y="229.98" class="tm" font-size="19" text-anchor="start" >Read the same readings and</text>
+<text x="876" y="254.29999999999998" class="tm" font-size="19" text-anchor="start" >are reached in the app.</text>
+<text x="876" y="278.62" class="tm" font-size="19" text-anchor="start" >Rehearsal only.</text>
+<path d="M340 260 L430 190" class="lacc" marker-end="url(#d10a-acc)" />
+<path d="M770 190 L860 240" class="lacc" marker-end="url(#d10a-acc)" />
+<path d="M340 260 L430 335" class="lacc" marker-end="url(#d10a-acc)" />
+<path d="M770 335 L860 240" class="lacc" marker-end="url(#d10a-acc)" />
+<rect x="40" y="480" width="1120" height="100" rx="10" class="soft" />
+<text x="60" y="515" class="t" font-size="19" text-anchor="start" >When capacity is short, life-safety gauges are served first and lower-priority feeds wait or are reduced. The priority classes and</text>
+<text x="60" y="539.7" class="t" font-size="19" text-anchor="start" >switch-over rules are IndTrana&#x27;s own rehearsal choices.</text>
+<text x="40" y="635" class="t b" font-size="24" text-anchor="start" >Storm timeline</text>
+<rect x="40" y="660" width="208" height="240" rx="10" class="card" />
+<circle cx="68" cy="692" r="15" class="badge"/>
+<text x="68" y="699" class="badget b" font-size="20" text-anchor="middle" >1</text>
+<text x="54" y="745" class="t b" font-size="20" text-anchor="start" >72 hours before</text>
+<text x="54" y="770.0" class="t b" font-size="20" text-anchor="start" >landfall</text>
+<text x="54" y="801.0" class="tacc b" font-size="19" text-anchor="start" >All links up</text>
+<text x="54" y="830.75" class="tm" font-size="19" text-anchor="start" >Every sensor reports.</text>
+<rect x="266" y="660" width="208" height="240" rx="10" class="card" />
+<circle cx="294" cy="692" r="15" class="badge"/>
+<text x="294" y="699" class="badget b" font-size="20" text-anchor="middle" >2</text>
+<text x="280" y="745" class="t b" font-size="20" text-anchor="start" >12 hours before</text>
+<text x="280" y="770.0" class="t b" font-size="20" text-anchor="start" >landfall</text>
+<text x="280" y="801.0" class="tacc b" font-size="19" text-anchor="start" >Ground degraded</text>
+<text x="280" y="830.75" class="tm" font-size="19" text-anchor="start" >Lowest-priority feeds</text>
+<text x="280" y="854.5" class="tm" font-size="19" text-anchor="start" >start to wait.</text>
+<path d="M248 820 L266 820" class="ln" marker-end="url(#d10a-ln)" />
+<rect x="492" y="660" width="208" height="240" rx="10" class="human" />
+<circle cx="520" cy="692" r="15" class="badge"/>
+<text x="520" y="699" class="badget b" font-size="20" text-anchor="middle" >3</text>
+<text x="506" y="745" class="t b" font-size="20" text-anchor="start" >Landfall</text>
+<text x="506" y="776.0" class="tacc b" font-size="19" text-anchor="start" >Ground cut</text>
+<text x="506" y="805.75" class="tm" font-size="19" text-anchor="start" >Life-safety gauges</text>
+<text x="506" y="829.5" class="tm" font-size="19" text-anchor="start" >keep reporting over</text>
+<text x="506" y="853.25" class="tm" font-size="19" text-anchor="start" >satellite.</text>
+<path d="M474 820 L492 820" class="ln" marker-end="url(#d10a-ln)" />
+<rect x="718" y="660" width="208" height="240" rx="10" class="human" />
+<circle cx="746" cy="692" r="15" class="badge"/>
+<text x="746" y="699" class="badget b" font-size="20" text-anchor="middle" >4</text>
+<text x="732" y="745" class="t b" font-size="20" text-anchor="start" >Peak</text>
+<text x="732" y="776.0" class="tacc b" font-size="19" text-anchor="start" >Satellite reduced</text>
+<text x="732" y="805.75" class="tm" font-size="19" text-anchor="start" >Life-safety served</text>
+<text x="732" y="829.5" class="tm" font-size="19" text-anchor="start" >first; others wait.</text>
+<path d="M700 820 L718 820" class="ln" marker-end="url(#d10a-ln)" />
+<rect x="944" y="660" width="208" height="240" rx="10" class="card" />
+<circle cx="972" cy="692" r="15" class="badge"/>
+<text x="972" y="699" class="badget b" font-size="20" text-anchor="middle" >5</text>
+<text x="958" y="745" class="t b" font-size="20" text-anchor="start" >Recovery</text>
+<text x="958" y="776.0" class="tacc b" font-size="19" text-anchor="start" >All links up</text>
+<text x="958" y="805.75" class="tm" font-size="19" text-anchor="start" >Held feeds catch up.</text>
+<path d="M926 820 L944 820" class="ln" marker-end="url(#d10a-ln)" />
+<rect x="40" y="930" width="1120" height="134" rx="10" class="no" />
+<text x="56" y="963.22" class="tno b" font-size="21" text-anchor="start" >Limits</text>
+<text x="56" y="993.1" class="tm" font-size="19" text-anchor="start" >Rehearsal simulation with synthetic sensors and values. No satellite or radio link is used and nothing is sent or stored. The page is</text>
+<text x="56" y="1017.4200000000001" class="tm" font-size="19" text-anchor="start" >described from the title of Indian Patent No. 598835 and a public listing of its publication notice; the full specification has not</text>
+<text x="56" y="1041.74" class="tm" font-size="19" text-anchor="start" >been reviewed. IndTrana itself is not described as patented.</text>
+<text x="40" y="1108" class="tm" font-size="19" text-anchor="start" >IndTrana v0.3.0 · exercise prototype · synthetic data · no live warnings</text></svg>

@@ -1,0 +1,141 @@
+<svg class="dg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1250" role="img" aria-label="State diagram. A proposal moves from draft to submitted, then approved or rejected. After approval, tasks are prepared, a department desk acknowledges them and may request teams, teams report through five states, and the desk closes the task." data-key="d5"><style>svg.dg{--d-bg:#FFFFFF;--d-panel:#F2F5F9;--d-card:#FFFFFF;--d-line:#8D9DBB;--d-ink:#0C183D;--d-mute:#48567A;
+--d-acc:#163E96;--d-accbg:#E6EDFB;--d-ok:#17803D;--d-okbg:#E4F4EA;--d-warn:#A35004;--d-warnbg:#FDF0DC;--d-warnline:#D9801A;
+--d-no:#B42318;--d-nobg:#FDECEA;--d-r-maker:#1A62A6;--d-r-checker:#15783A;--d-r-auditor:#475569;--d-r-dept:#0D6E67;--d-r-team:#9D174D;--d-r-admin:#A35004;}
+.dg{font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif}
+.dg .bg{fill:var(--d-bg)}
+.dg .panel{fill:var(--d-panel);stroke:var(--d-line);stroke-width:1.5}
+.dg .card{fill:var(--d-card);stroke:var(--d-line);stroke-width:2}
+.dg .soft{fill:var(--d-panel);stroke:var(--d-line);stroke-width:1.5}
+.dg .sw{fill:var(--d-accbg);stroke:var(--d-acc);stroke-width:2}
+.dg .human{fill:var(--d-warnbg);stroke:var(--d-warnline);stroke-width:2.5}
+.dg .data{fill:var(--d-okbg);stroke:var(--d-ok);stroke-width:2}
+.dg .opt{fill:var(--d-card);stroke:var(--d-acc);stroke-width:2;stroke-dasharray:9 6}
+.dg .no{fill:var(--d-nobg);stroke:var(--d-no);stroke-width:2.5;stroke-dasharray:9 6}
+.dg .todo{fill:var(--d-panel);stroke:var(--d-mute);stroke-width:2;stroke-dasharray:3 6}
+.dg .bound{fill:none;stroke:var(--d-mute);stroke-width:2;stroke-dasharray:14 8}
+.dg .t{fill:var(--d-ink)}
+.dg .tm{fill:var(--d-mute)}
+.dg .tacc{fill:var(--d-acc)}
+.dg .twarn{fill:var(--d-warn)}
+.dg .tno{fill:var(--d-no)}
+.dg .tok{fill:var(--d-ok)}
+.dg .b{font-weight:700}
+.dg .ln{fill:none;stroke:var(--d-mute);stroke-width:2.5}
+.dg .lacc{fill:none;stroke:var(--d-acc);stroke-width:2.5}
+.dg .lopt{fill:none;stroke:var(--d-acc);stroke-width:2.5;stroke-dasharray:9 6}
+.dg .lno{fill:none;stroke:var(--d-no);stroke-width:2.5;stroke-dasharray:9 6}
+.dg .lwarn{fill:none;stroke:var(--d-warnline);stroke-width:3}
+.dg .m-ln{fill:var(--d-mute)} .dg .m-acc{fill:var(--d-acc)} .dg .m-warn{fill:var(--d-warnline)} .dg .m-no{fill:var(--d-no)}
+.dg .dot{fill:var(--d-ink)}
+.dg .r-maker{fill:var(--d-r-maker)} .dg .r-checker{fill:var(--d-r-checker)} .dg .r-auditor{fill:var(--d-r-auditor)}
+.dg .r-dept{fill:var(--d-r-dept)} .dg .r-team{fill:var(--d-r-team)} .dg .r-admin{fill:var(--d-r-admin)}
+.dg .badge{fill:var(--d-ink)} .dg .badget{fill:var(--d-bg)}
+.dg .hit{fill:transparent}
+.dg [data-node]{cursor:pointer}
+.dg [data-node]:focus-visible .card,.dg [data-node]:focus-visible .sw,.dg [data-node]:focus-visible .opt{stroke:var(--d-warnline);stroke-width:5}
+.dg [data-node].on .card,.dg [data-node].on .sw,.dg [data-node].on .opt,.dg [data-node].on .data,.dg [data-node].on .human{stroke:var(--d-warnline);stroke-width:5}
+.dg .dim{opacity:.28}
+</style><defs>
+<marker id="d5a-ln" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-ln"/></marker>
+<marker id="d5a-acc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-acc"/></marker>
+<marker id="d5a-warn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-warn"/></marker>
+<marker id="d5a-no" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-no"/></marker>
+</defs><rect class="bg" x="0" y="0" width="1200" height="1250"/>
+<text x="40" y="56" class="t b" font-size="32" text-anchor="start" >Figure 3. Proposal life cycle</text>
+<text x="40" y="90" class="tm" font-size="21" text-anchor="start" >Each state or step, and the role that performs the change.</text>
+<rect x="40" y="150" width="210" height="136" rx="10" class="card" />
+<text x="56" y="184.04" class="t b" font-size="22" text-anchor="start" >Draft</text>
+<text x="56" y="215.2" class="tm" font-size="19" text-anchor="start" >Saved by the maker</text>
+<text x="56" y="239.51999999999998" class="tm" font-size="19" text-anchor="start" >with a cited review</text>
+<text x="56" y="263.84" class="tm" font-size="19" text-anchor="start" >brief.</text>
+<rect x="350" y="150" width="210" height="111" rx="10" class="card" />
+<text x="366" y="184.04" class="t b" font-size="22" text-anchor="start" >Submitted</text>
+<text x="366" y="215.2" class="tm" font-size="19" text-anchor="start" >Waits for an</text>
+<text x="366" y="239.51999999999998" class="tm" font-size="19" text-anchor="start" >independent check.</text>
+<rect x="660" y="150" width="210" height="111" rx="10" class="data" />
+<text x="676" y="184.04" class="t b" font-size="22" text-anchor="start" >Approved</text>
+<text x="676" y="215.2" class="tm" font-size="19" text-anchor="start" >Decision and reason</text>
+<text x="676" y="239.51999999999998" class="tm" font-size="19" text-anchor="start" >recorded.</text>
+<rect x="350" y="330" width="210" height="111" rx="10" class="no" />
+<text x="366" y="364.04" class="tno b" font-size="22" text-anchor="start" >Rejected</text>
+<text x="366" y="395.20000000000005" class="tm" font-size="19" text-anchor="start" >Ends here. Reason</text>
+<text x="366" y="419.52000000000004" class="tm" font-size="19" text-anchor="start" >recorded.</text>
+<rect x="950" y="150" width="210" height="139" rx="10" class="soft" />
+<text x="966" y="184.04" class="t b" font-size="22" text-anchor="start" >Private Draft</text>
+<text x="966" y="212.2" class="t b" font-size="22" text-anchor="start" >CAP file</text>
+<text x="966" y="243.35999999999999" class="tm" font-size="19" text-anchor="start" >Exercise marking,</text>
+<text x="966" y="267.68" class="tm" font-size="19" text-anchor="start" >never sent.</text>
+<path d="M250 215 L350 215" class="lacc" marker-end="url(#d5a-acc)" />
+<path d="M560 215 L660 215" class="lacc" marker-end="url(#d5a-acc)" />
+<path d="M870 215 L950 215" class="lacc" marker-end="url(#d5a-acc)" />
+<path d="M455 255 L455 330" class="lno" marker-end="url(#d5a-no)" />
+<rect x="50" y="108" width="81" height="30" rx="15" class="r-maker"/>
+<text x="62" y="130" class="badget b" font-size="19" text-anchor="start" >Maker</text>
+<rect x="360" y="108" width="95" height="30" rx="15" class="r-checker"/>
+<text x="372" y="130" class="badget b" font-size="19" text-anchor="start" >Checker</text>
+<rect x="670" y="108" width="95" height="30" rx="15" class="r-checker"/>
+<text x="682" y="130" class="badget b" font-size="19" text-anchor="start" >Checker</text>
+<rect x="467" y="282" width="95" height="30" rx="15" class="r-checker"/>
+<text x="479" y="304" class="badget b" font-size="19" text-anchor="start" >Checker</text>
+<text x="262" y="205" class="tm" font-size="19" text-anchor="start" >submit</text>
+<text x="1000" y="270" class="tm" font-size="19" text-anchor="start" ></text>
+<rect x="40" y="330" width="270" height="195" rx="10" class="human" />
+<text x="56" y="362" class="twarn b" font-size="21" text-anchor="start" >Two-key rule</text>
+<text x="56" y="390" class="t" font-size="19" text-anchor="start" >The checker must be a</text>
+<text x="56" y="412.8" class="t" font-size="19" text-anchor="start" >different person from the</text>
+<text x="56" y="435.6" class="t" font-size="19" text-anchor="start" >maker. The API and a</text>
+<text x="56" y="458.40000000000003" class="t" font-size="19" text-anchor="start" >database trigger both refuse</text>
+<text x="56" y="481.20000000000005" class="t" font-size="19" text-anchor="start" >self-approval.</text>
+<rect x="40" y="590" width="250" height="111" rx="10" class="card" />
+<text x="56" y="624.04" class="t b" font-size="22" text-anchor="start" >Tasks prepared</text>
+<text x="56" y="655.1999999999999" class="tm" font-size="19" text-anchor="start" >Scripted tasks for three</text>
+<text x="56" y="679.52" class="tm" font-size="19" text-anchor="start" >desks.</text>
+<rect x="360" y="590" width="250" height="100" rx="10" class="card" />
+<text x="376" y="624.04" class="t b" font-size="22" text-anchor="start" >Task acknowledged</text>
+<text x="376" y="655.1999999999999" class="tm" font-size="19" text-anchor="start" >Desk writes a reason.</text>
+<rect x="50" y="552" width="81" height="30" rx="15" class="r-maker"/>
+<text x="62" y="574" class="badget b" font-size="19" text-anchor="start" >Maker</text>
+<rect x="370" y="552" width="113" height="30" rx="15" class="r-dept"/>
+<text x="382" y="574" class="badget b" font-size="19" text-anchor="start" >Dept desk</text>
+<path d="M770 255 L770 545 L165 545 L165 590" class="lacc" marker-end="url(#d5a-acc)" />
+<path d="M290 640 L360 640" class="lacc" marker-end="url(#d5a-acc)" />
+<path d="M485 690 L485 735 L135 735 L135 795" class="lacc" marker-end="url(#d5a-acc)" />
+<text x="260" y="775" class="t b" font-size="21" text-anchor="start" >Team request (rehearsal inside the app)</text>
+<rect x="40" y="795" width="190" height="92" rx="10" class="card" />
+<text x="135" y="828" class="t b" font-size="21" text-anchor="middle" >Requested</text>
+<rect x="52" y="842" width="113" height="30" rx="15" class="r-dept"/>
+<text x="64" y="864" class="badget b" font-size="19" text-anchor="start" >Dept desk</text>
+<rect x="265" y="795" width="190" height="92" rx="10" class="card" />
+<text x="360" y="828" class="t b" font-size="21" text-anchor="middle" >Accepted</text>
+<path d="M230 840 L265 840" class="lacc" marker-end="url(#d5a-acc)" />
+<rect x="277" y="842" width="72" height="30" rx="15" class="r-team"/>
+<text x="289" y="864" class="badget b" font-size="19" text-anchor="start" >Team</text>
+<rect x="490" y="795" width="190" height="92" rx="10" class="card" />
+<text x="585" y="828" class="t b" font-size="21" text-anchor="middle" >En route</text>
+<path d="M455 840 L490 840" class="lacc" marker-end="url(#d5a-acc)" />
+<rect x="502" y="842" width="72" height="30" rx="15" class="r-team"/>
+<text x="514" y="864" class="badget b" font-size="19" text-anchor="start" >Team</text>
+<rect x="715" y="795" width="190" height="92" rx="10" class="card" />
+<text x="810" y="828" class="t b" font-size="21" text-anchor="middle" >On site</text>
+<path d="M680 840 L715 840" class="lacc" marker-end="url(#d5a-acc)" />
+<rect x="727" y="842" width="72" height="30" rx="15" class="r-team"/>
+<text x="739" y="864" class="badget b" font-size="19" text-anchor="start" >Team</text>
+<rect x="940" y="795" width="190" height="92" rx="10" class="data" />
+<text x="1035" y="828" class="t b" font-size="21" text-anchor="middle" >Completed</text>
+<path d="M905 840 L940 840" class="lacc" marker-end="url(#d5a-acc)" />
+<rect x="952" y="842" width="72" height="30" rx="15" class="r-team"/>
+<text x="964" y="864" class="badget b" font-size="19" text-anchor="start" >Team</text>
+<rect x="40" y="960" width="520" height="136" rx="10" class="soft" />
+<text x="56" y="994.04" class="t b" font-size="22" text-anchor="start" >Declined or stood down</text>
+<text x="56" y="1025.1999999999998" class="tm" font-size="19" text-anchor="start" >A team may decline a new request. The desk may stand a</text>
+<text x="56" y="1049.5199999999998" class="tm" font-size="19" text-anchor="start" >team down. The request ends; the desk may ask another</text>
+<text x="56" y="1073.8399999999997" class="tm" font-size="19" text-anchor="start" >team.</text>
+<rect x="640" y="960" width="520" height="111" rx="10" class="data" />
+<text x="656" y="994.04" class="t b" font-size="22" text-anchor="start" >Task closed</text>
+<text x="656" y="1025.1999999999998" class="tm" font-size="19" text-anchor="start" >The desk closes its task with a reason. Closing is refused</text>
+<text x="656" y="1049.5199999999998" class="tm" font-size="19" text-anchor="start" >while any team request is active.</text>
+<path d="M1100 887 L1100 960" class="lacc" marker-end="url(#d5a-acc)" />
+<rect x="970" y="915" width="113" height="30" rx="15" class="r-dept"/>
+<text x="982" y="937" class="badget b" font-size="19" text-anchor="start" >Dept desk</text>
+<text x="40" y="1170" class="tm" font-size="19" text-anchor="start" >Team answers add timeline lines and audit events. They never change the proposal, the approval or the CAP draft.</text>
+<text x="40" y="1228" class="tm" font-size="19" text-anchor="start" >IndTrana v0.3.0 · exercise prototype · synthetic data · no live warnings</text></svg>

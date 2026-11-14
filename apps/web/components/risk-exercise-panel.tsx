@@ -47,7 +47,7 @@ export function RiskExercisePanel() {
       setError(cause instanceof Error ? cause.message : "Unavailable");
     } finally { setBusy(false); }
   }
-  return <Panel id="synthetic-risk" className="mt-5 overflow-hidden" aria-label="Illustrative hazard-index calculator" bodyClassName="p-0" icon={BrainCircuit} title="Rule-based Hazard Index · Training" description="Explore the original deterministic teaching formula with synthetic inputs only."
+  return <Panel data-tour="demo-risk" id="synthetic-risk" className="mt-5 overflow-hidden" aria-label="Illustrative hazard-index calculator" bodyClassName="p-0" icon={BrainCircuit} title="Rule-based Hazard Index · Training" description="Explore the original deterministic teaching formula with synthetic inputs only."
     actions={<span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">Not trained AI</span>}>
     <div role="note" className="flex items-start gap-3 border-b border-amber-500/20 bg-amber-500/10 p-4 text-xs leading-6 text-amber-800 dark:text-amber-200">
       <ShieldAlert size={18} className="mt-1 shrink-0"/>

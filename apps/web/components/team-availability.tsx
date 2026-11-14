@@ -99,7 +99,7 @@ export function TeamAvailability() {
     </div>
     <p className="mb-4 text-xs leading-5 text-muted"><Link href="/sensor-link#communication" className="font-semibold text-accent hover:underline">{t(SENSOR_LINK_LINKS.teams)}</Link></p>
     {loading && !board && <SkeletonCards count={3} label={t("Loading fictional team load")}/>}
-    {board && teams.length > 0 && <SegmentedControl className="mb-4" label={t("Filter teams by status")} value={statusFilter} onChange={setStatusFilter}
+    {board && teams.length > 0 && <SegmentedControl tour="teams-filter" className="mb-4" label={t("Filter teams by status")} value={statusFilter} onChange={setStatusFilter}
       options={[{ value: "all", label: t("All teams") }, { value: "available", label: t("Available") }, { value: "engaged", label: t("Engaged") }, { value: "at_capacity", label: t("At planning capacity") }]}/>}
     {board && teams.length === 0 && <Panel as="div" bodyClassName="p-0"><EmptyState icon={UsersRound} title={t("No scripted exercise tasks yet")}
       body={t("No team load can be shown. An empty board does not mean any team is free or staffed.")}/></Panel>}

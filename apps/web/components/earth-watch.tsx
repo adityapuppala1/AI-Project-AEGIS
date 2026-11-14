@@ -290,7 +290,7 @@ export function EarthWatch() {
     </Panel>}
 
     {gate === "enabled" && <>
-      <Panel className="mb-5" bodyClassName="flex flex-wrap items-center gap-3 p-4" aria-label="Feed heartbeat">
+      <Panel data-tour="earth-heartbeat" className="mb-5" bodyClassName="flex flex-wrap items-center gap-3 p-4" aria-label="Feed heartbeat">
         <span className="inline-flex items-center gap-2 text-sm font-bold">
           <span aria-hidden="true" className="h-2.5 w-2.5 rounded-full bg-emerald-500 motion-safe:animate-pulse"/> {t("Public feeds")}
         </span>
@@ -308,7 +308,7 @@ export function EarthWatch() {
       {(errors.earthquakes || errors.events) && <ErrorState message={"A feed refresh failed. Previously fetched data is shown and labelled with its fetch time; nothing is invented."} className="mb-4" />}
 
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.6fr)_minmax(320px,1fr)]">
-        <Panel className="min-w-0 overflow-hidden" bodyClassName="p-0" aria-label="Earth Watch map">
+        <Panel data-tour="earth-map" className="min-w-0 overflow-hidden" bodyClassName="p-0" aria-label="Earth Watch map">
           <div className="flex flex-wrap items-end gap-3 border-b border-stroke p-4">
             <label className="text-xs font-semibold text-muted">{t("Imagery source")}
               <select className="field mt-1 min-w-[190px]" value={baseId} onChange={event => { setBaseId(event.target.value); setPickedDate(null); }}>
@@ -340,7 +340,7 @@ export function EarthWatch() {
           </ul>
         </Panel>
 
-        <Panel as="aside" className="min-w-0 overflow-hidden" aria-label="Public hazard reports" bodyClassName="p-0" icon={Layers} title={t("Hazard layers")}
+        <Panel data-tour="earth-layers" as="aside" className="min-w-0 overflow-hidden" aria-label="Public hazard reports" bodyClassName="p-0" icon={Layers} title={t("Hazard layers")}
           actions={<span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">{t("Read-only")}</span>}>
           <div className="space-y-3 border-b border-stroke p-4 text-sm">
             <label className="flex min-h-11 cursor-pointer items-center gap-2"><input type="checkbox" className="h-5 w-5 accent-teal-600" checked={showQuakes} onChange={event => setShowQuakes(event.target.checked)}/> USGS earthquakes <small className="text-muted">M2.5+ · 7 days</small></label>

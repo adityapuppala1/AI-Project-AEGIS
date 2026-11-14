@@ -118,7 +118,7 @@ export function BrandAdmin() {
     <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
       {error && <ErrorState message={error} className="xl:col-span-2" />}
       <p role="status" aria-live="polite" className="text-sm xl:col-span-2">{message}</p>
-      <Panel title={t("Product name")} icon={Type}>
+      <Panel data-tour="brand-name" title={t("Product name")} icon={Type}>
         <form className="space-y-3" onSubmit={event => { event.preventDefault(); void saveName(); }}>
           <p className="text-sm text-muted">{t("Current name")}: <strong className="text-ink" data-brand-literal="">{settings?.name ?? "…"}</strong></p>
           <label htmlFor={nameId} className="block text-sm font-semibold">{t("New name")}</label>
@@ -130,7 +130,7 @@ export function BrandAdmin() {
           <Button type="submit" variant="primary" icon={Save} className="min-h-[44px]" disabled={!settings || busy || !checkedName.ok} loading={busy}>{t("Save name")}</Button>
         </form>
       </Panel>
-      <Panel title={t("Logo")} icon={ImageUp}>
+      <Panel data-tour="brand-logo" title={t("Logo")} icon={ImageUp}>
         <div className="space-y-3">
           <div className="flex flex-wrap items-start gap-4">
             <figure className="space-y-1"><div className={logoBox}>{currentLogo
@@ -152,7 +152,7 @@ export function BrandAdmin() {
         <p className="mb-3 text-sm text-muted">{t("Puts back the built-in name and mark. The change is recorded below.")} <span data-brand-literal="">({DEFAULT_BRAND_NAME})</span></p>
         <Button variant="danger" icon={RotateCcw} className="min-h-[44px]" disabled={!settings || busy || (!settings.custom_name && settings.logo_version == null)} onClick={() => void restore()}>{t("Restore defaults")}</Button>
       </Panel>
-      <Panel title={t("Brand changes")} icon={History}>
+      <Panel data-tour="brand-history" title={t("Brand changes")} icon={History}>
         {audit === null ? <SkeletonRows rows={2} /> : <SortableTable label={t("Brand changes")} rows={audit} columns={columns} rowKey={row => row.id} empty={t("No changes yet.")} minWidth="30rem" />}
       </Panel>
     </div>}

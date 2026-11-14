@@ -38,7 +38,7 @@ export default function PlaybooksPage() {
       <StatTile label={t("Shown")} value={shown.length} icon={CheckCircle2}/>
     </StatStrip>
     <SearchField label={t("Search playbook steps")} value={query} onChange={setQuery} className="mb-4"/>
-    <Panel className="overflow-hidden" bodyClassName="p-0" icon={BookOpenCheck} title="Urban Flood Exercise · Referenced Steps" description={recordIdTitle(PLAYBOOK)}
+    <Panel data-tour="playbooks-steps" className="overflow-hidden" bodyClassName="p-0" icon={BookOpenCheck} title="Urban Flood Exercise · Referenced Steps" description={recordIdTitle(PLAYBOOK)}
       actions={<span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">Draft · Unapproved</span>}>
         {shown.length === 0 && <div className="md:col-span-2"><EmptyState title={t("No playbook steps match")} body={t("No match does not mean a step is unnecessary; clear the search to see all steps.")}/></div>}
       <div className="grid gap-3 p-5 md:grid-cols-2">
@@ -54,7 +54,7 @@ export default function PlaybooksPage() {
         </details>)}
       </div>
     </Panel>
-    <Panel className="mt-5" aria-label="Exercise playbook cross references">
+    <Panel data-tour="playbooks-refs" className="mt-5" aria-label="Exercise playbook cross references">
       <h3 className="text-sm font-bold">Continue the cited tabletop workflow</h3>
       <p className="mt-2 text-xs leading-6 text-muted">The incident review checklist cites this version and source/evidence UUIDs, while AgencySync task rows reference the same version. These links are explanatory—not operational authorization.</p>
       <div className="mt-4 flex flex-wrap gap-3">

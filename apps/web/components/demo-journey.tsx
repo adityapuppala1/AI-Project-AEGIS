@@ -158,7 +158,7 @@ export function DemoJourney({ snapshot }: { snapshot: Snapshot }) {
         <p className="mt-1 text-[11px] leading-4 text-muted">{caption}</p>
       </Panel>)}
     </section>
-    <Panel className="mt-4" title="Local dependency diagnostics" description="Bounded exercise-stack checks only. These do not establish field sensor, agency, or public-safety readiness.">
+    <Panel data-tour="demo-diagnostics" className="mt-4" title="Local dependency diagnostics" description="Bounded exercise-stack checks only. These do not establish field sensor, agency, or public-safety readiness.">
       {snapshot.dependencies.length ? <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {snapshot.dependencies.map(item => <li className="rounded-lg border border-stroke bg-elevated/40 p-3" key={item.id}>
           <div className="flex items-center justify-between gap-3">

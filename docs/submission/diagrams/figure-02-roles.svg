@@ -1,0 +1,196 @@
+<svg class="dg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 974" role="img" aria-label="Matrix of six roles against seventeen capabilities. A filled circle means the role may do it." data-key="d8"><style>svg.dg{--d-bg:#FFFFFF;--d-panel:#F2F5F9;--d-card:#FFFFFF;--d-line:#8D9DBB;--d-ink:#0C183D;--d-mute:#48567A;
+--d-acc:#163E96;--d-accbg:#E6EDFB;--d-ok:#17803D;--d-okbg:#E4F4EA;--d-warn:#A35004;--d-warnbg:#FDF0DC;--d-warnline:#D9801A;
+--d-no:#B42318;--d-nobg:#FDECEA;--d-r-maker:#1A62A6;--d-r-checker:#15783A;--d-r-auditor:#475569;--d-r-dept:#0D6E67;--d-r-team:#9D174D;--d-r-admin:#A35004;}
+.dg{font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif}
+.dg .bg{fill:var(--d-bg)}
+.dg .panel{fill:var(--d-panel);stroke:var(--d-line);stroke-width:1.5}
+.dg .card{fill:var(--d-card);stroke:var(--d-line);stroke-width:2}
+.dg .soft{fill:var(--d-panel);stroke:var(--d-line);stroke-width:1.5}
+.dg .sw{fill:var(--d-accbg);stroke:var(--d-acc);stroke-width:2}
+.dg .human{fill:var(--d-warnbg);stroke:var(--d-warnline);stroke-width:2.5}
+.dg .data{fill:var(--d-okbg);stroke:var(--d-ok);stroke-width:2}
+.dg .opt{fill:var(--d-card);stroke:var(--d-acc);stroke-width:2;stroke-dasharray:9 6}
+.dg .no{fill:var(--d-nobg);stroke:var(--d-no);stroke-width:2.5;stroke-dasharray:9 6}
+.dg .todo{fill:var(--d-panel);stroke:var(--d-mute);stroke-width:2;stroke-dasharray:3 6}
+.dg .bound{fill:none;stroke:var(--d-mute);stroke-width:2;stroke-dasharray:14 8}
+.dg .t{fill:var(--d-ink)}
+.dg .tm{fill:var(--d-mute)}
+.dg .tacc{fill:var(--d-acc)}
+.dg .twarn{fill:var(--d-warn)}
+.dg .tno{fill:var(--d-no)}
+.dg .tok{fill:var(--d-ok)}
+.dg .b{font-weight:700}
+.dg .ln{fill:none;stroke:var(--d-mute);stroke-width:2.5}
+.dg .lacc{fill:none;stroke:var(--d-acc);stroke-width:2.5}
+.dg .lopt{fill:none;stroke:var(--d-acc);stroke-width:2.5;stroke-dasharray:9 6}
+.dg .lno{fill:none;stroke:var(--d-no);stroke-width:2.5;stroke-dasharray:9 6}
+.dg .lwarn{fill:none;stroke:var(--d-warnline);stroke-width:3}
+.dg .m-ln{fill:var(--d-mute)} .dg .m-acc{fill:var(--d-acc)} .dg .m-warn{fill:var(--d-warnline)} .dg .m-no{fill:var(--d-no)}
+.dg .dot{fill:var(--d-ink)}
+.dg .r-maker{fill:var(--d-r-maker)} .dg .r-checker{fill:var(--d-r-checker)} .dg .r-auditor{fill:var(--d-r-auditor)}
+.dg .r-dept{fill:var(--d-r-dept)} .dg .r-team{fill:var(--d-r-team)} .dg .r-admin{fill:var(--d-r-admin)}
+.dg .badge{fill:var(--d-ink)} .dg .badget{fill:var(--d-bg)}
+.dg .hit{fill:transparent}
+.dg [data-node]{cursor:pointer}
+.dg [data-node]:focus-visible .card,.dg [data-node]:focus-visible .sw,.dg [data-node]:focus-visible .opt{stroke:var(--d-warnline);stroke-width:5}
+.dg [data-node].on .card,.dg [data-node].on .sw,.dg [data-node].on .opt,.dg [data-node].on .data,.dg [data-node].on .human{stroke:var(--d-warnline);stroke-width:5}
+.dg .dim{opacity:.28}
+</style><defs>
+<marker id="d8a-ln" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-ln"/></marker>
+<marker id="d8a-acc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-acc"/></marker>
+<marker id="d8a-warn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-warn"/></marker>
+<marker id="d8a-no" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-no"/></marker>
+</defs><rect class="bg" x="0" y="0" width="1200" height="974"/>
+<text x="40" y="56" class="t b" font-size="32" text-anchor="start" >Figure 2. Roles and what each can do</text>
+<text x="40" y="90" class="tm" font-size="21" text-anchor="start" >Six roles, taken from the role matrix in the web app. The server checks every route again.</text>
+<rect x="623" y="125" width="87" height="36" rx="8" class="r-maker" />
+<text x="666" y="150" class="badget b" font-size="19" text-anchor="middle" >Maker</text>
+<rect x="716" y="125" width="87" height="36" rx="8" class="r-checker" />
+<text x="759" y="150" class="badget b" font-size="19" text-anchor="middle" >Checker</text>
+<rect x="809" y="125" width="87" height="36" rx="8" class="r-auditor" />
+<text x="852" y="150" class="badget b" font-size="19" text-anchor="middle" >Auditor</text>
+<rect x="902" y="125" width="87" height="36" rx="8" class="r-dept" />
+<text x="945" y="150" class="badget b" font-size="19" text-anchor="middle" >Desk</text>
+<rect x="995" y="125" width="87" height="36" rx="8" class="r-team" />
+<text x="1038" y="150" class="badget b" font-size="19" text-anchor="middle" >Team</text>
+<rect x="1088" y="125" width="87" height="36" rx="8" class="r-admin" />
+<text x="1131" y="150" class="badget b" font-size="19" text-anchor="middle" >Admin</text>
+<rect x="40" y="177" width="1138" height="39" rx="4" class="panel" stroke="none"/>
+<text x="52" y="201" class="t" font-size="19" text-anchor="start" >Open records, sources, model lab, audit export (exercise agency)</text>
+<circle cx="666" cy="196.5" r="12" class="r-maker"/>
+<circle cx="759" cy="196.5" r="12" class="r-checker"/>
+<circle cx="852" cy="196.5" r="12" class="r-auditor"/>
+<circle cx="945" cy="196.5" r="12" class="r-dept"/>
+<circle cx="1038" cy="196.5" r="12" class="r-team"/>
+<circle cx="1131" cy="196.5" r="12" class="r-admin"/>
+<rect x="40" y="216" width="1138" height="39" rx="4" class="bg" stroke="none"/>
+<text x="52" y="240" class="t" font-size="19" text-anchor="start" >Read the Hazard Watch</text>
+<circle cx="666" cy="235.5" r="12" class="r-maker"/>
+<circle cx="759" cy="235.5" r="12" class="r-checker"/>
+<circle cx="852" cy="235.5" r="12" class="r-auditor"/>
+<circle cx="945" cy="235.5" r="12" class="r-dept"/>
+<circle cx="1038" cy="235.5" r="12" class="r-team"/>
+<circle cx="1131" cy="235.5" r="12" class="r-admin"/>
+<rect x="40" y="255" width="1138" height="39" rx="4" class="panel" stroke="none"/>
+<text x="52" y="279" class="t" font-size="19" text-anchor="start" >Refresh the Hazard Watch</text>
+<circle cx="666" cy="274.5" r="12" class="r-maker"/>
+<path d="M752 274.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M845 274.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M938 274.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M1031 274.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<circle cx="1131" cy="274.5" r="12" class="r-admin"/>
+<rect x="40" y="294" width="1138" height="39" rx="4" class="bg" stroke="none"/>
+<text x="52" y="318" class="t" font-size="19" text-anchor="start" >Start, advance or cancel a proactive run</text>
+<circle cx="666" cy="313.5" r="12" class="r-maker"/>
+<path d="M752 313.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M845 313.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M938 313.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M1031 313.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M1124 313.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<rect x="40" y="333" width="1138" height="39" rx="4" class="panel" stroke="none"/>
+<text x="52" y="357" class="t" font-size="19" text-anchor="start" >Read proposals and their audit trail</text>
+<circle cx="666" cy="352.5" r="12" class="r-maker"/>
+<circle cx="759" cy="352.5" r="12" class="r-checker"/>
+<circle cx="852" cy="352.5" r="12" class="r-auditor"/>
+<path d="M938 352.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M1031 352.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M1124 352.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<rect x="40" y="372" width="1138" height="39" rx="4" class="bg" stroke="none"/>
+<text x="52" y="396" class="t" font-size="19" text-anchor="start" >Draft, submit, prepare tasks, run bounded assistance</text>
+<circle cx="666" cy="391.5" r="12" class="r-maker"/>
+<path d="M752 391.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M845 391.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M938 391.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M1031 391.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M1124 391.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<rect x="40" y="411" width="1138" height="39" rx="4" class="panel" stroke="none"/>
+<text x="52" y="435" class="t" font-size="19" text-anchor="start" >Approve or reject (never one&#x27;s own)</text>
+<path d="M659 430.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<circle cx="759" cy="430.5" r="12" class="r-checker"/>
+<path d="M845 430.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M938 430.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M1031 430.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M1124 430.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<rect x="40" y="450" width="1138" height="39" rx="4" class="bg" stroke="none"/>
+<text x="52" y="474" class="t" font-size="19" text-anchor="start" >Work the Department Inbox (own department)</text>
+<path d="M659 469.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M752 469.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M845 469.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<circle cx="945" cy="469.5" r="12" class="r-dept"/>
+<path d="M1031 469.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M1124 469.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<rect x="40" y="489" width="1138" height="39" rx="4" class="panel" stroke="none"/>
+<text x="52" y="513" class="t" font-size="19" text-anchor="start" >Request, record for or stand down a team</text>
+<path d="M659 508.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M752 508.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M845 508.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<circle cx="945" cy="508.5" r="12" class="r-dept"/>
+<path d="M1031 508.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M1124 508.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<rect x="40" y="528" width="1138" height="39" rx="4" class="bg" stroke="none"/>
+<text x="52" y="552" class="t" font-size="19" text-anchor="start" >Answer requests for its own team</text>
+<path d="M659 547.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M752 547.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M845 547.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M938 547.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<circle cx="1038" cy="547.5" r="12" class="r-team"/>
+<path d="M1124 547.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<rect x="40" y="567" width="1138" height="39" rx="4" class="panel" stroke="none"/>
+<text x="52" y="591" class="t" font-size="19" text-anchor="start" >Read team requests and reports</text>
+<circle cx="666" cy="586.5" r="12" class="r-maker"/>
+<circle cx="759" cy="586.5" r="12" class="r-checker"/>
+<circle cx="852" cy="586.5" r="12" class="r-auditor"/>
+<circle cx="945" cy="586.5" r="12" class="r-dept"/>
+<circle cx="1038" cy="586.5" r="12" class="r-team"/>
+<path d="M1124 586.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<rect x="40" y="606" width="1138" height="39" rx="4" class="bg" stroke="none"/>
+<text x="52" y="630" class="t" font-size="19" text-anchor="start" >Read the handover brief, ask the copilot</text>
+<circle cx="666" cy="625.5" r="12" class="r-maker"/>
+<circle cx="759" cy="625.5" r="12" class="r-checker"/>
+<circle cx="852" cy="625.5" r="12" class="r-auditor"/>
+<path d="M938 625.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M1031 625.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<circle cx="1131" cy="625.5" r="12" class="r-admin"/>
+<rect x="40" y="645" width="1138" height="39" rx="4" class="panel" stroke="none"/>
+<text x="52" y="669" class="t" font-size="19" text-anchor="start" >Propose a threshold change, start a drill</text>
+<circle cx="666" cy="664.5" r="12" class="r-maker"/>
+<path d="M752 664.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M845 664.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M938 664.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M1031 664.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M1124 664.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<rect x="40" y="684" width="1138" height="39" rx="4" class="bg" stroke="none"/>
+<text x="52" y="708" class="t" font-size="19" text-anchor="start" >Respond in a drill</text>
+<circle cx="666" cy="703.5" r="12" class="r-maker"/>
+<circle cx="759" cy="703.5" r="12" class="r-checker"/>
+<path d="M845 703.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M938 703.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M1031 703.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M1124 703.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<rect x="40" y="723" width="1138" height="39" rx="4" class="panel" stroke="none"/>
+<text x="52" y="747" class="t" font-size="19" text-anchor="start" >Review a threshold proposal (never one&#x27;s own)</text>
+<path d="M659 742.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<circle cx="759" cy="742.5" r="12" class="r-checker"/>
+<path d="M845 742.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M938 742.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M1031 742.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<circle cx="1131" cy="742.5" r="12" class="r-admin"/>
+<rect x="40" y="762" width="1138" height="39" rx="4" class="bg" stroke="none"/>
+<text x="52" y="786" class="t" font-size="19" text-anchor="start" >Apply an approved threshold overlay</text>
+<path d="M659 781.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M752 781.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M845 781.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M938 781.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M1031 781.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<circle cx="1131" cy="781.5" r="12" class="r-admin"/>
+<rect x="40" y="801" width="1138" height="39" rx="4" class="panel" stroke="none"/>
+<text x="52" y="825" class="t" font-size="19" text-anchor="start" >Connectors and the kill switch</text>
+<path d="M659 820.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M752 820.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M845 820.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M938 820.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<path d="M1031 820.5h14" class="ln" stroke-width="2" opacity="0.5"/>
+<circle cx="1131" cy="820.5" r="12" class="r-admin"/>
+<text x="40" y="864" class="tm" font-size="19" text-anchor="start" >A person holding several roles sees the menu led by the role with most responsibility. The maker and the administrator cannot</text>
+<text x="40" y="888.7" class="tm" font-size="19" text-anchor="start" >approve proposals; a checker cannot draft. Accounts are created in the agency&#x27;s identity provider, never in IndTrana.</text>
+<text x="40" y="952" class="tm" font-size="19" text-anchor="start" >IndTrana v0.3.0 · exercise prototype · synthetic data · no live warnings</text></svg>

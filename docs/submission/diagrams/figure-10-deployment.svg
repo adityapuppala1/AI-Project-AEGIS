@@ -1,0 +1,123 @@
+<svg class="dg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1460" role="img" aria-label="Two columns. Left, today: one laptop running Docker Compose with web, API, database and a local demo identity provider. Right, not yet built: hosting in India, a production identity provider, high availability and backups, an independent security audit, accessibility certification, logging duties, data agreements and more." data-key="d9"><style>svg.dg{--d-bg:#FFFFFF;--d-panel:#F2F5F9;--d-card:#FFFFFF;--d-line:#8D9DBB;--d-ink:#0C183D;--d-mute:#48567A;
+--d-acc:#163E96;--d-accbg:#E6EDFB;--d-ok:#17803D;--d-okbg:#E4F4EA;--d-warn:#A35004;--d-warnbg:#FDF0DC;--d-warnline:#D9801A;
+--d-no:#B42318;--d-nobg:#FDECEA;--d-r-maker:#1A62A6;--d-r-checker:#15783A;--d-r-auditor:#475569;--d-r-dept:#0D6E67;--d-r-team:#9D174D;--d-r-admin:#A35004;}
+.dg{font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif}
+.dg .bg{fill:var(--d-bg)}
+.dg .panel{fill:var(--d-panel);stroke:var(--d-line);stroke-width:1.5}
+.dg .card{fill:var(--d-card);stroke:var(--d-line);stroke-width:2}
+.dg .soft{fill:var(--d-panel);stroke:var(--d-line);stroke-width:1.5}
+.dg .sw{fill:var(--d-accbg);stroke:var(--d-acc);stroke-width:2}
+.dg .human{fill:var(--d-warnbg);stroke:var(--d-warnline);stroke-width:2.5}
+.dg .data{fill:var(--d-okbg);stroke:var(--d-ok);stroke-width:2}
+.dg .opt{fill:var(--d-card);stroke:var(--d-acc);stroke-width:2;stroke-dasharray:9 6}
+.dg .no{fill:var(--d-nobg);stroke:var(--d-no);stroke-width:2.5;stroke-dasharray:9 6}
+.dg .todo{fill:var(--d-panel);stroke:var(--d-mute);stroke-width:2;stroke-dasharray:3 6}
+.dg .bound{fill:none;stroke:var(--d-mute);stroke-width:2;stroke-dasharray:14 8}
+.dg .t{fill:var(--d-ink)}
+.dg .tm{fill:var(--d-mute)}
+.dg .tacc{fill:var(--d-acc)}
+.dg .twarn{fill:var(--d-warn)}
+.dg .tno{fill:var(--d-no)}
+.dg .tok{fill:var(--d-ok)}
+.dg .b{font-weight:700}
+.dg .ln{fill:none;stroke:var(--d-mute);stroke-width:2.5}
+.dg .lacc{fill:none;stroke:var(--d-acc);stroke-width:2.5}
+.dg .lopt{fill:none;stroke:var(--d-acc);stroke-width:2.5;stroke-dasharray:9 6}
+.dg .lno{fill:none;stroke:var(--d-no);stroke-width:2.5;stroke-dasharray:9 6}
+.dg .lwarn{fill:none;stroke:var(--d-warnline);stroke-width:3}
+.dg .m-ln{fill:var(--d-mute)} .dg .m-acc{fill:var(--d-acc)} .dg .m-warn{fill:var(--d-warnline)} .dg .m-no{fill:var(--d-no)}
+.dg .dot{fill:var(--d-ink)}
+.dg .r-maker{fill:var(--d-r-maker)} .dg .r-checker{fill:var(--d-r-checker)} .dg .r-auditor{fill:var(--d-r-auditor)}
+.dg .r-dept{fill:var(--d-r-dept)} .dg .r-team{fill:var(--d-r-team)} .dg .r-admin{fill:var(--d-r-admin)}
+.dg .badge{fill:var(--d-ink)} .dg .badget{fill:var(--d-bg)}
+.dg .hit{fill:transparent}
+.dg [data-node]{cursor:pointer}
+.dg [data-node]:focus-visible .card,.dg [data-node]:focus-visible .sw,.dg [data-node]:focus-visible .opt{stroke:var(--d-warnline);stroke-width:5}
+.dg [data-node].on .card,.dg [data-node].on .sw,.dg [data-node].on .opt,.dg [data-node].on .data,.dg [data-node].on .human{stroke:var(--d-warnline);stroke-width:5}
+.dg .dim{opacity:.28}
+</style><defs>
+<marker id="d9a-ln" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-ln"/></marker>
+<marker id="d9a-acc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-acc"/></marker>
+<marker id="d9a-warn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-warn"/></marker>
+<marker id="d9a-no" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-no"/></marker>
+</defs><rect class="bg" x="0" y="0" width="1200" height="1460"/>
+<text x="40" y="56" class="t b" font-size="32" text-anchor="start" >Figure 10. Deployment: today and not yet built</text>
+<text x="40" y="90" class="tm" font-size="21" text-anchor="start" >Left: what exists. Right: what government hosting would still need, using the status words of the readiness document.</text>
+<rect x="40" y="130" width="440" height="1180" rx="10" class="panel" />
+<text x="60" y="168" class="t b" font-size="24" text-anchor="start" >Today (built)</text>
+<rect x="60" y="190" width="400" height="110" rx="10" class="sw" />
+<text x="76" y="223.22" class="t b" font-size="21" text-anchor="start" >One laptop, Docker Compose</text>
+<text x="76" y="253.1" class="tm" font-size="19" text-anchor="start" >Windows tested. Linux and macOS start</text>
+<text x="76" y="277.42" class="tm" font-size="19" text-anchor="start" >paths written, not yet run there.</text>
+<rect x="60" y="316" width="400" height="110" rx="10" class="card" />
+<text x="76" y="349.22" class="t b" font-size="21" text-anchor="start" >web and api containers</text>
+<text x="76" y="379.1" class="tm" font-size="19" text-anchor="start" >Hardened: no extra privileges, capabilities</text>
+<text x="76" y="403.42" class="tm" font-size="19" text-anchor="start" >dropped.</text>
+<rect x="60" y="440" width="400" height="134" rx="10" class="card" />
+<text x="76" y="473.22" class="t b" font-size="21" text-anchor="start" >PostgreSQL with PostGIS</text>
+<text x="76" y="503.1" class="tm" font-size="19" text-anchor="start" >One database volume, kept across restarts.</text>
+<text x="76" y="527.4200000000001" class="tm" font-size="19" text-anchor="start" >Backup and restore tested once on 14</text>
+<text x="76" y="551.7400000000001" class="tm" font-size="19" text-anchor="start" >November.</text>
+<rect x="60" y="588" width="400" height="110" rx="10" class="card" />
+<text x="76" y="621.22" class="t b" font-size="21" text-anchor="start" >Local identity provider</text>
+<text x="76" y="651.1" class="tm" font-size="19" text-anchor="start" >Keycloak in development mode, demo</text>
+<text x="76" y="675.4200000000001" class="tm" font-size="19" text-anchor="start" >accounts only.</text>
+<rect x="60" y="712" width="400" height="110" rx="10" class="card" />
+<text x="76" y="745.22" class="t b" font-size="21" text-anchor="start" >In-memory caches</text>
+<text x="76" y="775.1" class="tm" font-size="19" text-anchor="start" >Relay cache and rate limit live in one</text>
+<text x="76" y="799.4200000000001" class="tm" font-size="19" text-anchor="start" >process.</text>
+<rect x="60" y="836" width="400" height="86" rx="10" class="card" />
+<text x="76" y="869.22" class="t b" font-size="21" text-anchor="start" >Synthetic data</text>
+<text x="76" y="899.1" class="tm" font-size="19" text-anchor="start" >No real operator or citizen data is held.</text>
+<text x="60" y="956" class="tm" font-size="19" text-anchor="start" >Single node: no load balancing, no failover site,</text>
+<text x="60" y="980.7" class="tm" font-size="19" text-anchor="start" >no backup schedule.</text>
+<text x="520" y="168" class="tno b" font-size="24" text-anchor="start" >Not yet built (readiness gaps)</text>
+<rect x="520" y="190" width="640" height="90" rx="10" class="todo" />
+<text x="536" y="221" class="t b" font-size="21" text-anchor="start" >Hosting</text>
+<text x="1144" y="221" class="tno b" font-size="19" text-anchor="end" >Not started</text>
+<text x="536" y="248" class="tm" font-size="19" text-anchor="start" >NIC or a MeitY-empanelled cloud in India (to be confirmed).</text>
+<rect x="520" y="290" width="640" height="90" rx="10" class="todo" />
+<text x="536" y="321" class="t b" font-size="21" text-anchor="start" >Independent security audit</text>
+<text x="1144" y="321" class="tno b" font-size="19" text-anchor="end" >Not started</text>
+<text x="536" y="348" class="tm" font-size="19" text-anchor="start" >CERT-In empanelled auditor, NIC or STQC, before production hosting.</text>
+<rect x="520" y="390" width="640" height="90" rx="10" class="todo" />
+<text x="536" y="421" class="t b" font-size="21" text-anchor="start" >Accessibility and quality certification</text>
+<text x="1144" y="421" class="tno b" font-size="19" text-anchor="end" >Not started</text>
+<text x="536" y="448" class="tm" font-size="19" text-anchor="start" >GIGW 3.0 (WCAG 2.1 AA); the 3D page needs an accessible equivalent.</text>
+<rect x="520" y="490" width="640" height="90" rx="10" class="todo" />
+<text x="536" y="521" class="t b" font-size="21" text-anchor="start" >Production identity provider</text>
+<text x="1144" y="521" class="twarn b" font-size="19" text-anchor="end" >Planned</text>
+<text x="536" y="548" class="tm" font-size="19" text-anchor="start" >Multi-factor, lock-out and a server-side session list.</text>
+<rect x="520" y="590" width="640" height="90" rx="10" class="todo" />
+<text x="536" y="621" class="t b" font-size="21" text-anchor="start" >Database hardening</text>
+<text x="1144" y="621" class="twarn b" font-size="19" text-anchor="end" >First after the demo</text>
+<text x="536" y="648" class="tm" font-size="19" text-anchor="start" >Row-level security, dedicated database roles, no fallback password.</text>
+<rect x="520" y="690" width="640" height="90" rx="10" class="todo" />
+<text x="536" y="721" class="t b" font-size="21" text-anchor="start" >Availability and recovery</text>
+<text x="1144" y="721" class="twarn b" font-size="19" text-anchor="end" >Gap</text>
+<text x="536" y="748" class="tm" font-size="19" text-anchor="start" >High availability, backup schedule, recovery site.</text>
+<rect x="520" y="790" width="640" height="90" rx="10" class="todo" />
+<text x="536" y="821" class="t b" font-size="21" text-anchor="start" >Logging and incident duties</text>
+<text x="1144" y="821" class="tno b" font-size="19" text-anchor="end" >Not started</text>
+<text x="536" y="848" class="tm" font-size="19" text-anchor="start" >CERT-In: 6-hour reporting, 180-day logs in India, clock sync.</text>
+<rect x="520" y="890" width="640" height="90" rx="10" class="todo" />
+<text x="536" y="921" class="t b" font-size="21" text-anchor="start" >Official data agreements</text>
+<text x="1144" y="921" class="tno b" font-size="19" text-anchor="end" >Not started</text>
+<text x="536" y="948" class="tm" font-size="19" text-anchor="start" >Written agreements for IMD, CWC and NDMA feeds.</text>
+<rect x="520" y="990" width="640" height="90" rx="10" class="todo" />
+<text x="536" y="1021" class="t b" font-size="21" text-anchor="start" >Public-data mirrors and tests</text>
+<text x="1144" y="1021" class="twarn b" font-size="19" text-anchor="end" >Gap</text>
+<text x="536" y="1048" class="tm" font-size="19" text-anchor="start" >India-hosted mirrors; automated browser, accessibility and load tests.</text>
+<rect x="520" y="1090" width="640" height="90" rx="10" class="todo" />
+<text x="536" y="1121" class="t b" font-size="21" text-anchor="start" >Native-speaker review</text>
+<text x="1144" y="1121" class="twarn b" font-size="19" text-anchor="end" >Pending</text>
+<text x="536" y="1148" class="tm" font-size="19" text-anchor="start" >Telugu and Hindi interface and alert text.</text>
+<rect x="520" y="1190" width="640" height="90" rx="10" class="todo" />
+<text x="536" y="1221" class="t b" font-size="21" text-anchor="start" >Alert dissemination</text>
+<text x="1144" y="1221" class="twarn b" font-size="19" text-anchor="end" >By design</text>
+<text x="536" y="1248" class="tm" font-size="19" text-anchor="start" >Only through the national and state authorities, outside IndTrana.</text>
+<rect x="40" y="1370" width="44" height="22" rx="5" class="sw" />
+<text x="96" y="1388" class="tm" font-size="19" text-anchor="start" >Built and running</text>
+<rect x="430" y="1370" width="44" height="22" rx="5" class="todo" />
+<text x="486" y="1388" class="tm" font-size="19" text-anchor="start" >Not built</text>
+<text x="40" y="1438" class="tm" font-size="19" text-anchor="start" >IndTrana v0.3.0 · exercise prototype · synthetic data · no live warnings</text></svg>

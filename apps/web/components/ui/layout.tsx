@@ -22,7 +22,7 @@ export function PageHeader({ eyebrow, chain, title, description, actions, breadc
 }>) {
   const t = useT();
   const Heading = level === 1 ? "h1" : "h2";
-  return <header className={`mb-5 flex flex-wrap items-end justify-between gap-x-4 gap-y-3 ${level === 1 ? "pb-1" : "border-b border-stroke pb-4"} ${className}`}>
+  return <header data-tour={level === 1 ? "page-header" : undefined} className={`mb-5 flex flex-wrap items-end justify-between gap-x-4 gap-y-3 ${level === 1 ? "pb-1" : "border-b border-stroke pb-4"} ${className}`}>
     <div className="min-w-0">
       {breadcrumbs && breadcrumbs.length > 0 && <nav aria-label={t("Breadcrumb")} className="mb-2 no-print">
         <ol className="flex flex-wrap items-center gap-1 text-xs text-muted">
@@ -54,11 +54,14 @@ export function PageHeader({ eyebrow, chain, title, description, actions, breadc
  * "How this page works": one collapsed block with the same three parts on every page (what it shows, what you can do
  * here, what it will never do). AppShell renders it from lib/page-help.ts; text is translated here.
  */
-export function PageHelp({ help, defaultOpen = false }: Readonly<{ help: PageHelpText; defaultOpen?: boolean }>) {
+export function PageHelp({ help, defaultOpen = false, action }: Readonly<{ help: PageHelpText; defaultOpen?: boolean; /** Sits at the end of the toggle row (the "Take the tour" button). Already translated by the caller. */ action?: ReactNode }>) {
   const t = useT();
   const parts: { key: keyof PageHelpText; icon: LucideIcon }[] = [{ key: "shows", icon: Eye }, { key: "can", icon: MousePointerClick }, { key: "never", icon: Ban }];
-  return <Collapsible.Root defaultOpen={defaultOpen} className="page-help">
-    <Collapsible.Trigger className="page-help-toggle"><CircleHelp size={15} aria-hidden="true" />{t("How this page works")}<ChevronDown size={14} aria-hidden="true" className="transition-transform" /></Collapsible.Trigger>
+  return <Collapsible.Root defaultOpen={defaultOpen} className="page-help" data-tour="page-help">
+    <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+      <Collapsible.Trigger className="page-help-toggle"><CircleHelp size={15} aria-hidden="true" />{t("How this page works")}<ChevronDown size={14} aria-hidden="true" className="transition-transform" /></Collapsible.Trigger>
+      {action}
+    </div>
     <Collapsible.Content>
       <dl className="page-help-body">{parts.map(({ key, icon: Icon }) => <div key={key}>
         <dt><Icon size={14} aria-hidden="true" className="text-muted" />{t(PAGE_HELP_HEADINGS[key])}</dt>

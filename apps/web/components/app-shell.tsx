@@ -20,6 +20,8 @@ import { shortId } from "../lib/labels";
 import { useOperatorSession } from "../lib/use-operator-session";
 import { useResponseAlerts } from "../lib/use-response-alerts";
 import { ResponseAlertToast } from "./response-alert-toast";
+import { PageTourAction, TourProvider } from "./tour";
+import { APP_VERSION_LABEL } from "../lib/version";
 
 
 // Matches Tailwind's lg breakpoint, where the rail stops being an overlay drawer.
@@ -78,7 +80,8 @@ function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
-  const label = mounted ? `Switch to ${resolvedTheme === "dark" ? "light" : "dark"} theme` : "Theme loading";
+  const t = useT();
+  const label = mounted ? t(resolvedTheme === "dark" ? "Switch to light theme" : "Switch to dark theme") : t("Theme loading");
   return (
     <button type="button" className="control control-quiet control-icon" disabled={!mounted} aria-label={label} title={mounted ? label : undefined}
       onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}>
@@ -123,6 +126,8 @@ export function AppShell({ children, title, description, actions, breadcrumbs }:
   const waiting = alerts.count ?? 0;
   const mini = miniChoice && persistentRail;
   const drawer = !persistentRail;
+  // What the guided tours may do to the phone menu: open it for a step that points into it, and close it again.
+  const tourMenu = useMemo(() => ({ persistent: persistentRail, isOpen: menuOpen, open: () => setMenuOpen(true), close: () => setMenuOpen(false) }), [persistentRail, menuOpen]);
 
   // Stored choices are applied before the first paint, and motion is switched on only afterwards, so a remembered
   // rail does not animate shut on every page load.
@@ -221,22 +226,23 @@ export function AppShell({ children, title, description, actions, breadcrumbs }:
   const exerciseNote = t("Synthetic exercise data. Optional NASA/USGS context is labelled separately. No real emergency alerts or responder dispatch.");
 
   return (
+    <TourProvider roles={roles} pathname={pathname} authenticated={Boolean(session?.authenticated)} menu={tourMenu}>
     <div className="min-h-screen lg:flex">
       <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded-lg focus:border focus:border-accent focus:bg-surface focus:px-4 focus:py-3 focus:text-sm focus:font-bold focus:text-ink focus:shadow-panel">{t("Skip to content")}</a>
-      {menuOpen && <button className="rail-backdrop lg:hidden" tabIndex={-1} aria-label="Close navigation" onClick={dismissMenu} />}
+      {menuOpen && <button className="rail-backdrop lg:hidden" tabIndex={-1} aria-label={t("Close navigation")} onClick={dismissMenu} />}
       <aside ref={railRef} id="primary-rail" className="command-rail" data-open={menuOpen || undefined} data-mini={mini || undefined} data-ready={ready || undefined}
-        role={drawer ? "dialog" : undefined} aria-modal={drawer ? true : undefined} aria-label={drawer ? "Navigation" : undefined}
+        role={drawer ? "dialog" : undefined} aria-modal={drawer ? true : undefined} aria-label={drawer ? t("Navigation") : undefined}
         inert={!menuOpen && !persistentRail}>
         <div className="rail-head">
           <Link href="/" className="rail-brand" aria-label={brand.text("IndTrana home")}>
             <span className="brand-mark flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden"><BrandMark box={28} /></span>
             <span className="rail-text"><strong className="block text-[15px] font-bold leading-tight tracking-[.12em]"><BrandName /></strong><span className="block whitespace-nowrap text-[11px] font-medium leading-tight text-muted">{t("Emergency intelligence")}</span></span>
           </Link>
-          <button ref={closeMenuRef} className="control control-quiet control-icon lg:hidden" aria-label="Close menu" onClick={dismissMenu}><X size={18} aria-hidden="true"/></button>
+          <button ref={closeMenuRef} className="control control-quiet control-icon lg:hidden" aria-label={t("Close menu")} onClick={dismissMenu}><X size={18} aria-hidden="true"/></button>
         </div>
         {mini
-          ? <div className="rail-search"><Tip text={t("Find a page")} side="right"><button type="button" className="rail-link justify-center" aria-label={t("Find a page")} onClick={() => { setMini(false); window.setTimeout(() => filterRef.current?.focus(), 60); }}><Search size={17} aria-hidden="true" /></button></Tip></div>
-          : <div className="rail-search">
+          ? <div className="rail-search" data-tour="nav-find"><Tip text={t("Find a page")} side="right"><button type="button" className="rail-link justify-center" aria-label={t("Find a page")} onClick={() => { setMini(false); window.setTimeout(() => filterRef.current?.focus(), 60); }}><Search size={17} aria-hidden="true" /></button></Tip></div>
+          : <div className="rail-search" data-tour="nav-find">
             <Search size={16} aria-hidden="true" className="rail-search-icon" />
             <input ref={filterRef} type="search" data-nav-filter="" className="rail-filter" value={filter} placeholder={t("Find a page")} aria-label={t("Find a page")} aria-controls="primary-rail-list"
               autoComplete="off" spellCheck={false} enterKeyHint="go" onChange={event => setFilter(event.target.value)} onKeyDown={onFilterKey} />
@@ -245,7 +251,7 @@ export function AppShell({ children, title, description, actions, breadcrumbs }:
               : <kbd className="rail-search-key" aria-hidden="true">/</kbd>}
           </div>}
         <div ref={listRef} id="primary-rail-list" className="rail-list" onScroll={event => { memoryScroll = event.currentTarget.scrollTop; }} onKeyDown={onListKey}>
-          <nav aria-label="Primary navigation">
+          <nav aria-label={t("Primary navigation")} data-tour="nav-groups">
             {groups.map((group, groupIndex) => {
               const locked = group.label === LOCKED_GROUP;
               const hasActive = group.items.some(item => item.href === section?.href);
@@ -288,7 +294,7 @@ export function AppShell({ children, title, description, actions, breadcrumbs }:
           <div className="rail-foot" tabIndex={0}>
             <ShieldCheck size={15} aria-hidden="true" className="shrink-0 text-brand" />
             <span className="rail-text flex-1 font-semibold">{t("Exercise environment")}</span>
-            <span className="rail-text">v0.2</span>
+            <Link href="/whats-new" className="rail-text rail-version" aria-label={`${t("What's new")}: ${APP_VERSION_LABEL}`} data-tour="nav-version">{APP_VERSION_LABEL}</Link>
             <span className="sr-only">{exerciseNote}</span>
           </div>
         </Tip>
@@ -298,7 +304,7 @@ export function AppShell({ children, title, description, actions, breadcrumbs }:
         <div className="sticky top-0 z-20">
           <div className="command-topbar flex items-center justify-between gap-3 border-b border-stroke bg-surface px-3 sm:px-5">
             <div className="@container flex min-w-0 flex-1 items-center gap-2">
-              <button ref={openMenuRef} className="control control-quiet control-icon lg:hidden" aria-label="Open navigation" aria-expanded={menuOpen} aria-controls="primary-rail" onClick={() => setMenuOpen(true)}><Menu size={19} aria-hidden="true"/></button>
+              <button ref={openMenuRef} className="control control-quiet control-icon lg:hidden" aria-label={t("Open navigation")} aria-expanded={menuOpen} aria-controls="primary-rail" onClick={() => setMenuOpen(true)}><Menu size={19} aria-hidden="true"/></button>
               <button type="button" data-rail-toggle="" className="control control-quiet control-icon hidden lg:inline-flex" aria-label={t(miniChoice ? "Expand sidebar" : "Collapse sidebar")} title={t(miniChoice ? "Expand sidebar" : "Collapse sidebar")} aria-expanded={!miniChoice} aria-controls="primary-rail" onClick={() => setMini(!miniChoice)}>
                 {miniChoice ? <PanelLeftOpen size={18} aria-hidden="true" /> : <PanelLeftClose size={18} aria-hidden="true" />}
               </button>
@@ -306,14 +312,14 @@ export function AppShell({ children, title, description, actions, breadcrumbs }:
               <p className="hidden min-w-0 truncate text-xs font-semibold text-muted min-[400px]:block sm:hidden">{section ? t(section.label) : `${brand.name} / Exercise`}</p>
             </div>
             <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
-              <LanguageSwitcher />
-              <GlobalSearch />
-              <ThemeToggle />
+              <span className="inline-flex" data-tour="topbar-language"><LanguageSwitcher /></span>
+              <span className="inline-flex" data-tour="topbar-search"><GlobalSearch /></span>
+              <span className="inline-flex" data-tour="topbar-theme"><ThemeToggle /></span>
               <OperatorAuth />
             </div>
           </div>
           {/* The desk strip: a standing statement of state, place and time. It cannot be mistaken for live operation. */}
-          <div className="desk-strip" role="note" aria-label={t("Exercise environment")}>
+          <div className="desk-strip" data-tour="desk-strip" role="note" aria-label={t("Exercise environment")}>
             <span className="exercise-tape">{t("EXERCISE")}<small className="hidden min-[420px]:inline">{t("No live warnings or dispatch")}</small></span>
             <div className="desk-facts">
               <span className="hidden md:inline-flex"><Server size={13} aria-hidden="true" />{t("Local exercise node · HYD-01")}</span>
@@ -325,18 +331,19 @@ export function AppShell({ children, title, description, actions, breadcrumbs }:
         <main id="main-content" tabIndex={-1} className="mx-auto max-w-[1800px] px-4 pb-12 pt-5 outline-none sm:px-6">
           <ToastProvider>
             <ResponseAlertToast view={alerts.view} rose={alerts.rose} />
-            <div className="reveal-in">
+            <div className="reveal-in" data-tour="page-body">
               <p className="print-only mb-3 text-xs">{brand.name} · {t("Exercise environment")} · {t("No live warnings or dispatch")}</p>
               <PageHeader eyebrow={section ? t(section.group) : undefined} chain={section?.page.chain} title={t(title)} description={t(description)} breadcrumbs={crumbs} actions={actions} />
-              {section?.tabs && <nav aria-label={t(section.label)} className="section-tabs">
+              {section?.tabs && <nav aria-label={t(section.label)} className="section-tabs" data-tour="page-tabs">
                 {section.tabs.map(({ href, label, icon: Icon }) => <Link key={href} href={href} aria-current={section.tab?.href === href ? "page" : undefined} className="section-tab"><Icon size={16} aria-hidden="true" /><span>{t(label)}</span></Link>)}
               </nav>}
-              {help && <PageHelp help={help} />}
+              {help && <PageHelp help={help} action={<PageTourAction />} />}
               {children}
             </div>
           </ToastProvider>
         </main>
       </div>
     </div>
+    </TourProvider>
   );
 }

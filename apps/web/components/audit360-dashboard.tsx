@@ -79,7 +79,7 @@ export function Audit360Dashboard() {
         It excludes private approval histories, verified operator identities and real agency communications.
         A SHA-256 content checksum is not a signature or proof of independent custody.</p>
     </div>
-    <Panel className="overflow-hidden" bodyClassName="p-0" icon={Archive} title="Traceable Exercise Snapshot" description="Choose one of five synthetic incidents; no private cases are searchable here."
+    <Panel data-tour="audit-snapshot" className="overflow-hidden" bodyClassName="p-0" icon={Archive} title="Traceable Exercise Snapshot" description="Choose one of five synthetic incidents; no private cases are searchable here."
       actions={<Button size="sm" type="button" disabled={loading} onClick={() => setRevision(value=>value+1)}><RefreshCw size={15} className={loading ? "animate-spin" : ""}/> Refresh</Button>}>
       <div className="p-5">
         <label htmlFor="audit-case" className="mb-2 block text-xs font-semibold text-muted">Synthetic exercise case</label>

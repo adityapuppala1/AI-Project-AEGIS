@@ -20,6 +20,50 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Round 26: guided tours, What's new and release notes, version 0.3.0 — 14 November 2026 (Windows laptop)
+
+Branch `Aegis_IndTrana`, on top of `a2fa398`; released as tag `v0.3.0`, the first tagged release. Compose services left
+**running** with the same five options, rebuilt from this code. Web code only: no API, database, auth, middleware, CSP,
+compose or script change (one `env` entry in `next.config.ts` carries the version).
+
+- **Built:** a Welcome tour and one tour per page and tab (`apps/web/lib/tours.ts`), role-filtered from the role matrix, with a
+  no-dependency engine (`apps/web/components/tour/`): spotlight, bottom sheet at phone width, keyboard and live-region
+  support, reduced motion. Started from the account menu (Tour this page, Restart welcome tour, Tour all my pages, Resume,
+  Show tour hints) or "Take the tour" beside "How this page works"; the Welcome tour starts once per browser after sign-in.
+  State is flags only in `localStorage` key `aegis-tours` (`lib/tour-storage.ts`); sign-out clears the all-pages position.
+  Version 0.3.0 (`apps/web/package.json` is the only source, `lib/version.ts`), `lib/release-notes.ts`, the `/whats-new`
+  page (a tab beside Help & Learning), a "New" marker in the account menu, the sidebar footer version as a link,
+  `CHANGELOG.md`, `docs/RELEASE_PROCESS.md`, README and AGENTS.md sections. Post-event Learning status message moved from a
+  line pinned to the window bottom to a notice at the top of the action area.
+- **Review and fixes:** one independent read-only review. Applied: the Welcome tour is marked dismissed the moment it
+  auto-starts, so it cannot re-open on later pages; the Learning notice no longer sticks over controls and can be
+  dismissed; 0.1.0 and 0.2.0 are labelled "Summary of earlier work (no tagged release)" because the repository had no
+  tags and `package.json` read 0.2.0 from its first commit; the browser bundle receives only the version string.
+- **Verified by execution (Windows laptop):** web `npm run typecheck` clean; Node tests 401 passed (378 before); pending
+  translations 1160 strings (English until native review); image rebuilt (`npm run build` ran inside the image build).
+  Browser, headless Chrome, 8 demo accounts in fresh contexts at 1440 px: the Welcome tour auto-started exactly once
+  for each (8 steps, every target visible) and did not re-open on reload or navigation; "Tour all my pages" walked
+  180 pages in total (25 for maker, checker, auditor and administrator; 20 for department and team accounts), 860
+  steps, with no stuck page, no leftover backdrop, no page error and no 5xx; stop with Escape and resume from the
+  account menu worked. At 390 px dark on six pages the card is a bottom sheet with no sideways scroll. Keyboard: start
+  from the account menu, Tab stays in the card, arrows step, Escape returns focus to the account button. Reduced motion
+  removes the transitions. What's new: "New" marker clears after opening, footer shows v0.3.0, signed out it redirects
+  to sign-in. Regression crawl of 8 accounts x 29 pages at 1440 px (232 loads): no finding.
+- **Seen and left:** on about ten tall panels the tour card covers a small corner of the highlighted area; the Public
+  Intake and Drills tours skip steps whose panels are not on screen (no drill running, intake switched off) without
+  saying why; the two earlier-version rows on What's new have no visible expand arrow; department and team accounts
+  log one refused background request in the console on Hazard Watch (the page shows a proper refusal).
+- **Not run:** screen reader; the refusal-step wording by visiting a refused page directly; a full read of every tour
+  step for every role; phone-width regression crawl after this round.
+- **Submission documents** (`docs/submission/`): `IndTrana-Technical-Architecture-v0.3.0.docx` (66 pages, 10 figures,
+  16 tables, 16 use cases, a 32-entry screenshot walkthrough) and `IndTrana-Overview-v0.3.0.html` (one self-contained
+  file, works offline, no external request), with the ten diagrams as PNG and SVG in `docs/submission/diagrams/`.
+  Checked: the HTML at 1440 px and 390 px, light and dark, with no console error; ten Word pages inspected through
+  Word's own PDF export. Not every Word page was inspected. Both state the prototype status and limits.
+- **Note for the presenter:** a browser that has never signed in shows the Welcome tour once on the first page. Sign in
+  once before presenting, or press "Skip tour". The brand logo shown in the app was set through brand settings on
+  14 November (brand version 6); it was not changed by this work.
+
 ## Round 25: patent credit and Resilient Sensor Link rehearsal — 14 November 2026 (Windows laptop)
 
 Branch `Aegis_IndTrana`, on top of `06a0de1`. Compose services left **running** with the same five options, rebuilt

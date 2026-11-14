@@ -95,7 +95,7 @@ export function ExerciseDrills() {
       ? <PermissionState needs={pageRoles("/drills") ?? []} roles={session?.roles} what={t("Drills rehearse the incident desk, so they are for the incident desk and administrators.")} where={refusalHome(session?.roles, { href: "/department-tasks", label: t("Open the Department Inbox") }, t("Open My Team"))} />
       : <ErrorState message={t(error)} onRetry={() => void load()}/>)}
     {session?.authenticated && !loading && !error && <div className="space-y-4">
-      <Panel title={t("Start a drill")} icon={Play}>
+      <Panel data-tour="drills-start" title={t("Start a drill")} icon={Play}>
         <p className="helper mb-2">{humanText(note)}</p>
         <div className="flex flex-wrap items-end gap-2">
           <div><label htmlFor="drill-scenario" className="field-label">{t("Scenario")}</label>
@@ -109,7 +109,7 @@ export function ExerciseDrills() {
         {!drill && status}
       </Panel>
 
-      {drill && <Panel title={drill.title} icon={AlarmClock}>
+      {drill && <Panel data-tour="drills-drill" title={drill.title} icon={AlarmClock}>
         <div className="flex flex-wrap items-center gap-2 text-sm">
           <StatusPill tone="sample">{t("Exercise drill")}</StatusPill>
           <strong>{simClock(drill.sim_minute)}</strong><span className="text-muted">/ {simClock(drill.end_minute)}</span>
@@ -129,7 +129,7 @@ export function ExerciseDrills() {
         <p className="helper mt-2">{t("Approval in a drill needs a different person with the checker role, as in the real workflow.")}</p>
       </Panel>}
 
-      {report && <Panel title={t("Coach report")} icon={GraduationCap}>
+      {report && <Panel data-tour="drills-report" title={t("Coach report")} icon={GraduationCap}>
         <p className="helper mb-2">{humanText(report.note)}</p>
         <div className="rounded-md border border-stroke"><SortableTable label={t("Timeliness against synthetic targets")} minWidth="34rem" rows={report.actions} rowKey={a => a.action} columns={[
           { key: "step", label: t("Step"), sortValue: a => t(ACTION_LABEL[a.action]), cell: a => t(ACTION_LABEL[a.action]) },

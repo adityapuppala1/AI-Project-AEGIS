@@ -1,0 +1,143 @@
+<svg class="dg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1654" role="img" aria-label="Sequence diagram with five participants: browser, web application, identity provider, API and database. It shows an authorization code flow with PKCE, a sealed session cookie, a server-side bearer token, API verification and a database write with an audit record." data-key="d3"><style>svg.dg{--d-bg:#FFFFFF;--d-panel:#F2F5F9;--d-card:#FFFFFF;--d-line:#8D9DBB;--d-ink:#0C183D;--d-mute:#48567A;
+--d-acc:#163E96;--d-accbg:#E6EDFB;--d-ok:#17803D;--d-okbg:#E4F4EA;--d-warn:#A35004;--d-warnbg:#FDF0DC;--d-warnline:#D9801A;
+--d-no:#B42318;--d-nobg:#FDECEA;--d-r-maker:#1A62A6;--d-r-checker:#15783A;--d-r-auditor:#475569;--d-r-dept:#0D6E67;--d-r-team:#9D174D;--d-r-admin:#A35004;}
+.dg{font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif}
+.dg .bg{fill:var(--d-bg)}
+.dg .panel{fill:var(--d-panel);stroke:var(--d-line);stroke-width:1.5}
+.dg .card{fill:var(--d-card);stroke:var(--d-line);stroke-width:2}
+.dg .soft{fill:var(--d-panel);stroke:var(--d-line);stroke-width:1.5}
+.dg .sw{fill:var(--d-accbg);stroke:var(--d-acc);stroke-width:2}
+.dg .human{fill:var(--d-warnbg);stroke:var(--d-warnline);stroke-width:2.5}
+.dg .data{fill:var(--d-okbg);stroke:var(--d-ok);stroke-width:2}
+.dg .opt{fill:var(--d-card);stroke:var(--d-acc);stroke-width:2;stroke-dasharray:9 6}
+.dg .no{fill:var(--d-nobg);stroke:var(--d-no);stroke-width:2.5;stroke-dasharray:9 6}
+.dg .todo{fill:var(--d-panel);stroke:var(--d-mute);stroke-width:2;stroke-dasharray:3 6}
+.dg .bound{fill:none;stroke:var(--d-mute);stroke-width:2;stroke-dasharray:14 8}
+.dg .t{fill:var(--d-ink)}
+.dg .tm{fill:var(--d-mute)}
+.dg .tacc{fill:var(--d-acc)}
+.dg .twarn{fill:var(--d-warn)}
+.dg .tno{fill:var(--d-no)}
+.dg .tok{fill:var(--d-ok)}
+.dg .b{font-weight:700}
+.dg .ln{fill:none;stroke:var(--d-mute);stroke-width:2.5}
+.dg .lacc{fill:none;stroke:var(--d-acc);stroke-width:2.5}
+.dg .lopt{fill:none;stroke:var(--d-acc);stroke-width:2.5;stroke-dasharray:9 6}
+.dg .lno{fill:none;stroke:var(--d-no);stroke-width:2.5;stroke-dasharray:9 6}
+.dg .lwarn{fill:none;stroke:var(--d-warnline);stroke-width:3}
+.dg .m-ln{fill:var(--d-mute)} .dg .m-acc{fill:var(--d-acc)} .dg .m-warn{fill:var(--d-warnline)} .dg .m-no{fill:var(--d-no)}
+.dg .dot{fill:var(--d-ink)}
+.dg .r-maker{fill:var(--d-r-maker)} .dg .r-checker{fill:var(--d-r-checker)} .dg .r-auditor{fill:var(--d-r-auditor)}
+.dg .r-dept{fill:var(--d-r-dept)} .dg .r-team{fill:var(--d-r-team)} .dg .r-admin{fill:var(--d-r-admin)}
+.dg .badge{fill:var(--d-ink)} .dg .badget{fill:var(--d-bg)}
+.dg .hit{fill:transparent}
+.dg [data-node]{cursor:pointer}
+.dg [data-node]:focus-visible .card,.dg [data-node]:focus-visible .sw,.dg [data-node]:focus-visible .opt{stroke:var(--d-warnline);stroke-width:5}
+.dg [data-node].on .card,.dg [data-node].on .sw,.dg [data-node].on .opt,.dg [data-node].on .data,.dg [data-node].on .human{stroke:var(--d-warnline);stroke-width:5}
+.dg .dim{opacity:.28}
+</style><defs>
+<marker id="d3a-ln" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-ln"/></marker>
+<marker id="d3a-acc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-acc"/></marker>
+<marker id="d3a-warn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-warn"/></marker>
+<marker id="d3a-no" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-no"/></marker>
+</defs><rect class="bg" x="0" y="0" width="1200" height="1654"/>
+<text x="40" y="56" class="t b" font-size="32" text-anchor="start" >Figure 6. Sign-in and request flow</text>
+<text x="40" y="90" class="tm" font-size="21" text-anchor="start" >Eleven steps from an anonymous browser to a recorded change in the database.</text>
+<rect x="35" y="120" width="170" height="62" rx="10" class="card" />
+<text x="120" y="158" class="t b" font-size="20" text-anchor="middle" >Browser</text>
+<path d="M120 182 L120 1560" class="ln" stroke-dasharray="4 8" opacity="0.6"/>
+<rect x="305" y="120" width="170" height="62" rx="10" class="sw" />
+<text x="390" y="158" class="t b" font-size="20" text-anchor="middle" >Web application</text>
+<path d="M390 182 L390 1560" class="ln" stroke-dasharray="4 8" opacity="0.6"/>
+<rect x="565" y="120" width="170" height="62" rx="10" class="card" />
+<text x="650" y="158" class="t b" font-size="19" text-anchor="middle" >Identity provider</text>
+<path d="M650 182 L650 1560" class="ln" stroke-dasharray="4 8" opacity="0.6"/>
+<rect x="820" y="120" width="170" height="62" rx="10" class="sw" />
+<text x="905" y="158" class="t b" font-size="20" text-anchor="middle" >API</text>
+<path d="M905 182 L905 1560" class="ln" stroke-dasharray="4 8" opacity="0.6"/>
+<rect x="1015" y="120" width="170" height="62" rx="10" class="data" />
+<text x="1100" y="158" class="t b" font-size="20" text-anchor="middle" >Database</text>
+<path d="M1100 182 L1100 1560" class="ln" stroke-dasharray="4 8" opacity="0.6"/>
+<g data-step="1">
+<path d="M120 293 L390 293" class="lacc" marker-end="url(#d3a-acc)" />
+<text x="164" y="251" class="t" font-size="19" text-anchor="start" >Press Continue to sign in.</text>
+<text x="164" y="275" class="tm" font-size="19" text-anchor="start" >Web creates state, nonce and a PKCE challenge.</text>
+<circle cx="140" cy="245" r="15" class="badge"/>
+<text x="140" y="252" class="badget b" font-size="20" text-anchor="middle" >1</text>
+</g>
+<g data-step="2">
+<path d="M120 405 L650 405" class="lacc" marker-end="url(#d3a-acc)" />
+<text x="164" y="363" class="t" font-size="19" text-anchor="start" >Browser follows the redirect.</text>
+<text x="164" y="387" class="tm" font-size="19" text-anchor="start" >It carries the challenge, state and nonce.</text>
+<circle cx="140" cy="357" r="15" class="badge"/>
+<text x="140" y="364" class="badget b" font-size="20" text-anchor="middle" >2</text>
+</g>
+<g data-step="3">
+<rect x="485.0" y="453" width="330" height="104" rx="10" class="human" />
+<text x="501.0" y="487.04" class="tm" font-size="19" text-anchor="start" >The person enters password and</text>
+<text x="501.0" y="511.36" class="tm" font-size="19" text-anchor="start" >second factor here. IndTrana never</text>
+<text x="501.0" y="535.6800000000001" class="tm" font-size="19" text-anchor="start" >sees them.</text>
+<circle cx="485.0" cy="453" r="15" class="badge"/>
+<text x="485.0" y="460" class="badget b" font-size="20" text-anchor="middle" >3</text>
+</g>
+<g data-step="4">
+<path d="M650 663 L390 663" class="lacc" marker-end="url(#d3a-acc)" />
+<text x="434" y="621" class="t" font-size="19" text-anchor="start" >Browser returns with a one-time code</text>
+<text x="434" y="645" class="tm" font-size="19" text-anchor="start" >and the state value.</text>
+<circle cx="410" cy="615" r="15" class="badge"/>
+<text x="410" y="622" class="badget b" font-size="20" text-anchor="middle" >4</text>
+</g>
+<g data-step="5">
+<path d="M390 775 L650 775" class="lacc" marker-end="url(#d3a-acc)" />
+<text x="434" y="733" class="t" font-size="19" text-anchor="start" >Web exchanges the code and the PKCE verifier.</text>
+<text x="434" y="757" class="tm" font-size="19" text-anchor="start" >Server to server.</text>
+<circle cx="410" cy="727" r="15" class="badge"/>
+<text x="410" y="734" class="badget b" font-size="20" text-anchor="middle" >5</text>
+</g>
+<g data-step="6">
+<rect x="210.0" y="823" width="360" height="104" rx="10" class="card" />
+<text x="226.0" y="857.04" class="tm" font-size="19" text-anchor="start" >Checks state and nonce. Seals the</text>
+<text x="226.0" y="881.36" class="tm" font-size="19" text-anchor="start" >session in an HttpOnly cookie, 15</text>
+<text x="226.0" y="905.6800000000001" class="tm" font-size="19" text-anchor="start" >minutes.</text>
+<circle cx="210.0" cy="823" r="15" class="badge"/>
+<text x="210.0" y="830" class="badget b" font-size="20" text-anchor="middle" >6</text>
+</g>
+<g data-step="7">
+<path d="M120 1033 L390 1033" class="lacc" marker-end="url(#d3a-acc)" />
+<text x="164" y="991" class="t" font-size="19" text-anchor="start" >Later request, with the cookie.</text>
+<text x="164" y="1015" class="tm" font-size="19" text-anchor="start" >Writes also carry an Origin header.</text>
+<circle cx="140" cy="985" r="15" class="badge"/>
+<text x="140" y="992" class="badget b" font-size="20" text-anchor="middle" >7</text>
+</g>
+<g data-step="8">
+<path d="M390 1145 L905 1145" class="lacc" marker-end="url(#d3a-acc)" />
+<text x="434" y="1103" class="t" font-size="19" text-anchor="start" >Origin, role and field checks, then</text>
+<text x="434" y="1127" class="tm" font-size="19" text-anchor="start" >the bearer token from the session.</text>
+<circle cx="410" cy="1097" r="15" class="badge"/>
+<text x="410" y="1104" class="badget b" font-size="20" text-anchor="middle" >8</text>
+</g>
+<g data-step="9">
+<rect x="720.0" y="1193" width="370" height="129" rx="10" class="card" />
+<text x="736.0" y="1227.04" class="tm" font-size="19" text-anchor="start" >Verifies signature, issuer, audience,</text>
+<text x="736.0" y="1251.36" class="tm" font-size="19" text-anchor="start" >expiry. Takes agency and role from the</text>
+<text x="736.0" y="1275.6799999999998" class="tm" font-size="19" text-anchor="start" >signed claims. Checks the route&#x27;s role</text>
+<text x="736.0" y="1299.9999999999998" class="tm" font-size="19" text-anchor="start" >list.</text>
+<circle cx="720.0" cy="1193" r="15" class="badge"/>
+<text x="720.0" y="1200" class="badget b" font-size="20" text-anchor="middle" >9</text>
+</g>
+<g data-step="10">
+<path d="M905 1428 L1100 1428" class="lacc" marker-end="url(#d3a-acc)" />
+<text x="933.015625" y="1386" class="t" font-size="19" text-anchor="start" >One transaction: lock the row,</text>
+<text x="933.015625" y="1410" class="tm" font-size="19" text-anchor="start" >check the agency, write, audit.</text>
+<circle cx="909.015625" cy="1380" r="15" class="badge"/>
+<text x="909.015625" y="1387" class="badget b" font-size="20" text-anchor="middle" >10</text>
+</g>
+<g data-step="11">
+<path d="M905 1540 L120 1540" class="lacc" marker-end="url(#d3a-acc)" />
+<text x="164" y="1498" class="t" font-size="19" text-anchor="start" >Reply with no-store and nosniff</text>
+<text x="164" y="1522" class="tm" font-size="19" text-anchor="start" >headers, via the web application.</text>
+<circle cx="140" cy="1492" r="15" class="badge"/>
+<text x="140" y="1499" class="badget b" font-size="20" text-anchor="middle" >11</text>
+</g>
+<text x="40" y="1594" class="tm" font-size="19" text-anchor="start" >Steps 1 to 6 happen once per sign-in. Steps 7 to 11 repeat for every page or action.</text>
+<text x="40" y="1632" class="tm" font-size="19" text-anchor="start" >IndTrana v0.3.0 · exercise prototype · synthetic data · no live warnings</text></svg>

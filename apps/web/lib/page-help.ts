@@ -112,13 +112,18 @@ export const PAGE_HELP: Record<string, PageHelp> = {
   },
   "/learning": {
     shows: "How earlier estimates compared with what happened in the exercise, by basis.",
-    can: "A maker proposes a threshold change; a different checker reviews it; only an administrator applies it.",
+    can: "A maker proposes a threshold change; a different checker or an administrator reviews it; only an administrator applies it.",
     never: "It never changes the engine on approval alone, and these statistics are never accuracy.",
   },
   "/help": {
     shows: "Guides, keyboard shortcuts and fixes for common problems.",
     can: "Search the topics and follow the links to each page.",
     never: "It never replaces your agency's own procedures.",
+  },
+  "/whats-new": {
+    shows: "What changed in each version of IndTrana, with the current version first and earlier versions collapsed below.",
+    can: "Read what is new, improved, fixed and secured, and open an earlier version for its notes.",
+    never: "It never changes anything and never lists a change that was not made. Notes describe this exercise build, not real operations.",
   },
   "/admin": {
     shows: "The server policy and the safety switches of this exercise node.",

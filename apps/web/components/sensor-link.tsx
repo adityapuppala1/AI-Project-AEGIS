@@ -159,7 +159,7 @@ export function SensorLink() {
 
   return <AppShell title="Resilient Sensor Link" description="A rehearsal of moving sensor traffic between internet and satellite, giving scarce bandwidth to the most important readings first.">
     <div className="space-y-4">
-      <Panel icon={Radio} title={t("Sensor traffic across two links")} description={t("Follow a storm step by step, or choose the link scenario yourself. The picture, the table and the sentence below follow.")}>
+      <Panel data-tour="sensor-scenario" icon={Radio} title={t("Sensor traffic across two links")} description={t("Follow a storm step by step, or choose the link scenario yourself. The picture, the table and the sentence below follow.")}>
         <p className="mb-3 text-xs leading-5"><a href="#patented-technology" className="font-semibold text-accent hover:underline">{t("Applies the idea of Indian Patent No. 598835 (see Patented technology below).")}</a></p>
         <StormTimeline step={step} onStep={chooseStep} />
         <div className="flex flex-wrap items-center gap-3">
@@ -177,12 +177,12 @@ export function SensorLink() {
         </div>
       </Panel>
 
-      <Panel title={t("Sensors")} description={t("Synthetic sensors, in the same families as the Source Freshness page.")} bodyClassName="p-0">
+      <Panel data-tour="sensor-sensors" title={t("Sensors")} description={t("Synthetic sensors, in the same families as the Source Freshness page.")} bodyClassName="p-0">
         <SortableTable label={t("Sensors and their links")} rows={result.nodes} columns={columns} rowKey={row => row.node.id} minWidth="52rem"
           empty={<EmptyState title={t("No sensors")} />} />
       </Panel>
 
-      <Panel id="communication" className="scroll-mt-24" title={t("Communication application")} description={t("The same link management would keep the control room, departments and field teams able to reach each other.")}>
+      <Panel data-tour="sensor-communication" id="communication" className="scroll-mt-24" title={t("Communication application")} description={t("The same link management would keep the control room, departments and field teams able to reach each other.")}>
         <SortableTable label={t("Parties and the link each would use")} rows={COMM_PARTIES} rowKey={row => row.id}
           columns={[
             { key: "name", label: t("Party"), sortValue: row => row.name, cell: row => <span className="font-semibold">{t(row.name)}</span> },
@@ -197,7 +197,7 @@ export function SensorLink() {
 
       <PatentCredit showLink={false} pageNote />
 
-      <Panel title={t("Limits of this rehearsal")}>
+      <Panel data-tour="sensor-limits" title={t("Limits of this rehearsal")}>
         <ul className="list-disc space-y-1.5 pl-4 text-sm leading-6">{LIMITS.map(item => <li key={item}>{t(item)}</li>)}</ul>
         <p className="mt-3 max-w-3xl text-xs leading-5 text-muted">{t("This mapping is based on the patent title and the public publication notice only. It will be checked against the full specification before any wider claim is made.")}</p>
       </Panel>

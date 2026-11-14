@@ -22,7 +22,7 @@ export function UsersAccess() {
   return <AppShell title="Users and access" description="The six roles, what each one can do, and the account you are signed in with. Read-only: accounts are managed in your agency's identity provider.">
     <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
       <div className="space-y-4">
-        <Panel title={t("Signed in now")} icon={UserRound}>
+        <Panel data-tour="users-signed-in" title={t("Signed in now")} icon={UserRound}>
           {!session ? <SkeletonRows rows={2} /> : !session.authenticated ? <p className="text-sm text-muted">{t("Nobody is signed in.")}</p> : <>
             <div className="mb-3 flex items-center gap-3">
               <Avatar name={personName(session)} role={primaryRole(session.roles)} className="!h-11 !w-11 !text-sm" />
@@ -60,14 +60,14 @@ export function UsersAccess() {
         </Panel>
       </div>
       <div className="min-w-0 space-y-4">
-        <Panel title={t("The roles")} icon={UsersRound} bodyClassName="p-0">
+        <Panel data-tour="users-roles" title={t("The roles")} icon={UsersRound} bodyClassName="p-0">
           <ul className="divide-y divide-stroke">{ROLE_IDS.map(role => <li key={role} className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-3">
             <span className="w-40 shrink-0"><RoleChip role={role} /></span>
             <span className="min-w-0 flex-1 basis-64 text-sm">{t(ROLE_INFO[role].summary)}</span>
             {held.includes(role) && <span className="text-xs font-semibold text-brand">{t("Your role")}</span>}
           </li>)}</ul>
         </Panel>
-        <Panel title={t("What each role can do")} icon={KeyRound} description={t("Taken from the rules the server enforces. This table explains them; it does not grant anything.")} bodyClassName="p-0">
+        <Panel data-tour="users-matrix" title={t("What each role can do")} icon={KeyRound} description={t("Taken from the rules the server enforces. This table explains them; it does not grant anything.")} bodyClassName="p-0">
           <DataTable label={t("What each role can do")} minWidth="46rem" columns={ROLE_IDS.length + 1}>
             <thead><tr>
               <th scope="col">{t("Action")}</th>

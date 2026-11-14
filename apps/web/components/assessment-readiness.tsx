@@ -145,7 +145,7 @@ export function AssessmentReadiness({ incidentId }: { incidentId: string }) {
   ] : [];
   const radiusOptions = rad.map(value => ({ value: String(value), label: `${value / 1000} km` }));
 
-  return <Panel id="readiness" className="mt-5 overflow-hidden" title={t("Human Assessment Readiness")} icon={BrainCircuit}
+  return <Panel data-tour="case-readiness" id="readiness" className="mt-5 overflow-hidden" title={t("Human Assessment Readiness")} icon={BrainCircuit}
     description={t("Synthetic evidence checks, not a flood prediction")}
     actions={<>
       <InlineHelp label={t("About this checklist")}>{t("A deterministic checklist of simulated inputs. It does not forecast anything, and approval is still required from an independent human reviewer.")}</InlineHelp>

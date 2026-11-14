@@ -302,7 +302,7 @@ function SetupHeader({ payload, preview }: Readonly<{ payload: ConnectorsPayload
     return list;
   }, [payload, counted, t]);
   const keyOk = payload.master_key_configured;
-  return <Panel className="mb-5" aria-labelledby="setup-progress">
+  return <Panel data-tour="connectors-progress" className="mb-5" aria-labelledby="setup-progress">
     <div className="flex flex-wrap items-center gap-5">
       <Ring ready={ready} total={counted.length}/>
       <div className="min-w-0 flex-1 basis-56">
@@ -364,7 +364,7 @@ export function ConnectorAdmin() {
   const showBody = isAdmin;
 
   return <AppShell title="Connectors" description="Configure the data and decision connectors used by Hazard Watch. Secrets are write-only and IndTrana never sends warnings.">
-    {isAdmin && <Panel as="div" className="mb-4" bodyClassName="flex flex-wrap items-center gap-3 p-3">
+    {isAdmin && <Panel data-tour="connectors-bar" as="div" className="mb-4" bodyClassName="flex flex-wrap items-center gap-3 p-3">
       <button type="button" role="switch" aria-checked={preview} aria-describedby="preview-help" onClick={() => { setPreview(value => !value); setNotice(null); nowRef.current = Date.now(); }}
         className="inline-flex min-h-10 items-center gap-3 rounded-lg px-1 text-sm font-semibold">
         <span className={`relative h-6 w-11 shrink-0 rounded-full border transition-colors ${preview ? "border-amber-600 bg-amber-500" : "border-stroke bg-elevated"}`} aria-hidden="true">

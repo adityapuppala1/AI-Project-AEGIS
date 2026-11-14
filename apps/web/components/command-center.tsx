@@ -81,12 +81,12 @@ export function CommandCenter() {
     </section>
     <PublicSignalsStrip/>
     <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1.55fr)_minmax(350px,1fr)]">
-      <Panel className="min-w-0 overflow-hidden" aria-label="Exercise geospatial overview" bodyClassName="p-0" icon={MapPinned} title={t("Geospatial Overview")} description="Hyderabad · incident positions from PostGIS"
+      <Panel data-tour="cc-map" className="min-w-0 overflow-hidden" aria-label="Exercise geospatial overview" bodyClassName="p-0" icon={MapPinned} title={t("Geospatial Overview")} description="Hyderabad · incident positions from PostGIS"
         actions={<span className="rounded-full bg-accent/10 px-3 py-1 text-xs font-semibold text-accent">MapLibre / OSM</span>}>
         <GeoMap incidents={incidents} selectedId={selectedId} onSelect={setSelectedId}/>
         <div className="flex flex-wrap items-center justify-between gap-2 border-t border-stroke px-5 py-3 text-xs text-muted"><span>Map tiles require internet access. Incident data is synthetic.</span><span>Click a marker to inspect</span></div>
       </Panel>
-      <Panel className="flex min-w-0 flex-col" aria-label="Incident queue" bodyClassName="p-0 flex min-h-0 flex-1 flex-col" title={t("Incident Queue")} description="Exercise cases from the operational database"
+      <Panel data-tour="cc-queue" className="flex min-w-0 flex-col" aria-label="Incident queue" bodyClassName="p-0 flex min-h-0 flex-1 flex-col" title={t("Incident Queue")} description="Exercise cases from the operational database"
         actions={<Link href="/incidents" className="inline-flex min-h-9 items-center gap-1 text-xs font-semibold text-accent hover:underline">All cases <ArrowRight size={14} aria-hidden="true"/></Link>}>
         <div className="px-5 pt-4"><label className="sr-only" htmlFor="incident-search">Search incidents</label><input id="incident-search" className="field" placeholder="Search hazard or status..." value={query} onChange={event => setQuery(event.target.value)}/></div>
         <div className="max-h-[310px] flex-1 overflow-y-auto p-3">
@@ -112,7 +112,7 @@ export function CommandCenter() {
     <SourceHealthSummary/>
     <IngestionStatusSummary/>
     <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1.5fr)_minmax(320px,1fr)]">
-      <Panel className="min-w-0" aria-label="Synthetic rainfall trend" bodyClassName="p-0" icon={CloudRain} title={t("Hazard Telemetry")} description="Synthetic time-series fixture · not a weather forecast"
+      <Panel data-tour="cc-telemetry" className="min-w-0" aria-label="Synthetic rainfall trend" bodyClassName="p-0" icon={CloudRain} title={t("Hazard Telemetry")} description="Synthetic time-series fixture · not a weather forecast"
         actions={<><span className="text-xs font-semibold text-muted">Simulated 60 minutes</span>
           <Button size="sm" type="button" aria-pressed={showTable} disabled={!telemetry?.points?.length} onClick={() => setShowTable(value => !value)}>
             {showTable ? <Activity size={14}/> : <Table2 size={14}/>} {showTable ? t("Show chart") : t("Show data table")}</Button></>}>
@@ -135,7 +135,7 @@ export function CommandCenter() {
           </ResponsiveContainer> : <div className="flex h-full items-center justify-center text-sm text-muted">{loading ? t("Loading chart...") : t("No telemetry available; this is not a safety signal.")}</div>}
         </div>}
       </Panel>
-      <Panel bodyClassName="p-0" icon={Waves} title={t("Response Readiness")}
+      <Panel data-tour="cc-readiness" bodyClassName="p-0" icon={Waves} title={t("Response Readiness")}
         actions={<span className="rounded-full bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-700 dark:text-amber-300">Planning preview</span>}>
         <div className="space-y-4 p-5">
           {[

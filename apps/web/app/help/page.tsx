@@ -81,9 +81,9 @@ export default function HelpPage() {
         <p className="mt-1 text-xs text-muted">{item.detail}</p>
       </Link>)}
     </section>
-    <Panel className="overflow-hidden" id="help-articles" bodyClassName="p-0" title="Support articles & FAQs" description="Browse curated answers; no chatbot hallucinations"
+    <Panel data-tour="help-articles" className="overflow-hidden" id="help-articles" bodyClassName="p-0" title="Support articles & FAQs" description="Browse curated answers; no chatbot hallucinations"
       actions={<span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">{visible.length} articles</span>}>
-      <Tabs className="px-4" idPrefix="help" label={t("Help article categories")} value={category} onChange={setCategory}
+      <Tabs tour="help-tabs" className="px-4" idPrefix="help" label={t("Help article categories")} value={category} onChange={setCategory}
         tabs={categories.map(c => ({ value: c, label: t(c) }))}/>
       <TabPanel idPrefix="help" value={category} active className="divide-y divide-stroke px-4 sm:px-5"><div aria-live="polite" className="divide-y divide-stroke">
         {visible.map(item => { const open = openTitle === item.title; const pid = "faq-" + item.title.replace(/[^a-z0-9]+/gi, "-").toLowerCase();
@@ -102,7 +102,7 @@ export default function HelpPage() {
         {visible.length === 0 && <p className="p-8 text-center text-sm text-muted">No help articles match. Try another query or select All topics.</p>}
       </div></TabPanel>
     </Panel>
-    <Panel className="mt-5" aria-label={t("Troubleshooting steps")}>
+    <Panel data-tour="help-troubleshooting" className="mt-5" aria-label={t("Troubleshooting steps")}>
       <h2 className="t-title">{t("If the app shows unavailable")}</h2>
       <Stepper className="mt-4" label={t("Troubleshooting steps")} steps={TROUBLE.map(([id, label]): Step => ({ id, label: t(label), status: "pending" }))}/>
     </Panel>

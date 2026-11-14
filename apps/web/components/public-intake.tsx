@@ -125,7 +125,7 @@ export function PublicIntake() {
     </Panel>}
 
     {!refused && gate === "enabled" && <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,1fr)]">
-      <Panel className="min-w-0" aria-label={t("Report what you see")} bodyClassName="p-0" icon={Send} title={t("Report what you see")}
+      <Panel data-tour="intake-form" className="min-w-0" aria-label={t("Report what you see")} bodyClassName="p-0" icon={Send} title={t("Report what you see")}
         actions={<span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">{t("Unverified")}</span>}>
         {receipt ? <div className="p-6 text-center" role="status">
           <svg viewBox="0 0 64 64" className="mx-auto h-20 w-20" aria-hidden="true">
@@ -180,7 +180,7 @@ export function PublicIntake() {
         </form>}
       </Panel>
 
-      <Panel className="min-w-0" aria-label={t("Quarantine queue")} bodyClassName="p-0" icon={Inbox} title={t("Quarantine queue")} description={`${total} ${t("stored · read-only · not cases")}`}
+      <Panel data-tour="intake-queue" className="min-w-0" aria-label={t("Quarantine queue")} bodyClassName="p-0" icon={Inbox} title={t("Quarantine queue")} description={`${total} ${t("stored · read-only · not cases")}`}
         actions={<Button size="sm" type="button" onClick={() => void loadQueue()} disabled={loading}><RefreshCw size={15} className={loading ? "animate-spin" : ""}/> {t("Refresh")}</Button>}>
         {queueError && <ErrorState message={queueError} className="m-4" />}
         <div className="max-h-[560px] divide-y divide-stroke overflow-y-auto">

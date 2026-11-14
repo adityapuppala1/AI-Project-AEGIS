@@ -20,12 +20,12 @@ function useRoving(count: number, onMove: (index: number) => void, orientation: 
 }
 
 /** Single-select radiogroup (arrow keys move and select, Home/End jump). Labels must already be translated. */
-export function SegmentedControl<V extends string>({ options, value, onChange, label, className = "" }: Readonly<{
-  options: readonly Option<V>[]; value: V; onChange: (value: V) => void; label: string; className?: string;
+export function SegmentedControl<V extends string>({ options, value, onChange, label, className = "", tour }: Readonly<{
+  options: readonly Option<V>[]; value: V; onChange: (value: V) => void; label: string; className?: string; /** data-tour hook for the guided tours. */ tour?: string;
 }>) {
   const selected = Math.max(0, options.findIndex(option => option.value === value));
   const { refs, onKeyDown } = useRoving(options.length, index => onChange(options[index].value), "both");
-  return <div role="radiogroup" aria-label={label} className={`inline-flex flex-wrap gap-1 rounded-lg border border-stroke bg-elevated p-1 ${className}`}>
+  return <div role="radiogroup" aria-label={label} data-tour={tour} className={`inline-flex flex-wrap gap-1 rounded-lg border border-stroke bg-elevated p-1 ${className}`}>
     {options.map((option, index) => {
       const on = index === selected; const Icon = option.icon;
       return <button key={option.value} ref={node => { refs.current[index] = node; }} type="button" role="radio" aria-checked={on} tabIndex={on ? 0 : -1}
@@ -79,12 +79,12 @@ const idSlug = (value: string) => value.replace(/[^A-Za-z0-9_-]+/g, "-");
  * Tabs with roving tabindex (arrows, Home, End) and automatic activation. Pair each tab with a TabPanel using the same
  * `idPrefix` (stable id string). Labels must already be translated.
  */
-export function Tabs<V extends string>({ tabs, value, onChange, label, idPrefix, className = "" }: Readonly<{
-  tabs: readonly Option<V>[]; value: V; onChange: (value: V) => void; label: string; idPrefix: string; className?: string;
+export function Tabs<V extends string>({ tabs, value, onChange, label, idPrefix, className = "", tour }: Readonly<{
+  tabs: readonly Option<V>[]; value: V; onChange: (value: V) => void; label: string; idPrefix: string; className?: string; /** data-tour hook for the guided tours. */ tour?: string;
 }>) {
   const selected = Math.max(0, tabs.findIndex(tab => tab.value === value));
   const { refs, onKeyDown } = useRoving(tabs.length, index => onChange(tabs[index].value), "horizontal");
-  return <div role="tablist" aria-label={label} className={`flex flex-wrap gap-1 border-b border-stroke ${className}`}>
+  return <div role="tablist" aria-label={label} data-tour={tour} className={`flex flex-wrap gap-1 border-b border-stroke ${className}`}>
     {tabs.map((tab, index) => {
       const on = index === selected; const Icon = tab.icon;
       return <button key={tab.value} ref={node => { refs.current[index] = node; }} type="button" role="tab" id={`${idPrefix}-tab-${idSlug(tab.value)}`}

@@ -65,7 +65,7 @@ export function OperatorCopilot() {
     {signedOut && session && <SignInRequired session={session}/>}
     {refused && <PermissionState needs={pageRoles("/copilot") ?? []} roles={session?.roles} what={t("The copilot reads incident-desk records, so it is for the incident desk and administrators.")} where={refusalHome(session?.roles, { href: "/department-tasks", label: t("Open the Department Inbox") }, t("Open My Team"))} />}
     {!signedOut && !refused && <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,26rem)_minmax(0,1fr)]">
-      <Panel title={t("Ask about your agency's records")} icon={BrainCircuit} className="self-start">
+      <Panel data-tour="copilot-ask" title={t("Ask about your agency's records")} icon={BrainCircuit} className="self-start">
         <form onSubmit={ask} noValidate>
           <label className="field-label" htmlFor="copilot-question">{t("Question")}</label>
           <textarea id="copilot-question" className="field" rows={3} maxLength={COPILOT_MAX} value={question} aria-invalid={invalid || undefined} aria-describedby="copilot-help"
@@ -80,7 +80,7 @@ export function OperatorCopilot() {
           <div className="flex flex-col items-start gap-1.5">{EXAMPLES.map(example => <Button variant="quiet" size="sm" className="!justify-start text-left" key={example} type="button" onClick={() => { setQuestion(example); setInvalid(false); }}>{t(example)}</Button>)}</div>
         </form>
       </Panel>
-      <Panel title={t("Answer")} icon={FileText} actions={<StatusPill tone="info" icon={ShieldCheck}>{t("Read-only assistant; answers cite records; cannot act")}</StatusPill>} bodyClassName="p-0">
+      <Panel data-tour="copilot-answer" title={t("Answer")} icon={FileText} actions={<StatusPill tone="info" icon={ShieldCheck}>{t("Read-only assistant; answers cite records; cannot act")}</StatusPill>} bodyClassName="p-0">
         <p className="sr-only" role="status">{invalid ? "" : message}</p>
         {problem && <div className="p-4"><ErrorState message={problem} /></div>}
         {!answer && !problem && (busy

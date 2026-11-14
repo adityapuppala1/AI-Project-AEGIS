@@ -92,11 +92,11 @@ export default function DepartmentTasks() {
     {usable && busy && rows.length === 0 && !failed && <SkeletonRows rows={3} label={t("Loading verified department inbox…")}/>}
     {failed && <ErrorState message={t(message)} onRetry={() => void refresh()}/>}
     {usable && !busy && !failed && rows.length === 0 && <EmptyState icon={Inbox} title={t("No approved tasks for your department")} body={t("An empty inbox does not mean no work exists. Tasks appear only after an independent checker approves a proposal.")}/>}
-    <div className="grid gap-4 xl:grid-cols-2">{rows.map(row => {
+    <div className="grid gap-4 xl:grid-cols-2">{rows.map((row, rowIndex) => {
       const key = `${row.proposal_id}:${row.task.id}`, noteId = `note-${row.proposal_id}-${row.task.id}`;
       const taskRequests = responses.requests.filter(item => item.proposal_id === row.proposal_id && item.task.id === row.task.id);
       const open = openRequests(taskRequests).length;
-      return <Panel key={key} level={2} title={row.task.summary} actions={<span title={row.task.state}><StatusPill tone={STATE_TONE[row.task.state] ?? "neutral"}>{t(codeLabel(row.task.state))}</StatusPill></span>}>
+      return <Panel key={key} data-tour={rowIndex === 0 ? "dept-task" : undefined} level={2} title={row.task.summary} actions={<span title={row.task.state}><StatusPill tone={STATE_TONE[row.task.state] ?? "neutral"}>{t(codeLabel(row.task.state))}</StatusPill></span>}>
         <dl className="grid grid-cols-[7rem_minmax(0,1fr)] items-center gap-x-3 gap-y-2 text-sm">
           <dt className="text-xs font-semibold text-muted">{t("Proposal")}</dt><dd><RecordRef id={row.proposal_id} kind="proposal" /></dd>
           <dt className="text-xs font-semibold text-muted">{t("Incident")}</dt><dd><RecordRef id={row.incident_id} kind="incident" /></dd>

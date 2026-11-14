@@ -81,7 +81,7 @@ export function IncidentIntelligence({ workspace }: { workspace: IncidentWorkspa
       </p>
     </div>
 
-    <Panel className="mb-5" aria-label={t("Case overview")}>
+    <Panel data-tour="case-overview" className="mb-5" aria-label={t("Case overview")}>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="eyebrow">{t("Incident reference · Hyderabad training area")}</p>
@@ -105,7 +105,7 @@ export function IncidentIntelligence({ workspace }: { workspace: IncidentWorkspa
       <StatTile index={3} icon={ShieldCheck} label={t("Operational actions")} value={t("Disabled")} tone="success" hint={t("Approval never dispatches")}/>
     </StatStrip>
 
-    <Tabs idPrefix="case" label={t("Case information categories")} tabs={tabs} value={view} onChange={setView} className="mb-5"/>
+    <Tabs tour="case-tabs" idPrefix="case" label={t("Case information categories")} tabs={tabs} value={view} onChange={setView} className="mb-5"/>
 
     <TabPanel idPrefix="case" value="overview" active={view === "overview"}>
       <PublicSignalsNearCase lat={incident.lat} lon={incident.lon}/>

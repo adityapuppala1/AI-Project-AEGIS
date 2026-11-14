@@ -1,10 +1,17 @@
 import type { NextConfig } from "next";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
+// Only the version is read from package.json, so the dependency list can never reach the browser (lib/version.ts).
+const version: string | undefined = (() => { try { return JSON.parse(readFileSync(join(process.cwd(), "package.json"), "utf8")).version; } catch { return undefined; } })();
 
 // Headers for every response. Pages get their Content-Security-Policy (with a per-request nonce) from middleware.ts
 // and lib/csp.ts; API responses are data, so they get the strictest possible policy here.
 const config: NextConfig = {
   poweredByHeader: false,
   output: "standalone",
+  // Only the version is exposed to the browser (lib/version.ts), never the dependency list.
+  env: version ? { NEXT_PUBLIC_APP_VERSION: version } : {},
   async headers() {
     return [
       {

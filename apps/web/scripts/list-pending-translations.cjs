@@ -60,6 +60,15 @@ function collect() {
     for (const block of src.matchAll(/^const (?:REHEARSAL|LIMITS|STATE_LABEL|COMM_LABEL)\b[\s\S]*?;$/gm))
       for (const match of block[0].matchAll(/"((?:[^"\\]|\\.)*)"/g)) found.add(JSON.parse('"' + match[1] + '"'));
   }
+  // The guided tours and the release notes keep their copy in data tables (lib/tours.ts, lib/release-notes.ts).
+  const tours = load("lib/tours.ts"), notes = load("lib/release-notes.ts");
+  for (const tour of tours.TOURS) {
+    found.add(tour.title);
+    for (const step of tour.steps) { found.add(step.title); found.add(step.body); for (const text of Object.values(step.bodyByRole ?? {})) found.add(text); }
+  }
+  for (const group of notes.RELEASE_GROUPS) found.add(group);
+  for (const release of notes.RELEASES) { found.add(release.summary); if (release.period) found.add(release.period); for (const item of release.items) found.add(item.text); }
+  for (const text of ["Switch to light theme", "Switch to dark theme"]) found.add(text);
   found.delete("");
   return found;
 }

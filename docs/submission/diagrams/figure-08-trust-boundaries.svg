@@ -1,0 +1,140 @@
+<svg class="dg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1367" role="img" aria-label="Layered diagram: browser, web application, API, database, and the identity provider, with the controls at each layer and the trust boundary between layers. A side panel summarises the 14 November 2026 developer self-assessment." data-key="d6"><style>svg.dg{--d-bg:#FFFFFF;--d-panel:#F2F5F9;--d-card:#FFFFFF;--d-line:#8D9DBB;--d-ink:#0C183D;--d-mute:#48567A;
+--d-acc:#163E96;--d-accbg:#E6EDFB;--d-ok:#17803D;--d-okbg:#E4F4EA;--d-warn:#A35004;--d-warnbg:#FDF0DC;--d-warnline:#D9801A;
+--d-no:#B42318;--d-nobg:#FDECEA;--d-r-maker:#1A62A6;--d-r-checker:#15783A;--d-r-auditor:#475569;--d-r-dept:#0D6E67;--d-r-team:#9D174D;--d-r-admin:#A35004;}
+.dg{font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif}
+.dg .bg{fill:var(--d-bg)}
+.dg .panel{fill:var(--d-panel);stroke:var(--d-line);stroke-width:1.5}
+.dg .card{fill:var(--d-card);stroke:var(--d-line);stroke-width:2}
+.dg .soft{fill:var(--d-panel);stroke:var(--d-line);stroke-width:1.5}
+.dg .sw{fill:var(--d-accbg);stroke:var(--d-acc);stroke-width:2}
+.dg .human{fill:var(--d-warnbg);stroke:var(--d-warnline);stroke-width:2.5}
+.dg .data{fill:var(--d-okbg);stroke:var(--d-ok);stroke-width:2}
+.dg .opt{fill:var(--d-card);stroke:var(--d-acc);stroke-width:2;stroke-dasharray:9 6}
+.dg .no{fill:var(--d-nobg);stroke:var(--d-no);stroke-width:2.5;stroke-dasharray:9 6}
+.dg .todo{fill:var(--d-panel);stroke:var(--d-mute);stroke-width:2;stroke-dasharray:3 6}
+.dg .bound{fill:none;stroke:var(--d-mute);stroke-width:2;stroke-dasharray:14 8}
+.dg .t{fill:var(--d-ink)}
+.dg .tm{fill:var(--d-mute)}
+.dg .tacc{fill:var(--d-acc)}
+.dg .twarn{fill:var(--d-warn)}
+.dg .tno{fill:var(--d-no)}
+.dg .tok{fill:var(--d-ok)}
+.dg .b{font-weight:700}
+.dg .ln{fill:none;stroke:var(--d-mute);stroke-width:2.5}
+.dg .lacc{fill:none;stroke:var(--d-acc);stroke-width:2.5}
+.dg .lopt{fill:none;stroke:var(--d-acc);stroke-width:2.5;stroke-dasharray:9 6}
+.dg .lno{fill:none;stroke:var(--d-no);stroke-width:2.5;stroke-dasharray:9 6}
+.dg .lwarn{fill:none;stroke:var(--d-warnline);stroke-width:3}
+.dg .m-ln{fill:var(--d-mute)} .dg .m-acc{fill:var(--d-acc)} .dg .m-warn{fill:var(--d-warnline)} .dg .m-no{fill:var(--d-no)}
+.dg .dot{fill:var(--d-ink)}
+.dg .r-maker{fill:var(--d-r-maker)} .dg .r-checker{fill:var(--d-r-checker)} .dg .r-auditor{fill:var(--d-r-auditor)}
+.dg .r-dept{fill:var(--d-r-dept)} .dg .r-team{fill:var(--d-r-team)} .dg .r-admin{fill:var(--d-r-admin)}
+.dg .badge{fill:var(--d-ink)} .dg .badget{fill:var(--d-bg)}
+.dg .hit{fill:transparent}
+.dg [data-node]{cursor:pointer}
+.dg [data-node]:focus-visible .card,.dg [data-node]:focus-visible .sw,.dg [data-node]:focus-visible .opt{stroke:var(--d-warnline);stroke-width:5}
+.dg [data-node].on .card,.dg [data-node].on .sw,.dg [data-node].on .opt,.dg [data-node].on .data,.dg [data-node].on .human{stroke:var(--d-warnline);stroke-width:5}
+.dg .dim{opacity:.28}
+</style><defs>
+<marker id="d6a-ln" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-ln"/></marker>
+<marker id="d6a-acc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-acc"/></marker>
+<marker id="d6a-warn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-warn"/></marker>
+<marker id="d6a-no" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-no"/></marker>
+</defs><rect class="bg" x="0" y="0" width="1200" height="1367"/>
+<text x="40" y="56" class="t b" font-size="32" text-anchor="start" >Figure 8. Trust boundaries and security controls</text>
+<text x="40" y="90" class="tm" font-size="21" text-anchor="start" >Five layers, the controls at each, and what the 14 November 2026 developer test covered.</text>
+<rect x="40" y="130" width="760" height="186" rx="10" class="card" />
+<text x="60" y="166" class="t b" font-size="22" text-anchor="start" >Browser</text>
+<text x="780" y="166" class="tm" font-size="19" text-anchor="end" >Not trusted</text>
+<circle cx="68" cy="190" r="4" class="dot"/>
+<text x="82" y="196" class="t" font-size="19" text-anchor="start" >Holds no token and no password: the session is an encrypted HttpOnly cookie.</text>
+<circle cx="68" cy="221" r="4" class="dot"/>
+<text x="82" y="227" class="t" font-size="19" text-anchor="start" >Page security policy: scripts need a per-request nonce; no third-party origin</text>
+<text x="82" y="252" class="t" font-size="19" text-anchor="start" >allowed.</text>
+<circle cx="68" cy="277" r="4" class="dot"/>
+<text x="82" y="283" class="t" font-size="19" text-anchor="start" >Frames refused; HSTS; no-sniff; referrer and permissions policies.</text>
+<path d="M40 336 L800 336" class="bound" />
+<text x="420" y="331" class="tm" font-size="19" text-anchor="middle" ></text>
+<rect x="345" y="323" width="149" height="28" rx="4" class="bg" opacity="0.92"/>
+<text x="420" y="342" class="tm" font-size="19" text-anchor="middle" >trust boundary 1</text>
+<rect x="40" y="356" width="760" height="267" rx="10" class="sw" />
+<text x="60" y="392" class="t b" font-size="22" text-anchor="start" >Web application (server layer)</text>
+<text x="780" y="392" class="tm" font-size="19" text-anchor="end" >Checks the browser&#x27;s request</text>
+<circle cx="68" cy="416" r="4" class="dot"/>
+<text x="82" y="422" class="t" font-size="19" text-anchor="start" >Sign-in gate: every page and route except landing, sign-in and brand read needs</text>
+<text x="82" y="447" class="t" font-size="19" text-anchor="start" >a valid session.</text>
+<circle cx="68" cy="472" r="4" class="dot"/>
+<text x="82" y="478" class="t" font-size="19" text-anchor="start" >Session sealed with AES-256-GCM, 15 minutes. Sign-in uses PKCE, state and</text>
+<text x="82" y="503" class="t" font-size="19" text-anchor="start" >nonce.</text>
+<circle cx="68" cy="528" r="4" class="dot"/>
+<text x="82" y="534" class="t" font-size="19" text-anchor="start" >Origin check on every state-changing handler; a test lists them and fails on a miss.</text>
+<circle cx="68" cy="559" r="4" class="dot"/>
+<text x="82" y="565" class="t" font-size="19" text-anchor="start" >Role and field allowlists. Public-data relay: fixed hosts, no redirects, size and rate</text>
+<text x="82" y="590" class="t" font-size="19" text-anchor="start" >limits.</text>
+<path d="M40 643 L800 643" class="bound" />
+<text x="420" y="638" class="tm" font-size="19" text-anchor="middle" ></text>
+<rect x="345" y="630" width="149" height="28" rx="4" class="bg" opacity="0.92"/>
+<text x="420" y="649" class="tm" font-size="19" text-anchor="middle" >trust boundary 2</text>
+<rect x="40" y="663" width="760" height="217" rx="10" class="sw" />
+<text x="60" y="699" class="t b" font-size="22" text-anchor="start" >API service</text>
+<text x="780" y="699" class="tm" font-size="19" text-anchor="end" >Trusts only the signed token</text>
+<circle cx="68" cy="723" r="4" class="dot"/>
+<text x="82" y="729" class="t" font-size="19" text-anchor="start" >RS256 signature, issuer, audience, expiry and subject verified on every request.</text>
+<circle cx="68" cy="754" r="4" class="dot"/>
+<text x="82" y="760" class="t" font-size="19" text-anchor="start" >Agency and role come only from signed claims. The body can never set them.</text>
+<circle cx="68" cy="785" r="4" class="dot"/>
+<text x="82" y="791" class="t" font-size="19" text-anchor="start" >Explicit role list per route; a test fails on any route without it. Other agency: 403.</text>
+<circle cx="68" cy="816" r="4" class="dot"/>
+<text x="82" y="822" class="t" font-size="19" text-anchor="start" >Unknown fields refused; NUL and non-finite numbers refused; no-store and</text>
+<text x="82" y="847" class="t" font-size="19" text-anchor="start" >no-sniff on replies.</text>
+<path d="M40 900 L800 900" class="bound" />
+<text x="420" y="895" class="tm" font-size="19" text-anchor="middle" ></text>
+<rect x="345" y="887" width="149" height="28" rx="4" class="bg" opacity="0.92"/>
+<text x="420" y="906" class="tm" font-size="19" text-anchor="middle" >trust boundary 3</text>
+<rect x="40" y="920" width="760" height="192" rx="10" class="data" />
+<text x="60" y="956" class="t b" font-size="22" text-anchor="start" >Database</text>
+<text x="780" y="956" class="tm" font-size="19" text-anchor="end" >Reachable only by the API</text>
+<circle cx="68" cy="980" r="4" class="dot"/>
+<text x="82" y="986" class="t" font-size="19" text-anchor="start" >No published port. Writes use transactions and row locks.</text>
+<circle cx="68" cy="1011" r="4" class="dot"/>
+<text x="82" y="1017" class="t" font-size="19" text-anchor="start" >Trigger refuses a checker who is the maker; one approval per proposal.</text>
+<circle cx="68" cy="1042" r="4" class="dot"/>
+<text x="82" y="1048" class="t" font-size="19" text-anchor="start" >Audit rows are written in the same transaction. Some logs are append-only.</text>
+<circle cx="68" cy="1073" r="4" class="dot"/>
+<text x="82" y="1079" class="t" font-size="19" text-anchor="start" >Row-level security is not built yet.</text>
+<path d="M40 1132 L800 1132" class="bound" />
+<text x="420" y="1127" class="tm" font-size="19" text-anchor="middle" ></text>
+<rect x="345" y="1119" width="149" height="28" rx="4" class="bg" opacity="0.92"/>
+<text x="420" y="1138" class="tm" font-size="19" text-anchor="middle" >trust boundary 4</text>
+<rect x="40" y="1152" width="760" height="155" rx="10" class="card" />
+<text x="60" y="1188" class="t b" font-size="22" text-anchor="start" >Identity provider</text>
+<text x="780" y="1188" class="tm" font-size="19" text-anchor="end" >Owned by the agency</text>
+<circle cx="68" cy="1212" r="4" class="dot"/>
+<text x="82" y="1218" class="t" font-size="19" text-anchor="start" >Holds passwords, second factor and role assignment. IndTrana has no password</text>
+<text x="82" y="1243" class="t" font-size="19" text-anchor="start" >field.</text>
+<circle cx="68" cy="1268" r="4" class="dot"/>
+<text x="82" y="1274" class="t" font-size="19" text-anchor="start" >Local demo provider runs in development mode: finding M3, open.</text>
+<rect x="830" y="130" width="330" height="1000" rx="10" class="panel" />
+<text x="850" y="168" class="t b" font-size="21" text-anchor="start" >Tested on 14 November</text>
+<text x="850" y="200" class="t" font-size="19" text-anchor="start" >Developer self-assessment by the</text>
+<text x="850" y="223.75" class="t" font-size="19" text-anchor="start" >development assistant. Not an</text>
+<text x="850" y="247.5" class="t" font-size="19" text-anchor="start" >independent audit.</text>
+<text x="850" y="283.25" class="t" font-size="19" text-anchor="start" >Two code reviews of API, web</text>
+<text x="850" y="307.0" class="t" font-size="19" text-anchor="start" >gate, sign-in and proxies.</text>
+<text x="850" y="342.75" class="t" font-size="19" text-anchor="start" >About 200 scripted requests as</text>
+<text x="850" y="366.5" class="t" font-size="19" text-anchor="start" >each of the demo roles.</text>
+<text x="850" y="402.25" class="t" font-size="19" text-anchor="start" >npm audit and pip-audit: no</text>
+<text x="850" y="426.0" class="t" font-size="19" text-anchor="start" >known vulnerability.</text>
+<text x="850" y="461.75" class="t" font-size="19" text-anchor="start" >Secret scan of tracked files: none</text>
+<text x="850" y="485.5" class="t" font-size="19" text-anchor="start" >found.</text>
+<text x="850" y="521.25" class="t" font-size="19" text-anchor="start" >No critical or high finding. Three</text>
+<text x="850" y="545.0" class="t" font-size="19" text-anchor="start" >medium: two fixed, one open</text>
+<text x="850" y="568.75" class="t" font-size="19" text-anchor="start" >(M3). Eight low: five fixed, three</text>
+<text x="850" y="592.5" class="t" font-size="19" text-anchor="start" >known limits.</text>
+<text x="850" y="634.25" class="twarn b" font-size="21" text-anchor="start" >Not done</text>
+<text x="850" y="668.25" class="t" font-size="19" text-anchor="start" >Two live agencies.</text>
+<text x="850" y="698.0" class="t" font-size="19" text-anchor="start" >Independent tester.</text>
+<text x="850" y="727.75" class="t" font-size="19" text-anchor="start" >Load and denial-of-service tests.</text>
+<text x="850" y="757.5" class="t" font-size="19" text-anchor="start" >Container image scan.</text>
+<text x="850" y="787.25" class="t" font-size="19" text-anchor="start" >Linux and macOS.</text>
+<text x="40" y="1345" class="tm" font-size="19" text-anchor="start" >IndTrana v0.3.0 · exercise prototype · synthetic data · no live warnings</text></svg>

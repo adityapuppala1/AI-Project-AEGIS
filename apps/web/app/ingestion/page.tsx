@@ -50,7 +50,7 @@ export default function IngestionPage() {
       <StatTile index={1} label={t("Quarantined unique records")} icon={XCircle} tone={data && data.quarantine_records > 0 ? "warning" : "neutral"} value={data?.quarantine_records ?? "—"} hint={t("Invalid records held as metadata only")}/>
       <StatTile index={2} label={t("Live ingest connections")} icon={LockKeyhole} tone="neutral" value="0" hint={t("Not configured or available")}/>
     </StatStrip>
-    <Panel className="mb-5" level={2} icon={GitMerge} title={t("How a replay moves through DataFusion")}
+    <Panel data-tour="ingestion-flow" className="mb-5" level={2} icon={GitMerge} title={t("How a replay moves through DataFusion")}
       description={t("Local-only and synthetic: bundled fixture data, no live intake.")}>
       <Stepper label={t("Replay stages")} steps={[
         { id: "fixture", label: t("Read fixture"), description: t("Bundled synthetic file"), status: "done" },
@@ -63,7 +63,7 @@ export default function IngestionPage() {
       </InlineHelp>
     </Panel>
     <div className="mt-5 grid items-start gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(330px,1fr)]">
-      <Panel className="overflow-hidden" bodyClassName="p-0" icon={ClipboardList} title="Quarantine reasons" description="Counts never display rejected raw payloads."
+      <Panel data-tour="ingestion-quarantine" className="overflow-hidden" bodyClassName="p-0" icon={ClipboardList} title="Quarantine reasons" description="Counts never display rejected raw payloads."
         actions={<span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">Read only</span>}>
         <div className="divide-y divide-stroke">
           {REASONS.map(reason => <div className="flex items-center justify-between gap-3 px-5 py-4" key={reason}>
@@ -72,7 +72,7 @@ export default function IngestionPage() {
           </div>)}
         </div>
       </Panel>
-      <Panel bodyClassName="p-0" icon={TerminalSquare} title="Reproducible local replay">
+      <Panel data-tour="ingestion-replay" bodyClassName="p-0" icon={TerminalSquare} title="Reproducible local replay">
         <div className="space-y-4 p-5">
           <p className="text-sm leading-6 text-muted">Run the reviewed synthetic fixture in your Windows Docker terminal. Repeating it should not create duplicate accepted events or repeated quarantine rows.</p>
           <div className="rounded-lg border border-stroke bg-elevated p-4">

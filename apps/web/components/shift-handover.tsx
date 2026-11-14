@@ -77,7 +77,7 @@ export function ShiftHandover() {
     {signedOut && session && <SignInRequired session={session}/>}
     {refused && <PermissionState needs={pageRoles("/handover") ?? []} roles={session?.roles} what={t("The handover brief is for the incident desk and administrators.")} where={refusalHome(session?.roles, { href: "/department-tasks", label: t("Open the Department Inbox") }, t("Open My Team"))} />}
     {!signedOut && !refused && <Toolbar label={t("Handover window")}>
-      <SegmentedControl label={t("Handover window")} value={hours} onChange={value => setHours(value)}
+      <SegmentedControl tour="handover-window" label={t("Handover window")} value={hours} onChange={value => setHours(value)}
         options={WINDOWS.map(value => ({ value, label: `${value} h` }))}/>
       <StatusPill tone="info">{t("Read-only: nothing is sent or saved")}</StatusPill>
     </Toolbar>}
@@ -86,7 +86,7 @@ export function ShiftHandover() {
     {brief && <div className="space-y-4">
       <p className="tnum text-sm"><span className="text-muted">{t("Window")}: </span>{brief.hours} h <span className="text-muted">· {t("Generated")} </span>{new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Kolkata", dateStyle: "medium", timeStyle: "short" }).format(new Date(brief.generated_at || Date.now()))} IST</p>
       <p className="helper max-w-4xl">{t("Every line cites record ids. Synthetic SLA targets are rehearsal targets, not contractual SLAs. This is not a forecast, warning, approval or dispatch.")}</p>
-      <Panel title={t("State at handover")} icon={OctagonPause} bodyClassName="p-0">
+      <Panel data-tour="handover-state" title={t("State at handover")} icon={OctagonPause} bodyClassName="p-0">
         <dl className="grid divide-y divide-stroke sm:grid-cols-[minmax(0,1.3fr)_repeat(4,minmax(0,1fr))] sm:divide-x sm:divide-y-0">
           <div className="px-4 py-3">
             <dt className="text-xs font-semibold text-muted">{t("Automation")}</dt>

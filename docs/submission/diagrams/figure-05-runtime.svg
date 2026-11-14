@@ -1,0 +1,168 @@
+<svg class="dg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1350" role="img" aria-label="Container architecture. A browser talks to a Next.js web container on port 3000 and to an identity provider front door on port 8443, both bound to 127.0.0.1. The web container calls a FastAPI container, which uses a PostgreSQL and PostGIS container with no published port. Optional overlays are drawn with dashed lines." data-key="d2"><style>svg.dg{--d-bg:#FFFFFF;--d-panel:#F2F5F9;--d-card:#FFFFFF;--d-line:#8D9DBB;--d-ink:#0C183D;--d-mute:#48567A;
+--d-acc:#163E96;--d-accbg:#E6EDFB;--d-ok:#17803D;--d-okbg:#E4F4EA;--d-warn:#A35004;--d-warnbg:#FDF0DC;--d-warnline:#D9801A;
+--d-no:#B42318;--d-nobg:#FDECEA;--d-r-maker:#1A62A6;--d-r-checker:#15783A;--d-r-auditor:#475569;--d-r-dept:#0D6E67;--d-r-team:#9D174D;--d-r-admin:#A35004;}
+.dg{font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif}
+.dg .bg{fill:var(--d-bg)}
+.dg .panel{fill:var(--d-panel);stroke:var(--d-line);stroke-width:1.5}
+.dg .card{fill:var(--d-card);stroke:var(--d-line);stroke-width:2}
+.dg .soft{fill:var(--d-panel);stroke:var(--d-line);stroke-width:1.5}
+.dg .sw{fill:var(--d-accbg);stroke:var(--d-acc);stroke-width:2}
+.dg .human{fill:var(--d-warnbg);stroke:var(--d-warnline);stroke-width:2.5}
+.dg .data{fill:var(--d-okbg);stroke:var(--d-ok);stroke-width:2}
+.dg .opt{fill:var(--d-card);stroke:var(--d-acc);stroke-width:2;stroke-dasharray:9 6}
+.dg .no{fill:var(--d-nobg);stroke:var(--d-no);stroke-width:2.5;stroke-dasharray:9 6}
+.dg .todo{fill:var(--d-panel);stroke:var(--d-mute);stroke-width:2;stroke-dasharray:3 6}
+.dg .bound{fill:none;stroke:var(--d-mute);stroke-width:2;stroke-dasharray:14 8}
+.dg .t{fill:var(--d-ink)}
+.dg .tm{fill:var(--d-mute)}
+.dg .tacc{fill:var(--d-acc)}
+.dg .twarn{fill:var(--d-warn)}
+.dg .tno{fill:var(--d-no)}
+.dg .tok{fill:var(--d-ok)}
+.dg .b{font-weight:700}
+.dg .ln{fill:none;stroke:var(--d-mute);stroke-width:2.5}
+.dg .lacc{fill:none;stroke:var(--d-acc);stroke-width:2.5}
+.dg .lopt{fill:none;stroke:var(--d-acc);stroke-width:2.5;stroke-dasharray:9 6}
+.dg .lno{fill:none;stroke:var(--d-no);stroke-width:2.5;stroke-dasharray:9 6}
+.dg .lwarn{fill:none;stroke:var(--d-warnline);stroke-width:3}
+.dg .m-ln{fill:var(--d-mute)} .dg .m-acc{fill:var(--d-acc)} .dg .m-warn{fill:var(--d-warnline)} .dg .m-no{fill:var(--d-no)}
+.dg .dot{fill:var(--d-ink)}
+.dg .r-maker{fill:var(--d-r-maker)} .dg .r-checker{fill:var(--d-r-checker)} .dg .r-auditor{fill:var(--d-r-auditor)}
+.dg .r-dept{fill:var(--d-r-dept)} .dg .r-team{fill:var(--d-r-team)} .dg .r-admin{fill:var(--d-r-admin)}
+.dg .badge{fill:var(--d-ink)} .dg .badget{fill:var(--d-bg)}
+.dg .hit{fill:transparent}
+.dg [data-node]{cursor:pointer}
+.dg [data-node]:focus-visible .card,.dg [data-node]:focus-visible .sw,.dg [data-node]:focus-visible .opt{stroke:var(--d-warnline);stroke-width:5}
+.dg [data-node].on .card,.dg [data-node].on .sw,.dg [data-node].on .opt,.dg [data-node].on .data,.dg [data-node].on .human{stroke:var(--d-warnline);stroke-width:5}
+.dg .dim{opacity:.28}
+</style><defs>
+<marker id="d2a-ln" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-ln"/></marker>
+<marker id="d2a-acc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-acc"/></marker>
+<marker id="d2a-warn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-warn"/></marker>
+<marker id="d2a-no" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-no"/></marker>
+</defs><rect class="bg" x="0" y="0" width="1200" height="1350"/>
+<text x="40" y="56" class="t b" font-size="32" text-anchor="start" >Figure 5. Runtime architecture</text>
+<text x="40" y="90" class="tm" font-size="21" text-anchor="start" >What runs on the laptop under Docker Compose, which ports are open, and which optional parts can be added.</text>
+<rect x="40" y="170" width="200" height="160" rx="10" class="card" />
+<text x="56" y="204.04" class="t b" font-size="22" text-anchor="start" >Browser</text>
+<text x="56" y="235.2" class="tm" font-size="19" text-anchor="start" >Pages, map and 3D</text>
+<text x="56" y="259.52" class="tm" font-size="19" text-anchor="start" >view. Holds no</text>
+<text x="56" y="283.84" class="tm" font-size="19" text-anchor="start" >token and no</text>
+<text x="56" y="308.15999999999997" class="tm" font-size="19" text-anchor="start" >password.</text>
+<rect x="270" y="130" width="890" height="830" rx="18" class="bound" />
+<text x="290" y="164" class="tm b" font-size="20" text-anchor="start" >One host, one Docker Compose project: ai-project-aegis</text>
+<g data-node="web" tabindex="0" role="button" aria-label="Web application">
+<rect x="300" y="190" width="290" height="250" rx="10" class="sw" />
+<text x="316" y="224.04" class="t b" font-size="22" text-anchor="start" >web</text>
+<text x="316" y="255.2" class="tm" font-size="19" text-anchor="start" >Next.js 15 and React. Server</text>
+<text x="316" y="279.52" class="tm" font-size="19" text-anchor="start" >layer for the browser: sign-in</text>
+<text x="316" y="303.84" class="tm" font-size="19" text-anchor="start" >gate, sealed session cookie,</text>
+<text x="316" y="328.15999999999997" class="tm" font-size="19" text-anchor="start" >origin checks, page security</text>
+<text x="316" y="352.47999999999996" class="tm" font-size="19" text-anchor="start" >policy.</text>
+<text x="316" y="376.79999999999995" class="tm" font-size="19" text-anchor="start" >127.0.0.1:3000</text>
+</g>
+<g data-node="api" tabindex="0" role="button" aria-label="API service">
+<rect x="630" y="190" width="290" height="250" rx="10" class="sw" />
+<text x="646" y="224.04" class="t b" font-size="22" text-anchor="start" >api</text>
+<text x="646" y="255.2" class="tm" font-size="19" text-anchor="start" >FastAPI (Python). Verifies</text>
+<text x="646" y="279.52" class="tm" font-size="19" text-anchor="start" >every token, applies the role</text>
+<text x="646" y="303.84" class="tm" font-size="19" text-anchor="start" >list of each route, the agency</text>
+<text x="646" y="328.15999999999997" class="tm" font-size="19" text-anchor="start" >scope and the maker-checker</text>
+<text x="646" y="352.47999999999996" class="tm" font-size="19" text-anchor="start" >rules.</text>
+<text x="646" y="376.79999999999995" class="tm" font-size="19" text-anchor="start" >127.0.0.1:8000</text>
+</g>
+<rect x="300" y="500" width="290" height="134" rx="10" class="soft" />
+<text x="316" y="533.22" class="t b" font-size="21" text-anchor="start" >migrate and seed</text>
+<text x="316" y="563.1" class="tm" font-size="19" text-anchor="start" >One-shot jobs: 19 migrations</text>
+<text x="316" y="587.4200000000001" class="tm" font-size="19" text-anchor="start" >create the tables, then</text>
+<text x="316" y="611.7400000000001" class="tm" font-size="19" text-anchor="start" >synthetic data is loaded.</text>
+<g data-node="db" tabindex="0" role="button" aria-label="Database">
+<rect x="630" y="500" width="290" height="160" rx="10" class="data" />
+<text x="646" y="534.04" class="t b" font-size="22" text-anchor="start" >db</text>
+<text x="646" y="565.1999999999999" class="tm" font-size="19" text-anchor="start" >PostgreSQL 16 with PostGIS</text>
+<text x="646" y="589.52" class="tm" font-size="19" text-anchor="start" >3.4. No host port: reachable</text>
+<text x="646" y="613.84" class="tm" font-size="19" text-anchor="start" >only inside the Compose</text>
+<text x="646" y="638.1600000000001" class="tm" font-size="19" text-anchor="start" >network.</text>
+</g>
+<g data-node="idp" tabindex="0" role="button" aria-label="Local identity provider">
+<rect x="296" y="716" width="628" height="190" rx="8" class="hit" />
+<rect x="630" y="720" width="290" height="160" rx="10" class="card" />
+<text x="646" y="754.04" class="t b" font-size="22" text-anchor="start" >local-idp</text>
+<text x="646" y="785.1999999999999" class="tm" font-size="19" text-anchor="start" >Keycloak in development</text>
+<text x="646" y="809.52" class="tm" font-size="19" text-anchor="start" >mode. Local demo only. The</text>
+<text x="646" y="833.84" class="tm" font-size="19" text-anchor="start" >API reads its public signing</text>
+<text x="646" y="858.1600000000001" class="tm" font-size="19" text-anchor="start" >keys.</text>
+<rect x="300" y="720" width="290" height="111" rx="10" class="card" />
+<text x="316" y="754.04" class="t b" font-size="22" text-anchor="start" >local-idp-tls</text>
+<text x="316" y="785.1999999999999" class="tm" font-size="19" text-anchor="start" >Caddy front door with TLS.</text>
+<text x="316" y="809.52" class="tm" font-size="19" text-anchor="start" >127.0.0.1:8443</text>
+</g>
+<path d="M590 790 L630 790" class="ln" marker-end="url(#d2a-ln)" />
+<path d="M240 300 L300 300" class="lacc" marker-end="url(#d2a-acc)" />
+<rect x="245" y="263" width="50" height="28" rx="4" class="bg" opacity="0.92"/>
+<text x="270" y="282" class="tm" font-size="19" text-anchor="middle" >3000</text>
+<path d="M590 315 L630 315" class="lacc" marker-end="url(#d2a-acc)" />
+<path d="M775 440 L775 500" class="lacc" marker-end="url(#d2a-acc)" />
+<path d="M590 580 L630 580" class="ln" marker-end="url(#d2a-ln)" />
+<path d="M140 330 L140 800 L300 800" class="lacc" marker-end="url(#d2a-acc)" />
+<rect x="175" y="761" width="50" height="28" rx="4" class="bg" opacity="0.92"/>
+<text x="200" y="780" class="tm" font-size="19" text-anchor="middle" >8443</text>
+<text x="300" y="940" class="tm" font-size="19" text-anchor="start" >Containers web and api: no-new-privileges, all capabilities dropped, process limit.</text>
+<path d="M920 380 L940 380" class="lopt" />
+<path d="M940 262 L940 560" class="lopt" />
+<path d="M940 262 L960 262" class="lopt" marker-end="url(#d2a-acc)" />
+<path d="M940 410 L960 410" class="lopt" marker-end="url(#d2a-acc)" />
+<path d="M940 560 L960 560" class="lopt" marker-end="url(#d2a-acc)" />
+<g class="ov" data-ov="forecast">
+<rect x="960" y="190" width="180" height="135" rx="10" class="opt" />
+<text x="972" y="218.4" class="t b" font-size="20" text-anchor="start" >Statistical</text>
+<text x="972" y="244.0" class="t b" font-size="20" text-anchor="start" >forecast</text>
+<text x="972" y="272.6" class="tm" font-size="19" text-anchor="start" >Adds a model to</text>
+<text x="972" y="296.92" class="tm" font-size="19" text-anchor="start" >api. Display only.</text>
+</g>
+<g class="ov" data-ov="copilot">
+<rect x="960" y="340" width="180" height="135" rx="10" class="opt" />
+<text x="972" y="368.4" class="t b" font-size="20" text-anchor="start" >Local model</text>
+<text x="972" y="397.0" class="tm" font-size="19" text-anchor="start" >Ollama on the</text>
+<text x="972" y="421.32" class="tm" font-size="19" text-anchor="start" >host picks review</text>
+<text x="972" y="445.64" class="tm" font-size="19" text-anchor="start" >items.</text>
+</g>
+<g class="ov" data-ov="proactive">
+<rect x="960" y="490" width="180" height="149" rx="10" class="opt" />
+<text x="972" y="518.4" class="t b" font-size="20" text-anchor="start" >Proactive watch</text>
+<text x="972" y="547.0" class="tm" font-size="19" text-anchor="start" >Connectors,</text>
+<text x="972" y="571.32" class="tm" font-size="19" text-anchor="start" >optional</text>
+<text x="972" y="595.6400000000001" class="tm" font-size="19" text-anchor="start" >scheduler, kill</text>
+<text x="972" y="619.9600000000002" class="tm" font-size="19" text-anchor="start" >switch.</text>
+</g>
+<rect x="40" y="990" width="1120" height="190" rx="10" class="panel" />
+<text x="60" y="1026" class="t b" font-size="20" text-anchor="start" >Outside the host, only when an overlay is switched on. Called by the web or api container, never by the browser.</text>
+<g class="ov" data-ov="earth">
+<rect x="60" y="1050" width="350" height="110" rx="10" class="opt" />
+<text x="74" y="1081.22" class="t b" font-size="21" text-anchor="start" >Public data relay</text>
+<text x="74" y="1111.1000000000001" class="tm" font-size="19" text-anchor="start" >USGS, NASA, Open-Meteo, map tiles.</text>
+<text x="74" y="1135.42" class="tm" font-size="19" text-anchor="start" >Fixed hosts, no redirects.</text>
+</g>
+<g class="ov" data-ov="email">
+<rect x="430" y="1050" width="350" height="110" rx="10" class="opt" />
+<text x="444" y="1081.22" class="t b" font-size="21" text-anchor="start" >Email provider</text>
+<text x="444" y="1111.1000000000001" class="tm" font-size="19" text-anchor="start" >Fixed rehearsal notices to opted-in</text>
+<text x="444" y="1135.42" class="tm" font-size="19" text-anchor="start" >staff. Needs the proactive overlay.</text>
+</g>
+<g class="ov" data-ov="forecast2">
+<rect x="800" y="1050" width="340" height="110" rx="10" class="opt" />
+<text x="814" y="1081.22" class="t b" font-size="21" text-anchor="start" >Model weights</text>
+<text x="814" y="1111.1000000000001" class="tm" font-size="19" text-anchor="start" >Mounted read-only from the host.</text>
+<text x="814" y="1135.42" class="tm" font-size="19" text-anchor="start" >Nothing is downloaded at run time.</text>
+</g>
+<rect x="40" y="1205" width="44" height="22" rx="5" class="sw" />
+<text x="96" y="1223" class="tm" font-size="19" text-anchor="start" >Software we wrote</text>
+<rect x="430" y="1205" width="44" height="22" rx="5" class="data" />
+<text x="486" y="1223" class="tm" font-size="19" text-anchor="start" >Data store</text>
+<rect x="820" y="1205" width="44" height="22" rx="5" class="card" />
+<text x="876" y="1223" class="tm" font-size="19" text-anchor="start" >Third-party component</text>
+<rect x="40" y="1241" width="44" height="22" rx="5" class="opt" />
+<text x="96" y="1259" class="tm" font-size="19" text-anchor="start" >Optional, off by default</text>
+<rect x="430" y="1241" width="44" height="22" rx="5" class="bound" />
+<text x="486" y="1259" class="tm" font-size="19" text-anchor="start" >Host boundary</text>
+<text x="40" y="1328" class="tm" font-size="19" text-anchor="start" >IndTrana v0.3.0 · exercise prototype · synthetic data · no live warnings</text></svg>

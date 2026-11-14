@@ -174,7 +174,7 @@ export function SourceObservatory() {
     <p className="mt-3 text-xs leading-5 text-muted">{t("Stale because a link failed?")} <Link href="/sensor-link" className="font-semibold text-accent hover:underline">{t("See how sensor traffic moves between internet and satellite")}</Link></p>
 
     <div className="mt-5 grid items-start gap-5 2xl:grid-cols-[minmax(0,1.1fr)_minmax(370px,1fr)]">
-      <Panel className="min-w-0 overflow-hidden" bodyClassName="p-0" icon={RadioTower} title="Exercise Source Registry" description="Select a simulated feed to review its latest readings."
+      <Panel data-tour="sources-registry" className="min-w-0 overflow-hidden" bodyClassName="p-0" icon={RadioTower} title="Exercise Source Registry" description="Select a simulated feed to review its latest readings."
           actions={<Link href="/help" className="inline-flex min-h-9 items-center gap-1 text-xs font-semibold text-accent hover:underline">Data guidance <ArrowRight size={14} aria-hidden="true"/></Link>}>
         <div className="flex flex-wrap items-center gap-3 border-b border-stroke p-4">
           <SearchField label={t("Search synthetic sources")} value={query} onChange={setQuery} placeholder={t("Search sources or status...")} className="min-w-[190px] flex-1"/>
@@ -211,7 +211,7 @@ export function SourceObservatory() {
         <p className="border-t border-stroke px-5 py-3 text-xs text-muted">{sources.length} matching · All records are synthetic</p>
       </Panel>
 
-      <Panel className="min-w-0 overflow-hidden" aria-label="Selected source details" bodyClassName="p-0" icon={Database} title="Source Detail & Trends"
+      <Panel data-tour="sources-detail" className="min-w-0 overflow-hidden" aria-label="Selected source details" bodyClassName="p-0" icon={Database} title="Source Detail & Trends"
           actions={<span className="rounded-full bg-elevated px-3 py-1 text-xs font-semibold text-muted">Read-only</span>}>
         {!selected ? <EmptyState icon={Database} title={t("Select an exercise source")} body={t("Choose a feed from the registry to review its latest synthetic readings.")}/> : <>
           <div className="space-y-3 p-5">

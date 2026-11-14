@@ -40,7 +40,7 @@ export default function AdminPage() {
     <div className="mb-5 flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-700 dark:text-amber-300">
       <LockKeyhole className="mt-0.5 shrink-0" size={18}/><div><strong>Read-only policy</strong><p className="mt-1 text-xs leading-5">The policy below is set on the server and cannot be edited from the browser. Signed agency roles are enforced by the API, and live warning and dispatch remain unavailable.</p></div>
     </div>
-    <Panel className="mb-5" aria-label="Versioned effective exercise policy">
+    <Panel data-tour="admin-policy" className="mb-5" aria-label="Versioned effective exercise policy">
       <h2 className="t-title">Effective Exercise Policy · Read-only manifest</h2>
       {profileError && <ErrorState message={<>{profileError}. No configuration value is assumed.</>} className="mt-3" />}
       {!profile && !profileError && <p className="mt-3 text-sm text-muted">Loading local exercise policy…</p>}
@@ -55,7 +55,7 @@ export default function AdminPage() {
       </ul>
       <p className="mt-2 text-xs text-muted">{t("Locked by the server-side exercise policy; the browser cannot change these switches.")}</p></>}
     </Panel>
-    <Panel className="mb-5" aria-labelledby="admin-setup" titleId="admin-setup" bodyClassName="p-0" icon={Settings2} title="Set up this server">
+    <Panel data-tour="admin-setup" className="mb-5" aria-labelledby="admin-setup" titleId="admin-setup" bodyClassName="p-0" icon={Settings2} title="Set up this server">
       <div className="grid gap-3 p-5 sm:grid-cols-2">
         <Link href="/admin/connectors" className="flex items-start gap-3 rounded-lg border border-stroke p-4 transition-colors hover:border-accent hover:bg-elevated">
           <Plug size={20} className="mt-0.5 shrink-0 text-accent" aria-hidden="true"/><span><strong className="text-sm">Connectors</strong><span className="mt-1 block text-xs leading-5 text-muted">Enter data-source keys and switch connectors on or off. Needs a platform administrator.</span></span>

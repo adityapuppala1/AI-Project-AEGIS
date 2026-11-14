@@ -1,0 +1,150 @@
+<svg class="dg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1130" role="img" aria-label="System context diagram. Six roles use IndTrana through a browser. An organisation identity provider signs them in. Optional public reference data and an email provider connect with dashed lines. Public warning channels and outside agencies are shown as not connected." data-key="d1"><style>svg.dg{--d-bg:#FFFFFF;--d-panel:#F2F5F9;--d-card:#FFFFFF;--d-line:#8D9DBB;--d-ink:#0C183D;--d-mute:#48567A;
+--d-acc:#163E96;--d-accbg:#E6EDFB;--d-ok:#17803D;--d-okbg:#E4F4EA;--d-warn:#A35004;--d-warnbg:#FDF0DC;--d-warnline:#D9801A;
+--d-no:#B42318;--d-nobg:#FDECEA;--d-r-maker:#1A62A6;--d-r-checker:#15783A;--d-r-auditor:#475569;--d-r-dept:#0D6E67;--d-r-team:#9D174D;--d-r-admin:#A35004;}
+.dg{font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif}
+.dg .bg{fill:var(--d-bg)}
+.dg .panel{fill:var(--d-panel);stroke:var(--d-line);stroke-width:1.5}
+.dg .card{fill:var(--d-card);stroke:var(--d-line);stroke-width:2}
+.dg .soft{fill:var(--d-panel);stroke:var(--d-line);stroke-width:1.5}
+.dg .sw{fill:var(--d-accbg);stroke:var(--d-acc);stroke-width:2}
+.dg .human{fill:var(--d-warnbg);stroke:var(--d-warnline);stroke-width:2.5}
+.dg .data{fill:var(--d-okbg);stroke:var(--d-ok);stroke-width:2}
+.dg .opt{fill:var(--d-card);stroke:var(--d-acc);stroke-width:2;stroke-dasharray:9 6}
+.dg .no{fill:var(--d-nobg);stroke:var(--d-no);stroke-width:2.5;stroke-dasharray:9 6}
+.dg .todo{fill:var(--d-panel);stroke:var(--d-mute);stroke-width:2;stroke-dasharray:3 6}
+.dg .bound{fill:none;stroke:var(--d-mute);stroke-width:2;stroke-dasharray:14 8}
+.dg .t{fill:var(--d-ink)}
+.dg .tm{fill:var(--d-mute)}
+.dg .tacc{fill:var(--d-acc)}
+.dg .twarn{fill:var(--d-warn)}
+.dg .tno{fill:var(--d-no)}
+.dg .tok{fill:var(--d-ok)}
+.dg .b{font-weight:700}
+.dg .ln{fill:none;stroke:var(--d-mute);stroke-width:2.5}
+.dg .lacc{fill:none;stroke:var(--d-acc);stroke-width:2.5}
+.dg .lopt{fill:none;stroke:var(--d-acc);stroke-width:2.5;stroke-dasharray:9 6}
+.dg .lno{fill:none;stroke:var(--d-no);stroke-width:2.5;stroke-dasharray:9 6}
+.dg .lwarn{fill:none;stroke:var(--d-warnline);stroke-width:3}
+.dg .m-ln{fill:var(--d-mute)} .dg .m-acc{fill:var(--d-acc)} .dg .m-warn{fill:var(--d-warnline)} .dg .m-no{fill:var(--d-no)}
+.dg .dot{fill:var(--d-ink)}
+.dg .r-maker{fill:var(--d-r-maker)} .dg .r-checker{fill:var(--d-r-checker)} .dg .r-auditor{fill:var(--d-r-auditor)}
+.dg .r-dept{fill:var(--d-r-dept)} .dg .r-team{fill:var(--d-r-team)} .dg .r-admin{fill:var(--d-r-admin)}
+.dg .badge{fill:var(--d-ink)} .dg .badget{fill:var(--d-bg)}
+.dg .hit{fill:transparent}
+.dg [data-node]{cursor:pointer}
+.dg [data-node]:focus-visible .card,.dg [data-node]:focus-visible .sw,.dg [data-node]:focus-visible .opt{stroke:var(--d-warnline);stroke-width:5}
+.dg [data-node].on .card,.dg [data-node].on .sw,.dg [data-node].on .opt,.dg [data-node].on .data,.dg [data-node].on .human{stroke:var(--d-warnline);stroke-width:5}
+.dg .dim{opacity:.28}
+</style><defs>
+<marker id="d1a-ln" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-ln"/></marker>
+<marker id="d1a-acc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-acc"/></marker>
+<marker id="d1a-warn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-warn"/></marker>
+<marker id="d1a-no" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-no"/></marker>
+</defs><rect class="bg" x="0" y="0" width="1200" height="1130"/>
+<text x="40" y="56" class="t b" font-size="32" text-anchor="start" >Figure 4. System context</text>
+<text x="40" y="90" class="tm" font-size="21" text-anchor="start" >Who uses IndTrana, what it talks to, and what it is deliberately not connected to.</text>
+<rect x="40" y="130" width="290" height="640" rx="10" class="panel" />
+<text x="60" y="168" class="t b" font-size="23" text-anchor="start" >People (signed in)</text>
+<rect x="56" y="186" width="258" height="90" rx="10" class="card" />
+<rect x="56" y="186" width="10" height="90" rx="4" class="r-maker" />
+<text x="80" y="216" class="t b" font-size="22" text-anchor="start" >Maker</text>
+<text x="80" y="241" class="tm" font-size="19" text-anchor="start" >Drafts and submits</text>
+<text x="80" y="263.8" class="tm" font-size="19" text-anchor="start" >proposals</text>
+<rect x="56" y="282" width="258" height="90" rx="10" class="card" />
+<rect x="56" y="282" width="10" height="90" rx="4" class="r-checker" />
+<text x="80" y="312" class="t b" font-size="22" text-anchor="start" >Checker</text>
+<text x="80" y="337" class="tm" font-size="19" text-anchor="start" >Approves or rejects</text>
+<text x="80" y="359.8" class="tm" font-size="19" text-anchor="start" >another person&#x27;s proposal</text>
+<rect x="56" y="378" width="258" height="90" rx="10" class="card" />
+<rect x="56" y="378" width="10" height="90" rx="4" class="r-auditor" />
+<text x="80" y="408" class="t b" font-size="22" text-anchor="start" >Auditor</text>
+<text x="80" y="433" class="tm" font-size="19" text-anchor="start" >Reads decisions and the</text>
+<text x="80" y="455.8" class="tm" font-size="19" text-anchor="start" >audit trail</text>
+<rect x="56" y="474" width="258" height="90" rx="10" class="card" />
+<rect x="56" y="474" width="10" height="90" rx="4" class="r-dept" />
+<text x="80" y="504" class="t b" font-size="22" text-anchor="start" >Department desk</text>
+<text x="80" y="529" class="tm" font-size="19" text-anchor="start" >Works its own</text>
+<text x="80" y="551.8" class="tm" font-size="19" text-anchor="start" >department&#x27;s tasks</text>
+<rect x="56" y="570" width="258" height="90" rx="10" class="card" />
+<rect x="56" y="570" width="10" height="90" rx="4" class="r-team" />
+<text x="80" y="600" class="t b" font-size="22" text-anchor="start" >Response team</text>
+<text x="80" y="625" class="tm" font-size="19" text-anchor="start" >Answers requests for its</text>
+<text x="80" y="647.8" class="tm" font-size="19" text-anchor="start" >own team</text>
+<rect x="56" y="666" width="258" height="90" rx="10" class="card" />
+<rect x="56" y="666" width="10" height="90" rx="4" class="r-admin" />
+<text x="80" y="696" class="t b" font-size="22" text-anchor="start" >Administrator</text>
+<text x="80" y="721" class="tm" font-size="19" text-anchor="start" >Connectors and kill switch</text>
+<rect x="440" y="250" width="320" height="520" rx="10" class="panel" />
+<text x="600" y="290" class="t b" font-size="30" text-anchor="middle" >IndTrana</text>
+<text x="600" y="318" class="tm" font-size="19" text-anchor="middle" >one exercise agency, one host</text>
+<rect x="462" y="340" width="276" height="110" rx="10" class="sw" />
+<text x="478" y="373.22" class="t b" font-size="21" text-anchor="start" >Web application</text>
+<text x="478" y="403.1" class="tm" font-size="19" text-anchor="start" >Next.js: pages and a server</text>
+<text x="478" y="427.42" class="tm" font-size="19" text-anchor="start" >layer that holds the session</text>
+<rect x="462" y="490" width="276" height="134" rx="10" class="sw" />
+<text x="478" y="523.22" class="t b" font-size="21" text-anchor="start" >API service</text>
+<text x="478" y="553.1" class="tm" font-size="19" text-anchor="start" >FastAPI: checks every</text>
+<text x="478" y="577.4200000000001" class="tm" font-size="19" text-anchor="start" >request&#x27;s signed role and</text>
+<text x="478" y="601.7400000000001" class="tm" font-size="19" text-anchor="start" >agency</text>
+<rect x="462" y="640" width="276" height="110" rx="10" class="data" />
+<text x="478" y="673.22" class="t b" font-size="21" text-anchor="start" >Database</text>
+<text x="478" y="703.1" class="tm" font-size="19" text-anchor="start" >PostgreSQL with PostGIS:</text>
+<text x="478" y="727.4200000000001" class="tm" font-size="19" text-anchor="start" >records and audit trail</text>
+<path d="M600 460 L600 490" class="ln" marker-end="url(#d1a-ln)" />
+<path d="M600 610 L600 640" class="ln" marker-end="url(#d1a-ln)" />
+<rect x="870" y="130" width="290" height="210" rx="10" class="card" />
+<text x="886" y="163.22" class="t b" font-size="21" text-anchor="start" >Organisation identity</text>
+<text x="886" y="190.1" class="t b" font-size="21" text-anchor="start" >provider</text>
+<text x="886" y="219.98" class="tm" font-size="19" text-anchor="start" >Holds passwords and second</text>
+<text x="886" y="244.29999999999998" class="tm" font-size="19" text-anchor="start" >factor. Issues signed tokens</text>
+<text x="886" y="268.62" class="tm" font-size="19" text-anchor="start" >that carry the agency and the</text>
+<text x="886" y="292.94" class="tm" font-size="19" text-anchor="start" >role. Local demo uses</text>
+<text x="886" y="317.26" class="tm" font-size="19" text-anchor="start" >Keycloak.</text>
+<rect x="870" y="350" width="290" height="200" rx="10" class="opt" />
+<text x="886" y="383.22" class="t b" font-size="21" text-anchor="start" >Public reference data</text>
+<text x="886" y="413.1" class="tm" font-size="19" text-anchor="start" >Optional, off by default,</text>
+<text x="886" y="437.42" class="tm" font-size="19" text-anchor="start" >display only: USGS, NASA</text>
+<text x="886" y="461.74" class="tm" font-size="19" text-anchor="start" >EONET and GIBS,</text>
+<text x="886" y="486.06" class="tm" font-size="19" text-anchor="start" >Open-Meteo, OpenStreetMap</text>
+<text x="886" y="510.38" class="tm" font-size="19" text-anchor="start" >tiles.</text>
+<rect x="870" y="570" width="290" height="200" rx="10" class="opt" />
+<text x="886" y="603.22" class="t b" font-size="21" text-anchor="start" >Email provider</text>
+<text x="886" y="633.1" class="tm" font-size="19" text-anchor="start" >Optional, off by default. Fixed</text>
+<text x="886" y="657.4200000000001" class="tm" font-size="19" text-anchor="start" >rehearsal notices to IndTrana</text>
+<text x="886" y="681.7400000000001" class="tm" font-size="19" text-anchor="start" >staff who opted in. No case</text>
+<text x="886" y="706.0600000000002" class="tm" font-size="19" text-anchor="start" >content.</text>
+<path d="M330 450 L440 450" class="lacc" marker-end="url(#d1a-acc)" />
+<path d="M440 470 L330 470" class="lacc" marker-end="url(#d1a-acc)" />
+<rect x="346" y="481" width="78" height="28" rx="4" class="bg" opacity="0.92"/>
+<text x="385" y="500" class="tm" font-size="19" text-anchor="middle" >browser</text>
+<path d="M760 290 L870 250" class="lacc" marker-end="url(#d1a-acc)" />
+<path d="M870 270 L760 310" class="lacc" marker-end="url(#d1a-acc)" />
+<rect x="780" y="196" width="69" height="28" rx="4" class="bg" opacity="0.92"/>
+<text x="815" y="215" class="tm" font-size="19" text-anchor="middle" >sign-in</text>
+<path d="M870 440 L760 440" class="lopt" marker-end="url(#d1a-acc)" />
+<rect x="790" y="451" width="51" height="28" rx="4" class="bg" opacity="0.92"/>
+<text x="815" y="470" class="tm" font-size="19" text-anchor="middle" >relay</text>
+<path d="M760 600 L870 640" class="lopt" marker-end="url(#d1a-acc)" />
+<rect x="780" y="571" width="70" height="28" rx="4" class="bg" opacity="0.92"/>
+<text x="815" y="590" class="tm" font-size="19" text-anchor="middle" >notices</text>
+<rect x="40" y="810" width="540" height="128" rx="10" class="no" />
+<text x="56" y="844.04" class="tno b" font-size="22" text-anchor="start" >Public warning channels</text>
+<text x="56" y="875.1999999999999" class="tm" font-size="20" text-anchor="start" >Cell broadcast, SMS, WhatsApp, push, media. IndTrana has</text>
+<text x="56" y="900.8" class="tm" font-size="20" text-anchor="start" >no code that sends to them.</text>
+<rect x="620" y="810" width="540" height="139" rx="10" class="no" />
+<text x="636" y="844.04" class="tno b" font-size="22" text-anchor="start" >Outside agencies and responders</text>
+<text x="636" y="875.1999999999999" class="tm" font-size="20" text-anchor="start" >No messages to other agencies, and no real team is called.</text>
+<text x="636" y="900.8" class="tm" font-size="20" text-anchor="start" >A person hands the approved draft to the alerting</text>
+<text x="636" y="926.4" class="tm" font-size="20" text-anchor="start" >authority.</text>
+<path d="M520 770 L520 810" class="lno" />
+<path d="M680 770 L780 810" class="lno" />
+<circle cx="520" cy="790" r="20" class="bg"/><circle cx="520" cy="790" r="15" class="no" stroke-dasharray="none"/><path d="M513 783L527 797M527 783L513 797" class="lno" stroke-dasharray="none" stroke-width="3.5"/>
+<circle cx="730" cy="790" r="20" class="bg"/><circle cx="730" cy="790" r="15" class="no" stroke-dasharray="none"/><path d="M723 783L737 797M737 783L723 797" class="lno" stroke-dasharray="none" stroke-width="3.5"/>
+<text x="600" y="985" class="tno b" font-size="21" text-anchor="middle" >Not connected, by design</text>
+<rect x="40" y="1040" width="44" height="22" rx="5" class="card" />
+<text x="96" y="1058" class="tm" font-size="19" text-anchor="start" >Built and in the base system</text>
+<rect x="430" y="1040" width="44" height="22" rx="5" class="opt" />
+<text x="486" y="1058" class="tm" font-size="19" text-anchor="start" >Optional, off unless switched on</text>
+<rect x="820" y="1040" width="44" height="22" rx="5" class="no" />
+<text x="876" y="1058" class="tm" font-size="19" text-anchor="start" >Not connected</text>
+<text x="40" y="1108" class="tm" font-size="19" text-anchor="start" >IndTrana v0.3.0 · exercise prototype · synthetic data · no live warnings</text></svg>

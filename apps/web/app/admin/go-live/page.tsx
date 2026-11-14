@@ -123,10 +123,10 @@ function ProbePill({ state }: { state: Probe | undefined }) {
 export default function GoLivePage() {
   const { probes, signedIn } = useProbes();
   return <AppShell title="Go-Live Setup" description="Every external API, key, secret, switch and agreement IndTrana needs, where each is configured and what is still missing. Read-only: no secret is shown or entered on this page.">
-    <Panel className="mb-4" title="How configuration works in IndTrana" icon={LockKeyhole}>
+    <Panel data-tour="golive-how" className="mb-4" title="How configuration works in IndTrana" icon={LockKeyhole}>
         <p className="text-sm leading-6">Secrets live in two places only: the host <code>.env</code> file (set by whoever runs the server) and the encrypted connector vault (entered by a signed-in platform administrator on the Connectors page). This page is a checklist; it cannot read or change either.</p>
     </Panel>
-    <Panel className="mb-4" title="Start here">
+    <Panel data-tour="golive-start" className="mb-4" title="Start here">
       <ol className="list-decimal space-y-2 pl-5 text-sm">
         <li>On the server, copy <code>.env.example</code> to <code>.env</code> and fill sections 1 and 2 below. Restart with <code>scripts/start-windows.ps1</code> and the switches you want (section 3).</li>
         <li>{signedIn ? "You are signed in." : "Sign in with an Administrator account (top-right of this page). If the sign-in button says “SSO not configured”, finish section 1 first."}</li>

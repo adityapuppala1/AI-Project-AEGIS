@@ -40,7 +40,7 @@ export function AboutAegis() {
             <p className="font-semibold">{t("IndTrana does not send warnings. The approved draft is handed to the alerting authority, which alone decides whether, where and when to warn.")}</p>
           </div>
         </Panel>
-        <Panel title={t("The six steps of an alert")} description={t("Each page in the menu serves one of these steps and shows its place in the chain under its title.")} bodyClassName="p-0">
+        <Panel data-tour="about-steps" title={t("The six steps of an alert")} description={t("Each page in the menu serves one of these steps and shows its place in the chain under its title.")} bodyClassName="p-0">
           <ol className="divide-y divide-stroke">{CHAIN.map((step, index) => {
             const pages = allPages.filter((page, at, all) => page.chain === step && all.findIndex(other => other.href === page.href) === at);
             const info = STEPS[step];
@@ -61,14 +61,14 @@ export function AboutAegis() {
         </Panel>
       </div>
       <div className="space-y-4">
-        <Panel title={t("Where IndTrana stops")} icon={Ban} description={t("Everything below happens outside IndTrana.")} bodyClassName="p-0">
+        <Panel data-tour="about-stops" title={t("Where IndTrana stops")} icon={Ban} description={t("Everything below happens outside IndTrana.")} bodyClassName="p-0">
           <ul className="divide-y divide-stroke">{OUTSIDE.map(({ icon: Icon, title, text }) => <li key={title} className="flex gap-3 px-4 py-3">
             <Icon size={17} aria-hidden="true" className="mt-0.5 shrink-0 text-muted" />
             <div><p className="text-sm font-semibold">{t(title)}</p><p className="mt-0.5 text-xs leading-5 text-muted">{t(text)}</p></div>
           </li>)}</ul>
         </Panel>
         <PatentCredit />
-        <Panel title={t("Limits of this exercise build")} icon={FlaskConical}>
+        <Panel data-tour="about-limits" title={t("Limits of this exercise build")} icon={FlaskConical}>
           <ul className="list-disc space-y-2 pl-4 text-sm leading-6">{LIMITS.map(item => <li key={item}>{t(item)}</li>)}</ul>
         </Panel>
       </div>

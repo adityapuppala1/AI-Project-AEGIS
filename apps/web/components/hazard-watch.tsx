@@ -160,7 +160,7 @@ export function HazardWatch() {
         {watch && !sample && watch.disclaimer !== DISCLAIMER ? ` ${watch.disclaimer}` : ""}</p>
     </div>
 
-    <Panel as="div" className="mb-5" bodyClassName="flex flex-wrap items-center gap-3 p-3">
+    <Panel data-tour="watch-controls" as="div" className="mb-5" bodyClassName="flex flex-wrap items-center gap-3 p-3">
       <button type="button" role="switch" aria-checked={sample} onClick={toggleSample} aria-describedby="sample-help"
         className="inline-flex min-h-10 items-center gap-3 rounded-lg px-1 text-sm font-semibold">
         <span className={`relative h-6 w-11 shrink-0 rounded-full border transition-colors ${sample ? "border-amber-600 bg-amber-500" : "border-stroke bg-elevated"}`} aria-hidden="true">
@@ -204,7 +204,7 @@ export function HazardWatch() {
         onPreview={toggleSample} onRefresh={refresh} canRefresh={canRefresh} refreshing={refreshing}/></div>}
 
       <div className="grid gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-        <Panel className="min-w-0 overflow-hidden" aria-label={t("Hazard Watch map")} bodyClassName="p-0" icon={Layers} title={t("Trigger map")}
+        <Panel data-tour="watch-map" className="min-w-0 overflow-hidden" aria-label={t("Hazard Watch map")} bodyClassName="p-0" icon={Layers} title={t("Trigger map")}
           actions={<>{sample && <SampleChip/>}<Button type="button" aria-pressed={pitched} onClick={() => setPitched(value => !value)} disabled={mapFailed}><Box size={16} aria-hidden="true"/>{t("3D view")}</Button></>}>
           {mapFailed ? <FallbackMap triggers={triggers} selectedId={selectedId} onSelect={id => select(id)} onRetry={() => { setMapFailed(false); setMapReady(false); setMapKey(key => key + 1); }}/>
             : <div className="relative">
@@ -218,7 +218,7 @@ export function HazardWatch() {
           </ul>
         </Panel>
 
-        <Panel as="aside" className="min-w-0 xl:row-span-2 xl:col-start-2 xl:row-start-1 xl:self-start" aria-label={t("Trigger queue")} data-queue bodyClassName="p-0"
+        <Panel data-tour="watch-queue" as="aside" className="min-w-0 xl:row-span-2 xl:col-start-2 xl:row-start-1 xl:self-start" aria-label={t("Trigger queue")} data-queue bodyClassName="p-0"
           title={<>{t("Trigger queue")} <span className="text-xs font-normal text-muted">({triggers.length}{filtered ? ` / ${all.length}` : ""})</span></>}
           actions={<>{sample && <SampleChip/>}
             <label className="flex items-center gap-2 text-xs font-semibold" htmlFor="trigger-sort">{t("Sort by")}

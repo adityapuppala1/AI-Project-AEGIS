@@ -163,7 +163,7 @@ export function IncidentRegistry() {
     </StatStrip>
 
     <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
-      <Panel title={t("Operational incident records")} description={t("Exercise-only · paginated PostGIS query")} icon={ClipboardList}
+      <Panel data-tour="registry-list" title={t("Operational incident records")} description={t("Exercise-only · paginated PostGIS query")} icon={ClipboardList}
         className="min-w-0 overflow-hidden"
         actions={<>
           <StatusPill tone="sample" icon={FlaskConical}>{t("Exercise data")}</StatusPill>
@@ -248,7 +248,7 @@ export function IncidentRegistry() {
       </Panel>
 
       <aside aria-label={t("Selected case summary")} className="xl:sticky xl:top-4">
-        <Panel title={t("Selected case")} icon={Eye} description={t("Hover or focus a row to preview. Press Enter on the case name to open it.")}>
+        <Panel data-tour="registry-selected" title={t("Selected case")} icon={Eye} description={t("Hover or focus a row to preview. Press Enter on the case name to open it.")}>
           {selected ? <div className="space-y-4 p-4">
             <div className="flex flex-wrap items-center gap-2"><p className="t-title">{selected.hazard_type}</p><StatusBadge status={selected.status}/></div>
             <KeyValueList items={[

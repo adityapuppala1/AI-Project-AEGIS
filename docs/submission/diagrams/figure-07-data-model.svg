@@ -1,0 +1,132 @@
+<svg class="dg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1087" role="img" aria-label="Groups of database tables: agencies and incidents, evidence and sources, proposals approvals and audit, team response, proactive watch, learning and drills, connectors and staff messages, brand settings and public intake. Arrows show foreign keys." data-key="d7"><style>svg.dg{--d-bg:#FFFFFF;--d-panel:#F2F5F9;--d-card:#FFFFFF;--d-line:#8D9DBB;--d-ink:#0C183D;--d-mute:#48567A;
+--d-acc:#163E96;--d-accbg:#E6EDFB;--d-ok:#17803D;--d-okbg:#E4F4EA;--d-warn:#A35004;--d-warnbg:#FDF0DC;--d-warnline:#D9801A;
+--d-no:#B42318;--d-nobg:#FDECEA;--d-r-maker:#1A62A6;--d-r-checker:#15783A;--d-r-auditor:#475569;--d-r-dept:#0D6E67;--d-r-team:#9D174D;--d-r-admin:#A35004;}
+.dg{font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif}
+.dg .bg{fill:var(--d-bg)}
+.dg .panel{fill:var(--d-panel);stroke:var(--d-line);stroke-width:1.5}
+.dg .card{fill:var(--d-card);stroke:var(--d-line);stroke-width:2}
+.dg .soft{fill:var(--d-panel);stroke:var(--d-line);stroke-width:1.5}
+.dg .sw{fill:var(--d-accbg);stroke:var(--d-acc);stroke-width:2}
+.dg .human{fill:var(--d-warnbg);stroke:var(--d-warnline);stroke-width:2.5}
+.dg .data{fill:var(--d-okbg);stroke:var(--d-ok);stroke-width:2}
+.dg .opt{fill:var(--d-card);stroke:var(--d-acc);stroke-width:2;stroke-dasharray:9 6}
+.dg .no{fill:var(--d-nobg);stroke:var(--d-no);stroke-width:2.5;stroke-dasharray:9 6}
+.dg .todo{fill:var(--d-panel);stroke:var(--d-mute);stroke-width:2;stroke-dasharray:3 6}
+.dg .bound{fill:none;stroke:var(--d-mute);stroke-width:2;stroke-dasharray:14 8}
+.dg .t{fill:var(--d-ink)}
+.dg .tm{fill:var(--d-mute)}
+.dg .tacc{fill:var(--d-acc)}
+.dg .twarn{fill:var(--d-warn)}
+.dg .tno{fill:var(--d-no)}
+.dg .tok{fill:var(--d-ok)}
+.dg .b{font-weight:700}
+.dg .ln{fill:none;stroke:var(--d-mute);stroke-width:2.5}
+.dg .lacc{fill:none;stroke:var(--d-acc);stroke-width:2.5}
+.dg .lopt{fill:none;stroke:var(--d-acc);stroke-width:2.5;stroke-dasharray:9 6}
+.dg .lno{fill:none;stroke:var(--d-no);stroke-width:2.5;stroke-dasharray:9 6}
+.dg .lwarn{fill:none;stroke:var(--d-warnline);stroke-width:3}
+.dg .m-ln{fill:var(--d-mute)} .dg .m-acc{fill:var(--d-acc)} .dg .m-warn{fill:var(--d-warnline)} .dg .m-no{fill:var(--d-no)}
+.dg .dot{fill:var(--d-ink)}
+.dg .r-maker{fill:var(--d-r-maker)} .dg .r-checker{fill:var(--d-r-checker)} .dg .r-auditor{fill:var(--d-r-auditor)}
+.dg .r-dept{fill:var(--d-r-dept)} .dg .r-team{fill:var(--d-r-team)} .dg .r-admin{fill:var(--d-r-admin)}
+.dg .badge{fill:var(--d-ink)} .dg .badget{fill:var(--d-bg)}
+.dg .hit{fill:transparent}
+.dg [data-node]{cursor:pointer}
+.dg [data-node]:focus-visible .card,.dg [data-node]:focus-visible .sw,.dg [data-node]:focus-visible .opt{stroke:var(--d-warnline);stroke-width:5}
+.dg [data-node].on .card,.dg [data-node].on .sw,.dg [data-node].on .opt,.dg [data-node].on .data,.dg [data-node].on .human{stroke:var(--d-warnline);stroke-width:5}
+.dg .dim{opacity:.28}
+</style><defs>
+<marker id="d7a-ln" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-ln"/></marker>
+<marker id="d7a-acc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-acc"/></marker>
+<marker id="d7a-warn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-warn"/></marker>
+<marker id="d7a-no" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="m-no"/></marker>
+</defs><rect class="bg" x="0" y="0" width="1200" height="1087"/>
+<text x="40" y="56" class="t b" font-size="32" text-anchor="start" >Figure 7. Logical data model</text>
+<text x="40" y="90" class="tm" font-size="21" text-anchor="start" >Table groups in PostgreSQL with PostGIS, and the main links between them. Columns are not listed.</text>
+<rect x="40" y="140" width="340" height="110" rx="10" class="sw" />
+<text x="56" y="173.22" class="t b" font-size="21" text-anchor="start" >Agency</text>
+<text x="56" y="203.1" class="tm" font-size="19" text-anchor="start" >agencies</text>
+<text x="56" y="227.42" class="tm" font-size="19" text-anchor="start" >Every record carries an agency.</text>
+<rect x="40" y="300" width="340" height="159" rx="10" class="card" />
+<text x="56" y="333.22" class="t b" font-size="21" text-anchor="start" >Incidents and evidence</text>
+<text x="56" y="363.1" class="tm" font-size="19" text-anchor="start" >incidents (PostGIS point)</text>
+<text x="56" y="387.42" class="tm" font-size="19" text-anchor="start" >exercise_incident_events (timeline)</text>
+<text x="56" y="411.74" class="tm" font-size="19" text-anchor="start" >exercise_incident_evidence</text>
+<text x="56" y="436.06" class="tm" font-size="19" text-anchor="start" >observations</text>
+<rect x="40" y="499" width="340" height="207" rx="10" class="card" />
+<text x="56" y="532.22" class="t b" font-size="21" text-anchor="start" >Sources and ingestion</text>
+<text x="56" y="562.1" class="tm" font-size="19" text-anchor="start" >exercise_data_sources</text>
+<text x="56" y="586.4200000000001" class="tm" font-size="19" text-anchor="start" >exercise_source_samples</text>
+<text x="56" y="610.7400000000001" class="tm" font-size="19" text-anchor="start" >exercise_ingestion_ledger</text>
+<text x="56" y="635.0600000000002" class="tm" font-size="19" text-anchor="start" >exercise_ingestion_quarantine</text>
+<text x="56" y="659.3800000000002" class="tm" font-size="19" text-anchor="start" >exercise_geo_assets</text>
+<text x="56" y="683.7000000000003" class="tm" font-size="19" text-anchor="start" >exposure_features</text>
+<path d="M210 250 L210 300" class="lacc" marker-end="url(#d7a-acc)" />
+<rect x="233" y="264" width="94" height="28" rx="4" class="bg" opacity="0.92"/>
+<text x="280" y="283" class="tm" font-size="19" text-anchor="middle" >agency_id</text>
+<rect x="430" y="140" width="340" height="232" rx="10" class="human" />
+<text x="446" y="173.22" class="t b" font-size="21" text-anchor="start" >Proposals and audit</text>
+<text x="446" y="203.1" class="tm" font-size="19" text-anchor="start" >action_proposals (status; snapshot</text>
+<text x="446" y="227.42" class="tm" font-size="19" text-anchor="start" >and task receipt as JSON)</text>
+<text x="446" y="251.73999999999998" class="tm" font-size="19" text-anchor="start" >approvals (checker, decision,</text>
+<text x="446" y="276.06" class="tm" font-size="19" text-anchor="start" >reason)</text>
+<text x="446" y="300.38" class="tm" font-size="19" text-anchor="start" >audit_events</text>
+<text x="446" y="324.7" class="tm" font-size="19" text-anchor="start" >Trigger refuses a checker who is the</text>
+<text x="446" y="349.02" class="tm" font-size="19" text-anchor="start" >maker.</text>
+<rect x="430" y="442" width="340" height="134" rx="10" class="card" />
+<text x="446" y="475.22" class="t b" font-size="21" text-anchor="start" >Team response</text>
+<text x="446" y="505.1" class="tm" font-size="19" text-anchor="start" >exercise_team_requests</text>
+<text x="446" y="529.4200000000001" class="tm" font-size="19" text-anchor="start" >exercise_team_reports</text>
+<text x="446" y="553.7400000000001" class="tm" font-size="19" text-anchor="start" >(append-only)</text>
+<path d="M600 372 L600 442" class="lacc" marker-end="url(#d7a-acc)" />
+<rect x="636" y="395" width="108" height="28" rx="4" class="bg" opacity="0.92"/>
+<text x="690" y="414" class="tm" font-size="19" text-anchor="middle" >proposal_id</text>
+<rect x="430" y="616" width="340" height="159" rx="10" class="soft" />
+<text x="446" y="649.22" class="t b" font-size="21" text-anchor="start" >AgencySync fixture tasks</text>
+<text x="446" y="679.1" class="tm" font-size="19" text-anchor="start" >exercise_agency_tasks</text>
+<text x="446" y="703.4200000000001" class="tm" font-size="19" text-anchor="start" >exercise_agency_task_events</text>
+<text x="446" y="727.7400000000001" class="tm" font-size="19" text-anchor="start" >Scripted fixture, separate from</text>
+<text x="446" y="752.0600000000002" class="tm" font-size="19" text-anchor="start" >proposal tasks.</text>
+<rect x="430" y="815" width="340" height="134" rx="10" class="no" />
+<text x="446" y="848.22" class="t b" font-size="21" text-anchor="start" >Public intake</text>
+<text x="446" y="878.1" class="tm" font-size="19" text-anchor="start" >public_intake_reports</text>
+<text x="446" y="902.4200000000001" class="tm" font-size="19" text-anchor="start" >Quarantine only; never becomes a</text>
+<text x="446" y="926.7400000000001" class="tm" font-size="19" text-anchor="start" >case.</text>
+<path d="M370 340 L400 340 L400 200 L430 200" class="lacc" marker-end="url(#d7a-acc)" />
+<path d="M370 420 L415 420 L415 482 L430 482" class="lacc" marker-end="url(#d7a-acc)" />
+<rect x="820" y="140" width="340" height="207" rx="10" class="card" />
+<text x="836" y="173.22" class="t b" font-size="21" text-anchor="start" >Proactive watch</text>
+<text x="836" y="203.1" class="tm" font-size="19" text-anchor="start" >hazard_evidence</text>
+<text x="836" y="227.42" class="tm" font-size="19" text-anchor="start" >hazard_trigger_events</text>
+<text x="836" y="251.73999999999998" class="tm" font-size="19" text-anchor="start" >proactive_runs</text>
+<text x="836" y="276.06" class="tm" font-size="19" text-anchor="start" >proactive_run_audit</text>
+<text x="836" y="300.38" class="tm" font-size="19" text-anchor="start" >proactive_pause (and audit)</text>
+<text x="836" y="324.7" class="tm" font-size="19" text-anchor="start" >proactive_scheduler_ticks</text>
+<rect x="820" y="387" width="340" height="207" rx="10" class="card" />
+<text x="836" y="420.22" class="t b" font-size="21" text-anchor="start" >Learning and drills</text>
+<text x="836" y="450.1" class="tm" font-size="19" text-anchor="start" >learning_windows</text>
+<text x="836" y="474.42" class="tm" font-size="19" text-anchor="start" >threshold_proposals</text>
+<text x="836" y="498.74" class="tm" font-size="19" text-anchor="start" >trigger_config_versions</text>
+<text x="836" y="523.0600000000001" class="tm" font-size="19" text-anchor="start" >learning_audit</text>
+<text x="836" y="547.3800000000001" class="tm" font-size="19" text-anchor="start" >exercise_drills</text>
+<text x="836" y="571.7000000000002" class="tm" font-size="19" text-anchor="start" >exercise_drill_audit</text>
+<rect x="820" y="634" width="340" height="183" rx="10" class="card" />
+<text x="836" y="667.22" class="t b" font-size="21" text-anchor="start" >Connectors and messages</text>
+<text x="836" y="697.1" class="tm" font-size="19" text-anchor="start" >connector_config</text>
+<text x="836" y="721.4200000000001" class="tm" font-size="19" text-anchor="start" >connector_secrets (encrypted)</text>
+<text x="836" y="745.7400000000001" class="tm" font-size="19" text-anchor="start" >connector_audit</text>
+<text x="836" y="770.0600000000002" class="tm" font-size="19" text-anchor="start" >staff_contacts</text>
+<text x="836" y="794.3800000000002" class="tm" font-size="19" text-anchor="start" >staff_message_log (append-only)</text>
+<rect x="820" y="857" width="340" height="110" rx="10" class="card" />
+<text x="836" y="890.22" class="t b" font-size="21" text-anchor="start" >Brand</text>
+<text x="836" y="920.1" class="tm" font-size="19" text-anchor="start" >brand_settings</text>
+<text x="836" y="944.4200000000001" class="tm" font-size="19" text-anchor="start" >brand_audit (no logo bytes)</text>
+<rect x="40" y="997" width="44" height="22" rx="5" class="human" />
+<text x="96" y="1015" class="tm" font-size="19" text-anchor="start" >Approval records</text>
+<rect x="340" y="997" width="44" height="22" rx="5" class="card" />
+<text x="396" y="1015" class="tm" font-size="19" text-anchor="start" >Main tables</text>
+<rect x="640" y="997" width="44" height="22" rx="5" class="no" />
+<text x="696" y="1015" class="tm" font-size="19" text-anchor="start" >Isolated</text>
+<path d="M940 1007 L984 1007" class="lacc" marker-end="url(#d7a-acc)" />
+<text x="996" y="1015" class="tm" font-size="19" text-anchor="start" >Foreign key: agency_id, incident_id, proposal_id</text>
+<text x="40" y="1065" class="tm" font-size="19" text-anchor="start" >IndTrana v0.3.0 · exercise prototype · synthetic data · no live warnings</text></svg>

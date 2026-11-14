@@ -409,3 +409,24 @@ code, kbd, samp, .mono { font-family: ui-monospace, "Cascadia Mono", Consolas, m
   main button:not([class*="maplibregl"]), main select { min-height: 2.75rem; }
   main button:not([class*="maplibregl"]):not(.control):not([role="radio"]):not([role="tab"]):not([role="switch"]) { min-width: 2.75rem; }
 }
+
+/* Guided tours (components/tour). The backdrop blocks the page; the spotlight is a ring plus a large shadow that dims everything else. */
+.tour-blocker { position: fixed; inset: 0; z-index: 90; }
+.tour-scrim { position: fixed; inset: 0; z-index: 91; pointer-events: none; background: rgb(5 11 36 / .62); }
+.tour-spot { position: fixed; z-index: 91; pointer-events: none; border-radius: .5rem; box-shadow: 0 0 0 2px rgb(var(--brand-fill)), 0 0 0 9999px rgb(5 11 36 / .62); }
+.tour-card { position: fixed; z-index: 92; width: min(24rem, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); overflow-y: auto; padding: 1rem 1.125rem; outline: none; }
+.tour-card:focus-visible { outline: 2px solid rgb(var(--accent)); outline-offset: 2px; }
+.tour-card[data-sheet] { inset: auto 0 0 0; width: auto; max-height: 55dvh; border-radius: .75rem .75rem 0 0; border-bottom-width: 0; padding-bottom: calc(1rem + env(safe-area-inset-bottom)); }
+@media (prefers-reduced-motion: no-preference) {
+  .tour-card { animation: aegis-tour-in .18s ease-out both; }
+  .tour-card[data-sheet] { animation-name: aegis-tour-sheet; }
+  .tour-spot { transition: top .18s ease-out, left .18s ease-out, width .18s ease-out, height .18s ease-out; }
+  @keyframes aegis-tour-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  @keyframes aegis-tour-sheet { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+}
+/* The "take the tour" button beside "How this page works", and its once-only hint. */
+.tour-action { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .25rem .5rem; color: rgb(var(--muted)); font-size: .8125rem; }
+.new-marker { display: inline-flex; align-items: center; margin-left: auto; padding: .1rem .4rem; border-radius: 99px; background: rgb(var(--brand-fill)); color: rgb(var(--brand-ink)); font-size: .6875rem; font-weight: 700; line-height: 1.2; }
+.menu-heading { padding: .5rem .625rem .25rem; font-size: .6875rem; font-weight: 650; letter-spacing: .02em; color: rgb(var(--muted)); }
+.rail-version { border-radius: .25rem; padding: .125rem .375rem; margin: -.125rem -.375rem; font-weight: 600; color: inherit; }
+.rail-version:hover { background: rgb(var(--elevated)); color: rgb(var(--ink)); }

@@ -1,7 +1,7 @@
 // The one list of pages. Related pages are grouped under one menu entry as tabs, which keeps the menu short. The side navigation and the Ctrl+K search both read it, so they cannot drift apart.
 import {
   Activity, Antenna, Archive, BarChart3, BookOpenCheck, BrainCircuit, ClipboardCheck, ClipboardList, Gauge, Globe2, GraduationCap, Inbox, Info, LayoutDashboard,
-  KeyRound, LifeBuoy, ListChecks, MessagesSquare, Plug, Radar, RadioTower, Rocket, Route, Satellite, Settings2, Truck, UsersRound, Workflow, type LucideIcon,
+  KeyRound, LifeBuoy, ListChecks, MessagesSquare, Plug, Radar, RadioTower, Rocket, Route, Satellite, Settings2, Sparkles, Truck, UsersRound, Workflow, type LucideIcon,
 } from "lucide-react";
 
 /** The six steps of the alert chain. Pages that serve one step say so; support pages carry none. */
@@ -52,7 +52,10 @@ export const navigation: NavGroup[] = [
     { chain: "Learn", href: "/audit", label: "Audit360 Export", description: "Download bounded synthetic case provenance and checksum", icon: Archive },
     { chain: "Decide", href: "/playbooks", label: "Response Playbooks", description: "Emergency exercise procedures", icon: BookOpenCheck },
     { chain: "Learn", href: "/learning", label: "Post-event Learning", description: "Compare estimates with outcomes and propose changes", icon: BarChart3 },
-    { href: "/help", label: "Help & Learning", description: "Guides, shortcuts and troubleshooting", icon: LifeBuoy },
+    { href: "/help", label: "Help & Learning", description: "Guides, shortcuts and troubleshooting", icon: LifeBuoy, tabs: [
+      { href: "/help", label: "Help & Learning", description: "Guides, shortcuts and troubleshooting", icon: LifeBuoy },
+      { href: "/whats-new", label: "What's new", description: "What changed in each version of IndTrana", icon: Sparkles },
+    ] },
     { href: "/admin", label: "Administration", description: "Server policy and safety switches", icon: Settings2, tabs: [
       { href: "/admin", label: "Administration", description: "Server policy and safety switches", icon: Settings2 },
       { href: "/admin/connectors", label: "Connectors", description: "Enter data-source keys and switch connectors on", icon: Plug },

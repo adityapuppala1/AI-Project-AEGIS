@@ -17,6 +17,33 @@ An administrator can change the product name and logo shown in the browser, or r
 **Administration > Brand** (`/admin/brand`). Logos: PNG, JPEG or WebP, at most 256 KB. Staff email, alert drafts
 (CAP), exports and audit text always keep the built-in name. See [docs/BRANDING.md](docs/BRANDING.md).
 
+## Version and release notes
+
+The current version is **0.3.0** (the number lives only in `apps/web/package.json`). Signed-in users see what changed in
+each version on the **What's new** page (`/whats-new`, a tab beside Help & Learning, also linked from the account menu and
+the version in the menu footer); 0.3.0 is the first tagged release and earlier versions are summaries of earlier work without a tag. The developer history is [CHANGELOG.md](CHANGELOG.md), and
+[docs/RELEASE_PROCESS.md](docs/RELEASE_PROCESS.md) explains how a version is cut: bump, release-notes entry, changelog
+entry, checks, commit, annotated `vX.Y.Z` tag, push (no force).
+
+## Guided tours
+
+Every page and tab has a short guided tour that follows the signed-in role, plus a Welcome tour for the menu, search,
+language, theme, the EXERCISE strip and the account menu. The Welcome tour starts once per browser after sign-in with a
+visible Skip tour. Start or restart any tour from the account menu (**Tour this page**, **Restart welcome tour**,
+**Tour all my pages**, **Show tour hints**) or with **Take the tour** beside "How this page works". The tour content is
+`apps/web/lib/tours.ts`; its state is flags only in one browser key, `aegis-tours`.
+
+## Submission documents
+
+For readers who cannot sign in to a running copy, [docs/submission](docs/submission) holds two documents for version
+0.3.0, both stating the prototype status and limits:
+
+- [IndTrana-Technical-Architecture-v0.3.0.docx](docs/submission/IndTrana-Technical-Architecture-v0.3.0.docx): technical
+  and architecture documentation with ten diagrams, sixteen use cases and a screenshot walkthrough.
+- [IndTrana-Overview-v0.3.0.html](docs/submission/IndTrana-Overview-v0.3.0.html): the same story as one interactive
+  page that works offline (download it and open it in a browser).
+- The diagrams on their own, as PNG and SVG: [docs/submission/diagrams](docs/submission/diagrams).
+
 ## Patented technology
 
 Indian Patent No. 598835 (Application No. 201741007139, filed 28 February 2017, granted 12 August 2026), "Dynamic Bandwidth System for IoT Networks via Satellite and Internet Infrastructure". Patentee: Bharath Bejjarapu, co-owner of IndTrana. The patent's title names a dynamic bandwidth system for sensor (IoT) networks over satellite and internet infrastructure. IndTrana applies that idea to its Sense step and to control-room, desk and team contact, as a rehearsal; the signed-in Resilient Sensor Link page shows it in a simulation and nothing is transmitted. Described here from the patent's title and the public publication notice; the full specification has not been reviewed for this page. See [docs/PATENT_SENSOR_LINK.md](docs/PATENT_SENSOR_LINK.md) and the [certificate](docs/05_Patent_Grant_In_Satellite_Internet.pdf). The page includes a step-by-step storm timeline that follows the idea through IndTrana's alert path.

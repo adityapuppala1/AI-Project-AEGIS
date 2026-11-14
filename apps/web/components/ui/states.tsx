@@ -46,7 +46,7 @@ export function PermissionState({ needs, roles, what, where, className = "" }: R
 }>) {
   const t = useT();
   const held = knownRoles(roles);
-  return <div role="status" className={`panel flex flex-wrap items-start gap-4 p-5 ${className}`}>
+  return <div role="status" data-tour="permission-state" className={`panel flex flex-wrap items-start gap-4 p-5 ${className}`}>
     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-elevated text-muted"><Lock size={18} aria-hidden="true" /></span>
     <div className="min-w-0 flex-1 space-y-3">
       <div>

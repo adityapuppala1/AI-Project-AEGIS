@@ -195,7 +195,7 @@ export default function ApprovalWorkbench() {
       {message && <p role="status"><StatusPill tone="success">{message}</StatusPill></p>}
       {error && <ErrorState message={t(error)} onRetry={loadFailed ? () => void reload() : undefined} />}
       <div className="grid items-start gap-4 2xl:grid-cols-[minmax(300px,.8fr)_minmax(0,1.5fr)]">
-        <Panel title={t("Create proposal")} icon={Plus} description={t("Saved as a draft. Nothing is submitted until you choose to.")}>
+        <Panel data-tour="approvals-create" title={t("Create proposal")} icon={Plus} description={t("Saved as a draft. Nothing is submitted until you choose to.")}>
           <form className="space-y-4" onSubmit={create}>
             {!canMake && <p className="helper">{t("Read-only. Drafting a proposal needs the Maker role.")}</p>}
             <div><label className="field-label" htmlFor="exercise-incident">Exercise incident</label>
@@ -233,7 +233,7 @@ export default function ApprovalWorkbench() {
             {(!canCreate || rationale.trim().length < 10) && <p className="helper">{!canCreate ? t("Disabled: the incident-operator role is required to save drafts.") : t("Disabled: enter a rationale of at least 10 characters.")}</p>}
           </form>
         </Panel>
-        <Panel className="min-w-0" title={t("Agency approval queue")} icon={ClipboardCheck} description={t("Records are filtered to the signed agency on the server.")}
+        <Panel data-tour="approvals-queue" className="min-w-0" title={t("Agency approval queue")} icon={ClipboardCheck} description={t("Records are filtered to the signed agency on the server.")}
           actions={<span className="tnum text-xs font-semibold text-muted">{proposals.length} {t("proposals")}</span>} bodyClassName="p-0">
           <div className="max-h-[700px] divide-y divide-stroke overflow-y-auto">
             {loading && <div className="p-4"><SkeletonRows rows={3} label={t("Loading approval records...")} /></div>}
