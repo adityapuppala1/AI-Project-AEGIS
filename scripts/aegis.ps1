@@ -303,7 +303,9 @@ function Sync-SignInOrigins([int]$WebPort) {
     # password is briefly on a command line inside the provider container only.
     $login = 'K=/opt/keycloak/bin/kcadm.sh; $K config credentials --server http://localhost:8080 --realm master --user $KC_BOOTSTRAP_ADMIN_USERNAME --password $KC_BOOTSTRAP_ADMIN_PASSWORD >/dev/null 2>&1 || { echo ADMIN_LOGIN_FAILED; exit 0; }; '
     $client = 'CID=$($K get clients -r indtrana-exercise -q clientId=indtrana-local-web --fields id --format csv --noquotes | head -1); '
-    $raw = @(& docker exec $id sh -c ($login + $client + '$K get clients/$CID -r indtrana-exercise --fields redirectUris,webOrigins,attributes'))
+    # The whole client is read: with --fields attributes the admin tool prints an empty map and hides the values, and
+    # an update built from that dropped the sign-out return address and the PKCE requirement.
+    $raw = @(& docker exec $id sh -c ($login + $client + '$K get clients/$CID -r indtrana-exercise'))
     if ($LASTEXITCODE -ne 0 -or $raw -contains 'ADMIN_LOGIN_FAILED') { Stop-WithMessage 'The identity provider refused its local administrator; sign-in addresses were not changed.' }
     $current = ($raw -join "`n") | ConvertFrom-Json
     $redirects = @($current.redirectUris | Where-Object { $_ }); $origins = @($current.webOrigins | Where-Object { $_ })
@@ -319,8 +321,12 @@ function Sync-SignInOrigins([int]$WebPort) {
       if ($logout -notcontains $new) { $logout += $new }
     }
     if ((($redirects + $origins + $logout) -join '|') -ne $before) {
-      $update = [PSCustomObject]@{ redirectUris = [string[]]$redirects; webOrigins = [string[]]$origins; attributes = [PSCustomObject]@{ 'post.logout.redirect.uris' = ($logout -join '##') } }
-      ($update | ConvertTo-Json -Depth 5 -Compress) | & docker exec -i $id sh -c ($login + $client + 'sed 1s/^\\xEF\\xBB\\xBF// > /tmp/aegis-client.json; $K update clients/$CID -r indtrana-exercise -f /tmp/aegis-client.json >/dev/null; code=$?; rm -f /tmp/aegis-client.json; exit $code') | Out-Null
+      # Keep every other client attribute (PKCE among them): a file update replaces the attribute map unless merged.
+      $attributes = [ordered]@{}
+      if ($current.attributes) { foreach ($property in $current.attributes.PSObject.Properties) { $attributes[$property.Name] = $property.Value } }
+      $attributes['post.logout.redirect.uris'] = ($logout -join '##')
+      $update = [PSCustomObject]@{ redirectUris = [string[]]$redirects; webOrigins = [string[]]$origins; attributes = [PSCustomObject]$attributes }
+      ($update | ConvertTo-Json -Depth 5 -Compress) | & docker exec -i $id sh -c ($login + $client + 'sed 1s/^\\xEF\\xBB\\xBF// > /tmp/aegis-client.json; $K update clients/$CID -r indtrana-exercise -m -f /tmp/aegis-client.json >/dev/null; code=$?; rm -f /tmp/aegis-client.json; exit $code') | Out-Null
       if ($LASTEXITCODE -ne 0) { Stop-WithMessage 'Could not update the sign-in addresses in the provider.' }
     }
     $saved = Read-State

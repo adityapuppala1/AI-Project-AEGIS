@@ -20,6 +20,45 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Round 23: demo-readiness pass; sign-out fixed — 14 November 2026 (Windows laptop)
+
+Branch `Aegis_IndTrana`, on top of `cdbf655` (local; `main` on the remote is `006cd8b`). Compose services left
+**running** with -SignIn -PublicEarth -Proactive -StatisticalForecast -StaffEmail. Owner decision (delegated): no
+database row-level security before the demo; it changes every table and is first after the demo.
+
+- **Defect found and fixed: sign-out ended on the provider's "Invalid redirect uri" page** and left the provider
+  session open, so a second account could not sign in in the same window. Cause: the admin tool prints an empty
+  attribute map for `--fields ...attributes`; `aegis.ps1` / `aegis.sh` (sign-in addresses after a port move) read
+  that, and wrote back a client without its sign-out return address and without the PKCE requirement. Fix: both read
+  the whole client, keep every attribute and merge (`-m`); `aegis.sh` also repairs a damaged client on start;
+  `scripts/update-local-idp.ps1` step 10 restores both values with a read-back. Run on this laptop: step 10 restored
+  the settings (the first run stopped at its own read-back because of the same blind read, after writing correctly;
+  fixed), then twice "already set", exit 0. Client read back: PKCE S256, sign-out address http://localhost:3000.
+  Browser: sign-out returns to the app home page signed out; the next sign-in asks for a user name. No account touched.
+- **Backup:** verify-backup-restore.ps1 PASSED (dump kept at .git/backups/aegis-20261114085446.dump, restored into a
+  throwaway database, counts equal, throwaway dropped).
+- **Readiness:** verify-demo-ready.ps1 GO (one warning: untracked files); security-smoke-windows.ps1 PASS.
+- **Page crawl (headless Chrome, read-only):** 8 demo accounts x 29 pages x two views (1440 px light, 390 px dark):
+  no page error, no 5xx, no sideways scroll, no fault text, no old product name, every page has a heading.
+- **Workflows clicked through with demo accounts (not real two-human approval):** proposal draft, submit, independent
+  approval (maker refused in the page and by the API), scripted tasks, department inbox for both departments, team
+  requests (accept, en route, on site, completed; decline; stand down; close blocked until requests end), incident
+  timeline (fixed lines only), drill with coach report, copilot (two cited answers, two abstentions), handover brief,
+  Hazard Watch, Earth Watch (live public feeds), Alert Journey, the 11-stage guided demo, keyboard-only on Approvals
+  and Drills (visible focus on every stop, no trap).
+- **Left in the database (synthetic, exercise-only):** proposal 6e0a6a6c-a326-4412-affd-2a9495887a5a (approved; control
+  room task closed, infrastructure task acknowledged), three team requests under it, two drills (one approved, one
+  running at T+00:05).
+- **Checks:** API pytest 1344 passed / 30 skipped, then tests/test_one_step_installer.py again with the new test (17
+  passed); app.model_lab --check PASS; bash -n clean; PowerShell 5.1 and 7 parse clean; independent read-only review of
+  the script fix: no blocking finding, its points applied.
+- **Seen, not changed before the demo:** the drill status line under the buttons stays empty after a click (the state
+  itself updates); Hazard Watch shows zeros while connectors are off (use "Preview with sample data"); the Audit page
+  shows fixture data, a proposal's own events are behind "Open private proposal audit JSON"; the earlier-drill list has
+  similar titles.
+- **Not run:** 200% zoom, reduced motion, Learning page actions, action types other than prepare warning, task
+  reassignment, the aegis.sh repair path on a real Linux or macOS install (covered by a unit test of its logic only).
+
 ## Round 22: sign-in address move for macOS and Linux; brand name in two more labels — 14 November 2026 (Windows laptop)
 
 Branch `Aegis_IndTrana`, on top of `006cd8b` (which is also `main`). Compose services left **running**, rebuilt from

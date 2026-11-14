@@ -248,3 +248,44 @@ def test_migration_through_the_fake_renames_realm_json_in_place():
     )
     assert "RC=0" in out, out
     assert "INODE_SAME" in out and "NAMES_NEW" in out
+
+
+def test_sign_in_client_updates_never_drop_its_settings():
+    """The admin tool prints an empty attribute map for `--fields ...attributes`; an update built from that dropped the
+    PKCE requirement and the sign-out return address. Reads take the whole client and file updates are merged."""
+    import json
+    import re
+
+    scripts = [ROOT / "aegis.sh", *sorted((ROOT / "scripts").glob("*.ps1")), *sorted((ROOT / "scripts").glob("*.sh"))]
+    for script in scripts:
+        for line in script.read_text(encoding="utf-8", errors="replace").splitlines():
+            if line.lstrip().startswith("#"):
+                continue
+            assert not re.search(r"--fields[^\n]*(attributes|config)", line), f"{script.name}: {line.strip()[:120]}"
+            if re.search(r"update (clients|realms)/\S+ ", line) and " -f " in line and "protocol-mappers" not in line:
+                assert " -m " in line, f"{script.name}: unmerged file update: {line.strip()[:120]}"
+
+    posix = (ROOT / "aegis.sh").read_text(encoding="utf-8")
+    program = re.search(r"python3 -c '\n(import json, os, sys\n.*?)\n'\)\"", posix, re.S)
+    assert program, "sign-in address program not found in aegis.sh"
+    damaged = {"redirectUris": ["http://localhost:3000/api/auth/callback"], "webOrigins": ["http://localhost:3000"],
+               "attributes": {"realm_client": "false"}}
+    healthy = {**damaged, "attributes": {"realm_client": "false", "pkce.code.challenge.method": "S256",
+                                         "post.logout.redirect.uris": "http://localhost:3000"}}
+
+    def run(client, add="", drop=""):
+        env = {**os.environ, "ADD": add, "DROP": drop, "DEFAULT": "http://localhost:3000"}
+        done = subprocess.run([sys.executable, "-c", program.group(1)], input=json.dumps(client), env=env,
+                              capture_output=True, text=True, check=True)
+        return json.loads(done.stdout) if done.stdout.strip() else None
+
+    repaired = run(damaged)
+    assert repaired["attributes"] == healthy["attributes"]
+    assert run(healthy) is None
+    moved = run(healthy, add="http://localhost:3001")
+    assert moved["attributes"]["post.logout.redirect.uris"] == "http://localhost:3000##http://localhost:3001"
+    assert moved["attributes"]["pkce.code.challenge.method"] == "S256" and moved["attributes"]["realm_client"] == "false"
+    assert "http://localhost:3001/api/auth/callback" in moved["redirectUris"]
+    back = run({**healthy, "redirectUris": moved["redirectUris"], "webOrigins": moved["webOrigins"],
+                "attributes": moved["attributes"]}, drop="http://localhost:3001")
+    assert back["attributes"] == healthy["attributes"] and back["redirectUris"] == healthy["redirectUris"]

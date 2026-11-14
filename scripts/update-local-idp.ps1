@@ -7,6 +7,8 @@
 #   5-7. The response_team role, an aegis_team_id account attribute (administrators only) and its access-token mapper.
 #   8. Only an administrator can change an account's email address (staff email notices trust the verified address).
 #   9. The provider's own pages show the product name IndTrana (realm and web client display names; ids unchanged).
+#  10. The web client requires PKCE (S256) and accepts the app address as its sign-out return address. A file update
+#      without merge had dropped both; sign-out then ended on the provider's "Invalid redirect uri" page.
 # It never creates, changes or deletes an account and never prints a secret.
 # Run:  powershell -ExecutionPolicy Bypass -File .\scripts\update-local-idp.ps1
 $ErrorActionPreference = 'Stop'
@@ -15,6 +17,8 @@ $ErrorActionPreference = 'Stop'
 $IdpDisplayName = 'IndTrana LOCAL SYNTHETIC EXERCISE'
 $IdpDisplayNameHtml = 'IndTrana'
 $IdpClientName = 'IndTrana'
+# The default app address; must match ops/local-idp/realm.json. A moved web port is added by aegis.cmd / aegis.sh.
+$IdpAppOrigin = 'http://localhost:3000'
 
 Invoke-AegisLocalOperation -Name 'update-local-idp.ps1' -Action {
   Assert-AegisSingleRuntime -RequireRunning
@@ -131,14 +135,32 @@ Invoke-AegisLocalOperation -Name 'update-local-idp.ps1' -Action {
   $needRealmName = $names.displayName -ne $IdpDisplayName -or $names.displayNameHtml -ne $IdpDisplayNameHtml
   if ($needRealmName) {
     $update = [PSCustomObject]@{ displayName = $IdpDisplayName; displayNameHtml = $IdpDisplayNameHtml }
-    Invoke-Idp 'sed 1s/^\\xEF\\xBB\\xBF// > /tmp/aegis-realm-names.json; $K update realms/indtrana-exercise -f /tmp/aegis-realm-names.json >/dev/null; code=$?; rm -f /tmp/aegis-realm-names.json; exit $code' ($update | ConvertTo-Json -Compress) | Out-Null
+    Invoke-Idp 'sed 1s/^\\xEF\\xBB\\xBF// > /tmp/aegis-realm-names.json; $K update realms/indtrana-exercise -m -f /tmp/aegis-realm-names.json >/dev/null; code=$?; rm -f /tmp/aegis-realm-names.json; exit $code' ($update | ConvertTo-Json -Compress) | Out-Null
   }
   Say 'Provider pages show the name IndTrana' $needRealmName
   $clientName = ((Invoke-Idp '$K get clients/$CID -r indtrana-exercise --fields name') -join "`n" | ConvertFrom-Json).name
   $needClientName = $clientName -ne $IdpClientName
   if ($needClientName) {
-    Invoke-Idp 'sed 1s/^\\xEF\\xBB\\xBF// > /tmp/aegis-client-name.json; $K update clients/$CID -r indtrana-exercise -f /tmp/aegis-client-name.json >/dev/null; code=$?; rm -f /tmp/aegis-client-name.json; exit $code' ([PSCustomObject]@{ name = $IdpClientName } | ConvertTo-Json -Compress) | Out-Null
+    Invoke-Idp 'sed 1s/^\\xEF\\xBB\\xBF// > /tmp/aegis-client-name.json; $K update clients/$CID -r indtrana-exercise -m -f /tmp/aegis-client-name.json >/dev/null; code=$?; rm -f /tmp/aegis-client-name.json; exit $code' ([PSCustomObject]@{ name = $IdpClientName } | ConvertTo-Json -Compress) | Out-Null
   }
   Say 'The web client is shown as IndTrana' $needClientName
+
+  # 10. Web client attributes. A client update from a file replaces the attribute map unless it is merged (-m), so the
+  #     whole map is read, the two required values are set in it, and it is written back merged. Other values are kept.
+  #     The whole client is read: with --fields attributes the admin tool prints an empty map and hides the values.
+  $settings = (Invoke-Idp '$K get clients/$CID -r indtrana-exercise') -join "`n" | ConvertFrom-Json
+  $attributes = [ordered]@{}
+  if ($settings.attributes) { foreach ($property in $settings.attributes.PSObject.Properties) { $attributes[$property.Name] = $property.Value } }
+  $logout = @(([string]$attributes['post.logout.redirect.uris']) -split '##' | Where-Object { $_ })
+  $needClientSettings = $attributes['pkce.code.challenge.method'] -ne 'S256' -or $logout -notcontains $IdpAppOrigin
+  if ($needClientSettings) {
+    if ($logout -notcontains $IdpAppOrigin) { $logout = @($IdpAppOrigin) + $logout }
+    $attributes['pkce.code.challenge.method'] = 'S256'
+    $attributes['post.logout.redirect.uris'] = ($logout -join '##')
+    Invoke-Idp 'sed 1s/^\\xEF\\xBB\\xBF// > /tmp/aegis-client-settings.json; $K update clients/$CID -r indtrana-exercise -m -f /tmp/aegis-client-settings.json >/dev/null; code=$?; rm -f /tmp/aegis-client-settings.json; exit $code' ([PSCustomObject]@{ attributes = [PSCustomObject]$attributes } | ConvertTo-Json -Depth 4 -Compress) | Out-Null
+    $check = ((Invoke-Idp '$K get clients/$CID -r indtrana-exercise') -join "`n" | ConvertFrom-Json).attributes
+    if ($check.'pkce.code.challenge.method' -ne 'S256' -or (([string]$check.'post.logout.redirect.uris') -split '##') -notcontains $IdpAppOrigin) { throw 'The web client settings did not read back as written.' }
+  }
+  Say 'Web client requires PKCE and sign-out returns to the app' $needClientSettings
   Write-Host 'Done. Sign out and in again to pick up the changes.'
 }

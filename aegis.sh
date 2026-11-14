@@ -518,27 +518,36 @@ sync_signin_origins() {
   local origin="http://localhost:$WEB_PORT" add='' drop='' o id current update
   [ "$WEB_PORT" != "$DEFAULT_WEB" ] && add="$origin"
   for o in $ADDED_ORIGINS; do [ "$o" != "$origin" ] && drop="$drop $o"; done
-  [ -z "$add" ] && [ -z "$drop" ] && return 0
-  id="$(idp_container)"; [ "$(printf '%s\n' "$id" | grep -c .)" = 1 ] || die 'The identity provider is not running, so the sign-in addresses could not be updated.'
+  # Also a repair: an earlier version of this function could drop the PKCE requirement and the sign-out return address
+  # of the default app address, so both are checked on every run and put back when missing.
+  id="$(idp_container)"
+  if [ "$(printf '%s\n' "$id" | grep -c .)" != 1 ]; then
+    [ -z "$add" ] && [ -z "$drop" ] && return 0
+    die 'The identity provider is not running, so the sign-in addresses could not be updated.'
+  fi
   # shellcheck disable=SC2016
-  current="$("${DOCKER[@]}" exec "$id" sh -c "$KC_LOGIN$KC_CLIENT"'$K get clients/$CID -r indtrana-exercise --fields redirectUris,webOrigins,attributes')" || die 'Could not read the sign-in client settings.'
+  # The whole client is read: with --fields attributes the admin tool prints an empty map and hides the values.
+  current="$("${DOCKER[@]}" exec "$id" sh -c "$KC_LOGIN$KC_CLIENT"'$K get clients/$CID -r indtrana-exercise')" || die 'Could not read the sign-in client settings.'
   case "$current" in *ADMIN_LOGIN_FAILED*) die 'The identity provider refused its local administrator; sign-in addresses were not changed.' ;; esac
-  update="$(printf '%s' "$current" | ADD="$add" DROP="$drop" python3 -c '
+  update="$(printf '%s' "$current" | ADD="$add" DROP="$drop" DEFAULT="http://localhost:$DEFAULT_WEB" python3 -c '
 import json, os, sys
 c = json.load(sys.stdin)
 r = list(c.get("redirectUris") or []); w = list(c.get("webOrigins") or [])
 l = [x for x in str((c.get("attributes") or {}).get("post.logout.redirect.uris") or "").split("##") if x]
-before = (list(r), list(w), list(l))
+a = dict(c.get("attributes") or {})  # keep every other attribute
+before = (list(r), list(w), list(l), a.get("pkce.code.challenge.method"))
 for o in os.environ["DROP"].split():
     r = [x for x in r if x != o + "/api/auth/callback"]; w = [x for x in w if x != o]; l = [x for x in l if x != o]
 for o in os.environ["ADD"].split():
     for lst, val in ((r, o + "/api/auth/callback"), (w, o), (l, o)):
         if val not in lst: lst.append(val)
-print("" if (r, w, l) == before else json.dumps({"redirectUris": r, "webOrigins": w, "attributes": {"post.logout.redirect.uris": "##".join(l)}}))
+if os.environ["DEFAULT"] not in l: l.insert(0, os.environ["DEFAULT"])
+a["pkce.code.challenge.method"] = "S256"; a["post.logout.redirect.uris"] = "##".join(l)
+print("" if (r, w, l, "S256") == before else json.dumps({"redirectUris": r, "webOrigins": w, "attributes": a}))
 ')" || die 'Could not prepare the sign-in client update.'
   if [ -n "$update" ]; then
     # shellcheck disable=SC2016
-    printf '%s' "$update" | "${DOCKER[@]}" exec -i "$id" sh -c "$KC_LOGIN$KC_CLIENT"'cat > /tmp/aegis-client.json; $K update clients/$CID -r indtrana-exercise -f /tmp/aegis-client.json >/dev/null; code=$?; rm -f /tmp/aegis-client.json; exit $code' ||
+    printf '%s' "$update" | "${DOCKER[@]}" exec -i "$id" sh -c "$KC_LOGIN$KC_CLIENT"'cat > /tmp/aegis-client.json; $K update clients/$CID -r indtrana-exercise -m -f /tmp/aegis-client.json >/dev/null; code=$?; rm -f /tmp/aegis-client.json; exit $code' ||
       die 'Could not update the sign-in addresses in the provider.'
   fi
   ADDED_ORIGINS="$add"; write_state
