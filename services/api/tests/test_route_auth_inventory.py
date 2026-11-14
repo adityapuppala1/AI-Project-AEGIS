@@ -88,12 +88,7 @@ OWN_ROLE_LOGIC = {
     ("POST", "/v1/exercise/response/requests"),
     ("POST", "/v1/exercise/response/requests/{request_id}/reports"),
     ("GET", "/v1/exercise/response/alerts"),
-    ("GET", "/v1/proactive/connectors"),
-    ("PUT", "/v1/proactive/connectors/{connector_id}"),
-    ("POST", "/v1/proactive/connectors/{connector_id}/test"),
-    ("GET", "/v1/proactive/connectors/{connector_id}/audit"),
     ("GET", "/v1/proactive/pause"),
-    ("PUT", "/v1/proactive/pause"),
     ("POST", "/v1/proactive/watch/refresh"),
     ("POST", "/v1/proactive/runs"),
     ("GET", "/v1/proactive/runs"),
@@ -118,7 +113,6 @@ OWN_ROLE_LOGIC = {
     ("GET", "/v1/proactive/learning/proposals/{proposal_id}"),
     ("POST", "/v1/proactive/learning/proposals/{proposal_id}/submit"),
     ("POST", "/v1/proactive/learning/proposals/{proposal_id}/review"),
-    ("POST", "/v1/proactive/learning/proposals/{proposal_id}/apply"),
     ("GET", "/v1/proactive/learning/config"),
     ("GET", "/v1/proactive/drills/scenarios"),
     ("GET", "/v1/proactive/drills"),
@@ -317,3 +311,56 @@ def test_narrow_role_list_refuses_an_unlisted_role():
 def test_scoped_operator_refuses_an_empty_or_unknown_role_list(roles):
     with pytest.raises(ValueError):
         security.scoped_operator(roles)
+
+
+# Platform-wide administration (connectors, global pause, learning overlay apply, all-agency scheduler ticks) is
+# limited to a platform_admin of the exercise agency; another agency's platform_admin gets the fixed 403.
+PLATFORM_ADMIN_ROUTES = [
+    ("GET", "/v1/proactive/connectors", None),
+    ("PUT", "/v1/proactive/connectors/open_meteo", {"expected_version": 0, "enabled": False}),
+    ("POST", "/v1/proactive/connectors/open_meteo/test", None),
+    ("GET", "/v1/proactive/connectors/open_meteo/audit", None),
+    ("PUT", "/v1/proactive/pause", {"paused": False, "reason": "route auth inventory probe"}),
+    ("POST", f"/v1/proactive/learning/proposals/{CASE}/apply", {}),
+    ("GET", "/v1/proactive/scheduler", None),
+]
+
+
+@pytest.mark.parametrize("method,path,body", PLATFORM_ADMIN_ROUTES)
+def test_platform_admin_of_another_agency_is_refused(method, path, body):
+    _as(OTHER_AGENCY, {"platform_admin"})
+    response = _send(method, path, body)
+    assert response.status_code == 403
+    assert response.json() == {"detail": FIXTURE_AGENCY_DETAIL}
+
+
+@pytest.mark.parametrize("method,path", [(m, p) for m, p, _b in PLATFORM_ADMIN_ROUTES if p != "/v1/proactive/scheduler"])
+def test_platform_admin_routes_declare_the_exercise_agency_scope(method, path):
+    for route in _routes(app.routes):
+        if route.path == path.replace("open_meteo", "{connector_id}").replace(CASE, "{proposal_id}") and method in route.methods:
+            scoped = [call for call in _calls(route.dependant, set()) if hasattr(call, "allowed_roles")]
+            assert scoped and scoped[0].allowed_roles == frozenset({"platform_admin"}) and scoped[0].fixture_agency
+            return
+    raise AssertionError(f"route not found: {method} {path}")
+
+
+def test_scheduler_still_scopes_other_agency_operators_to_their_own_ticks():
+    # The non-admin read for another agency keeps its own-agency scope (no 403): only the all-agency admin view is narrowed.
+    from app import proactive_scheduler
+    calls = []
+
+    class Store:
+        def list_ticks(self, scope, limit):
+            calls.append(scope)
+            return []
+
+    original = proactive_scheduler.proactive_store.get_store
+    proactive_scheduler.proactive_store.get_store = lambda: Store()
+    try:
+        _as(OTHER_AGENCY, {"incident_operator"})
+        assert client.get("/v1/proactive/scheduler").status_code == 200
+        _as(EXERCISE_AGENCY, {"platform_admin"})
+        assert client.get("/v1/proactive/scheduler").status_code == 200
+    finally:
+        proactive_scheduler.proactive_store.get_store = original
+    assert calls == [OTHER_AGENCY, None]

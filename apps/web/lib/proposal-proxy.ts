@@ -87,6 +87,8 @@ export async function proxyProposals(request: Request, proposalId?: string, expo
         "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff",
       } });
     }
+    // A validation refusal from the API (for example an unsupported character) becomes the usual fixed message; the raw detail is never relayed.
+    if (response.status === 422) return failure(400, "Invalid proposal fields");
     const output = await response.json().catch(() => ({ error: "Exercise service returned an invalid response" }));
     return NextResponse.json(output, { status: response.status, headers: { "Cache-Control": "no-store" } });
   } catch {

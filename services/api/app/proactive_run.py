@@ -9,6 +9,7 @@ only hands the cited material to an accountable human; nothing is submitted, app
 import hashlib
 import time
 from datetime import datetime, timezone
+from typing import Annotated
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Response
@@ -17,6 +18,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from app import connectors, hazard_watch, impact, jev_client, prepositioning, proactive_store
 from app.proactive_cap import CapRefused, exercise_cap_xml
 from app.security import Operator, get_operator, require_role
+from app.text_checks import NoNul
 
 VERSION = "aegis.proactive.run.v2"
 STEPS = ("gather_evidence", "simulate_variants", "judge", "draft_cap", "plan_prepositioning", "hand_to_human")
@@ -212,7 +214,7 @@ class AdvanceRun(BaseModel):
 
 class CancelRun(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    rationale: str = Field(min_length=10, max_length=1000)
+    rationale: Annotated[str, NoNul] = Field(min_length=10, max_length=1000)
 
 
 def _call(fn, *args):

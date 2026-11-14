@@ -97,7 +97,7 @@ const steps = [
   {
     title: "Inspect the independent checker gate",
     subtitle: "Authenticated exercise approvals",
-    description: "An operator may draft a simulated proposal, but only a separate OIDC-verified checker can review it. Without a provisioned IdP the workbench intentionally remains locked.",
+    description: "An operator may draft a simulated proposal, but only a separate OIDC-verified checker can review it. You must be signed in, and an account that is not an operator or checker cannot change a proposal.",
     href: "/approvals",
     link: "Open Approval Workbench",
     icon: ClipboardCheck,
@@ -115,9 +115,9 @@ const steps = [
   {
     title: "Inspect the proposal audit trace",
     subtitle: "Captured evidence, independent decision and simulated tasks",
-    description: "Open the private audit JSON on the same proposal to inspect its captured checklist, checker decision and simulated tasks. Verified sign-in is required. The public Audit360 fixture export remains a separate unsigned example.",
+    description: "On Approvals, use the Open private proposal audit JSON link on a proposal card to inspect its captured checklist, checker decision and simulated tasks. Verified sign-in is required. The public Audit360 fixture export remains a separate unsigned example.",
     href: "/approvals",
-    link: "Open private proposal audit",
+    link: "Open Approvals, then a proposal's audit link",
     icon: Archive,
     playbook: "Review traceability and provenance",
   },

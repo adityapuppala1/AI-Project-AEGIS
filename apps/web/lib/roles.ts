@@ -82,4 +82,9 @@ export function canOpenPage(href: string, roles: readonly string[] | null | unde
   if (!needed || !roles) return true;
   return needed.some(role => roles.includes(role));
 }
+/** Where a refused page sends the person: a response-team-only account goes to My Team, everyone else to the page's usual choice. Display only. */
+export function refusalHome(roles: readonly string[] | null | undefined, usual: { href: string; label: string }, teamLabel: string): { href: string; label: string } {
+  const held = knownRoles(roles);
+  return held.length > 0 && held.every(role => role === "response_team") ? { href: "/my-team", label: teamLabel } : usual;
+}
 export const GATED_PAGES: readonly string[] = Object.keys(PAGE_CAPABILITY);

@@ -6,7 +6,7 @@ import { AppShell } from "./app-shell";
 import { useT } from "./language-provider";
 import { Button, CitedLine, EmptyState, ErrorState, Panel, PermissionState, StatusPill } from "./ui";
 import { COPILOT_MAX, validateQuestion, type CopilotAnswer } from "../lib/operator-assist";
-import { pageRoles } from "../lib/roles";
+import { pageRoles, refusalHome } from "../lib/roles";
 import { useOperatorSession } from "../lib/use-operator-session";
 import { SignInRequired } from "./sign-in-required";
 
@@ -63,7 +63,7 @@ export function OperatorCopilot() {
 
   return <AppShell title="Operator Copilot" description="A read-only assistant that answers from agency-scoped records and cites them. It cannot act.">
     {signedOut && session && <SignInRequired session={session}/>}
-    {refused && <PermissionState needs={pageRoles("/copilot") ?? []} roles={session?.roles} what={t("The copilot reads incident-desk records, so it is for the incident desk and administrators.")} where={{ href: "/department-tasks", label: t("Open the Department Inbox") }} />}
+    {refused && <PermissionState needs={pageRoles("/copilot") ?? []} roles={session?.roles} what={t("The copilot reads incident-desk records, so it is for the incident desk and administrators.")} where={refusalHome(session?.roles, { href: "/department-tasks", label: t("Open the Department Inbox") }, t("Open My Team"))} />}
     {!signedOut && !refused && <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,26rem)_minmax(0,1fr)]">
       <Panel title={t("Ask about your agency's records")} icon={BrainCircuit} className="self-start">
         <form onSubmit={ask} noValidate>

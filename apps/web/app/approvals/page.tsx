@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { Check, ClipboardCheck, LockKeyhole, Plus, RefreshCw, X } from "lucide-react";
-import { codeLabel, recordIdTitle, shortId } from "../../lib/labels";
-import { pageRoles } from "../../lib/roles";
+import { API_CODE_SENTENCES, codeLabel, recordIdTitle, shortId } from "../../lib/labels";
+import { knownRoles, pageRoles, refusalHome } from "../../lib/roles";
 import { ReviewFocusDetails, type Focus } from "../../components/local-review-focus";
 import { ExerciseDraftBuffer } from "../../lib/exercise-draft-buffer";
 import { AppShell } from "../../components/app-shell";
@@ -34,7 +34,10 @@ const actionTypes = [
 ];
 function displayError(input: unknown): string {
   if (input && typeof input === "object" && "detail" in input && typeof input.detail === "string") return input.detail;
-  if (input && typeof input === "object" && "error" in input && typeof input.error === "string") return input.error;
+  if (input && typeof input === "object" && "error" in input && typeof input.error === "string") {
+    if (input.error === "Invalid proposal fields") return API_CODE_SENTENCES.invalid_proposal_fields;
+    return input.error;
+  }
   return "Action could not be completed";
 }
 
@@ -52,6 +55,8 @@ export default function ApprovalWorkbench() {
   const [reviewReasons, setReviewReasons] = useState<Record<string,string>>({});
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  // Retry only makes sense when the list itself failed to load, not after a rejected action or save.
+  const [loadFailed, setLoadFailed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [refused, setRefused] = useState(false);
   // Proposals whose status changed in the last reload are marked once, so the eye finds what moved.
@@ -106,9 +111,9 @@ export default function ApprovalWorkbench() {
       setChangedIds(new Set(tasks.filter(item => item.id in lastStatus.current ? lastStatus.current[item.id] !== item.status : Object.keys(lastStatus.current).length > 0).map(item => item.id)));
       lastStatus.current = Object.fromEntries(tasks.map(item => [item.id, item.status]));
       setProposals(tasks);
-      setError("");
+      setError(""); setLoadFailed(false);
     } catch (cause) {
-      setIncidents([]); setProposals([]);
+      setIncidents([]); setProposals([]); setLoadFailed(true);
       setError(cause instanceof Error ? cause.message : "Exercise service unavailable");
     } finally { setLoading(false); }
   }, [chooseDraft]);
@@ -134,7 +139,7 @@ export default function ApprovalWorkbench() {
       draftBuffer.current.write(selectedIncident, actionType, "");
       setRationale("");
       await reload();
-    } catch (cause) { setError(cause instanceof Error ? cause.message : "Unable to create proposal"); }
+    } catch (cause) { setLoadFailed(false); setError(cause instanceof Error ? cause.message : "Unable to create proposal"); }
     finally { setBusy(false); }
   }
   async function change(proposal: Proposal, operation: "submit" | "approve" | "reject" | "simulate" | "prepare_tasks" | "acknowledge_task" | "close_task" | "reassign_task" | "start_assistance" | "advance_assistance" | "cancel_assistance", taskId?: string) {
@@ -150,7 +155,11 @@ export default function ApprovalWorkbench() {
       setReviewReasons(current => ({ ...current, [reasonKey]: "" }));
       setAssignmentTargets(current => ({ ...current, [reasonKey]: "" }));
       await reload();
-    } catch (cause) { setError(cause instanceof Error ? cause.message : "Unable to transition proposal"); }
+    } catch (cause) {
+      // Another tab may have changed the record: refresh the list so stale buttons disappear, then keep the message.
+      const text = cause instanceof Error ? cause.message : "Unable to transition proposal";
+      await reload(); setLoadFailed(false); setError(text);
+    }
     finally { setBusy(false); }
   }
 
@@ -172,7 +181,7 @@ export default function ApprovalWorkbench() {
 
     {auth?.authenticated && refused && <PermissionState needs={pageRoles("/approvals") ?? []} roles={auth.roles}
       what={t("Proposals are read by the people who make, check and audit them. Administrators set up the node but take no part in a decision.")}
-      where={{ href: "/", label: t("Back to Command Center") }} />}
+      where={refusalHome(auth.roles, knownRoles(auth.roles).includes("department_operator") ? { href: "/department-tasks", label: t("Open the Department Inbox") } : { href: "/", label: t("Back to Command Center") }, t("Open My Team"))} />}
 
     {auth?.authenticated && !refused && <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -184,14 +193,14 @@ export default function ApprovalWorkbench() {
         <Button icon={RefreshCw} onClick={() => void reload()} disabled={busy} loading={loading}>{t("Refresh")}</Button>
       </div>
       {message && <p role="status"><StatusPill tone="success">{message}</StatusPill></p>}
-      {error && <ErrorState message={error} />}
+      {error && <ErrorState message={t(error)} onRetry={loadFailed ? () => void reload() : undefined} />}
       <div className="grid items-start gap-4 2xl:grid-cols-[minmax(300px,.8fr)_minmax(0,1.5fr)]">
         <Panel title={t("Create proposal")} icon={Plus} description={t("Saved as a draft. Nothing is submitted until you choose to.")}>
           <form className="space-y-4" onSubmit={create}>
             {!canMake && <p className="helper">{t("Read-only. Drafting a proposal needs the Maker role.")}</p>}
             <div><label className="field-label" htmlFor="exercise-incident">Exercise incident</label>
               <select id="exercise-incident" className="field" value={selectedIncident} onChange={event => chooseDraft(event.target.value, actionType)} disabled={!canMake || busy || loading}>
-                {!incidents.length && <option value="">No incidents available</option>}
+                {!incidents.length && <option value="">{error ? t("Not loaded. Use Retry.") : "No incidents available"}</option>}
                 {incidents.map(item => <option key={item.id} value={item.id}>{t(codeLabel(item.hazard_type))} · {item.id.slice(0,8)}</option>)}
               </select>
             </div>

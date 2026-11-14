@@ -163,3 +163,20 @@ and conflicting jobs before proceeding. This is local orchestration hygiene,
 not a new service architecture or universal OS supervisor. See
 [SINGLE_INSTANCE_LOCAL_RUNTIME.md](SINGLE_INSTANCE_LOCAL_RUNTIME.md) and the
 Windows acceptance in [LOCAL_DEMO_HANDOFF.md](LOCAL_DEMO_HANDOFF.md).
+
+## Request boundary hardening (14 November 2026)
+
+No new service or schema. Four rules were made uniform after the signed-in security test
+([report](SECURITY_TEST_REPORT_2026-11-14.md)):
+
+- **Web BFF:** every state-changing route handler checks the request origin itself or returns through a proxy helper
+  that does. `scripts/tests/mutating-route-origin.test.cjs` lists the handlers and fails on one without the check.
+- **API replies:** a small ASGI middleware in `app/main.py` adds `X-Content-Type-Options: nosniff` to every reply and
+  `Cache-Control: no-store` when the route sets no caching of its own. It never buffers a body and never overrides a
+  route's headers (the logo route keeps its own).
+- **Platform-wide administration:** connector settings, the kill switch, applying a threshold overlay and the
+  all-agency scheduler view need a `platform_admin` of the exercise agency, through `security.scoped_operator`, the
+  same dependency the brand and staff-email routes use.
+- **Free text stored in PostgreSQL:** rationale and reason fields pass `app/text_checks.py` (`NoNul`), so a NUL
+  character is a validation reply and never a database error. Fixed API codes are turned into plain sentences in the
+  web app by `apiFailureText` in `lib/labels.ts`; a raw code is never shown.

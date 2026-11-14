@@ -282,6 +282,19 @@ test('feed-supplied links are rendered only when they are plain https URLs', () 
   assert.ok(/function safeUrl\(u\)[^}]+protocol === 'https:'/.test(panels));
 });
 
+test('feed-supplied event magnitude, unit and significance are escaped before reaching innerHTML', () => {
+  const panels = read('components/alert-journey/engine/live-panels.js');
+  assert.ok(panels.includes("esc(r.last.mag) + ' ' + esc(r.last.unit || '')"), 'EONET magnitude and unit escaped');
+  assert.ok(panels.includes("'<tr><th>Significance</th><td>' + esc(r.sig) + '</td></tr>"), 'USGS significance escaped');
+  assert.ok(!/\+ r\.last\.mag \+|' ' \+ \(r\.last\.unit|\+ r\.sig \+/.test(panels), 'no raw feed value concatenated');
+  const ui = read('components/alert-journey/engine/live-ui.js');
+  const source = ui.match(/U\.esc = (function \(s\) \{[^\n]+\});\s*$/m);
+  assert.ok(source, 'escape helper found');
+  const esc = new Function('return ' + source[1])();
+  assert.equal(esc('<img src=x onerror=alert(1)>') + ' ' + esc('"m/s\''), '&lt;img src=x onerror=alert(1)&gt; &quot;m/s&#39;');
+  assert.equal(esc(42.5), '42.5');
+});
+
 // ---- public pages: the globe uses bundled files only, so the sign-in gate and the page policy need no exception ----
 test('public-page globe loads only bundled imagery and keeps its honesty labels', () => {
   const globe = read('components/globe/india-globe.ts'), outline = read('components/globe/india-outline.ts');

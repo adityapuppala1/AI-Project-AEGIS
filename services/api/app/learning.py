@@ -20,13 +20,15 @@ from datetime import date, datetime, time, timedelta, timezone
 from functools import lru_cache
 from pathlib import Path
 from statistics import median
+from typing import Annotated
 from uuid import UUID, NAMESPACE_URL, uuid4, uuid5
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, ConfigDict, Field
 
 from app import connectors, governance, hazard_watch, learning_store, proactive_replay
-from app.security import Operator, get_operator, require_role
+from app.security import Operator, get_operator, require_role, scoped_operator
+from app.text_checks import NoNul
 
 STATS_VERSION = "aegis.learning.stats.v1"
 PROPOSAL_VERSION = "aegis.learning.threshold-proposal.v1"
@@ -265,12 +267,12 @@ class CreateProposal(BaseModel):
 class Review(BaseModel):
     model_config = ConfigDict(extra="forbid")
     approve: bool = Field(strict=True)
-    rationale: str = Field(min_length=10, max_length=2000)
+    rationale: Annotated[str, NoNul] = Field(min_length=10, max_length=2000)
 
 
 class Apply(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    rationale: str = Field(min_length=10, max_length=2000)
+    rationale: Annotated[str, NoNul] = Field(min_length=10, max_length=2000)
 
 
 def _call(fn, *args):
@@ -290,6 +292,10 @@ def _call(fn, *args):
                             else "learning_conflict") from None
     except Exception:
         raise HTTPException(status_code=503, detail="learning_store_unavailable") from None
+
+
+# Applying a threshold overlay changes the engine for everyone: exercise-agency platform_admin only.
+_platform_admin = scoped_operator(frozenset({"platform_admin"}))
 
 
 def _reader(operator: Operator = Depends(get_operator)) -> Operator:
@@ -496,8 +502,7 @@ def post_review(proposal_id: UUID, body: Review, operator: Operator = Depends(ge
 
 
 @router.post("/proposals/{proposal_id}/apply")
-def post_apply(proposal_id: UUID, body: Apply, operator: Operator = Depends(get_operator)):
-    require_role(operator, {"platform_admin"})
+def post_apply(proposal_id: UUID, body: Apply, operator: Operator = Depends(_platform_admin)):
     connectors.require_not_paused()  # changing what the engine evaluates is blocked while paused
     return _call(apply_proposal, proposal_id, body, operator)
 

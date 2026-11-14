@@ -7,7 +7,7 @@ import { useT } from "./language-provider";
 import { Button, CitedLine, ErrorState, Panel, PermissionState, QuietRow, SegmentedControl, SkeletonRows, StatusPill, Toolbar, TwoKey, keysForStatus } from "./ui";
 import { handoverFileName, handoverMarkdown, type Handover } from "../lib/operator-assist";
 import { codeLabel } from "../lib/labels";
-import { pageRoles } from "../lib/roles";
+import { pageRoles, refusalHome } from "../lib/roles";
 import { useOperatorSession } from "../lib/use-operator-session";
 import { SignInRequired } from "./sign-in-required";
 
@@ -75,7 +75,7 @@ export function ShiftHandover() {
 
   return <AppShell title="Shift Handover" description="A cited, read-only brief of what changed for your agency since the last shift. Exercise only; it cannot act." actions={signedOut || refused ? undefined : actions}>
     {signedOut && session && <SignInRequired session={session}/>}
-    {refused && <PermissionState needs={pageRoles("/handover") ?? []} roles={session?.roles} what={t("The handover brief is for the incident desk and administrators.")} where={{ href: "/department-tasks", label: t("Open the Department Inbox") }} />}
+    {refused && <PermissionState needs={pageRoles("/handover") ?? []} roles={session?.roles} what={t("The handover brief is for the incident desk and administrators.")} where={refusalHome(session?.roles, { href: "/department-tasks", label: t("Open the Department Inbox") }, t("Open My Team"))} />}
     {!signedOut && !refused && <Toolbar label={t("Handover window")}>
       <SegmentedControl label={t("Handover window")} value={hours} onChange={value => setHours(value)}
         options={WINDOWS.map(value => ({ value, label: `${value} h` }))}/>

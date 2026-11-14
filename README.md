@@ -166,7 +166,9 @@ and sign-in pages, grouped menu, Alert Journey with Live Earth, approvals, depar
 **No real warnings, no dispatch, no validated forecasting, no government approval.**
 
 - What was run, with results and what is still open: [current handoff](docs/LOCAL_DEMO_HANDOFF.md).
-- Security testing done and not done: [security assessment](docs/SECURITY_ASSESSMENT.md).
+- Security testing done and not done: [security assessment, 10 November](docs/SECURITY_ASSESSMENT.md) (signed-out
+  surface) and [security test report, 14 November](docs/SECURITY_TEST_REPORT_2026-11-14.md) (signed-in product, all
+  demo roles). Both are developer self-assessments, not an independent audit.
 - What a government deployment would still need: [deployment readiness](docs/GOVT_DEPLOYMENT_READINESS.md).
 - Human acceptance record (still open): [demo rehearsal](docs/DEMO_REHEARSAL.md).
 

@@ -13,7 +13,7 @@ from fastapi.testclient import TestClient
 
 from app import hazard_watch, learning, learning_store, proactive_replay, proactive_scheduler, proactive_store
 from app.main import app
-from app.security import Operator, get_operator
+from app.security import FIXTURE_AGENCY_DETAIL, Operator, get_operator
 
 AGENCY = UUID('11111111-1111-4111-8111-111111111111')
 OTHER = UUID('22222222-2222-4222-8222-222222222222')
@@ -246,7 +246,9 @@ def test_approval_never_changes_the_engine_until_explicit_apply(stores):
     as_('checker-1', 'incident_checker')
     assert apply(pid).status_code == 403
     as_('admin-b', 'platform_admin', agency=OTHER)
-    assert apply(pid).status_code == 404
+    # Another agency's platform_admin is refused before the proposal is looked up (exercise-agency scope).
+    refused = apply(pid)
+    assert refused.status_code == 403 and refused.json() == {'detail': FIXTURE_AGENCY_DETAIL}
     as_('admin-1', 'platform_admin')
     proactive.set_pause(True, 'Exercise pause for the apply test', 'admin-1')
     assert apply(pid).json()['detail'] == 'proactive_paused'

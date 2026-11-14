@@ -268,7 +268,8 @@ export async function call<T>(url: string, clean: (value: unknown) => T | null, 
   const data = await response.json().catch(() => null) as unknown;
   if (!response.ok) {
     const info = data as { error?: string; code?: string } | null;
-    throw new Error([info?.error || "Request failed", info?.code].filter(Boolean).join(" · "));
+    // The fixed code travels on the error so the page can show a plain sentence (lib/labels.ts apiFailureText); it is never shown raw.
+    throw Object.assign(new Error(info?.error || "Request failed"), { code: info?.code });
   }
   const cleaned = clean(data);
   if (!cleaned) throw new Error("Invalid response");

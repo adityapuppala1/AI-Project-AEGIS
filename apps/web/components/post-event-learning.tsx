@@ -1,7 +1,7 @@
 "use client";
 
 import { PermissionState, Button } from "./ui";
-import { pageRoles } from "../lib/roles";
+import { pageRoles, refusalHome } from "../lib/roles";
 import { useCallback, useEffect, useState } from "react";
 import { BarChart3, Check, FileDiff, GitPullRequest, Play, RefreshCw, ShieldCheck, X } from "lucide-react";
 import { AppShell } from "./app-shell";
@@ -10,7 +10,7 @@ import { EmptyState, ErrorState, Panel, SkeletonRows, StatusPill } from "./ui";
 import { useOperatorSession } from "../lib/use-operator-session";
 import { SignInRequired } from "./sign-in-required";
 import { SortableTable, HazardGlyph, RecordRef, TwoKey, formatAbsolute, keysForStatus } from "./ui";
-import { codeLabel, sentenceCase } from "../lib/labels";
+import { apiFailureText, codeLabel, sentenceCase } from "../lib/labels";
 import {
   cleanConfig, cleanProposal, cleanScenarios, cleanWindow, pctLabel,
   type ConfigView, type LearningWindow, type Proposal, type Scenario, call } from "../lib/learning";
@@ -38,6 +38,7 @@ export function PostEventLearning() {
   const [rationale, setRationale] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [messageFailed, setMessageFailed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
 
@@ -58,9 +59,9 @@ export function PostEventLearning() {
   useEffect(() => { if (session?.authenticated) void load(); else if (session) setLoading(false); }, [session, load]);
 
   async function act(url: string, body: unknown, done: string) {
-    setBusy(true); setMessage(null);
+    setBusy(true); setMessage(null); setMessageFailed(false);
     try { await call(url, v => v, body); setMessage(t(done)); await load(); }
-    catch (err) { setMessage(err instanceof Error ? err.message : "Request failed"); }
+    catch (err) { setMessageFailed(true); setMessage(t(apiFailureText(err, "Request failed"))); }
     finally { setBusy(false); }
   }
   const note = (id: string) => rationale[id] ?? "";
@@ -75,7 +76,7 @@ export function PostEventLearning() {
     {session && !session.authenticated && <SignInRequired session={session}/>}
     {loading && session?.authenticated !== false && <SkeletonRows rows={5} label={t("Loading learning records")}/>}
     {error && (/insufficient role/i.test(error)
-      ? <PermissionState needs={pageRoles("/learning") ?? []} roles={session?.roles} what={t("Learning records belong to the incident desk, so they are for the incident desk and administrators.")} where={{ href: "/department-tasks", label: t("Open the Department Inbox") }} />
+      ? <PermissionState needs={pageRoles("/learning") ?? []} roles={session?.roles} what={t("Learning records belong to the incident desk, so they are for the incident desk and administrators.")} where={refusalHome(session?.roles, { href: "/department-tasks", label: t("Open the Department Inbox") }, t("Open My Team"))} />
       : <ErrorState message={t(error)} onRetry={() => void load()}/>)}
     {session?.authenticated && !loading && !error && <div className="space-y-4">
       {config && <Panel title={t("Engine configuration")} icon={ShieldCheck}>
@@ -163,8 +164,10 @@ export function PostEventLearning() {
           </div>}
         </div>)}</div>}
       </Panel>
-      <div className="flex items-center gap-3"><Button type="button" onClick={() => void load()} disabled={busy}><RefreshCw size={16}/>{t("Refresh")}</Button>
-        <span aria-live="polite" role="status" className="text-xs">{message}</span></div>
+      <div><Button type="button" onClick={() => void load()} disabled={busy}><RefreshCw size={16}/>{t("Refresh")}</Button></div>
+      {/* The one status element. Actions sit in several panels, so it stays pinned at the bottom of the viewport, in view next to whatever was pressed; the line is reserved so nothing jumps. */}
+      <div role="status" aria-live="polite" className="sticky bottom-3 z-10 min-h-7">
+        {message && <StatusPill tone={messageFailed ? "danger" : "success"} className="max-w-full whitespace-normal bg-surface text-left shadow-panel">{message}</StatusPill>}</div>
     </div>}
   </AppShell>;
 }

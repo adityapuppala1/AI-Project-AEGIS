@@ -1,9 +1,9 @@
 "use client";
 
 import { PermissionState, Button } from "./ui";
-import { pageRoles } from "../lib/roles";
+import { pageRoles, refusalHome } from "../lib/roles";
 import { RecordRef } from "./ui";
-import { codeLabel, humanText } from "../lib/labels";
+import { apiFailureText, codeLabel, humanText } from "../lib/labels";
 import { SortableTable } from "./ui";
 import { useCallback, useEffect, useState } from "react";
 import { AlarmClock, ClipboardCheck, GraduationCap, Play, RefreshCw } from "lucide-react";
@@ -38,6 +38,7 @@ export function ExerciseDrills() {
   const [report, setReport] = useState<DrillReport | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [messageFailed, setMessageFailed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
 
@@ -60,12 +61,19 @@ export function ExerciseDrills() {
   }, []);
   useEffect(() => { if (drill) void refreshReport(drill.id); else setReport(null); }, [drill, refreshReport]);
 
-  async function act(url: string, body: unknown) {
-    setBusy(true); setMessage(null);
-    try { const next = await call(url, cleanDrill, body); setDrill(next); setDrills(list => [next, ...list.filter(d => d.id !== next.id)]); }
-    catch (err) { setMessage(err instanceof Error ? err.message : "Request failed"); }
+  const DONE_LABEL: Record<DrillAction, string> = {
+    acknowledge_watch: t("Watch acknowledged."), take_handoff: t("Hand-off taken."), submit: t("Submitted for the checker."), approve: t("Approved by the checker."),
+  };
+  async function act(url: string, body: unknown, done: string) {
+    setBusy(true); setMessage(null); setMessageFailed(false);
+    try { const next = await call(url, cleanDrill, body); setDrill(next); setDrills(list => [next, ...list.filter(d => d.id !== next.id)]); setMessage(done); }
+    catch (err) { setMessageFailed(true); setMessage(t(apiFailureText(err, "Request failed"))); }
     finally { setBusy(false); }
   }
+
+  // The one status element: it sits under the buttons just pressed. The line is always reserved, so nothing jumps.
+  const status = <div role="status" aria-live="polite" className="mt-2 min-h-7">
+    {message && <StatusPill tone={messageFailed ? "danger" : "success"} className="max-w-full whitespace-normal text-left">{message}</StatusPill>}</div>;
 
   const ready = (action: DrillAction): boolean => {
     if (!drill || drill.status !== "running" || drill.actions[action]) return false;
@@ -84,7 +92,7 @@ export function ExerciseDrills() {
     {session && !session.authenticated && <SignInRequired session={session}/>}
     {loading && session?.authenticated !== false && <SkeletonRows rows={4} label={t("Loading drills")}/>}
     {error && (/insufficient role/i.test(error)
-      ? <PermissionState needs={pageRoles("/drills") ?? []} roles={session?.roles} what={t("Drills rehearse the incident desk, so they are for the incident desk and administrators.")} where={{ href: "/department-tasks", label: t("Open the Department Inbox") }} />
+      ? <PermissionState needs={pageRoles("/drills") ?? []} roles={session?.roles} what={t("Drills rehearse the incident desk, so they are for the incident desk and administrators.")} where={refusalHome(session?.roles, { href: "/department-tasks", label: t("Open the Department Inbox") }, t("Open My Team"))} />
       : <ErrorState message={t(error)} onRetry={() => void load()}/>)}
     {session?.authenticated && !loading && !error && <div className="space-y-4">
       <Panel title={t("Start a drill")} icon={Play}>
@@ -93,11 +101,12 @@ export function ExerciseDrills() {
           <div><label htmlFor="drill-scenario" className="field-label">{t("Scenario")}</label>
             <select id="drill-scenario" className="field" value={scenario} onChange={e => setScenario(e.target.value)}>
               {scenarios.map(s => <option key={s.id} value={s.id}>{s.title}</option>)}</select></div>
-          <Button variant="primary" type="button" disabled={busy || !scenario || !isOperator} onClick={() => act("/api/drills", { scenario_id: scenario })}>{t("Start drill")}</Button>
+          <Button variant="primary" type="button" disabled={busy || !scenario || !isOperator} onClick={() => act("/api/drills", { scenario_id: scenario }, t("Drill started. The simulated clock is at the start."))}>{t("Start drill")}</Button>
           {drills.length > 0 && <div><label htmlFor="drill-pick" className="field-label">{t("Open an earlier drill")}</label>
-            <select id="drill-pick" className="field" value={drill?.id ?? ""} onChange={e => setDrill(drills.find(d => d.id === e.target.value) ?? null)}>
+            <select id="drill-pick" className="field" value={drill?.id ?? ""} onChange={e => { setMessage(null); setMessageFailed(false); setDrill(drills.find(d => d.id === e.target.value) ?? null); }}>
               <option value="">-</option>{drills.map(d => <option key={d.id} value={d.id}>{d.title} · {simClock(d.sim_minute)}</option>)}</select></div>}
         </div>
+        {!drill && status}
       </Panel>
 
       {drill && <Panel title={drill.title} icon={AlarmClock}>
@@ -110,12 +119,13 @@ export function ExerciseDrills() {
         </div>
         <ol className="mt-3 space-y-1.5 text-xs">{drill.injected.map(i => <li key={i.evidence_id} className="flex flex-wrap items-center gap-2 tnum"><span>{simClock(i.minute)}</span><span>{i.value}</span><span>{t(i.trigger_state)}</span><RecordRef id={i.evidence_id} /></li>)}</ol>
         {drill.status === "running" && isOperator && <div className="mt-3 flex flex-wrap gap-2">
-          {STEPS.map(step => <Button size="sm" key={step} type="button" disabled={busy} onClick={() => act(`/api/drills/${drill.id}/clock`, { expected_minute: drill.sim_minute, minutes: step })}>+{step} {t("min")}</Button>)}
+          {STEPS.map(step => <Button size="sm" key={step} type="button" disabled={busy} onClick={() => act(`/api/drills/${drill.id}/clock`, { expected_minute: drill.sim_minute, minutes: step }, t("Clock moved forward."))}>+{step} {t("min")}</Button>)}
         </div>}
         <div className="mt-3 flex flex-wrap gap-2">
-          {DRILL_ACTIONS.map(action => <Button key={action} type="button" disabled={busy || !ready(action)} onClick={() => act(`/api/drills/${drill.id}/respond`, { action })}>
+          {DRILL_ACTIONS.map(action => <Button key={action} type="button" disabled={busy || !ready(action)} onClick={() => act(`/api/drills/${drill.id}/respond`, { action }, DONE_LABEL[action])}>
             <ClipboardCheck size={16}/>{t(ACTION_LABEL[action])}{drill.actions[action] ? ` · ${simClock(drill.actions[action]!.minute)}` : ""}</Button>)}
         </div>
+        {status}
         <p className="helper mt-2">{t("Approval in a drill needs a different person with the checker role, as in the real workflow.")}</p>
       </Panel>}
 
@@ -130,8 +140,7 @@ export function ExerciseDrills() {
         ]}/></div>
         <p className="mt-2 flex flex-wrap gap-1">{report.cited_event_ids.map(id => <RecordRef key={id} id={id} />)}</p>
       </Panel>}
-      <div className="flex items-center gap-3"><Button type="button" onClick={() => void load()} disabled={busy}><RefreshCw size={16}/>{t("Refresh")}</Button>
-        <span aria-live="polite" role="status" className="text-xs">{message}</span></div>
+      <div><Button type="button" onClick={() => void load()} disabled={busy}><RefreshCw size={16}/>{t("Refresh")}</Button></div>
     </div>}
   </AppShell>;
 }

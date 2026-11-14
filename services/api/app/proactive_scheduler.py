@@ -31,7 +31,7 @@ from uuid import UUID, uuid4
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app import connectors, hazard_watch, impact, proactive_run, proactive_sentinel, proactive_store
-from app.security import Operator, get_operator, require_role
+from app.security import FIXTURE_AGENCY_DETAIL, Operator, get_operator, require_role
 
 SUBJECT = "system:scheduler"
 DEFAULT_INTERVAL = 1800
@@ -276,7 +276,12 @@ def tick_view(row: dict) -> dict:
 @router.get("/scheduler")
 def get_scheduler(limit: int = Query(default=10, ge=1, le=50), operator: Operator = Depends(get_operator)):
     require_role(operator, READ_ROLES)
-    # Operators see ticks for their own verified agency only; platform_admin sees every agency.
+    # Operators see ticks for their own verified agency only; platform_admin sees every agency, but only a
+    # platform_admin of the exercise agency (another agency's admin gets the fixed 403, as on the other admin routes).
+    if "platform_admin" in operator.roles:
+        from app.intelligence_store import DEMO_AGENCY
+        if operator.agency_id != DEMO_AGENCY:
+            raise HTTPException(status_code=403, detail=FIXTURE_AGENCY_DETAIL)
     scope = None if "platform_admin" in operator.roles else operator.agency_id
     try:
         ticks = [tick_view(r) for r in proactive_store.get_store().list_ticks(scope, limit)]

@@ -8,7 +8,7 @@ import { useOperatorSession } from "../../lib/use-operator-session";
 import { codeLabel, shortId } from "../../lib/labels";
 import { pageRoles } from "../../lib/roles";
 import { TeamResponseDesk, openRequests } from "../../components/team-response-desk";
-import { alertView } from "../../lib/response-ui";
+import { alertView, istText } from "../../lib/response-ui";
 import { useResponseRequests } from "../../lib/use-response-requests";
 import { Button, EmptyState, ErrorState, Panel, PermissionState, RecordRef, SkeletonRows, StatStrip, StatTile, StatusPill, type Tone } from "../../components/ui";
 const STATE_TONE: Record<string, Tone> = { prepared: "info", acknowledged: "warning", closed: "success" };
@@ -101,16 +101,16 @@ export default function DepartmentTasks() {
           <dt className="text-xs font-semibold text-muted">{t("Proposal")}</dt><dd><RecordRef id={row.proposal_id} kind="proposal" /></dd>
           <dt className="text-xs font-semibold text-muted">{t("Incident")}</dt><dd><RecordRef id={row.incident_id} kind="incident" /></dd>
           {row.task.due_at && <><dt className="text-xs font-semibold text-muted">{t("Rehearsal target")}</dt>
-            <dd className="tnum" title={row.task.sla_status}>{new Date(row.task.due_at).toLocaleString()}{row.task.sla_status ? " · " + t(codeLabel(row.task.sla_status)) : ""}</dd></>}
+            <dd className="tnum" title={row.task.sla_status}>{istText(row.task.due_at)}{row.task.sla_status ? " · " + t(codeLabel(row.task.sla_status)) : ""}</dd></>}
         </dl>
         {row.task.events.length > 0 && <ol className="mt-3 space-y-1 border-t border-stroke/60 pt-3 text-xs text-muted">{row.task.events.map((event, index) => <li key={index} className="tnum" title={event.kind}>
-          {t(codeLabel(event.kind))} · {new Date(event.occurred_at).toLocaleString()}{event.actor_subject ? <span title={event.actor_subject}> · {shortId(event.actor_subject)}</span> : null}</li>)}</ol>}
+          {t(codeLabel(event.kind))} · {istText(event.occurred_at)}{event.actor_subject ? <span title={event.actor_subject}> · {shortId(event.actor_subject)}</span> : null}</li>)}</ol>}
         {["prepared", "acknowledged"].includes(row.task.state) && <form className="mt-4" onSubmit={event => { event.preventDefault(); void advance(row); }}>
           <label className="field-label" htmlFor={noteId}>{t("Rehearsal rationale")}</label>
           <textarea id={noteId} className="field" rows={3} minLength={10} maxLength={2000} required disabled={busy} aria-describedby={noteId + "-help"}
             value={notes[key] || ""} onChange={event => setNotes(previous => ({ ...previous, [key]: event.target.value }))}/>
           <p id={noteId + "-help"} className="helper mt-1">{t("At least 10 characters. Recorded in the audit trail; nobody is contacted.")}</p>
-          <Button type="submit" variant="primary" className="mt-3" disabled={busy || (notes[key] || "").trim().length < 10} aria-describedby={row.task.state === "acknowledged" && (open > 0 || notices[key]) ? noteId + "-close" : undefined}>{row.task.state === "prepared" ? t("Acknowledge rehearsal task") : t("Close rehearsal task")}</Button>
+          <Button type="submit" variant="primary" className="mt-3" disabled={busy || (notes[key] || "").trim().length < 10 || (row.task.state === "acknowledged" && open > 0)} aria-describedby={row.task.state === "acknowledged" && (open > 0 || notices[key]) ? noteId + "-close" : undefined}>{row.task.state === "prepared" ? t("Acknowledge rehearsal task") : t("Close rehearsal task")}</Button>
           {row.task.state === "acknowledged" && (open > 0 || notices[key]) && <p id={noteId + "-close"} role={notices[key] ? "alert" : undefined} className="mt-2 text-xs font-semibold text-amber-800 dark:text-amber-300">
             {notices[key] ? t(notices[key]) : t("Closing is blocked while this task has open team requests. Stand down or finish the task's team requests before closing it.")}</p>}
         </form>}

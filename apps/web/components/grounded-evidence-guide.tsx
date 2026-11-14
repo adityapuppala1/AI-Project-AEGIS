@@ -46,7 +46,7 @@ export function GroundedEvidenceGuide({ incidentId }: { incidentId: string }) {
       <label className="text-sm font-semibold" htmlFor={`guide-${incidentId}`}>Question about this case</label>
       <textarea id={`guide-${incidentId}`} className="field mt-2 !h-24 resize-y py-2" minLength={3} maxLength={300} disabled={busy}
         value={question} onChange={event => setQuestion(event.target.value)} placeholder="What evidence is current, and what remains unknown?"/>
-      <div className="mt-2 flex gap-2"><Button disabled={busy || question.trim().length < 3}>Ask grounded guide</Button>
+      <div className="mt-2 flex gap-2"><Button type="submit" disabled={busy || question.trim().length < 3}>Ask grounded guide</Button>
         {busy && <Button type="button" onClick={cancel}><CircleStop size={15}/>Cancel</Button>}</div>
     </form>
     {message && <p role="status" className="mt-3 text-xs text-muted">{message}</p>}

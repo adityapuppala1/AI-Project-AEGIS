@@ -257,8 +257,12 @@ def test_status_route_is_scoped_and_hides_agency(store):
     body = client.get('/v1/proactive/scheduler').json()
     assert body['enabled'] is True and body['interval_seconds'] == 1800 and len(body['ticks']) == 1
     assert body['last_tick']['runs_started'] == 1 and 'agency_id' not in body['last_tick'] and str(AGENCY) not in str(body)
-    app.dependency_overrides[get_operator] = lambda: Operator('admin', OTHER, frozenset({'platform_admin'}))
+    app.dependency_overrides[get_operator] = lambda: Operator('admin', AGENCY, frozenset({'platform_admin'}))
     assert len(client.get('/v1/proactive/scheduler').json()['ticks']) == 2
+    # Another agency's platform_admin no longer sees every agency's ticks: fixed exercise-agency 403.
+    app.dependency_overrides[get_operator] = lambda: Operator('admin', OTHER, frozenset({'platform_admin'}))
+    refused = client.get('/v1/proactive/scheduler')
+    assert refused.status_code == 403 and refused.json() == {'detail': 'Exercise records are limited to the exercise agency'}
     app.dependency_overrides[get_operator] = lambda: Operator('dept', AGENCY, frozenset({'department_operator'}), 'control_room')
     assert client.get('/v1/proactive/scheduler').status_code == 403
 

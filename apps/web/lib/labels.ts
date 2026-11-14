@@ -221,7 +221,61 @@ export function reportCodeLabel(kind: string | null | undefined, code: string | 
   if (code === "other") return pick(OTHER_CODE_LABELS, kind) ?? "Something else";
   return pick(REPORT_CODE_LABELS, code) ?? codeLabel(code);
 }
-const RESPONSE_TEXTS: string[] = [RESPONSE_FAILURE_TEXTS, RESPONSE_STATE_LABELS, REPORT_KIND_LABELS, AUTHORITY_LABELS, REPORT_CODE_LABELS, OTHER_CODE_LABELS, RESPONSE_ACTION_LABELS, RELAY_ACTION_LABELS].flatMap(table => Object.values(table));
+/** Plain sentences for the fixed failure codes the learning, drill and proactive APIs return. A raw code is never shown. */
+export const API_CODE_SENTENCES: Record<string, string> = {
+  raw_archive_missing: "The offline rainfall archive is not installed on this computer, so catalogue replay is unavailable. Use scenario replay instead.",
+  training_years_only: "Catalogue replay only covers the training years. Choose a window inside them.",
+  invalid_window: "That time window is not valid. Check the start and end dates and try again.",
+  window_required: "Choose a time window first, then try again.",
+  stats_do_not_support_change: "The statistics for this window do not support a threshold change, so no proposal was made.",
+  hazard_not_configurable: "Thresholds for this hazard cannot be changed here.",
+  proposal_would_invert_levels: "That change would put the alert levels in the wrong order, so no proposal was made.",
+  forbidden_wording: "The proposal text was refused because it makes a claim this rehearsal cannot support.",
+  independent_checker_required: "A different person with the checker role must make this decision.",
+  base_version_stale: "The thresholds changed after this proposal was written. Refresh the page and write a new proposal.",
+  proposal_not_applicable: "This proposal cannot be applied. It may already be applied or not yet approved.",
+  overlay_invalid: "The new thresholds failed a safety check and were not applied.",
+  window_config_outdated: "The thresholds changed since this window was closed. Close a new window and try again.",
+  learning_conflict: "The record changed while you were working. Refresh the page and try again.",
+  system_actor_cannot_close: "Only a signed-in person can close a window.",
+  system_actor_cannot_apply: "Only a signed-in person can apply a proposal.",
+  system_actor_cannot_respond: "Only a signed-in person can respond in a drill.",
+  unknown_hazard: "That hazard is not recognised. Choose one from the list.",
+  event_outside_window: "That event falls outside the chosen window.",
+  scenario_not_found: "That scenario was not found. Refresh the page and choose another.",
+  window_not_found: "That window was not found. Refresh the page and try again.",
+  proposal_not_found: "That proposal was not found. Refresh the page and try again.",
+  drill_not_found: "That drill was not found. Refresh the page and try again.",
+  not_found: "That record was not found. Refresh the page and try again.",
+  run_not_found: "That run was not found. Refresh the page and try again.",
+  learning_store_unavailable: "The learning records are not available right now. Try again in a moment.",
+  drill_store_unavailable: "The drill records are not available right now. Try again in a moment.",
+  proactive_store_unavailable: "The watch records are not available right now. Try again in a moment.",
+  not_an_exercise: "Drills only work on exercise records.",
+  drill_completed: "This drill has finished. Start a new drill to keep practising.",
+  clock_stale: "The drill clock moved on. Refresh the page and try again.",
+  invalid_advance: "The clock cannot move by that amount.",
+  unknown_action: "That drill step is not recognised.",
+  no_watch_yet: "No watch has been raised yet. Move the clock forward first.",
+  handoff_not_ready: "Acknowledge the watch before taking the hand-off.",
+  submit_not_ready: "Take the hand-off before submitting.",
+  approve_not_ready: "Submit first, then a checker can approve.",
+  operator_role_required: "Only the incident operator role can do this step.",
+  cap_not_drafted: "The draft has not been prepared yet. Move the run forward first.",
+  plan_not_ready: "The plan is not ready yet. Move the run forward first.",
+  invalid_reason: "The reason cannot contain line breaks or control characters. Shorten it and try again.",
+  proactive_paused: "Automation is paused by the administrator's kill switch. Drills, runs and threshold changes are blocked until it is released. Reading is not affected.",
+  invalid_proposal_fields: "Some text could not be saved. Remove unsupported characters and check the lengths, then try again.",
+  unknown_code: "That did not work. Refresh the page and try again.",
+};
+export const API_CODE_FALLBACK = API_CODE_SENTENCES.unknown_code;
+/** Sentence for a failed learning, drill or proactive call: from the fixed code when there is one, never the raw code. */
+export function apiFailureText(error: unknown, fallback: string = API_CODE_FALLBACK): string {
+  const code = typeof error === "object" && error !== null ? (error as { code?: unknown }).code : undefined;
+  if (typeof code === "string" && code) return pick(API_CODE_SENTENCES, code) ?? API_CODE_FALLBACK;
+  return error instanceof Error && error.message ? error.message : fallback;
+}
+const RESPONSE_TEXTS: string[] = [API_CODE_SENTENCES, RESPONSE_FAILURE_TEXTS, RESPONSE_STATE_LABELS, REPORT_KIND_LABELS, AUTHORITY_LABELS, REPORT_CODE_LABELS, OTHER_CODE_LABELS, RESPONSE_ACTION_LABELS, RELAY_ACTION_LABELS].flatMap(table => Object.values(table));
 
 /** True when the code has a reviewed label (rather than the generic fallback). */
 export const hasLabel = (code: string): boolean => Object.prototype.hasOwnProperty.call(LABELS, code);

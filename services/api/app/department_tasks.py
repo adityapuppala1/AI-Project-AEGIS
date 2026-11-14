@@ -1,5 +1,6 @@
 """Signed-department inbox for approved synthetic rehearsals only."""
-from typing import Literal
+from typing import Annotated, Literal
+from app.text_checks import NoNul
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, ConfigDict, Field, StrictInt
@@ -22,7 +23,7 @@ class TaskChange(BaseModel):
     operation: Literal["acknowledge_task", "close_task"]
     task_id: Literal["control_room", "infrastructure", "communications"]
     expected_assignment_version: StrictInt = Field(ge=0)
-    rationale: str = Field(min_length=10, max_length=2000)
+    rationale: Annotated[str, NoNul] = Field(min_length=10, max_length=2000)
 
 
 @router.get("")

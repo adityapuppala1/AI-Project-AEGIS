@@ -3,7 +3,10 @@ import os
 from datetime import datetime, timezone
 from uuid import UUID
 from typing import Literal
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query, Request
+from fastapi.exception_handlers import request_validation_exception_handler
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, ConfigDict
 
 from app.security import EXERCISE_RECORD_ROLES, Operator, scoped_operator
@@ -13,12 +16,54 @@ _DOCS_ON = os.environ.get("AEGIS_API_DOCS") == "1"
 app = FastAPI(title="IndTrana Exercise API", version="0.1.0", docs_url="/docs" if _DOCS_ON else None,
               redoc_url=None, openapi_url="/openapi.json" if _DOCS_ON else None)
 
+
+class DefensiveHeaders:
+    """Pure ASGI: adds nosniff to every response and no-store where the route set no Cache-Control.
+
+    Headers are added at http.response.start only, so bodies are never buffered (streaming stays streaming), and
+    nothing a route set itself (for example the brand logo's own caching and CSP) is removed or overridden.
+    """
+
+    def __init__(self, asgi_app):
+        self.app = asgi_app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            return await self.app(scope, receive, send)
+
+        async def wrapped(message):
+            if message["type"] == "http.response.start":
+                headers = list(message.get("headers", []))
+                present = {name.lower() for name, _value in headers}
+                if b"x-content-type-options" not in present:
+                    headers.append((b"x-content-type-options", b"nosniff"))
+                if b"cache-control" not in present:
+                    headers.append((b"cache-control", b"no-store"))
+                message = {**message, "headers": headers}
+            await send(message)
+
+        await self.app(scope, receive, wrapped)
+
+
+app.add_middleware(DefensiveHeaders)
+
+
+@app.exception_handler(RequestValidationError)
+async def _validation_error(request: Request, exc: RequestValidationError):
+    # The default 422 echoes the rejected input; a NaN or Infinity in it cannot be written as JSON and would turn
+    # into a 500. Keep the default reply whenever it can be rendered; otherwise answer a fixed 422.
+    try:
+        return await request_validation_exception_handler(request, exc)
+    except ValueError:
+        return JSONResponse(status_code=422, content={"detail": "invalid_number"})
+
 # Every data route needs a verified operator, an explicit role list and the exercise-agency check.
 # Only /health, /v1/exercise/system/readiness and the /v1/live/public-warning stub stay open
 # (tests/test_route_auth_inventory.py enforces this).
 EXERCISE_READ = scoped_operator(EXERCISE_RECORD_ROLES)
 
 class Observation(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     source_id: str = Field(min_length=1, max_length=100)
     rainfall_mm_hour: float = Field(ge=0, le=500)
     water_index: float = Field(ge=0, le=100)

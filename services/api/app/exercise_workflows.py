@@ -4,7 +4,7 @@ No endpoint here sends warnings or dispatches responders. Actor identity,
 assigned agency and roles MUST be taken from verified OIDC JWT claims.
 """
 from enum import Enum
-from typing import Literal
+from typing import Annotated, Literal
 from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Response
@@ -12,6 +12,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt
 
 from app.governance import Action, DecisionError
 from app.security import Operator, get_operator, require_role
+from app.text_checks import NoNul
 from app.workflow_store import create_proposal, transition, list_proposals, list_agency_exercise_incidents, proposal_audit
 
 router = APIRouter(prefix="/v1/exercise/proposals", tags=["Authenticated exercise workflow"])
@@ -21,7 +22,7 @@ class CreateProposal(BaseModel):
     model_config = ConfigDict(extra="forbid")
     incident_id: UUID
     action_type: Action
-    rationale: str = Field(min_length=10, max_length=2000)
+    rationale: Annotated[str, NoNul] = Field(min_length=10, max_length=2000)
     include_review_focus: StrictBool = False
 
 
@@ -42,7 +43,7 @@ class Operation(str, Enum):
 class ChangeProposal(BaseModel):
     model_config = ConfigDict(extra="forbid")
     operation: Operation
-    rationale: str | None = Field(default=None, max_length=2000)
+    rationale: Annotated[str, NoNul] | None = Field(default=None, max_length=2000)
     task_id: Literal["control_room", "infrastructure", "communications"] | None = None
     target_department: Literal["control_room", "infrastructure", "communications"] | None = None
     expected_assignment_version: StrictInt | None = Field(default=None, ge=0)

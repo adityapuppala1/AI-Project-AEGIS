@@ -1,5 +1,8 @@
 # Security assessment — 10 November 2026
 
+> A later round on 14 November 2026 tested the signed-in product with every demo role:
+> [SECURITY_TEST_REPORT_2026-11-14.md](SECURITY_TEST_REPORT_2026-11-14.md).
+
 Scope: the IndTrana prototype as run locally on one Windows laptop with Docker Compose (web BFF, API, PostgreSQL, local
 identity provider), branch `feat/landing-ux-security-hardening`. Tested by the development assistant, white-box, as an
 unauthenticated attacker on the same machine. **This is a developer self-assessment. It is not an independent

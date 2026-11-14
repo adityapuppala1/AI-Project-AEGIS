@@ -23,7 +23,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, ConfigDict, Field
 
 from app import connector_secrets, proactive_store
-from app.security import Operator, get_operator, require_role
+from app.intelligence_store import DEMO_AGENCY
+from app.security import Operator, get_operator, require_role, scoped_operator
 
 TIMEOUT_SECONDS = 10
 DEADLINE_SECONDS = 25
@@ -475,9 +476,8 @@ def run_test(connector_id: str) -> dict:
 router = APIRouter(prefix="/v1/proactive", tags=["proactive"], dependencies=[Depends(require_proactive)])
 
 
-def _admin(operator: Operator = Depends(get_operator)) -> Operator:
-    require_role(operator, {"platform_admin"})
-    return operator
+# Platform-wide settings: only a platform_admin of the exercise agency (another agency gets the fixed 403).
+_admin = scoped_operator(frozenset({"platform_admin"}))
 
 
 def _known(connector_id: str) -> None:
@@ -485,12 +485,23 @@ def _known(connector_id: str) -> None:
         raise HTTPException(status_code=404, detail="unknown_connector")
 
 
+MAX_UPDATE_KEYS = 32
+_ECHOABLE_KEY = re.compile(r"[a-z0-9_]{1,40}")
+
+
 class ConnectorUpdate(BaseModel):
     model_config = ConfigDict(extra="forbid")
     expected_version: int = Field(ge=0, strict=True)
     enabled: bool = Field(strict=True)
-    settings: dict = Field(default_factory=dict)
-    secrets: dict[str, str | None] = Field(default_factory=dict)
+    # Bounded well above the largest settings/secret allowlist, so an oversized map is refused before any work.
+    settings: dict = Field(default_factory=dict, max_length=MAX_UPDATE_KEYS)
+    secrets: dict[str, str | None] = Field(default_factory=dict, max_length=MAX_UPDATE_KEYS)
+
+
+def _unknown(kind: str, name: object) -> HTTPException:
+    # The client-supplied key is echoed only when it is a plain short identifier; anything else gets a fixed detail.
+    shown = name if isinstance(name, str) and _ECHOABLE_KEY.fullmatch(name) else None
+    return HTTPException(status_code=422, detail=f"unknown_{kind}:{shown}" if shown else f"unknown_{kind}")
 
 
 @router.get("/connectors")
@@ -511,7 +522,7 @@ def update_connector(connector_id: str, body: ConnectorUpdate, operator: Operato
     settings = default_settings(connector_id)
     for name, value in body.settings.items():
         if name not in spec["settings"]:
-            raise HTTPException(status_code=422, detail=f"unknown_setting:{name}")
+            raise _unknown("setting", name)
         try:
             settings[name] = spec["settings"][name][1](value)
         except ValueError:
@@ -522,7 +533,7 @@ def update_connector(connector_id: str, body: ConnectorUpdate, operator: Operato
     ops, audits = {}, []
     for name, value in body.secrets.items():
         if name not in secret_fields:
-            raise HTTPException(status_code=422, detail=f"unknown_secret:{name}")
+            raise _unknown("secret", name)
         if value is None:
             ops[name] = None
             audits.append(("clear_secret", True, {"key_name": name}))
@@ -604,7 +615,8 @@ def get_pause(operator: Operator = Depends(get_operator)):
     require_role(operator, {"incident_operator", "incident_checker", "incident_auditor", "department_operator", "platform_admin"})
     store = proactive_store.get_store()
     view = pause_view(_store_call(store.get_pause))
-    if "platform_admin" in operator.roles:
+    # The pause audit is platform-wide, so only the exercise agency's administrator sees it.
+    if "platform_admin" in operator.roles and operator.agency_id == DEMO_AGENCY:
         view["audit"] = _store_call(store.pause_audit, 20)
     return view
 

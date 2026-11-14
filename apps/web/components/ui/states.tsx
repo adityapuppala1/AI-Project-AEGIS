@@ -24,13 +24,15 @@ export function ErrorState({ message, title, onRetry, icon: Icon = ShieldAlert, 
   message: ReactNode; title?: string; onRetry?: () => void; icon?: LucideIcon; className?: string;
 }>) {
   const t = useT();
-  return <div role="alert" className={`flex flex-wrap items-start gap-3 rounded-lg border border-rose-500/30 bg-rose-500/10 p-4 ${className}`}>
-    <Icon size={18} aria-hidden="true" className="mt-0.5 shrink-0 text-rose-700 dark:text-rose-300" />
-    <div className="min-w-0 flex-1">
-      {title && <p className="text-sm font-bold text-rose-800 dark:text-rose-200">{title}</p>}
-      <p className="text-sm text-rose-800 dark:text-rose-200">{message}</p>
+  return <div role="alert" className={`flex flex-col items-start gap-3 rounded-lg border border-rose-500/30 bg-rose-500/10 p-4 sm:flex-row ${className}`}>
+    <div className="flex min-w-0 flex-1 items-start gap-3">
+      <Icon size={18} aria-hidden="true" className="mt-0.5 shrink-0 text-rose-700 dark:text-rose-300" />
+      <div className="min-w-0 flex-1">
+        {title && <p className="text-sm font-bold text-rose-800 dark:text-rose-200">{title}</p>}
+        <p className="text-sm text-rose-800 dark:text-rose-200">{message}</p>
+      </div>
     </div>
-    {onRetry && <button type="button" className="control control-sm" onClick={onRetry}><RefreshCw size={14} aria-hidden="true" />{t("Retry")}</button>}
+    {onRetry && <button type="button" className="control control-sm shrink-0" onClick={onRetry}><RefreshCw size={14} aria-hidden="true" />{t("Retry")}</button>}
   </div>;
 }
 

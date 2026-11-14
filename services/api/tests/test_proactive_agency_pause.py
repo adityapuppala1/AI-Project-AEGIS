@@ -126,6 +126,15 @@ def test_pause_change_writes_audit_with_actor_and_reason(store):
     assert view['paused'] is False and 'audit' not in view
 
 
+def test_pause_audit_only_for_exercise_agency_admin(store):
+    pause()
+    as_operator('admin-1', AGENCY_A, 'platform_admin')
+    assert len(client.get('/v1/proactive/pause').json()['audit']) == 1
+    as_operator('admin-b', AGENCY_B, 'platform_admin')
+    view = client.get('/v1/proactive/pause').json()
+    assert view['paused'] is True and 'audit' not in view
+
+
 @pytest.mark.parametrize('roles', [{'incident_operator'}, {'incident_checker'}, {'department_operator'}])
 def test_non_admin_put_is_403_and_writes_nothing(store, roles):
     as_operator('someone', AGENCY_A, *roles)

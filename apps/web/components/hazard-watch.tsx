@@ -171,7 +171,7 @@ export function HazardWatch() {
     </Panel>
 
     {effectiveGate === "checking" && <WatchSkeleton/>}
-    {effectiveGate === "error" && <ErrorState message={t("Hazard Watch is unavailable. The rest of IndTrana is unaffected.")} />}
+    {effectiveGate === "error" && <ErrorState message={t("Hazard Watch is unavailable. The rest of IndTrana is unaffected.")} onRetry={() => { setGate("checking"); void load(); }} />}
     {effectiveGate === "disabled" && <Panel>
       <h2 className="flex items-center gap-2 t-title"><Radar size={18} className="text-accent" aria-hidden="true"/>{t("Hazard Watch is switched off")}</h2>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">{t("The base IndTrana stack stays fully synthetic. Start the optional proactive profile to enable the watch.")}</p>

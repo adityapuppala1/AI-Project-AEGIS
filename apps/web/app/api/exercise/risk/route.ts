@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { apiAuthHeaders, signInRequired, upstreamAuthFailure } from "../../../../lib/api-auth";
-
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 const DRAINAGE = new Set(["good", "moderate", "limited"]);
 const ZONED_DATE = /(Z|[+-]\d{2}:\d{2})$/i;
 
 export async function POST(request: NextRequest) {
+  if (request.headers.get("origin") !== (process.env.APP_ORIGIN || "http://localhost:3000")) return NextResponse.json({ error: "Origin rejected" }, { status: 403 });
   const auth = await apiAuthHeaders();
   if (!auth) return signInRequired();
   try {
@@ -32,7 +32,8 @@ export async function POST(request: NextRequest) {
     const base = process.env.API_INTERNAL_URL || "http://localhost:8000";
     const response = await fetch(base + "/v1/exercise/risk", {
       method: "POST", headers: { ...auth, "Content-Type": "application/json" },
-      body: JSON.stringify(data), cache: "no-store", signal: AbortSignal.timeout(6000),
+      body: JSON.stringify({ source_id: data.source_id, rainfall_mm_hour: data.rainfall_mm_hour, water_index: data.water_index,
+        drainage_condition: data.drainage_condition, observed_at: data.observed_at }), cache: "no-store", signal: AbortSignal.timeout(6000),
     });
     const refused = upstreamAuthFailure(response);
     if (refused) return refused;
