@@ -12,8 +12,6 @@ The version number lives only in `apps/web/package.json`. The same entries, in p
 
 ## [Unreleased]
 
-## [Unreleased]
-
 ### Fixed
 - Bhuvan reference panel, after the first check against the real service (15 November 2026): village rows show labelled
   Census 2001 columns, land use shows each class as a share of the square with NRSC legend names (the API quotes its class
