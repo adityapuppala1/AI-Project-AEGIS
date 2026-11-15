@@ -29,6 +29,7 @@ CACHE_SECONDS = 3600
 CACHE_MAX = 200
 BACKOFF_SECONDS = 60
 MAX_BYTES = 262_144
+PROXIMITY_MAX_BYTES = 1_048_576  # a 3 km hospital answer for a city was about 316 KB when checked on 15 Nov 2026
 INDIA = {"lat": (6.0, 38.0), "lon": (68.0, 98.0)}
 # Coarse box around Andhra Pradesh: the postal and hospital theme covers only that state.
 ANDHRA = {"lat": (12.6, 19.95), "lon": (76.7, 84.8)}
@@ -135,7 +136,7 @@ def call(theme: str, params: dict, token: str):
         status, body = connectors.bounded_request(
             build_url(theme, params, token), connectors.REGISTRY[CONNECTOR]["hosts"],
             headers={"Content-Type": "application/x-www-form-urlencoded", "Accept": "application/json"},
-            max_bytes=MAX_BYTES)
+            max_bytes=PROXIMITY_MAX_BYTES if theme == "proximity" else MAX_BYTES)
     except TimeoutError:
         raise BhuvanError("timeout") from None
     except ValueError as error:
@@ -236,12 +237,72 @@ def route_summary(obj) -> dict:
             "segments": len(lines), "path": [[round(p[1], 5), round(p[0], 5)] for p in points[::step]][:301]}
 
 
+# --- shaping of the three answers checked against the real service on 15 November 2026 -------------------------
+# Village reverse geocoding returns Census 2001 rows; only these columns are shown, under plain labels.
+PLACE_LABELS = (("name1", "Village or town"), ("thq_name", "Sub-district headquarters"), ("dhq_name", "District headquarters"),
+                ("tot_p", "Population (Census 2001)"), ("no_hh", "Households (Census 2001)"))
+# Hospital rows also carry staff names and email addresses; those are never passed on.
+HOSPITAL_LABELS = (("facilityname", "Hospital"), ("facilitycategory", "Category"), ("district", "District"),
+                   ("timing", "Hours"), ("bloodbank", "Blood bank"), ("facilityaddress", "Address"))
+# LULC 1:50,000 class names follow the NRSC legend; the API itself returns only the class codes.
+LULC_CLASSES = {
+    "01": "Built-up (urban)", "02": "Built-up (rural)", "03": "Built-up (mining)", "04": "Agriculture (crop land)",
+    "05": "Agriculture (plantation)", "06": "Agriculture (fallow)", "07": "Agriculture (shifting cultivation)",
+    "08": "Forest (evergreen or semi-evergreen)", "09": "Forest (deciduous)", "10": "Forest (plantation)",
+    "11": "Forest (scrub)", "12": "Forest (swamp or mangrove)", "13": "Grass or grazing land",
+    "14": "Wasteland (salt affected)", "15": "Wasteland (gullied or ravinous)", "16": "Wasteland (scrub land)",
+    "17": "Wasteland (sandy area)", "18": "Wasteland (barren rocky)", "19": "Rann", "20": "Wetland (inland)",
+    "21": "Wetland (coastal)", "22": "River or stream or canal", "23": "Water bodies", "24": "Snow and glacier",
+}
+_LULC_KEY = re.compile(r"l(\d{2})")
+
+
+def _labelled(items, labels, limit) -> list[list[dict]]:
+    out = []
+    for item in items[:limit] if isinstance(items, list) else []:
+        if not isinstance(item, dict):
+            continue
+        row = [{"key": label, "value": value} for name, label in labels
+               if (value := _scalar(item.get(name))) is not None]
+        if row:
+            out.append(row)
+    return out
+
+
+def landuse_rows(parsed) -> list[dict]:
+    """Share of the square per LULC class, largest first. Unknown codes keep their code as the label."""
+    item = parsed[0] if isinstance(parsed, list) and parsed else parsed
+    if not isinstance(item, dict):
+        return []
+    areas = []
+    for key, value in item.items():
+        match = _LULC_KEY.fullmatch(str(key).strip("'\" ").lower())
+        if match and isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value) and value > 0:
+            areas.append((match.group(1), float(value)))
+    total = sum(area for _, area in areas)
+    if not total:
+        return []
+    return [{"key": f"{LULC_CLASSES.get(code, 'Class')} - class {code}", "value": f"{round(100 * area / total)}% of the square"}
+            for code, area in sorted(areas, key=lambda pair: -pair[1])][:12]
+
+
 def _summarise(kind: str, parsed) -> dict:
     if parsed is None:
         return {"no_data": True}
     if kind == "route":
         return {"no_data": False, **route_summary(parsed)}
-    if kind in ("hospitals", "village"):
+    if kind == "place":
+        rows = _labelled(parsed, PLACE_LABELS, 5)
+        if rows:
+            return {"no_data": False, "records": rows}
+    if kind == "hospitals":
+        rows = _labelled(parsed, HOSPITAL_LABELS, 20)
+        return {"no_data": not rows, "records": rows}
+    if kind == "landuse":
+        rows = landuse_rows(parsed)
+        if rows:
+            return {"no_data": False, "fields": rows}
+    if kind == "village":
         rows = records(parsed)
         return {"no_data": not rows, "records": rows}
     rows = flatten(parsed)

@@ -164,3 +164,18 @@ def test_reference_routes_off_without_proactive(setup, monkeypatch):
 def test_sanitiser_drops_markup_and_long_text():
     rows = bhuvan.flatten({'name': '<i>Village</i>', 'x' * 80: 'drop', 'n': 3, 'nested': {'a': [1, {'b': 'ok'}]}})
     assert {'key': 'name', 'value': 'Village'} in rows and all(len(r['key']) <= 60 for r in rows)
+
+
+def test_real_answer_shapes_checked_on_15_november_2026():
+    # Land use: the API quotes its class codes; shares are shown, largest first, with legend names.
+    rows = bhuvan._summarise("landuse", [{"State": "AP", "'l01'": 2.13, "'l23'": 2.8}])["fields"]
+    assert [row["key"] for row in rows] == ["Water bodies - class 23", "Built-up (urban) - class 01"]
+    assert rows[0]["value"] == "57% of the square"
+    # Village rows: only the labelled Census columns are passed on.
+    place = bhuvan._summarise("place", [{"name1": "HYDERABAD", "vid": "28", "tot_p": "3612427", "p_sc": "1", "dhq_name": "HYDERABAD"}])
+    assert [row["key"] for row in place["records"][0]] == ["Village or town", "District headquarters", "Population (Census 2001)"]
+    # Hospital rows carry staff names and email addresses upstream; they never leave the module.
+    hospital = bhuvan._summarise("hospitals", [{"facilityname": "General Hospital", "inchargemedicalofficer": "A PERSON",
+                                               "emailid": "x@example.invalid", "timing": "24 x 7", "district": "Krishna"}])
+    text = str(hospital)
+    assert "A PERSON" not in text and "example.invalid" not in text and "General Hospital" in text
