@@ -19,11 +19,20 @@ An administrator can change the product name and logo shown in the browser, or r
 
 ## Version and release notes
 
-The current version is **0.3.0** (the number lives only in `apps/web/package.json`). Signed-in users see what changed in
+The current version is **0.5.0** (the number lives only in `apps/web/package.json`). Signed-in users see what changed in
 each version on the **What's new** page (`/whats-new`, a tab beside Help & Learning, also linked from the account menu and
 the version in the menu footer); 0.3.0 is the first tagged release and earlier versions are summaries of earlier work without a tag. The developer history is [CHANGELOG.md](CHANGELOG.md), and
 [docs/RELEASE_PROCESS.md](docs/RELEASE_PROCESS.md) explains how a version is cut: bump, release-notes entry, changelog
 entry, checks, commit, annotated `vX.Y.Z` tag, push (no force).
+
+## Live Bhuvan reference and data-origin badges
+
+With the proactive option on and an administrator's Bhuvan tokens pasted on **Administration > Connectors**, the
+incident page shows **Bhuvan reference (live)**: village and district, land use around the case, a reference road route
+from a synthetic team base and (Andhra Pradesh only) nearby hospitals, from ISRO/NRSC's Bhuvan API. Every view carries a
+badge: **Live · Bhuvan** with its time, **Synthetic** for seeded exercise data, **Public reference** for public feeds.
+Tokens last one day and are pasted by hand (the Bhuvan sign-in has a CAPTCHA). Nothing is stored or dispatched. See
+[docs/BHUVAN_CONNECTORS.md](docs/BHUVAN_CONNECTORS.md).
 
 ## Guided tours
 

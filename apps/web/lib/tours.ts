@@ -106,6 +106,7 @@ export const TOURS: readonly Tour[] = [
       purpose("One synthetic case: where it is, what evidence it rests on, what happened and when, and whether the evidence is ready for a human assessment."),
       step("overview", "case-overview", "Case overview", "The hazard, status and the time the case was opened, with a button to copy the case reference. Every case is labelled as a synthetic exercise."),
       step("tabs", "case-tabs", "Overview, Evidence, Timeline and Readiness", "Overview shows the map and the interpretation. Evidence and provenance lists each source record and where it came from. Timeline is the recorded sequence of events. Readiness checks whether the evidence is enough for a person to assess."),
+      step("bhuvan", "bhuvan-reference", "Bhuvan reference (live)", "Real reference data from ISRO's Bhuvan geoportal for this location: village name, land use around the case, a reference road route from a synthetic team base, and hospitals in Andhra Pradesh. It is marked Live · Bhuvan with its time; the case stays Synthetic. Nothing is stored or dispatched."),
       step("readiness", "case-readiness", "Human assessment readiness", "A checklist of the evidence a person would want before assessing the case. It prepares a human review and does not decide anything."),
       step("team", "case-team", "Team response", "Shows the exercise team requests that department desks made for this case. It is read-only here; requests are made from the Department Inbox."),
       neverFrom("/incidents"),

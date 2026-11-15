@@ -7,12 +7,13 @@ import {
   cleanAudit, cleanConnector, cleanConnectors, cleanHistory, cleanObservability, cleanPause, cleanPlan, cleanRefresh, cleanRun, cleanRunList, cleanScheduler, cleanTestResult, cleanTriggersConfig, cleanWatch,
   isConnectorId, isObject, isRunStep, isUuid,
 } from "./proactive";
+import { cleanBhuvanTokens, isBhuvanTheme } from "./bhuvan";
 
 export type ProactiveRoute =
   | "connectors" | "connector_save" | "connector_test" | "connector_audit"
   | "watch" | "watch_history" | "watch_refresh" | "triggers_config"
   | "run_create" | "run_list" | "run_get" | "run_advance" | "run_cancel" | "run_cap" | "run_plan" | "run_observability"
-  | "pause_get" | "pause_set" | "scheduler";
+  | "pause_get" | "pause_set" | "scheduler" | "bhuvan_tokens" | "bhuvan_token_test";
 
 const MAX_BODY = 8000;
 const RESERVED = new Set(["__proto__", "constructor", "prototype"]);
@@ -31,6 +32,7 @@ const hasRole = (roles: Role[], ...expected: Role[]) => roles.some(role => expec
 
 function rolesFor(route: ProactiveRoute): Role[] {
   if (route === "connectors" || route === "connector_save" || route === "connector_test" || route === "connector_audit") return ["platform_admin"];
+  if (route === "bhuvan_tokens" || route === "bhuvan_token_test") return ["platform_admin"];
   if (WATCH_READS.has(route)) return EVERY_ROLE;  // read_watch row in lib/roles.ts
   if (route === "watch_refresh") return ["incident_operator", "platform_admin"];
   // Kill switch: any signed-in operator may read it; only platform_admin may change it.
@@ -64,7 +66,7 @@ function validateSave(data: Record<string, unknown>): string | { error: Response
   if (data.secrets !== undefined) {
     if (!isObject(data.secrets)) return bad("Invalid secrets");
     const keys = Object.keys(data.secrets);
-    if (keys.length > 6) return bad("Too many secrets");
+    if (keys.length > 8) return bad("Too many secrets");
     for (const key of keys) {
       const value = data.secrets[key];
       if (!SECRET_KEY.test(key) || RESERVED.has(key)) return bad("Invalid secret name");
@@ -86,6 +88,8 @@ function buildRequest(route: ProactiveRoute, id: string | undefined, url: URL, d
       const body = validateSave(data ?? {});
       return typeof body === "string" ? { path: `${base}/connectors/${id}`, method: "PUT", body } : body;
     }
+    case "bhuvan_tokens": return { path: `${base}/bhuvan/tokens`, method: "GET" };
+    case "bhuvan_token_test": return isBhuvanTheme(id) ? { path: `${base}/bhuvan/tokens/${id}/test`, method: "POST", body: "{}" } : bad("Unknown Bhuvan theme");
     case "watch": return { path: `${base}/watch`, method: "GET" };
     case "watch_history": {
       const raw = url.searchParams.get("days") ?? "7";
@@ -127,7 +131,8 @@ function clean(route: ProactiveRoute, payload: unknown): unknown {
   switch (route) {
     case "connectors": return cleanConnectors(payload);
     case "connector_save": { const c = cleanConnector(payload); if (!c) throw new Error("invalid"); return c; }
-    case "connector_test": { const r = cleanTestResult(payload); if (!r) throw new Error("invalid"); return r; }
+    case "connector_test": case "bhuvan_token_test": { const r = cleanTestResult(payload); if (!r) throw new Error("invalid"); return r; }
+    case "bhuvan_tokens": return cleanBhuvanTokens(payload);
     case "connector_audit": return { rows: cleanAudit(payload) };
     case "watch": return cleanWatch(payload);
     case "watch_history": return cleanHistory(payload);
@@ -159,7 +164,7 @@ export async function proxyProactive(request: Request, route: ProactiveRoute, id
     if (isWrite && !sameOrigin(request, config)) return failure(403, "Invalid request origin");
     if (!hasRole(session.roles, ...rolesFor(route))) return failure(403, "Insufficient role");
   }
-  const expectedMethod = ({ connector_save: "PUT", pause_set: "PUT", connector_test: "POST", watch_refresh: "POST", run_create: "POST", run_advance: "POST", run_cancel: "POST" } as Partial<Record<ProactiveRoute, string>>)[route] ?? "GET";
+  const expectedMethod = ({ connector_save: "PUT", pause_set: "PUT", connector_test: "POST", bhuvan_token_test: "POST", watch_refresh: "POST", run_create: "POST", run_advance: "POST", run_cancel: "POST" } as Partial<Record<ProactiveRoute, string>>)[route] ?? "GET";
   if (request.method !== expectedMethod) return failure(405, "Method not allowed");
 
   let data: Record<string, unknown> | null = null;

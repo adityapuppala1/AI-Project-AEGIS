@@ -17,7 +17,8 @@ import { PublicSignalsNearCase } from "./public-signals-near-case";
 import { SituationBriefButton } from "./situation-brief-button";
 import { IncidentTeamResponse } from "./incident-team-response";
 import { useT } from "./language-provider";
-import { CopyButton, DataFreshness, EmptyState, KeyValueList, Panel, StatStrip, StatTile, StatusPill, TabPanel, Tabs, buttonClass } from "./ui";
+import { BhuvanReference } from "./bhuvan-reference";
+import { CopyButton, DataFreshness, DataOrigin, EmptyState, KeyValueList, Panel, StatStrip, StatTile, StatusPill, TabPanel, Tabs, buttonClass } from "./ui";
 import type { IncidentWorkspace, IncidentEvent, IncidentEvidence } from "../lib/incident-intelligence";
 
 type View = "overview" | "evidence" | "timeline" | "readiness";
@@ -88,7 +89,7 @@ export function IncidentIntelligence({ workspace }: { workspace: IncidentWorkspa
           <h2 className="mt-2 text-xl font-bold tracking-tight sm:text-2xl">{incident.hazard_type}</h2>
           <div className="mt-3 flex flex-wrap items-center gap-3">
             <StatusBadge status={incident.status}/>
-            <StatusPill tone="sample">{t("Synthetic exercise")}</StatusPill>
+            <DataOrigin kind="synthetic"/>
             <span className="text-xs text-muted">{t("Case opened")} {timeInIndia(incident.created_at)}</span>
             <DataFreshness observedAt={incident.created_at} staleAfterHours={YEARS}/>
           </div>
@@ -109,6 +110,7 @@ export function IncidentIntelligence({ workspace }: { workspace: IncidentWorkspa
 
     <TabPanel idPrefix="case" value="overview" active={view === "overview"}>
       <PublicSignalsNearCase lat={incident.lat} lon={incident.lon}/>
+      <BhuvanReference lat={incident.lat} lon={incident.lon}/>
       <div className="grid items-start gap-5 2xl:grid-cols-[minmax(0,1.55fr)_minmax(330px,1fr)]">
         <Panel title={t("Geospatial context")} icon={MapPinned} description={t("Single simulated case marker · MapLibre")} className="min-w-0 overflow-hidden"
           actions={<StatusPill tone="neutral">{t("2D exercise view")}</StatusPill>}>

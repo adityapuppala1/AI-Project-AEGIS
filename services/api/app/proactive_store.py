@@ -42,14 +42,16 @@ class PgStore:
         with self._connect() as conn, conn.cursor() as cur:
             cur.execute("SELECT connector_id, enabled, settings, version, updated_at, updated_by FROM connector_config")
             configs = {row["connector_id"]: dict(row) for row in cur.fetchall()}
-            cur.execute("SELECT connector_id, key_name, fingerprint FROM connector_secrets")
+            cur.execute("SELECT connector_id, key_name, fingerprint, updated_at FROM connector_secrets")
             secrets: dict = {}
+            secret_saved: dict = {}
             for row in cur.fetchall():
                 secrets.setdefault(row["connector_id"], {})[row["key_name"]] = row["fingerprint"]
+                secret_saved.setdefault(row["connector_id"], {})[row["key_name"]] = row["updated_at"]
             cur.execute("""SELECT DISTINCT ON (connector_id) connector_id, ok, detail, at FROM connector_audit
                            WHERE action='test' AND NOT (detail ? 'input_tokens') ORDER BY connector_id, at DESC""")
             tests = {row["connector_id"]: dict(row) for row in cur.fetchall()}
-        return {"configs": configs, "secrets": secrets, "tests": tests}
+        return {"configs": configs, "secrets": secrets, "tests": tests, "secret_saved": secret_saved}
 
     def get_secret(self, connector_id: str, key_name: str):
         with self._connect() as conn, conn.cursor() as cur:
@@ -332,7 +334,8 @@ class MemoryStore:
                 tests[row["connector_id"]] = row
         return {"configs": deepcopy(self.configs),
                 "secrets": {cid: {k: v[2] for k, v in items.items()} for cid, items in self.secrets.items()},
-                "tests": deepcopy(tests)}
+                "tests": deepcopy(tests),
+                "secret_saved": {cid: {k: (v[3] if len(v) > 3 else None) for k, v in items.items()} for cid, items in self.secrets.items()}}
 
     def get_secret(self, connector_id, key_name):
         value = self.secrets.get(connector_id, {}).get(key_name)
@@ -349,7 +352,7 @@ class MemoryStore:
                 if op is None:
                     self.secrets.get(connector_id, {}).pop(name, None)
                 else:
-                    self.secrets.setdefault(connector_id, {})[name] = (op[0], op[1], op[2])
+                    self.secrets.setdefault(connector_id, {})[name] = (op[0], op[1], op[2], _now())
             for action, ok, detail in audits:
                 self.add_audit(connector_id, action, ok, detail, actor)
 

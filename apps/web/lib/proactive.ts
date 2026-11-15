@@ -9,7 +9,7 @@ export type Scalar = string | number | boolean | null;
 export type Bag = Record<string, Scalar | Scalar[]>;
 
 export const CONNECTOR_IDS = ["open_meteo", "nasa_firms", "nasa_lhasa", "copernicus_cdse", "imd_warnings", "gdacs", "google_flood_forecasting", "typesafe_jev", "cap_handover", "authority_notification",
-  "comms_in_app", "comms_email", "comms_sms", "comms_whatsapp"] as const;
+  "comms_in_app", "comms_email", "comms_sms", "comms_whatsapp", "isro_bhuvan"] as const;
 export type ConnectorId = (typeof CONNECTOR_IDS)[number];
 export const RUN_STEPS = ["gather_evidence", "simulate_variants", "judge", "draft_cap", "plan_prepositioning", "hand_to_human"] as const;
 /** Runs created before the A5 plan step keep their original five steps. */
@@ -51,7 +51,7 @@ export interface PauseAuditRow { paused: boolean; reason: string; actor: string;
 export interface PauseState { paused: boolean; reason: string | null; updated_at: string | null; updated_by: string | null; audit?: PauseAuditRow[] }
 export interface HistoryDay { day: string; hazard: string; state: TriggerState; count: number }
 export interface HistoryPayload { days: number; rows: HistoryDay[] }
-export interface ConnectorField { name: string; label: string; secret: boolean; required: boolean; set: boolean; fingerprint: string | null }
+export interface ConnectorField { name: string; label: string; secret: boolean; required: boolean; set: boolean; fingerprint: string | null; saved_at?: string | null; expires_at?: string | null; expired?: boolean }
 export interface TestResult { ok: boolean; status_code: number | null; latency_ms: number | null; message: string; at: string | null }
 export interface Connector {
   id: string; name: string; category: string; licence: string; hosts: string[]; enabled: boolean; version: number;
@@ -318,9 +318,11 @@ export function cleanConnector(item: unknown): Connector | null {
     const fp = text(field.fingerprint, 8);
     // Only the 8-hex fingerprint is ever shown, never a value.
     return [{ name, label: text(field.label, 80) ?? name, secret: field.secret === true, required: field.required === true,
-      set: field.set === true, fingerprint: fp && /^[0-9a-f]{8}$/i.test(fp) ? fp : null }];
+      set: field.set === true, fingerprint: fp && /^[0-9a-f]{8}$/i.test(fp) ? fp : null,
+      // Day-long tokens (Bhuvan) also carry when they were saved and expire; the value itself never.
+      ...("expires_at" in field ? { saved_at: timestamp(field.saved_at), expires_at: timestamp(field.expires_at), expired: field.expired === true } : {}) }];
   }) : [];
-  return { id: item.id, name: text(item.name, 80) ?? item.id, category: text(item.category, 60) ?? "", licence: text(item.licence, 200) ?? "",
+  return { id: item.id, name: text(item.name, 80) ?? item.id, category: text(item.category, 60) ?? "", licence: text(item.licence, 320) ?? "",
     hosts: Array.isArray(item.hosts) ? item.hosts.map(h => text(h, 120)).filter((h): h is string => !!h).slice(0, 8) : [],
     delivery: item.delivery === "built_in" || item.delivery === "locked" || item.delivery === "send" ? item.delivery : null,
     enabled: item.enabled === true, version: Number.isSafeInteger(item.version) ? Number(item.version) : 0,

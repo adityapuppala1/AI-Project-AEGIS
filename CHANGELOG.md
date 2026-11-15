@@ -12,6 +12,27 @@ The version number lives only in `apps/web/package.json`. The same entries, in p
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-15
+
+Branch `Aegis_IndTrana`. Windows laptop only. Status and evidence: [docs/LOCAL_DEMO_HANDOFF.md](docs/LOCAL_DEMO_HANDOFF.md),
+round 29. Not tagged yet.
+
+### Added
+- ISRO/NRSC Bhuvan API connector `isro_bhuvan` ([docs/BHUVAN_CONNECTORS.md](docs/BHUVAN_CONNECTORS.md)): one encrypted
+  token per portal theme (postal and hospital, village geocoding, village reverse geocoding, LULC statistics, LULC AOI,
+  routing, geoid), fixed host `bhuvan-app1.nrsc.gov.in`, per-token save time, 24-hour expiry and "expired, renew" state,
+  and a per-token Test (`POST /v1/proactive/bhuvan/tokens/{theme}/test`, platform_admin). Manual paste only: the portal
+  sign-in has a CAPTCHA, so no automated renewal is built.
+- Display-only live reference routes `GET /v1/reference/bhuvan/{status,place,landuse,route,hospitals,village}`
+  (explicit roles, exercise agency, India bounding box, Andhra Pradesh box for hospitals, one-hour in-memory cache,
+  fixed failure codes, nothing written to PostgreSQL) and the "Bhuvan reference (live)" panel on the incident page.
+- `DataOrigin` kit badge (Live · source with as-of time, Synthetic, Public reference) and legend; Synthetic badges on the
+  incident registry, incident header and Command Center selected case.
+
+### Changed
+- Connector secret maps accept up to 8 keys in the web proxy (Bhuvan has 7 tokens); `connector_secrets.updated_at` is
+  now read for connectors with day-long tokens.
+
 ## [0.4.0] - 2026-11-15
 
 Branch `Aegis_IndTrana`. Windows laptop only; nothing here was run on Linux or macOS. Status and evidence:
@@ -142,5 +163,6 @@ First local synthetic demonstration (repository started 16 October 2026).
 - Proposals with independent maker-checker approval, an approved-only CAP exercise draft and a staged scripted task workflow.
 - Product vision, architecture, security and delivery documents under `docs/`.
 
+[0.5.0]: https://github.com/adityapuppala1/AI-Project-AEGIS/releases/tag/v0.5.0
 [0.4.0]: https://github.com/adityapuppala1/AI-Project-AEGIS/releases/tag/v0.4.0
 [0.3.0]: https://github.com/adityapuppala1/AI-Project-AEGIS/releases/tag/v0.3.0

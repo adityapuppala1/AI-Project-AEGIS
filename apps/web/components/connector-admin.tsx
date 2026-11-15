@@ -8,7 +8,7 @@ import { ErrorState } from "./ui";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Activity, AlertTriangle, Ban, CheckCircle2, ChevronDown, CircleDashed, CircleHelp, Cloud, Eraser, ExternalLink, Eye, EyeOff, FileOutput, FlaskConical, Flame, Gavel, History, KeyRound,
-  BellRing, Globe2, Loader2, Lock, Mail, MessageCircle, MessageSquareText, Mountain, Plug, Power, PowerOff, Satellite, Save, ShieldCheck, Sparkles, Undo2, Waves, X, XCircle, type LucideIcon,
+  BellRing, Globe2, Loader2, Lock, Mail, MapPinned, MessageCircle, MessageSquareText, Mountain, Plug, Power, PowerOff, Satellite, Save, ShieldCheck, Sparkles, Undo2, Waves, X, XCircle, type LucideIcon,
 } from "lucide-react";
 import { AppShell } from "./app-shell";
 import { ProactivePauseControl } from "./proactive-pause";
@@ -20,6 +20,7 @@ import { buildSampleAudit, buildSampleConnectors } from "../lib/proactive-sample
 import { formatIst } from "../lib/earth-watch";
 import { codeLabel } from "../lib/labels";
 import { SendTestButton, StaffEmailLog } from "./staff-email";
+import { hoursLeft, isBhuvanTheme } from "../lib/bhuvan";
 
 type Notice = { tone: "ok" | "error"; text: string };
 type Settings = Record<string, string | number | boolean>;
@@ -39,6 +40,7 @@ const META: Record<string, Meta> = {
   imd_warnings: { icon: Gavel, can: "Read official IMD warnings once the terms are confirmed.", cannot: "Run before the terms are accepted.", where: "No key. Confirm the IMD terms of use before ticking the box.", url: "https://mausam.imd.gov.in/", urlLabel: "IMD" },
   gdacs: { icon: Globe2, can: "Read public GDACS disaster event alerts inside the India bounding box.", cannot: "Replace official warnings or reach other hosts.", where: "No key needed. Confirm the GDACS terms of use first.", url: "https://www.gdacs.org/", urlLabel: "GDACS" },
   google_flood_forecasting: { icon: Waves, can: "Read Google flood gauge forecasts near the Hyderabad grid.", cannot: "Run before a platform admin saves an approved API key.", where: "An API key from the Google Flood Forecasting waitlist (approval pending).", url: "https://developers.google.com/flood-forecasting", urlLabel: "Google Flood Forecasting" },
+  isro_bhuvan: { icon: MapPinned, can: "Show live Bhuvan reference on the incident workspace: village name, land use around the case and a reference road route. Each theme has its own token that lasts one day.", cannot: "Sign in to Bhuvan for you (the portal has a CAPTCHA), store Bhuvan data, or feed cases, proposals, tasks, warnings or CAP.", where: "Sign in on the Bhuvan API portal, open Access Token, generate a token per theme and paste each one here. Repeat each day.", url: "https://bhuvan-app1.nrsc.gov.in/api/", urlLabel: "Bhuvan API portal" },
   typesafe_jev: { icon: Sparkles, can: "Judge among fixed playbook options using cited evidence.", cannot: "Write proposals, approve or send anything.", where: "An API key from your TypeSafe account (paid)." },
   cap_handover: { icon: FileOutput, can: "Export an Exercise CAP file that a person downloads.", cannot: "Transmit the file anywhere.", where: "Nothing to enter." },
   authority_notification: { icon: Ban, can: "Show that hand-over is a human step.", cannot: "Ever be enabled. IndTrana sends no notifications.", where: "Nothing to enter." },
@@ -84,6 +86,35 @@ function AuditTimeline({ rows, name, now }: Readonly<{ rows: AuditRow[]; name: s
       <p className="text-muted" title={formatIst(row.at)}>{age ? (age.unit === "now" ? t("just now") : `${age.n} ${t(age.unit)} ${t("ago")}`) : t("time unknown")}</p>
     </li>;
   })}</ol>;
+}
+
+/** Day-long token state (Bhuvan): saved time, expiry countdown or a clear "expired, renew" state, and a per-token test. */
+function TokenExpiry({ field, theme, preview, onToast }: Readonly<{ field: Connector["fields"][number]; theme: string; preview: boolean; onToast: (notice: Notice) => void }>) {
+  const t = useT();
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState<TestResult | null>(null);
+  const now = Date.now();
+  const left = hoursLeft(field.expires_at, now);
+  async function test() {
+    if (preview || !isBhuvanTheme(theme)) return;
+    setBusy(true);
+    try {
+      const response = await call<TestResult>(`/api/proactive/bhuvan/tokens/${theme}/test`, { method: "POST" });
+      if (response.ok) { setResult(response.data); onToast({ tone: response.data.ok ? "ok" : "error", text: `${field.label}: ${response.data.ok ? t("Test passed") : t("Test failed")} · ${t(codeLabel(response.data.message))}` }); }
+      else onToast({ tone: "error", text: response.data.error ?? t("Test failed") });
+    } catch { onToast({ tone: "error", text: t("Test failed") }); }
+    setBusy(false);
+  }
+  if (!field.set) return <p className="mt-1 text-[11px] text-muted">{t("No token saved for this theme.")}</p>;
+  return <div className="mt-1.5 flex flex-wrap items-center gap-2 text-[11px]">
+    {field.expired || (left !== null && left < 0)
+      ? <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/10 px-2 py-0.5 font-bold text-rose-700 ring-1 ring-rose-500/30 dark:text-rose-300"><XCircle size={12} aria-hidden="true"/>{t("Expired, renew")}</span>
+      : <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 font-bold text-emerald-800 ring-1 ring-emerald-500/30 dark:text-emerald-300"><CheckCircle2 size={12} aria-hidden="true"/>{left === null ? t("Saved") : `${t("Valid")} · ${left} ${t("h left")}`}</span>}
+    <span className="text-muted">{t("Saved")} {formatIst(field.saved_at ?? "")} · {t("expires")} {formatIst(field.expires_at ?? "")}</span>
+    {theme !== "geoid" && <Button size="sm" type="button" onClick={test} disabled={busy || preview}>
+      {busy ? <Loader2 size={13} className="animate-spin" aria-hidden="true"/> : <Activity size={13} aria-hidden="true"/>}{t("Test this token")}</Button>}
+    {result && <span className={result.ok ? "text-emerald-800 dark:text-emerald-300" : "text-rose-700 dark:text-rose-300"}>{result.ok ? t("Test passed") : t("Test failed")} · {t(codeLabel(result.message))} · {result.latency_ms ?? "n/a"} ms</span>}
+  </div>;
 }
 
 function ConnectorCard({ connector, masterKey, preview, now, onToast, onSaved }: Readonly<{ connector: Connector; masterKey: boolean; preview: boolean; now: number; onToast: (notice: Notice) => void; onSaved: () => void }>) {
@@ -193,6 +224,8 @@ function ConnectorCard({ connector, masterKey, preview, now, onToast, onSaved }:
         {meta.url && <a href={meta.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-9 items-center gap-1 font-semibold text-accent underline underline-offset-2">{meta.urlLabel}<ExternalLink size={12} aria-hidden="true"/><span className="sr-only">({t("opens in a new tab")})</span></a>}</p>
       {readOnly && <p className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs leading-5 text-amber-800 dark:text-amber-200" role="note">
         <Lock size={16} className="mt-0.5 shrink-0" aria-hidden="true"/>{t("Read-only. IndTrana never sends warnings or notifications to authorities; this connector cannot be enabled. Hand-over is a CAP file a human downloads.")}</p>}
+      {connector.id === "isro_bhuvan" && <p className="flex items-start gap-2 rounded-lg border border-sky-500/30 bg-sky-500/10 p-3 text-xs leading-5 text-sky-900 dark:text-sky-200" role="note">
+        <KeyRound size={16} className="mt-0.5 shrink-0" aria-hidden="true"/>{t("Tokens are pasted by hand. The Bhuvan sign-in page has a CAPTCHA, so IndTrana does not sign in or renew tokens for you. Each token expires one day after it is issued; the expiry shown here counts from when you saved it. Data is shown as live reference only and is never stored.")}</p>}
       {channel && <p className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs leading-5 text-amber-800 dark:text-amber-200" role="note">
         <Lock size={16} className="mt-0.5 shrink-0" aria-hidden="true"/>{channel === "built_in"
           ? t("This is how IndTrana alerts people today: a request, task or approval shows on the page and as a number on the menu, only for people who are signed in. Nothing leaves this server.")
@@ -220,6 +253,7 @@ function ConnectorCard({ connector, masterKey, preview, now, onToast, onSaved }:
             <Button type="button" disabled={!field.set || busy !== ""} aria-pressed={pendingClear} onClick={() => setSecrets(current => { const next = { ...current }; if (next[field.name] === null) delete next[field.name]; else next[field.name] = null; return next; })}>{pendingClear ? t("Undo clear") : t("Clear")}</Button>
           </div>
           <p id={hint} className="mt-1 text-[11px] text-muted">{pendingClear ? t("Will be cleared when you save.") : t("Write-only. The stored value is never shown; leave blank to keep it.")}</p>
+          {field.expires_at !== undefined && <TokenExpiry field={field} theme={field.name.replace(/^token_/, "")} preview={preview} onToast={onToast}/>}
         </div>;
       })}
       {secretsPending && !masterKey && <p className="text-xs text-rose-700 dark:text-rose-300">{t("The master key is not configured, so secrets cannot be saved.")}</p>}

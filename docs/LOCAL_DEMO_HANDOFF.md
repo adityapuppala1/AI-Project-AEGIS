@@ -20,6 +20,24 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Round 29: ISRO Bhuvan connectors and data-origin badges, version 0.5.0 — 15 November 2026 (Windows laptop)
+
+Branch `Aegis_IndTrana`, base `46e0154` (v0.4.0), uncommitted (no commit, push or tag). Docs:
+[BHUVAN_CONNECTORS.md](BHUVAN_CONNECTORS.md), spec [specs/BHUVAN_CONNECTORS.md](specs/BHUVAN_CONNECTORS.md).
+
+- **Completed:** `isro_bhuvan` connector (7 encrypted tokens, fixed host, 24 h expiry per token, per-token test);
+  display-only `/v1/reference/bhuvan/*` routes; "Bhuvan reference (live)" panel on the incident page; `DataOrigin`
+  badge (Live · source, Synthetic, Public reference) on the panel, incident header, incident registry and Command
+  Center selected case; page help, tour step, release notes, CHANGELOG, AGENTS.md, README, version 0.5.0.
+- **Checks (Windows):** API `.venv` `python -m pytest -q` 1476 passed, 30 skipped; `python -m app.model_lab --check` PASS;
+  web `npm run typecheck` clean; `node --test scripts/tests/*.test.cjs` 422 passed. Stack rebuilt with guarded
+  `aegis.cmd stop` / `aegis.cmd start` (web 3000, API 8000 healthy). Browser run as demo-admin (Connectors card renders,
+  no page errors) and demo-maker (incident panel renders with fixed "connector is switched off" messages, no horizontal
+  scroll at 390 px, no page errors). Screenshots `docs/screenshots/bhuvan-*.png`.
+- **Blocked / pending:** no Bhuvan token exists yet and the portal sign-in has a CAPTCHA (not bypassed), so the connector
+  is not enabled and **no live Bhuvan response has been seen**. Owner step: sign in on the portal, generate tokens, paste
+  them on Connectors, test each, enable. Automated renewal is not built (CAPTCHA and terms).
+
 ## Round 28b: Network Identifier Master, version 0.4.0 — 15 November 2026 (Windows laptop)
 
 Branch `Aegis_IndTrana`, uncommitted on top of 18908d5 (shared with round 28). Doc:

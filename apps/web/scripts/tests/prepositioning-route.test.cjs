@@ -20,7 +20,7 @@ function compile(file, deps) {
 }
 const lib = compile('lib/proactive.ts', {});
 const load = (session, configured = true) => compile('lib/proactive-proxy.ts', {
-  'next/server': { NextResponse }, './proactive': lib,
+  'next/server': { NextResponse }, './proactive': lib, './bhuvan': compile('lib/bhuvan.ts', {}),
   './auth-server': { configuration: () => configured ? { origin: ORIGIN } : null, readSession: async () => session, sameOrigin: r => r.headers.get('origin') === ORIGIN },
 }).proxyProactive;
 const operator = { accessToken: 'unit-only-token', roles: ['incident_operator'] };

@@ -21,7 +21,7 @@ export const PAGE_HELP: Record<string, PageHelp> = {
     never: "It never resets data, and a passing check is not proof of readiness for real use.",
   },
   "/incidents": {
-    shows: "Every exercise incident with its hazard, status, place and evidence. An open case also lists the exercise team requests made for it.",
+    shows: "Every exercise incident with its hazard, status, place and evidence. An open case also lists the exercise team requests made for it, and live Bhuvan reference for its location. Data origin: Live · Bhuvan is real data fetched now, Synthetic is seeded exercise data, Public reference is a public feed and not an assessment.",
     can: "Search, sort and filter the list, then open a case to read its evidence, readiness and team response.",
     never: "It never creates or changes a case. The records are synthetic, and the team response panel is read-only.",
   },
@@ -132,7 +132,7 @@ export const PAGE_HELP: Record<string, PageHelp> = {
   },
   "/admin/connectors": {
     shows: "Each data-source connector, whether it is on, and its last test.",
-    can: "An administrator enters keys, switches a connector on and tests it.",
+    can: "An administrator enters keys, switches a connector on and tests it. Bhuvan tokens are pasted one per theme each day and can be tested one by one.",
     never: "It never shows a saved secret again, and it never sends data to a source.",
   },
   "/admin/users": {

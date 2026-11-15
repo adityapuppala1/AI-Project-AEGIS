@@ -12,3 +12,4 @@ export { Button, IconButton, ButtonLink, buttonClass, type ButtonVariant, type B
 export { Tip, TipProvider, Dialog } from "./overlay";
 export { RoleChip, Avatar, TwoKey, keysForStatus, HazardGlyph, ChainMarker, ROLE_ICON, type KeyState } from "./identity";
 export { RecordRef, CitedLine } from "./record";
+export { DataOrigin, DataOriginLegend } from "./origin";

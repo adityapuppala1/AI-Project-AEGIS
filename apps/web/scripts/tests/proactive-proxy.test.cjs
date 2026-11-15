@@ -20,6 +20,7 @@ function loadProxy(session, configured = true) {
   return compile('lib/proactive-proxy.ts', {
     'next/server': { NextResponse },
     './proactive': lib,
+    './bhuvan': compile('lib/bhuvan.ts', {}),
     './auth-server': {
       configuration: () => configured ? { origin: ORIGIN } : null,
       readSession: async () => session,

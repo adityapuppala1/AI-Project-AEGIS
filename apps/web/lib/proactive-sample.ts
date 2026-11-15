@@ -149,6 +149,8 @@ export function buildSampleConnectors(nowMs: number): ConnectorsPayload {
       settings: { account_sid: "", from_number: "" }, fields: [field("account_sid", "Account SID", false, true, false), field("auth_token", "Auth token", true, true, false), field("from_number", "Sender number or sender ID", false, true, false)], last_test: null },
     { ...base, id: "comms_whatsapp", name: "WhatsApp provider", category: "communications", delivery: "locked", hosts: ["graph.facebook.com"], enabled: false,
       settings: { phone_number_id: "" }, fields: [field("access_token", "Access token", true, true, false), field("phone_number_id", "Phone number ID", false, true, false)], last_test: null },
+    { ...base, id: "isro_bhuvan", name: "ISRO Bhuvan API (NRSC)", category: "geospatial reference", hosts: ["bhuvan-app1.nrsc.gov.in"], enabled: false,
+      settings: {}, fields: [field("token_reverse_geocode", "Village Reverse Geocoding token", true, false, false)], last_test: null },
   ];
   return { master_key_configured: false, connectors };
 }

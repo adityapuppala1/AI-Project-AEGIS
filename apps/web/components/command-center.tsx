@@ -1,5 +1,5 @@
 "use client";
-import { HazardGlyph, RecordRef, Button, buttonClass, Panel } from "./ui";
+import { DataOrigin, HazardGlyph, RecordRef, Button, buttonClass, Panel } from "./ui";
 import { SortableTable } from "./ui";
 import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
@@ -102,7 +102,8 @@ export function CommandCenter() {
           <div className="flex items-center justify-between gap-2"><p className="eyebrow">Selected incident</p><StatusBadge status={selected.status}/></div>
           <h3 className="mt-3 text-sm font-semibold"><HazardGlyph value={selected.hazard_type} label={selected.hazard_type} /></h3>
           <p className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted"><RecordRef id={selected.id} kind="incident" /><span className="tnum">{selected.lat.toFixed(4)}, {selected.lon.toFixed(4)}</span></p>
-          <p className="mt-2 text-xs text-muted">Synthetic record. Operational actions are disabled.</p>
+          <p className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted"><DataOrigin kind="synthetic"/>Synthetic record. Operational actions are disabled.</p>
+          <p className="mt-2 text-[11px] text-muted">Live Bhuvan reference for this point (village, land use, reference route) is on the incident page, labelled Live · Bhuvan.</p>
           <h4 className="mt-4 text-sm font-semibold">Case assistance</h4>
           <LocalReviewFocus key={selected.id} incidentId={selected.id}/>
           <Link href={"/incidents/" + selected.id} className={buttonClass({ size: "sm", className: "mt-3" })}>Open intelligence workspace</Link>

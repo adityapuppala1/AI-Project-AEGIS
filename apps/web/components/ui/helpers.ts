@@ -21,7 +21,20 @@ export const TONE_BAR_CLASS: Record<Tone, string> = {
   neutral: "bg-slate-500", info: "bg-sky-600", success: "bg-emerald-600", warning: "bg-amber-500", danger: "bg-rose-600", sample: "bg-amber-500",
 };
 
-export const clamp01 = (value: number): number => (Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 0);
+/** Data-origin kinds shown by <DataOrigin>. Exactly three; each has its own icon and words, never colour alone. */
+export const ORIGINS = ["live", "synthetic", "public_reference"] as const;
+export type Origin = (typeof ORIGINS)[number];
+export const ORIGIN_TONE: Record<Origin, Tone> = { live: "success", synthetic: "sample", public_reference: "info" };
+/** Visible badge text (before translation). Live always names its source; an empty source is refused. */
+export function originLabel(kind: Origin, source?: string | null): string {
+  if (kind === "live") {
+    const name = (source ?? "").trim().slice(0, 40);
+    return name ? `Live · ${name}` : "Live";
+  }
+  return kind === "synthetic" ? "Synthetic" : "Public reference";
+}
+
+export const clamp01 =(value: number): number => (Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 0);
 
 export type AgeUnit = "now" | "min" | "hr" | "days";
 export interface AgeParts { n: number; unit: AgeUnit }

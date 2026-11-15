@@ -1,6 +1,6 @@
 "use client";
 
-import { RecordRef, Button, buttonClass } from "./ui";
+import { DataOrigin, RecordRef, Button, buttonClass } from "./ui";
 import { useEffect, useMemo, useState, type KeyboardEvent } from "react";
 import Link from "next/link";
 import { ArrowRight, ChevronLeft, ChevronRight, ClipboardList, Eye, FlaskConical, Link2, MapPin, RefreshCw, SearchX } from "lucide-react";
@@ -190,7 +190,7 @@ export function IncidentRegistry() {
           <span role="status" aria-live="polite">{pending ? t("Refreshing results...") : `${t("Showing")} ${first}–${last} ${t("of")} ${count} ${t("incident records")}`}</span>
           <span className="inline-flex flex-wrap items-center gap-x-3 gap-y-1">
             {lastSync ? <DataFreshness observedAt={lastSync}/> : <span>{t("Awaiting data")}</span>}
-            <span>{t("Data source: synthetic exercise")}</span>
+            <DataOrigin kind="synthetic"/><span>{t("Data source: synthetic exercise")}</span>
           </span>
         </div>
         {error && <div className="border-b border-stroke p-4"><ErrorState title={t("Incident search unavailable")} message={t("Any visible results may be stale.")} onRetry={() => setReload(n => n + 1)}/></div>}

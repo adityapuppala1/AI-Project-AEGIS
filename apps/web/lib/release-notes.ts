@@ -14,6 +14,18 @@ export interface Release { version: string; tagged: boolean; /** ISO date, tagge
 
 export const RELEASES: readonly Release[] = [
   {
+    version: "0.5.0",
+    tagged: true,
+    date: "2026-11-15",
+    summary: "Live reference data from ISRO's Bhuvan geoportal on the incident page, and badges that show what is live and what is synthetic.",
+    items: [
+      { group: "New", text: "Bhuvan reference (live) on the incident page: the village and district at the case point, land use in a small square around it, a reference road route from a synthetic team base, and hospitals nearby for points in Andhra Pradesh. Nothing is stored, and nothing is dispatched." },
+      { group: "New", text: "Data origin badges. Live · Bhuvan marks real data fetched now, with its time. Synthetic marks seeded exercise data. Public reference marks public feeds that are not an assessment." },
+      { group: "New", text: "Bhuvan connector on the Connectors page. An administrator pastes one token per theme, sees when each one expires (one day after it is saved) and tests each token on its own." },
+      { group: "Security", text: "IndTrana does not sign in to Bhuvan for you: the Bhuvan sign-in page has a CAPTCHA. Tokens are kept encrypted and are never shown again." },
+    ],
+  },
+  {
     version: "0.4.0",
     tagged: true,
     date: "2026-11-15",

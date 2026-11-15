@@ -14,7 +14,7 @@ import base64
 import os
 import re
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode, urlparse
 from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
@@ -152,6 +152,23 @@ REGISTRY = {
         "hosts": ("floodforecasting.googleapis.com",), "fields": (_field("api_key", "API key", True, True),),
         "settings": {"region_code": ("IN", _fixed("IN")), "radius_km": (150, _fixed(150))},
     },
+    # ISRO/NRSC Bhuvan API: one access token per portal theme, each issued for one day on the portal's
+    # Access Token page. The portal sign-in has a CAPTCHA, so tokens are pasted by an administrator; there is
+    # no automated renewal. Data is display-only reference (app/bhuvan.py, docs/BHUVAN_CONNECTORS.md).
+    "isro_bhuvan": {
+        "name": "ISRO Bhuvan API (NRSC)", "category": "geospatial reference",
+        "licence": ("Bhuvan terms of service (https://bhuvan.nrsc.gov.in/home/terms.php): viewing purposes only, no bulk "
+                    "download, no redistribution, no real-time navigation. Data: Bhuvan, NRSC/ISRO. Tokens expire after one day."),
+        "hosts": ("bhuvan-app1.nrsc.gov.in",), "token_ttl_hours": 24,
+        "fields": (_field("token_proximity", "Postal and Hospital (Only AP) token", True),
+                   _field("token_village_geocode", "Village Geocoding token", True),
+                   _field("token_reverse_geocode", "Village Reverse Geocoding token", True),
+                   _field("token_lulc_stats", "LULC Statistics token", True),
+                   _field("token_lulc_aoi", "LULC AOI Wise token", True),
+                   _field("token_routing", "Routing token", True),
+                   _field("token_geoid", "Geoid token", True)),
+        "settings": {},
+    },
     "typesafe_jev": {
         "name": "Typesafe Jev decision judgments", "category": "decision judgments",
         "licence": "Typesafe API terms (https://docs.typesafe.ai). Only code-supplied options and cited evidence ids are sent.",
@@ -286,14 +303,26 @@ def _view(connector_id: str, data: dict) -> dict:
         detail = test.get("detail") or {}
         last_test = {"at": _iso(test["at"]), "ok": bool(test["ok"]), "status_code": detail.get("status_code"),
                      "latency_ms": detail.get("latency_ms"), "message": detail.get("message")}
+    saved = (data.get("secret_saved") or {}).get(connector_id, {})
+    ttl = spec.get("token_ttl_hours")
+
+    def field_view(field):
+        when = saved.get(field["name"]) if field["name"] in secrets else None
+        view = {**field, "set": field["name"] in secrets, "fingerprint": secrets.get(field["name"])}
+        if ttl:
+            view["saved_at"] = _iso(when)
+            expires = when + timedelta(hours=ttl) if hasattr(when, "isoformat") else None
+            view["expires_at"] = _iso(expires)
+            view["expired"] = bool(expires and expires <= datetime.now(timezone.utc)) if field["name"] in secrets else False
+        return view
+
     return {"id": connector_id, "name": spec["name"], "category": spec["category"], "licence": spec["licence"],
             "hosts": list(spec["hosts"]), "delivery": spec.get("delivery"),
             "enabled": bool(config.get("enabled")) and not never_enabled(connector_id),
             "version": config.get("version", 0), "updated_at": _iso(config.get("updated_at")),
             "updated_by": config.get("updated_by"),
             "settings": {**default_settings(connector_id), **(config.get("settings") or {})},
-            "fields": [{**field, "set": field["name"] in secrets, "fingerprint": secrets.get(field["name"])}
-                       for field in spec["fields"]],
+            "fields": [field_view(field) for field in spec["fields"]],
             "last_test": last_test}
 
 
@@ -380,6 +409,11 @@ def _test_typesafe(settings):
     return _result(status == 200, status, "reachable" if status == 200 else "upstream_status")
 
 
+def _test_bhuvan(settings):
+    from app.bhuvan import test_any_token
+    return test_any_token()
+
+
 def _test_cap(settings):
     from app.proactive_cap import exercise_cap_xml, self_check
     return _result(self_check(exercise_cap_xml), None, "exporter_valid_exercise_only")
@@ -445,7 +479,7 @@ def _test_comms_whatsapp(settings):
 
 TESTS = {"open_meteo": _test_open_meteo, "nasa_firms": _test_nasa_firms, "nasa_lhasa": _test_nasa_lhasa,
          "copernicus_cdse": _test_copernicus, "imd_warnings": _test_imd, "gdacs": _test_gdacs,
-         "google_flood_forecasting": _test_google_flood, "typesafe_jev": _test_typesafe,
+         "google_flood_forecasting": _test_google_flood, "typesafe_jev": _test_typesafe, "isro_bhuvan": _test_bhuvan,
          "cap_handover": _test_cap, "authority_notification": _test_authority,
          "comms_in_app": _test_comms_in_app, "comms_email": _test_comms_email, "comms_sms": _test_comms_sms,
          "comms_whatsapp": _test_comms_whatsapp}
@@ -552,6 +586,8 @@ def update_connector(connector_id: str, body: ConnectorUpdate, operator: Operato
         missing = [f["name"] for f in spec["fields"] if f["required"] and f["secret"] and f["name"] not in present]
         if missing:
             raise HTTPException(status_code=422, detail="required_secret_missing:" + ",".join(missing))
+        if spec.get("token_ttl_hours") and not present:
+            raise HTTPException(status_code=422, detail="required_secret_missing:any_token")
         unset = [f["name"] for f in spec["fields"] if f["required"] and not f["secret"] and settings.get(f["name"]) == ""]
         if unset:
             raise HTTPException(status_code=422, detail="required_setting_missing:" + ",".join(unset))

@@ -59,7 +59,7 @@ def test_registry_invariants():
     assert set(connectors.REGISTRY) == {'open_meteo', 'nasa_firms', 'nasa_lhasa', 'copernicus_cdse', 'imd_warnings',
                                         'gdacs', 'google_flood_forecasting', 'typesafe_jev', 'cap_handover',
                                         'authority_notification', 'comms_in_app', 'comms_email', 'comms_sms',
-                                        'comms_whatsapp'}
+                                        'comms_whatsapp', 'isro_bhuvan'}
     assert set(connectors.TESTS) == set(connectors.REGISTRY)
     assert 'platform_admin' in ALLOWED_ROLES
     for spec in connectors.REGISTRY.values():

@@ -132,6 +132,9 @@ from app.connectors import router as proactive_connectors_router
 from app.hazard_watch import router as proactive_watch_router
 from app.proactive_run import router as proactive_run_router
 app.include_router(proactive_connectors_router)
+from app.bhuvan import admin_router as bhuvan_admin_router, reference_router as bhuvan_reference_router  # noqa: E402
+app.include_router(bhuvan_admin_router)
+app.include_router(bhuvan_reference_router)
 from app.staff_messages import router as staff_messages_router
 app.include_router(staff_messages_router)
 from app.brand import router as brand_router
