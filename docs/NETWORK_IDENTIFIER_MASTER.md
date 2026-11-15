@@ -80,6 +80,14 @@ patented.
 - **Real tower data, live telemetry, any messaging through a provider and a live SACHET read.** Each needs an owner
   decision or a commercial agreement (see the spec, section 10).
 
+## Review follow-ups (15 November 2026, not fixed yet)
+
+From the read-only security review (nothing critical or high was found):
+- Deleting a provider leaves its assets listed as active, and an asset can be enabled or restored under a deleted or
+  disabled provider.
+- Saving an edit with no changes still raises the version and writes an activity row.
+- An upper-case id gets a different refusal from the web proxy than from the API.
+
 ## Tests
 
 - API: `services/api/tests/test_network_registry.py` (roles, agency, validation, version conflict, soft delete,

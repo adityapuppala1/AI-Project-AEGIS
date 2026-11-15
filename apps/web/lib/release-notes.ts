@@ -14,6 +14,18 @@ export interface Release { version: string; tagged: boolean; /** ISO date, tagge
 
 export const RELEASES: readonly Release[] = [
   {
+    version: "0.5.1",
+    tagged: true,
+    date: "2026-11-15",
+    summary: "The Bhuvan reference panel now reads real answers properly, after its first check against the live service.",
+    items: [
+      { group: "Fixed", text: "Village details on the Bhuvan panel show plain labels (village or town, district headquarters, Census 2001 population and households) instead of raw column codes." },
+      { group: "New", text: "Land use on the Bhuvan panel now names each land-use class and shows it as a share of the area around the case. Before, only the state code appeared." },
+      { group: "Fixed", text: "The hospital lookup for Andhra Pradesh points no longer fails on long answers." },
+      { group: "Security", text: "Hospital rows show only the hospital name, category, district, hours, blood bank and address. Staff names and email addresses that Bhuvan returns are never passed on." },
+    ],
+  },
+  {
     version: "0.5.0",
     tagged: true,
     date: "2026-11-15",

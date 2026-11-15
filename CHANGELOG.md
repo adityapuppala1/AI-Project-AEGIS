@@ -12,6 +12,11 @@ The version number lives only in `apps/web/package.json`. The same entries, in p
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-11-15
+
+Branch `Aegis_IndTrana`. Windows laptop only. First check of the Bhuvan connector against the real service, with the
+owner's tokens: [docs/LOCAL_DEMO_HANDOFF.md](docs/LOCAL_DEMO_HANDOFF.md) round 30.
+
 ### Fixed
 - Bhuvan reference panel, after the first check against the real service (15 November 2026): village rows show labelled
   Census 2001 columns, land use shows each class as a share of the square with NRSC legend names (the API quotes its class
@@ -170,6 +175,7 @@ First local synthetic demonstration (repository started 16 October 2026).
 - Proposals with independent maker-checker approval, an approved-only CAP exercise draft and a staged scripted task workflow.
 - Product vision, architecture, security and delivery documents under `docs/`.
 
+[0.5.1]: https://github.com/adityapuppala1/AI-Project-AEGIS/releases/tag/v0.5.1
 [0.5.0]: https://github.com/adityapuppala1/AI-Project-AEGIS/releases/tag/v0.5.0
 [0.4.0]: https://github.com/adityapuppala1/AI-Project-AEGIS/releases/tag/v0.4.0
 [0.3.0]: https://github.com/adityapuppala1/AI-Project-AEGIS/releases/tag/v0.3.0

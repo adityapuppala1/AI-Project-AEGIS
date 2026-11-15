@@ -58,3 +58,11 @@ and never stores or exports them. The owner is responsible for using the Bhuvan 
 
 API: `tests/test_bhuvan.py`, `tests/test_proactive_connectors.py`, `tests/test_route_auth_inventory.py`.
 Web: `node --test scripts/tests/bhuvan.test.cjs`.
+
+## Checked with real tokens (15 November 2026, version 0.5.1)
+
+On the Windows laptop, with the owner's tokens pasted on the Connectors page: the incident page showed the village and
+district, land use as shares per class, a reference route length, and hospitals for a Vijayawada point. Three display
+problems found in that check were fixed in 0.5.1 (see `CHANGELOG.md`). Still open: the LULC Statistics token fails its
+test and is not used on any screen; the land-use class names come from the NRSC legend, not from the API; the Bhuvan
+code has not had a security review. Details: [specs/BHUVAN_CONNECTORS.md](specs/BHUVAN_CONNECTORS.md).

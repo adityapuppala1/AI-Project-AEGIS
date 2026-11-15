@@ -19,7 +19,7 @@ An administrator can change the product name and logo shown in the browser, or r
 
 ## Version and release notes
 
-The current version is **0.5.0** (the number lives only in `apps/web/package.json`). Signed-in users see what changed in
+The current version is **0.5.1** (the number lives only in `apps/web/package.json`). Signed-in users see what changed in
 each version on the **What's new** page (`/whats-new`, a tab beside Help & Learning, also linked from the account menu and
 the version in the menu footer); 0.3.0 is the first tagged release and earlier versions are summaries of earlier work without a tag. The developer history is [CHANGELOG.md](CHANGELOG.md), and
 [docs/RELEASE_PROCESS.md](docs/RELEASE_PROCESS.md) explains how a version is cut: bump, release-notes entry, changelog

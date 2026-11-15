@@ -3,9 +3,9 @@
 Written 15 November 2026 (Asia/Kolkata). Binds to AGENTS.md (Earth Watch / public reference, API port, Request boundary,
 UI kit, Release process, Single-instance rules). User doc: [../BHUVAN_CONNECTORS.md](../BHUVAN_CONNECTORS.md).
 
-Status: built (local checks) for 0.5.0 on 15 November 2026. **Live calls with real tokens not yet verified**: no
-token existed when this was built and the portal sign-in has a CAPTCHA that was not bypassed, so the owner has to
-paste tokens (see "Not built / not verified"). Tracker: [README.md](README.md).
+Status: verified in a browser run with the owner's real tokens on 15 November 2026 (Windows laptop), after the
+fixes in 0.5.1. Tokens are pasted by the owner because the portal sign-in has a CAPTCHA that was not bypassed
+(see "Not built / not verified" and "Checked against the real service"). Tracker: [README.md](README.md).
 
 ## Research (read 15 November 2026)
 
@@ -67,11 +67,26 @@ portal footer is "Copyright © 2018 Bhuvan".
 
 ## Not built / not verified
 
-- Live responses with real tokens (shape of each answer, land-use code names). The panel shows the returned fields as
-  key/value rows; a land-use code legend is not built.
+- The land-use class names come from the NRSC LULC 1:50,000 legend as known to the builder; the API returns only class
+  codes and the full list was not compared with an official Bhuvan page.
+- LULC Statistics: the token test answers "invalid response" with a real token; not investigated, not used on a screen.
+- A security review of the Bhuvan code.
 - Automated renewal (blocked: CAPTCHA and terms).
 - A "Try it" area on the connector card and a village search screen (the API route exists).
 - LULC 250k themes and LULC 50k state/district statistics on a screen (token test only).
 - Geoid: not called (bulk tile download).
 - Hospitals use a coarse Andhra Pradesh box (it also covers parts of Telangana and Karnataka); Bhuvan answers "no data"
   outside its coverage.
+
+## Checked against the real service (15 November 2026, 0.5.1)
+
+- Token tests: Village Reverse Geocoding, Village Geocoding, LULC AOI Wise and Routing return data; Postal and Hospital
+  is reachable (data for a Vijayawada point); LULC Statistics fails its test; Geoid is not called by design.
+- Village reverse geocoding returns a list of Census 2001 rows (`name1`, `thq_name`, `dhq_name`, `tot_p`, `no_hh` and
+  caste and literacy counts). Only the five labelled columns are shown. A point in Hyderabad returned two rows (the city
+  and a village of the same name in Medak district); both are shown as returned.
+- LULC AOI returns one object with the state and quoted class codes (`'l01'`, `'l23'`) with areas. The panel shows each
+  class as a share of the square. The unit of the areas is not stated by the API, so no area figure is shown.
+- Proximity (hospitals) returns about 316 KB for a 3 km buffer in a city, with staff names and email addresses in each
+  row. Only facility name, category, district, hours, blood bank and address are passed on; the limit for this theme is 1 MB.
+- Routing returns a path; the panel shows its length computed from the geometry.

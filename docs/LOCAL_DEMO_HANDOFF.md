@@ -20,6 +20,22 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Round 30: Bhuvan connector checked with real tokens, version 0.5.1 — 15 November 2026 (Windows laptop)
+
+Branch `Aegis_IndTrana`, on top of `a56dbc3` (tag `v0.5.0`). Compose services left **running**, rebuilt from this code,
+with the Bhuvan connector **enabled** and the owner's tokens saved (they expire on 16 November 2026 at about 07:14 UTC).
+
+- **Executed:** token tests through the Connectors route (5 of 7 pass; LULC Statistics fails; Geoid not called by
+  design); the live panel on the Hyderabad seed case as `demo-maker` (village rows, land use 57% water bodies and 43%
+  built-up, route 3.42 km, no hospitals because the point is outside Andhra Pradesh); hospitals for a Vijayawada point
+  through the reference route (20 rows). `tests/test_bhuvan.py` 17 passed; `release-notes.test.cjs` passed.
+- **Fixed in 0.5.1:** village labels, land-use shares (quoted class codes were dropped), hospital answer limit and the
+  hospital field allowlist (no staff names or email addresses).
+- **Not verified:** the full API suite was not re-run for 0.5.1; the land-use class names against an official Bhuvan
+  legend; the LULC Statistics failure; no security review of the Bhuvan code; the panel at 390 px with live data.
+- The owner's portal password was typed into the build session; the private file that held it was deleted and the
+  owner was advised to change it. IndTrana stores no portal password.
+
 ## Round 29: ISRO Bhuvan connectors and data-origin badges, version 0.5.0 — 15 November 2026 (Windows laptop)
 
 Branch `Aegis_IndTrana`, base `46e0154` (v0.4.0), uncommitted (no commit, push or tag). Docs:
