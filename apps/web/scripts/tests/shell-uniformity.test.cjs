@@ -229,8 +229,10 @@ test('new signed-in pages stay behind the sign-in gate, and /welcome sends a sig
   const welcome = read('app/welcome/page.tsx');
   assert.match(welcome, /if \(await readSession\(\)\) redirect\("\/about"\);/);
   const users = read('components/users-access.tsx');
-  assert.match(users, /scripts\/new-demo-accounts\.ps1/);
-  assert.doesNotMatch(users, /<input|<select|<textarea|method: "(POST|PUT|DELETE)"/, 'the users page has no controls and writes nothing');
+  // Account management (docs/USER_MANAGEMENT.md) lives only in components/user-accounts.tsx and is rendered only for administrators.
+  assert.match(users, /\{isAdmin \? <AccountsPanel /);
+  assert.match(users, /\{isAdmin \? <AccountActivity /);
+  assert.doesNotMatch(users, /<input|<select|<textarea|method: "(POST|PUT|PATCH|DELETE)"/, 'the role matrix part has no controls and writes nothing');
 });
 
 // ---- session handling in one shared place ----

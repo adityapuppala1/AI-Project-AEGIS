@@ -12,6 +12,46 @@ The version number lives only in `apps/web/package.json`. The same entries, in p
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-15
+
+Branch `Aegis_IndTrana`. Windows laptop only; nothing here was run on Linux or macOS. Status and evidence:
+[docs/LOCAL_DEMO_HANDOFF.md](docs/LOCAL_DEMO_HANDOFF.md), round 28. Not tagged yet.
+
+### Added
+- User management for administrators ([docs/USER_MANAGEMENT.md](docs/USER_MANAGEMENT.md)): an Accounts tab and an
+  Activity tab on `/admin/users`. `platform_admin` can list accounts, create one with one role (and a department or
+  team when the role needs one), edit name, email, role, department and team, enable, disable (also ends sessions),
+  sign a person out everywhere and issue a new temporary password (reset and resend). No delete.
+- API module `services/api/app/user_admin.py` (`/v1/user-admin/*`, every route
+  `scoped_operator(frozenset({"platform_admin"}))`), provider client `app/user_directory.py` and store
+  `app/user_admin_store.py`; web proxy `apps/web/lib/user-admin-proxy.ts` with routes under `app/api/user-admin/`.
+- Migration `db/migrations/020_user_admin_audit.sql`: append-only `user_admin_audit` (closed action, outcome and
+  changed-field codes; never a password or an email address).
+- `scripts/update-local-idp.ps1` step 11: the service client `indtrana-user-admin` (service account only; realm-management
+  `view-users`, `query-users`, `manage-users`; default realm roles removed). Its secret goes only to the private
+  `user-admin.env`, which `compose.local-idp.yaml` passes to the API as an optional env file.
+- Network Identifier Master ([docs/NETWORK_IDENTIFIER_MASTER.md](docs/NETWORK_IDENTIFIER_MASTER.md)) at
+  `/admin/networks`: `platform_admin` registry of satellite, mobile, fixed-line, tower and public-reference providers and
+  synthetic assets (add, edit, enable, disable, soft delete, restore; version check; append-only audit). API
+  `services/api/app/network_registry.py` (`/v1/admin/networks/*`, plus `/v1/network-lanes` for every exercise role:
+  names and rehearsal states only), store `app/network_registry_store.py`, fixed link catalogue `app/network_catalogue.py`;
+  web proxy `apps/web/lib/network-registry-proxy.ts`. Migration `db/migrations/021_network_registry.sql` (additive,
+  idempotent seed of 21 reference entries and 12 synthetic assets). Logo marks for SpaceX, Airtel and Jio bundled offline
+  from Simple Icons 15.22.0 (CC0) in `apps/web/lib/network-logos.ts`; others show a kind icon and monogram. The Resilient
+  Sensor Link page names its lanes from enabled providers. No provider is called; the CelesTrak reference adapter is a
+  documented follow-up, not built.
+
+### Security
+- The identity provider stays the account store; IndTrana never stores or verifies a password. Temporary passwords are
+  generated server-side, set as temporary (forced change at next sign-in), returned once with `Cache-Control: no-store`
+  and never logged, audited or stored. Nothing is emailed; provider SMTP and self-service reset stay off.
+- Guards: allowlisted single role, department/team only with their role, strict user names, protected `exercise-*` and
+  service accounts, no self-disable/demote/reset/sign-out, last enabled administrator kept, unknown fields and NUL refused,
+  fixed error codes only, one advisory-locked transaction per change with the audit row written after the provider call.
+
+### Changed
+- Sign-in page: one line on forgotten passwords (ask an administrator). `docs/INSTALL.md`, README and AGENTS.md updated.
+
 ### Documentation
 - Submission documents in `docs/submission/` rebuilt: an interactive overview page with a 3D layered architecture
   explorer, a 3D storm timeline for the Resilient Sensor Link rehearsal, seven validated Archify diagrams, sortable and
@@ -102,4 +142,5 @@ First local synthetic demonstration (repository started 16 October 2026).
 - Proposals with independent maker-checker approval, an approved-only CAP exercise draft and a staged scripted task workflow.
 - Product vision, architecture, security and delivery documents under `docs/`.
 
+[0.4.0]: https://github.com/adityapuppala1/AI-Project-AEGIS/releases/tag/v0.4.0
 [0.3.0]: https://github.com/adityapuppala1/AI-Project-AEGIS/releases/tag/v0.3.0

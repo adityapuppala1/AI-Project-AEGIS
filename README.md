@@ -58,6 +58,8 @@ Indian Patent No. 598835 (Application No. 201741007139, filed 28 February 2017, 
 
 ![Resilient Sensor Link rehearsal](docs/screenshots/sensor-link.png)
 
+Network Identifier Master (Administration, administrators only): a registry of satellite, mobile, fixed-line and tower providers with bundled logo marks or monograms, a schematic 2D/3D satellite and tower scene, official documentation links and rehearsal link states that name the Resilient Sensor Link lanes. Registry and rehearsal only; no provider is called. See [docs/NETWORK_IDENTIFIER_MASTER.md](docs/NETWORK_IDENTIFIER_MASTER.md).
+
 ## Install and run in one step
 
 | System | First time | Daily use |
@@ -178,6 +180,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\new-demo-accounts.ps1   # mak
 
 Open http://localhost:3000. The landing page and the sign-in page are public; **everything else needs a sign-in**.
 Demo passwords are saved to `%LOCALAPPDATA%\AEGIS\local-idp\demo-credentials.txt`, never to the repository.
+Further accounts are managed by an administrator on the **Accounts** tab of Users and access (create, edit, enable,
+disable, sign out, temporary passwords shown once; no delete, nothing emailed): [docs/USER_MANAGEMENT.md](docs/USER_MANAGEMENT.md).
 Stop with `scripts\stop-windows.ps1`; the database volume is kept.
 
 **Demo data** is synthetic and is loaded automatically at start (`db/seed*.sql`): one demo agency, two Hyderabad

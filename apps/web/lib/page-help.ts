@@ -136,14 +136,19 @@ export const PAGE_HELP: Record<string, PageHelp> = {
     never: "It never shows a saved secret again, and it never sends data to a source.",
   },
   "/admin/users": {
-    shows: "The six roles, what each one can do, and the account you are signed in with.",
-    can: "Check what your role allows and where accounts are managed.",
-    never: "It never creates, changes or removes an account. That is done in your agency's identity provider.",
+    shows: "Accounts, the six roles, what each one can do, and every account change an administrator made.",
+    can: "An administrator creates accounts, changes their name, email, role, department or team, enables or disables them, signs a person out and issues a temporary password. Everyone can read the roles.",
+    never: "It never deletes an account, never stores or emails a password, and never changes the owner's exercise accounts or your own role.",
   },
   "/admin/brand": {
     shows: "The product name and logo people see in the browser, and every change made to them.",
     can: "An administrator sets a new name, uploads a PNG, JPEG or WebP logo, or restores the defaults.",
     never: "It never changes staff email, alert drafts, exports or audit text, which keep the built-in name.",
+  },
+  "/admin/networks": {
+    shows: "Satellite, mobile, fixed-line and tower providers, their identifiers, synthetic assets, documentation links and every change made here.",
+    can: "An administrator adds, edits, enables, disables, deletes and restores providers and assets, and sets the rehearsal link states that name the Resilient Sensor Link lanes.",
+    never: "It never connects to or sends anything through a provider, never shows a stored credential, and never creates or changes a case.",
   },
   "/admin/go-live": {
     shows: "Every key, switch and agreement that real use would need.",

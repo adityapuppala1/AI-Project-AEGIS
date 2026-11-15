@@ -35,10 +35,12 @@ test('versions are valid semver and strictly descending', () => {
   for (let i = 1; i < notes.RELEASES.length; i++) assert.ok(compare(notes.RELEASES[i - 1].version, notes.RELEASES[i].version) > 0, `${notes.RELEASES[i - 1].version} must be newer than ${notes.RELEASES[i].version}`);
 });
 
-test('exactly the newest release is tagged; earlier ones are untagged summaries with a period', () => {
-  assert.equal(notes.RELEASES.filter(release => release.tagged).length, 1);
+test('releases from 0.3.0 on are tagged; earlier ones are untagged summaries with a period', () => {
   assert.equal(notes.RELEASES[0].tagged, true);
-  for (const release of notes.RELEASES.slice(1)) {
+  const first = notes.RELEASES.findIndex(release => release.version === '0.3.0');
+  assert.ok(first >= 0, '0.3.0 is listed');
+  for (const release of notes.RELEASES.slice(0, first + 1)) assert.equal(release.tagged, true, `${release.version} is a tagged release`);
+  for (const release of notes.RELEASES.slice(first + 1)) {
     assert.equal(release.tagged, false, `${release.version} was never tagged`);
     assert.ok(release.period && release.period.length > 4, `${release.version}: needs a period`);
     assert.equal(release.date, undefined, `${release.version}: an untagged summary has no release date`);

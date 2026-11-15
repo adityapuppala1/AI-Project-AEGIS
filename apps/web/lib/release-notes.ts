@@ -14,6 +14,24 @@ export interface Release { version: string; tagged: boolean; /** ISO date, tagge
 
 export const RELEASES: readonly Release[] = [
   {
+    version: "0.4.0",
+    tagged: true,
+    date: "2026-11-15",
+    summary: "Administrators can now manage accounts inside the app: create, change, enable, disable and issue temporary passwords.",
+    items: [
+      { group: "New", text: "Accounts tab on Users and access. An administrator creates an account with one role, adds a department or team when the role needs one, and changes a name, email, role, department or team later." },
+      { group: "New", text: "Enable, disable and sign out everywhere. Disabling an account also ends its sessions. Accounts are never deleted, so their history stays." },
+      { group: "New", text: "Temporary passwords. A new account, a reset and a resend all get a temporary password that is shown once to the administrator, to hand over in person. The person chooses their own at the next sign-in. Nothing is emailed." },
+      { group: "New", text: "Activity tab. Every account change is recorded with who made it and when. Passwords and email addresses are never recorded." },
+      { group: "Improved", text: "The sign-in page now says what to do about a forgotten password: ask your administrator." },
+      { group: "Security", text: "Accounts stay in the sign-in provider, which IndTrana reaches through a limited service account. Your own account, the owner's exercise accounts and the last administrator are protected from changes on this page." },
+      { group: "New", text: "Network Identifier Master under Administration. An administrator lists satellite, mobile, fixed-line and tower providers with their identifiers, enables, disables, edits, deletes and restores them, and adds synthetic towers and gateways. Seeded entries are reference entries, not partnerships." },
+      { group: "New", text: "A schematic satellite and tower scene, in 2D by default with an optional 3D view that can be paused. It is not a real orbit, position or coverage." },
+      { group: "New", text: "Rehearsal link states set there name the two lanes on the Resilient Sensor Link page and choose its starting scenario. Nothing is transmitted through any provider." },
+      { group: "New", text: "Integrations tab: each provider's official documentation or partner portal, checked on 15 November 2026, or a note that no public API was found." },
+    ],
+  },
+  {
     version: "0.3.0",
     tagged: true,
     date: "2026-11-14",

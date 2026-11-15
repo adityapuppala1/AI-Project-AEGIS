@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Antenna, ArrowLeft, ArrowRight, Building2, Check, Globe, Minus, Pause, Satellite, Target, WifiOff, Radio, type LucideIcon } from "lucide-react";
 import { AppShell } from "./app-shell";
 import { useT } from "./language-provider";
@@ -10,6 +10,8 @@ import {
   COMM_PARTIES, LINK_LABELS, POSSIBLE_TEXTS, PRIORITY_LABELS, SCENARIOS, STORM_STEPS, allocate, commLink, scenarioById, stayingPossible, summarise,
   type AllocationResult, type CommLink, type LinkId, type NodeAllocation, type NodeState, type ScenarioId,
 } from "../lib/patent";
+import { STATE_LABEL as NET_STATE_LABEL, laneProviders, satelliteStateUnshown, scenarioFromLanes, type Lane as NetLane } from "../lib/network-registry";
+import { ProviderMark } from "./network-master/provider-mark";
 
 const STATE_LABEL: Record<NodeState, string> = { delivered: "Delivered", reduced: "Reduced", held: "Held", offline: "Offline" };
 const STATE_TONE: Record<NodeState, Tone> = { delivered: "success", reduced: "warning", held: "neutral", offline: "danger" };
@@ -140,9 +142,23 @@ export function SensorLink() {
   const t = useT();
   const [scenarioId, setScenarioId] = useState<ScenarioId>("normal");
   const [step, setStep] = useState<number | null>(null);
-  const chooseStep = (index: number) => { setStep(index); setScenarioId(STORM_STEPS[index].scenario); };
-  const chooseScenario = (id: ScenarioId) => { setStep(null); setScenarioId(id); };
+  const chooseStep = (index: number) => { touched.current = true; setStep(index); setScenarioId(STORM_STEPS[index].scenario); };
+  const chooseScenario = (id: ScenarioId) => { touched.current = true; setStep(null); setScenarioId(id); };
   const [near, setNear] = useState(false);
+  // Lane names and a starting scenario from the Network Identifier Master (names and rehearsal states only). Any failure
+  // keeps the built-in labels and Normal. A choice made by hand is never overwritten.
+  const [lanes, setLanes] = useState<NetLane[]>([]);
+  const touched = useRef(false);
+  useEffect(() => {
+    let live = true;
+    fetch("/api/network-lanes", { cache: "no-store" }).then(r => r.ok ? r.json() : null).then(data => {
+      if (!live || !data || !Array.isArray(data.lanes)) return;
+      setLanes(data.lanes as NetLane[]);
+      if (!touched.current) setScenarioId(scenarioFromLanes(data.lanes as NetLane[]));
+    }).catch(() => undefined);
+    return () => { live = false; };
+  }, []);
+  const named = laneProviders(lanes);
   const result = useMemo(() => allocate(scenarioById(scenarioId), { triggerNear: near }), [scenarioId, near]);
   const gauge = result.nodes.find(item => item.node.near);
   const options = SCENARIOS.map(item => ({ value: item.id, label: t(item.label) }));
@@ -167,6 +183,13 @@ export function SensorLink() {
           <Button variant={near ? "primary" : "secondary"} icon={Target} aria-pressed={near} onClick={() => setNear(value => !value)}>{t("Trigger near: raise gauge reporting")}</Button>
         </div>
         <p role="status" className="mt-3 text-sm font-semibold leading-6">{step !== null && `${t(STORM_STEPS[step].moment)}. `}{summarise(result, t)}</p>
+        {(named.ground || named.satellite) && <div data-tour="sensor-lanes" className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs leading-5">
+          <span className="font-semibold">{t("Lanes named in the Network Identifier Master:")}</span>
+          {([["ground", named.ground], ["satellite", named.satellite]] as const).map(([id, lane]) => lane && <span key={id} className="inline-flex items-center gap-1.5">
+            <ProviderMark provider={lane} size={20} />{t(LINK_LABELS[id])}: {lane.display_name} · {t(NET_STATE_LABEL[lane.rehearsal_state])}</span>)}
+          <span className="text-muted">{t("Rehearsal names only. Nothing is transmitted through any provider.")}</span>
+          {satelliteStateUnshown(lanes) && <span className="text-muted">{t("No scenario here reduces the satellite while the ground link works, so the satellite state is not shown in the picture.")}</span>}
+        </div>}
         <StayingPossible result={result} />
         {near && <p className="text-xs leading-5 text-muted">{gauge && gauge.allocated > gauge.node.demand
           ? t("A hazard is near, so the Musi river gauge at Nayapul asks for more bandwidth. It takes the extra from capacity left after the other life-safety gauges, before lower-priority feeds.")

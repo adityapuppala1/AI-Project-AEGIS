@@ -39,6 +39,16 @@ services:
       OIDC_AUDIENCE: aegis-resource-server
       OIDC_JWKS_URL: https://indtrana-idp.localhost:8443/realms/indtrana-exercise/protocol/openid-connect/certs
       SSL_CERT_FILE: /run/local-idp/api-ca-bundle.pem
+      # User administration (docs/USER_MANAGEMENT.md): fixed provider address and ids. The service client secret
+      # comes only from the private user-admin.env written by scripts/update-local-idp.ps1; without it every
+      # user-admin route answers user_admin_not_configured.
+      AEGIS_USER_ADMIN_BASE_URL: https://indtrana-idp.localhost:8443
+      AEGIS_USER_ADMIN_REALM: indtrana-exercise
+      AEGIS_USER_ADMIN_CLIENT_ID: indtrana-user-admin
+      AEGIS_USER_ADMIN_WEB_CLIENT_ID: indtrana-local-web
+    env_file:
+      - path: ${AEGIS_LOCAL_IDP_PRIVATE_DIR:?Set a private directory outside the XAMPP web root}/user-admin.env
+        required: false
     volumes:
       - ${AEGIS_LOCAL_IDP_PRIVATE_DIR:?Set a private directory outside the XAMPP web root}/api-ca-bundle.pem:/run/local-idp/api-ca-bundle.pem:ro
   web:

@@ -68,6 +68,21 @@ const LABELS: Record<string, string> = {
   brand_logo_malformed: "The file is damaged or is not a complete image", brand_logo_dimensions: "The image is larger than 4096 × 4096 pixels",
   brand_logo_not_set: "No logo is set", brand_version_conflict: "Someone else changed the brand first; the latest settings are shown",
   brand_unavailable: "Brand settings are unavailable right now",
+  // Network Identifier Master (services/api/app/network_registry.py codes; docs/NETWORK_IDENTIFIER_MASTER.md)
+  network_registry_unavailable: "The network registry is unavailable right now", network_version_conflict: "Someone else changed this entry first; the latest list is shown",
+  network_not_found: "That entry no longer exists", network_code_taken: "Another provider already uses that code",
+  network_deleted: "That entry is deleted; restore it first", network_not_deleted: "That entry is not deleted",
+  network_invalid: "Some values are not accepted; check the form", network_control_character: "A name contains a hidden or control character",
+  network_mcc_mnc_format: "Write MCC-MNC codes as three digits, a hyphen and two or three digits, for example 404-10",
+  network_doc_link_unknown: "Choose a documentation link from the list", network_location_incomplete: "Enter both latitude and longitude, or neither",
+  network_location_outside: "Synthetic locations must be inside India (latitude 6 to 38, longitude 68 to 98)",
+  network_credential_store_not_ready: "The server has no key for stored credentials", network_code_format: "The code must be 2 to 40 lowercase letters, digits or _",
+  network_name_length: "The name must be at least 2 characters", network_monogram_format: "The monogram must be 1 to 3 capital letters or digits",
+  network_asn_format: "Autonomous system numbers must be digits", network_capacity_range: "Capacity must be a whole number from 0 to 100000",
+  network_action_create: "Added", network_action_update: "Edited", network_action_enable: "Enabled", network_action_disable: "Disabled",
+  network_action_delete: "Deleted", network_action_restore: "Restored", network_action_credential_set: "Credential stored",
+  network_action_credential_clear: "Credential removed", network_action_rehearsal_state: "Rehearsal link state changed",
+  asset_constellation: "Constellation", asset_satellite: "Satellite", asset_gateway: "Gateway", asset_tower: "Tower", asset_cell: "Cell", asset_fibre_node: "Fibre node",
 };
 
 /**
@@ -266,7 +281,40 @@ export const API_CODE_SENTENCES: Record<string, string> = {
   invalid_reason: "The reason cannot contain line breaks or control characters. Shorten it and try again.",
   proactive_paused: "Automation is paused by the administrator's kill switch. Drills, runs and threshold changes are blocked until it is released. Reading is not affected.",
   invalid_proposal_fields: "Some text could not be saved. Remove unsupported characters and check the lengths, then try again.",
+  // User administration (services/api/app/user_admin.py codes; docs/USER_MANAGEMENT.md)
+  user_admin_not_configured: "Account management is not switched on for this server. The administrator of this computer runs the sign-in provider update script, then restarts IndTrana.",
+  user_admin_unavailable: "The sign-in provider did not answer. Refresh the list before retrying; the change may not have been made.",
+  user_admin_provider_refused: "The sign-in provider refused IndTrana's service account. Run the sign-in provider update script again, then restart IndTrana.",
+  user_admin_provider_rejected: "The sign-in provider refused the change. Check the details and try again.",
+  user_admin_not_found: "That account no longer exists. Refresh the list.",
+  user_admin_username_taken: "That user name is already in use. Choose another.",
+  user_admin_protected: "This account is protected and cannot be changed here.",
+  user_admin_self_change: "You cannot disable, demote, reset or sign out your own account here. Ask another administrator.",
+  user_admin_last_admin: "This is the last enabled administrator, so it cannot be disabled or given another role.",
+  user_admin_invalid_username: "Use 3 to 32 lowercase letters, digits and single hyphens, starting with a letter.",
+  user_admin_reserved_username: "That user name is reserved. Choose another.",
+  user_admin_invalid_name: "Enter a first and last name using letters, spaces, hyphens or apostrophes.",
+  user_admin_invalid_email: "Enter a valid email address.",
+  user_admin_invalid_role: "Choose one role from the list.",
+  user_admin_department_required: "A department desk needs one department.",
+  user_admin_department_not_allowed: "Only a department desk has a department.",
+  user_admin_team_required: "A response team account needs one team from the list.",
+  user_admin_team_not_allowed: "Only a response team account has a team.",
+  user_admin_nothing_to_change: "Nothing was changed.",
+  user_admin_invalid_request: "The form could not be sent. Refresh the page and try again.",
+  user_admin_create_incomplete: "The account was created but not finished, so it was left disabled. Edit it, then enable it.",
+  SIGN_IN_REQUIRED: "Your session ended. Sign in again.",
+  FORBIDDEN: "Only an administrator can manage accounts.",
   unknown_code: "That did not work. Refresh the page and try again.",
+};
+/** What each user administration audit action means (services/api/app/user_admin_store.py ACTIONS). */
+export const USER_ADMIN_ACTION_LABELS: Record<string, string> = {
+  create: "Account created", update: "Account changed", enable: "Account enabled", disable: "Account disabled",
+  reset_password: "Temporary password issued", sign_out: "Signed out everywhere",
+};
+/** The closed codes of the fields an audit row says were changed. */
+export const USER_ADMIN_FIELD_LABELS: Record<string, string> = {
+  first_name: "First name", last_name: "Last name", email: "Email", role: "Role", department: "Department", team: "Team",
 };
 export const API_CODE_FALLBACK = API_CODE_SENTENCES.unknown_code;
 /** Sentence for a failed learning, drill or proactive call: from the fixed code when there is one, never the raw code. */

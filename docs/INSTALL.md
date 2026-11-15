@@ -99,7 +99,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\new-demo-accounts.ps1
 ```
 
 The first script gives the provider's sign-in pages the IndTrana look, sets 15-minute tokens and adds the department
-and response-team roles. It is safe to run again, and it is also what brings an older install up to date. The second creates the accounts:
+and response-team roles, and creates the limited service client the Accounts tab uses. It is safe to run again, and it is also what brings an older install up to date. The second creates the accounts:
 
 | Account | Shown in the app as | What it can do |
 |---|---|---|
@@ -117,8 +117,14 @@ The passwords are generated on your laptop and saved to
 them. They are never printed or committed. Running the script again leaves existing accounts unchanged.
 
 All accounts belong to the one demo agency. The signed-in user's name and role are shown at the top right of every
-page; the full list of what each role may do is under Administration, "Users and access". Accounts are created and
-removed in the identity provider, never inside IndTrana.
+page; the full list of what each role may do is under Administration, "Users and access".
+
+Accounts always live in the identity provider; IndTrana never stores a password. After this step an administrator
+(`demo-admin`) can also create, change, enable, disable and sign out accounts, and issue temporary passwords, from the
+**Accounts** tab of "Users and access". The first script set that up (step 11: a limited service client whose secret
+goes only to `%LOCALAPPDATA%\AEGIS\local-idp\user-admin.env`); restart once with `aegis.cmd stop` and `aegis.cmd start`
+so the API reads it. Accounts are never deleted, only disabled, and the owner's `exercise-*` accounts cannot be changed
+from the app. Details: [USER_MANAGEMENT.md](USER_MANAGEMENT.md).
 
 ## Step 6: sign in and look around
 

@@ -60,6 +60,7 @@ export const navigation: NavGroup[] = [
       { href: "/admin", label: "Administration", description: "Server policy and safety switches", icon: Settings2 },
       { href: "/admin/connectors", label: "Connectors", description: "Enter data-source keys and switch connectors on", icon: Plug },
       { href: "/admin/users", label: "Users and access", description: "Roles, what each can do, and who is signed in", icon: KeyRound },
+      { href: "/admin/networks", label: "Network Identifier Master", description: "Satellite, mobile and tower providers and their rehearsal link states", icon: Satellite },
       { href: "/admin/go-live", label: "Go-Live Setup", description: "Every key, switch and agreement needed before real use", icon: Rocket },
     ] },
   ]},

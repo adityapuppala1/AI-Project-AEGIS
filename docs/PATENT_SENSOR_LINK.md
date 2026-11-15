@@ -44,7 +44,7 @@ Open items, not facts about the patent:
 
 ## Limits
 
-- Nothing is transmitted. No satellite or radio link is used. No network call, no stored data.
+- Nothing is transmitted. No satellite or radio link is used. No stored data; the only call is the in-app lanes read.
 - Link states, bandwidth numbers and sensors are synthetic rehearsal values, not measurements.
 - A field deployment would need dedicated hardware and licensed satellite capacity.
 - The communication application stays an in-app rehearsal: the team response loop sends nothing (see RESPONSE_LOOP.md and COMMUNICATION_CHANNELS.md).
@@ -55,4 +55,4 @@ No performance figures or benefits of any kind are stated. No statement about ho
 
 ## Where it appears
 
-Signed-in About page and the Resilient Sensor Link page (`components/patent-credit.tsx`); a text-only section on the public landing page; a one-line link on Source Freshness; a one-line link on the Command Center source monitor; a one-line link on the Team Availability page `/response-teams` (the page desks and coordinators use; it also embeds the field-teams section; the link goes to the `#communication` panel); an optional "Also see" link on the Guided exercise stage "Check source freshness" (still 11 stages). Test: `apps/web/scripts/tests/sensor-link.test.cjs`.
+Signed-in About page and the Resilient Sensor Link page (`components/patent-credit.tsx`); a text-only section on the public landing page; a one-line link on Source Freshness; a one-line link on the Command Center source monitor; a one-line link on the Team Availability page `/response-teams` (the page desks and coordinators use; it also embeds the field-teams section; the link goes to the `#communication` panel); an optional "Also see" link on the Guided exercise stage "Check source freshness" (still 11 stages). The Overview tab of the Network Identifier Master `/admin/networks` (`PatentCredit` only). The Sensor Link lanes are named from enabled providers there (one in-app read, `/api/network-lanes`; the simulation is unchanged). Test: `apps/web/scripts/tests/sensor-link.test.cjs`.

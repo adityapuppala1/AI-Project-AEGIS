@@ -16,7 +16,7 @@ export const ROLE_INFO: Record<RoleId, RoleInfo> = {
   incident_auditor: { id: "incident_auditor", label: "Auditor", tone: "auditor", summary: "Reads proposals, decisions and their audit trail. Cannot change anything." },
   department_operator: { id: "department_operator", label: "Department desk", tone: "department", summary: "Works the approved tasks of one department. Sees no other department's tasks." },
   response_team: { id: "response_team", label: "Response team", tone: "team", summary: "Answers requests for its own synthetic team inside IndTrana. Sees no other team's requests, proposals or audit." },
-  platform_admin: { id: "platform_admin", label: "Administrator", tone: "admin", summary: "Sets up connectors and holds the kill switch. Cannot draft, submit or approve proposals." },
+  platform_admin: { id: "platform_admin", label: "Administrator", tone: "admin", summary: "Manages accounts, sets up connectors and holds the kill switch. Cannot draft, submit or approve proposals." },
 };
 
 // When a person holds several roles, the menu leads with the one that carries the most responsibility.
@@ -60,6 +60,8 @@ export const CAPABILITIES: Capability[] = [
   { id: "read_pause", group: "Administer", label: "See whether the kill switch is engaged", roles: ALL.filter(role => role !== "response_team"), rule: "lib/proactive-proxy.ts" },
   { id: "set_pause", group: "Administer", label: "Engage or release the kill switch", roles: ["platform_admin"], rule: "lib/proactive-proxy.ts" },
   { id: "connectors", group: "Administer", label: "View, change and test connector settings", roles: ["platform_admin"], rule: "lib/proactive-proxy.ts" },
+  { id: "manage_accounts", group: "Administer", label: "Create, change, enable and disable accounts and issue temporary passwords", roles: ["platform_admin"], rule: "lib/user-admin-proxy.ts" },
+  { id: "network_registry", group: "Administer", label: "Add, change, enable, disable and delete network providers and assets", roles: ["platform_admin"], rule: "lib/network-registry-proxy.ts" },
 ];
 export const CAPABILITY_GROUPS: CapabilityGroup[] = ["Sense and predict", "Decide", "Hand over and reach", "Learn", "Administer"];
 export const can = (capability: string, roles: readonly string[] | null | undefined): boolean =>
@@ -68,7 +70,7 @@ export const can = (capability: string, roles: readonly string[] | null | undefi
 // Pages whose main content needs a particular role. Pages not listed here open for every signed-in role.
 const PAGE_CAPABILITY: Record<string, string> = {
   "/approvals": "read_proposals", "/department-tasks": "department_inbox", "/my-team": "team_respond", "/handover": "read_assist", "/copilot": "read_assist",
-  "/learning": "read_learning", "/drills": "read_learning", "/admin/connectors": "connectors",
+  "/learning": "read_learning", "/drills": "read_learning", "/admin/connectors": "connectors", "/admin/networks": "network_registry",
   "/public-intake": "read_intake_queue",
 };
 /** Roles that can use a page, or null when any signed-in role can. */

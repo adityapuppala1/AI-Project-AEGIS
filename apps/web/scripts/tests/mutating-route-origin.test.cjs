@@ -16,6 +16,7 @@ const PROXIES = {
   proxyProposals: 'lib/proposal-proxy.ts', proxyDepartmentTasks: 'lib/department-proxy.ts',
   proxyProactive: 'lib/proactive-proxy.ts', proxyLearning: 'lib/learning-proxy.ts', proxyAssist: 'lib/assist-proxy.ts',
   proxyResponse: 'lib/response-proxy.ts', proxyStaffEmail: 'lib/staff-email-proxy.ts', proxyBrandAdmin: 'lib/brand-proxy.ts',
+  proxyUserAdmin: 'lib/user-admin-proxy.ts', proxyNetworkRegistry: 'lib/network-registry-proxy.ts',
 };
 
 function routeFiles() {

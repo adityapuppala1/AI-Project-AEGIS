@@ -20,6 +20,73 @@ follow-up `4ce96a2` and labels `cb9650b`. Exact acceptance is recorded below.
 Laptop: `C:\xampp\htdocs\AI-Project-AEGIS`; Linux mirror:
 `/workspace/AI-Project-AEGIS`. No push, CI, main merge or destructive reset.
 
+## Round 28b: Network Identifier Master, version 0.4.0 — 15 November 2026 (Windows laptop)
+
+Branch `Aegis_IndTrana`, uncommitted on top of 18908d5 (shared with round 28). Doc:
+[NETWORK_IDENTIFIER_MASTER.md](NETWORK_IDENTIFIER_MASTER.md); spec and status: [specs/](specs/README.md).
+
+- Completed (local checks only): migration `021_network_registry.sql` (mounted in `compose.yaml` init and `migrate`),
+  API `network_registry.py` / `network_registry_store.py` / `network_catalogue.py`, web proxy and routes, page
+  `/admin/networks` with six tabs, bundled logos, 2D/3D scene, Sensor Link lanes, nav/tour/help/labels/roles entries,
+  release note and CHANGELOG lines in 0.4.0.
+- Phase 2b (live, Windows laptop): `aegis.cmd stop`/`start` applied 021 through `migrate` (21 providers, 12 assets; volume
+  kept). First start failed: `network_registry_store.py` had a method named `list`, which shadowed the builtin inside the
+  class body on the container's Python 3.12 (`list[dict]` annotation error; the laptop venv is 3.14). Renamed to
+  `list_rows`. Second start healthy. One later restart picked web port 3001 because 3000 was briefly still held; the next
+  stop/start returned to 3000 and removed the extra sign-in address.
+- Browser run (headless Chrome, `scratchpad/b/nim-*.js`): demo-admin all six tabs; add `nimtest_sat`, enable, edit,
+  rehearsal state, disable, delete, restore; asset add and delete; Activity shows the rows; Overview 2D, 3D, Pause; tour
+  card opens; 390 px no horizontal overflow; dark mode; no page errors; `/admin/users` still loads. demo-maker:
+  `/admin/networks` shows the permission message; `/sensor-link` shows "Bharti Airtel" and "Starlink (SpaceX)" lane
+  names when enabled and works on Normal with none enabled. Clean-up: seeded providers disabled again; `nimtest_sat`
+  and `nimtest tower` remain soft-deleted (no hard delete by design).
+- Fixed from the run: the count tiles were squeezed (now a 2x2 grid); the default scene provider was a public reference
+  (now a satellite); the 3D camera clipped the orbit and the link line crossed the planet (camera moved, line hidden
+  while the planet blocks it, panels no longer turn edge-on); a satellite problem with the ground up was mapped to
+  "Satellite reduced", which in this simulation means the ground is cut (now Normal plus a sentence saying the satellite
+  state is not shown).
+- Full checks after the fixes: API `python -m pytest -q` 1460 passed, 30 skipped; `python -m app.model_lab --check`
+  PASS; web `node --test scripts/tests/*.test.cjs` 417 passed; `tsc --noEmit` clean; the web image built in `aegis.cmd
+  start` (Next build). Not run separately: `npm ci`/`npm run build` on the host.
+- Screenshots: `docs/screenshots/network-master-overview-3d.png`, `-overview-dark.png`, `-phone.png`.
+- Not built: CelesTrak adapter, credential input on the page (API routes exist).
+
+## Round 28: user management for administrators, version 0.4.0 — 15 November 2026 (Windows laptop)
+
+Branch `Aegis_IndTrana`, on top of `18908d5`. Not committed or tagged in this round (the owner reviews and commits).
+Details: [USER_MANAGEMENT.md](USER_MANAGEMENT.md).
+
+- **Built:** Accounts and Activity tabs on `/admin/users` (create with one role plus department/team, edit, enable,
+  disable with sign-out, sign out everywhere, temporary password shown once; no delete); API `app/user_admin.py`,
+  `app/user_directory.py`, `app/user_admin_store.py`; migration `020_user_admin_audit.sql` (append-only); web proxy
+  `lib/user-admin-proxy.ts` and routes `app/api/user-admin/*`; `update-local-idp.ps1` step 11 (service client
+  `indtrana-user-admin`: realm-management `view-users`, `query-users`, `manage-users` only, default realm roles
+  removed, secret only in `%LOCALAPPDATA%\AEGIS\local-idp\user-admin.env`); sign-in page forgot-password line;
+  version 0.4.0, release notes, CHANGELOG, AGENTS.md rule, INSTALL and README.
+- **Executed (Windows laptop):** `update-local-idp.ps1` twice (second run: every step "already set"); `aegis.cmd stop`
+  and `aegis.cmd start` twice (rebuild; migration applied by the `migrate` service; database volume kept; one
+  instance). API `.venv` `python -m pytest -q`: 1402 passed, 30 skipped; `python -m app.model_lab --check`: PASS.
+  Web `npm run typecheck`: clean; all 35 Node test files: 408 passed. The production web build ran inside the image
+  build (`next build` succeeded; footer shows v0.4.0); `npm ci` and `npm run build` were not run natively.
+- **Live check (headless Chrome, `demo-admin`):** created `umtest-ops-2` (maker), `umtest-desk-2` (department desk,
+  infrastructure) and `umtest-team-2` (response team, syn-team-rescue-01) through the form; each first sign-in was
+  forced to choose a new password and landed on `/`, `/department-tasks` and `/my-team`. Disabling `umtest-ops-2`
+  made the provider answer "Account is disabled, contact your administrator."; enable, then a new temporary password:
+  the old temporary password no longer worked and the new one forced a change again. Through the web proxy:
+  self-disable, self-reset and self-demote answered 403 `user_admin_self_change`; the three `exercise-*` accounts
+  answered 403 `user_admin_protected`; an unknown `password` field answered 400; a desk without a department answered
+  422. `demo-maker`: the page opens on Roles and permissions and the Accounts tab shows the permission notice; list and
+  create through the proxy answered 403. Audit rows recorded every action with closed field codes only. Light and dark
+  1440 and 390 width checked by eye; no page-level horizontal scroll at 390 (the table scrolls inside its panel). No
+  page errors. Screenshots: `docs/screenshots/user-management-*.png` (password masked; no personal rows).
+- **Test accounts left behind, all DISABLED:** `umtest-ops`, `umtest-desk`, `umtest-team` (a first run that stopped
+  at a script locator error after the admin steps), `umtest-ops-2`, `umtest-desk-2`, `umtest-team-2`.
+- **Not verified:** the API refusal for a non-admin was exercised by pytest and by the web proxy, not by calling the
+  API port directly with a maker token; the 15-minute validity of an already issued access token after disable was
+  not timed; macOS/Linux (`aegis.sh` does not run `update-local-idp.ps1`, so the Accounts tab says "not switched on"
+  there); Firefox and Safari; screen-reader run with a real reader (keyboard order and labels were reviewed in code
+  only); Telugu and Hindi text for the new strings (registered as pending native review).
+
 ## Round 27: submission documents rebuilt (interactive page, Word/PDF, Markdown, Archify diagrams) — 14 November 2026 (Windows laptop)
 
 Branch `Aegis_IndTrana`, on top of `a97d9fc` (tag `v0.3.0`). Documentation only: no application, API, database or

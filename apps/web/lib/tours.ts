@@ -341,12 +341,26 @@ export const TOURS: readonly Tour[] = [
   {
     id: "page:/admin/users", route: "/admin/users", title: "Users and access",
     steps: [
-      purpose("The six roles, what each can do and the account you are signed in with. Accounts are managed in your agency's identity provider, not here."),
-      tabs("Administration is the policy. Users and access, this page, explains the roles."),
-      step("signedin", "users-signed-in", "Signed in now", "Your name, role and agency for this session."),
-      step("roles", "users-roles", "The roles", "Each role in one sentence."),
+      purpose("Accounts, the six roles and what each can do. Only an administrator manages accounts; the accounts themselves stay in the sign-in provider."),
+      step("pagetabs", "users-tabs", "Three tabs", "Accounts lists everyone who can sign in. Roles and permissions explains each role. Activity records every account change."),
+      { ...step("accounts", "users-accounts", "Accounts", "Edit, disable, enable, sign out or issue a new temporary password from each row. Protected accounts and your own role cannot be changed here."), roles: ["platform_admin"] },
+      { ...step("create", "users-create", "New account", "Choose one role, and a department or team when the role needs one. The temporary password is shown once, to hand over in person; nothing is emailed."), roles: ["platform_admin"] },
+      { ...step("activity", "users-activity", "Account activity", "Who changed which account and when. Passwords and email addresses are never recorded."), roles: ["platform_admin"] },
       step("matrix", "users-matrix", "What each role can do", "A table of what each role may do. It explains the server's rules and does not control them."),
       neverFrom("/admin/users"),
+    ],
+  },
+  {
+    id: "page:/admin/networks", route: "/admin/networks", title: "Network Identifier Master", needs: [AD],
+    steps: [
+      purpose("The registry of satellite, mobile, fixed-line and tower providers that IndTrana's rehearsals name. Only an administrator can change it."),
+      step("sections", "nm-tabs", "Six sections", "Overview, satellite networks, terrestrial networks, towers and assets, integrations and activity.", { roles: [AD] }),
+      step("scene", "nm-scene", "Schematic scene", "A satellite and a tower drawn as symbols. Choosing a provider highlights one. It is not a real orbit, position or coverage.", { roles: [AD] }),
+      step("satellites", "nm-satellite", "Providers", "Add, edit, enable, disable, delete or restore a provider, and set its rehearsal link state. Seeded entries are reference entries, not partnerships.", { roles: [AD] }),
+      step("integrations", "nm-integrations", "Integrations", "Each provider's documented route, or a note that no public API was found. Links open the provider's own page.", { roles: [AD] }),
+      step("activity", "nm-activity", "Activity", "Every change with who made it and when. Credentials are never shown.", { roles: [AD] }),
+      neverFrom("/admin/networks"),
+      refusal("Only an administrator can configure network providers. The Resilient Sensor Link page shows the configured names to everyone."),
     ],
   },
   {

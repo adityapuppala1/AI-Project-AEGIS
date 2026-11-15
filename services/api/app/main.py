@@ -136,6 +136,11 @@ from app.staff_messages import router as staff_messages_router
 app.include_router(staff_messages_router)
 from app.brand import router as brand_router
 app.include_router(brand_router)
+from app.network_registry import lanes_router as network_lanes_router, router as network_registry_router
+app.include_router(network_registry_router)
+app.include_router(network_lanes_router)
+from app.user_admin import router as user_admin_router
+app.include_router(user_admin_router)
 app.include_router(proactive_watch_router)
 app.include_router(proactive_run_router)
 # Opt-in L3 scheduled watch loop; refuses to start unless AEGIS_PROACTIVE_SCHEDULER=1 with a valid agency.

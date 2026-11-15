@@ -1,25 +1,48 @@
 "use client";
 
-import { Fragment } from "react";
-import { Check, KeyRound, Minus, UserRound, UsersRound } from "lucide-react";
+import { Fragment, useEffect, useState } from "react";
+import { Check, History, KeyRound, Minus, UserRound, UsersRound } from "lucide-react";
 import { AppShell } from "./app-shell";
 import { useT } from "./language-provider";
-import { Avatar, DataTable, KeyValueList, Panel, RecordRef, RoleChip, SkeletonRows, TwoKey } from "./ui";
+import { Avatar, DataTable, KeyValueList, Panel, PermissionState, RecordRef, RoleChip, SkeletonRows, TabPanel, Tabs, TwoKey } from "./ui";
+import { AccountActivity, AccountsPanel, type Account } from "./user-accounts";
 import { CAPABILITIES, CAPABILITY_GROUPS, ROLE_IDS, ROLE_INFO, knownRoles, primaryRole } from "../lib/roles";
 import { codeLabel } from "../lib/labels";
 import { responseTeamLabel } from "../lib/response-teams";
 import { useOperatorSession } from "../lib/use-operator-session";
 import { personName, useSessionTimeLeft } from "./operator-auth";
 
-/** Read-only: the roles, what each can do (from lib/roles.ts, which mirrors the server rules) and who is signed in. */
+type Tab = "accounts" | "roles" | "activity";
+
+/** Accounts (administrators only, docs/USER_MANAGEMENT.md), the role matrix (from lib/roles.ts, which mirrors the
+ * server rules; display only) and the account activity record. */
 export function UsersAccess() {
   const t = useT();
   const session = useOperatorSession();
   const left = useSessionTimeLeft(session?.expiresAt);
   const held = knownRoles(session?.roles);
   const rules = [...new Set(CAPABILITIES.map(item => item.rule))];
+  const isAdmin = Boolean(session?.roles?.includes("platform_admin"));
+  const [tab, setTab] = useState<Tab>("roles");
+  const [accounts, setAccounts] = useState<Account[] | null>(null);
+  useEffect(() => { if (isAdmin) setTab("accounts"); }, [isAdmin]);
+  const tabs = [
+    { value: "accounts" as const, label: t("Accounts"), icon: UsersRound },
+    { value: "roles" as const, label: t("Roles and permissions"), icon: KeyRound },
+    { value: "activity" as const, label: t("Activity"), icon: History },
+  ];
+  const adminOnly = (what: string) => !session ? <SkeletonRows rows={3} />
+    : <PermissionState needs={["platform_admin"]} roles={session.roles} what={what} where={{ href: "/admin/users", label: t("Users and access") }} />;
 
-  return <AppShell title="Users and access" description="The six roles, what each one can do, and the account you are signed in with. Read-only: accounts are managed in your agency's identity provider.">
+  return <AppShell title="Users and access" description="Accounts, the six roles and what each one can do. Only an administrator creates, changes, enables or disables accounts, and IndTrana never stores a password.">
+    <Tabs tabs={tabs} value={tab} onChange={setTab} label={t("Users and access")} idPrefix="users" tour="users-tabs" className="mb-4" />
+    <TabPanel idPrefix="users" value="accounts" active={tab === "accounts"}>
+      {isAdmin ? <AccountsPanel onAccounts={setAccounts} /> : adminOnly(t("Only an administrator can manage accounts."))}
+    </TabPanel>
+    <TabPanel idPrefix="users" value="activity" active={tab === "activity"}>
+      {isAdmin ? <AccountActivity accounts={accounts} /> : adminOnly(t("Only an administrator can read the account activity."))}
+    </TabPanel>
+    <TabPanel idPrefix="users" value="roles" active={tab === "roles"}>
     <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
       <div className="space-y-4">
         <Panel data-tour="users-signed-in" title={t("Signed in now")} icon={UserRound}>
@@ -42,9 +65,8 @@ export function UsersAccess() {
         </Panel>
         <Panel title={t("Where accounts are managed")} icon={KeyRound}>
           <div className="space-y-2 text-sm leading-6">
-            <p>{t("IndTrana does not create, change or remove accounts. People, passwords, sign-in rules and roles live in your agency's identity provider, and IndTrana reads the role from the signed sign-in it receives.")}</p>
-            <p className="text-muted">{t("On a local exercise node the demonstration accounts are created by the script below. It is run by the node's owner, never from this page.")}</p>
-            <p><code className="rounded bg-elevated px-1.5 py-0.5">scripts/new-demo-accounts.ps1</code></p>
+            <p>{t("Accounts, passwords and sign-in rules live in your agency's identity provider, and IndTrana reads the role from the signed sign-in it receives. An administrator manages accounts on the Accounts tab through a limited service account; IndTrana never stores or checks a password.")}</p>
+            <p className="text-muted">{t("Accounts are never deleted here: disable them instead. The owner's exercise accounts cannot be changed from this page.")}</p>
           </div>
         </Panel>
         <Panel title={t("Two people for every decision")} icon={UsersRound}>
@@ -95,5 +117,6 @@ export function UsersAccess() {
         </Panel>
       </div>
     </div>
+    </TabPanel>
   </AppShell>;
 }

@@ -23,7 +23,7 @@ const NEXT = [
   { title: "You return with a signed role", text: "The provider sends you back with a signed statement of your role and agency. IndTrana checks the signature before it lets you in." },
 ];
 const FACTS = [
-  { icon: KeyRound, title: "Your password never reaches IndTrana", text: "It is typed only on your organisation’s identity provider." },
+  { icon: KeyRound, title: "Your password never reaches IndTrana", text: "It is typed only on your organisation’s identity provider. A temporary password from your administrator is replaced by your own at first sign-in." },
   { icon: Fingerprint, title: "Verified hand-back", text: "Provider signature, one-time state and nonce, and a PKCE proof are all checked." },
   { icon: ShieldCheck, title: "Role and agency come from the signed token", text: "Nothing typed in the browser can grant a role." },
   { icon: TimerReset, title: "Short, sealed session", text: "An encrypted, HTTP-only cookie that expires within 15 minutes." },
@@ -118,6 +118,7 @@ export function SignInExperience({ failed, expired = false, next = null }: Reado
                 <i aria-hidden="true">{leaving ? <span className="si-spin" /> : <ArrowRight size={22} />}</i>
               </a>
               <p className="si-hint"><LockKeyhole size={16} aria-hidden="true" />The secure sign-in service is ready. You will leave this page.</p>
+              <p className="si-hint">Forgot your password? Ask your administrator for a new temporary password; you choose your own at the next sign-in.</p>
             </>}
             {status === "in" && <>
               <p className="si-box si-ok"><ShieldCheck size={20} aria-hidden="true" /><span>You are already signed in{session?.roles?.length ? " as " + session.roles.map(role => role.replaceAll("_", " ")).join(", ") : ""}.</span></p>

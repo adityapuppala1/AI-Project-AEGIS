@@ -9,7 +9,9 @@
 #   9. The provider's own pages show the product name IndTrana (realm and web client display names; ids unchanged).
 #  10. The web client requires PKCE (S256) and accepts the app address as its sign-out return address. A file update
 #      without merge had dropped both; sign-out then ended on the provider's "Invalid redirect uri" page.
-# It never creates, changes or deletes an account and never prints a secret.
+#  11. The user administration service client indtrana-user-admin (docs/USER_MANAGEMENT.md): service account only,
+#      realm-management view-users, query-users and manage-users; its secret goes only to the private user-admin.env.
+# It never creates, changes or deletes a person's account and never prints a secret.
 # Run:  powershell -ExecutionPolicy Bypass -File .\scripts\update-local-idp.ps1
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'local-runtime-common.ps1')
@@ -162,5 +164,59 @@ Invoke-AegisLocalOperation -Name 'update-local-idp.ps1' -Action {
     if ($check.'pkce.code.challenge.method' -ne 'S256' -or (([string]$check.'post.logout.redirect.uris') -split '##') -notcontains $IdpAppOrigin) { throw 'The web client settings did not read back as written.' }
   }
   Say 'Web client requires PKCE and sign-out returns to the app' $needClientSettings
+
+  # 11. User administration service client (docs/USER_MANAGEMENT.md). A confidential client with only a service account:
+  #     no browser sign-in, no password grant, no redirect address. Its service account holds exactly the realm-management
+  #     roles view-users, query-users and manage-users, and none of the realm's default roles. IndTrana's API uses it (never the
+  #     bootstrap administrator) to create, change, enable, disable and sign out accounts. Its secret is read inside the
+  #     container and written only to the private user-admin.env file next to the other private files; it is never printed.
+  $userAdminClient = 'indtrana-user-admin'
+  $uaFind = 'UA=$($K get clients -r indtrana-exercise -q clientId=' + $userAdminClient + ' --fields id --format csv --noquotes | head -1); '
+  $uaId = @(Invoke-Idp ($uaFind + 'echo UA_ID=$UA') | Where-Object { $_ -like 'UA_ID=*' })[0] -replace '^UA_ID=', ''
+  $needUaClient = -not $uaId
+  if ($needUaClient) {
+    $definition = [PSCustomObject]@{
+      clientId = $userAdminClient; name = 'IndTrana user administration'; protocol = 'openid-connect'; enabled = $true
+      publicClient = $false; clientAuthenticatorType = 'client-secret'; serviceAccountsEnabled = $true
+      standardFlowEnabled = $false; implicitFlowEnabled = $false; directAccessGrantsEnabled = $false; frontchannelLogout = $false
+      redirectUris = @(); webOrigins = @()
+      # The admin API reads the roles from the token, so the token must carry them; the account holds only the three.
+      fullScopeAllowed = $true
+      attributes = [PSCustomObject]@{ 'oauth2.device.authorization.grant.enabled' = 'false'; 'oidc.ciba.grant.enabled' = 'false' }
+    }
+    Invoke-Idp 'sed 1s/^\\xEF\\xBB\\xBF// > /tmp/aegis-user-admin.json; $K create clients -r indtrana-exercise -f /tmp/aegis-user-admin.json >/dev/null 2>&1; code=$?; rm -f /tmp/aegis-user-admin.json; exit $code' ($definition | ConvertTo-Json -Depth 4 -Compress) | Out-Null
+  }
+  Say 'User administration service client exists (no browser sign-in)' $needUaClient
+  # Service-account roles: exactly the three user roles of realm-management; the default realm roles are removed.
+  $uaUser = 'service-account-' + $userAdminClient
+  $held = Invoke-Idp ('$K get-roles -r indtrana-exercise --uusername ' + $uaUser + ' --cclientid realm-management --format csv --fields name --noquotes; echo ROLES_END; $K get-roles -r indtrana-exercise --uusername ' + $uaUser + ' --format csv --fields name --noquotes')
+  $split = [array]::IndexOf($held, 'ROLES_END')
+  $clientHeld = @($held[0..([Math]::Max(0, $split - 1))] | Where-Object { $_ -and $_ -ne 'ROLES_END' })
+  if ($split -eq 0) { $clientHeld = @() }
+  $realmHeld = @($held[($split + 1)..($held.Count)] | Where-Object { $_ })
+  $wantedUa = @('view-users', 'query-users', 'manage-users')
+  $missingUa = @($wantedUa | Where-Object { $clientHeld -notcontains $_ })
+  $extraUa = @($clientHeld | Where-Object { $wantedUa -notcontains $_ })
+  $needUaRoles = $missingUa.Count -gt 0 -or $extraUa.Count -gt 0 -or $realmHeld.Count -gt 0
+  if ($needUaRoles) {
+    $script = ''
+    if ($missingUa.Count -gt 0) { $script += '$K add-roles -r indtrana-exercise --uusername ' + $uaUser + ' --cclientid realm-management' + (($missingUa | ForEach-Object { ' --rolename ' + $_ }) -join '') + ' >/dev/null || exit 1; ' }
+    if ($extraUa.Count -gt 0) { $script += '$K remove-roles -r indtrana-exercise --uusername ' + $uaUser + ' --cclientid realm-management' + (($extraUa | ForEach-Object { ' --rolename ' + $_ }) -join '') + ' >/dev/null || exit 1; ' }
+    if ($realmHeld.Count -gt 0) { $script += '$K remove-roles -r indtrana-exercise --uusername ' + $uaUser + (($realmHeld | ForEach-Object { ' --rolename ' + $_ }) -join '') + ' >/dev/null || exit 1; ' }
+    Invoke-Idp $script | Out-Null
+  }
+  Say 'Service client holds only view-, query- and manage-users' $needUaRoles
+  # The secret goes straight from the provider into the private file; it is compared, never shown.
+  $secretJson = (Invoke-Idp ($uaFind + '$K get clients/$UA/client-secret -r indtrana-exercise')) -join "`n" | ConvertFrom-Json
+  $secret = [string]$secretJson.value
+  if ($secret -notmatch '^[A-Za-z0-9_-]{16,128}$') { throw 'The user administration client secret could not be read. Nothing was written.' }
+  $envFile = Join-Path $env:LOCALAPPDATA 'AEGIS\local-idp\user-admin.env'
+  $line = 'AEGIS_USER_ADMIN_CLIENT_SECRET=' + $secret
+  $current = if (Test-Path $envFile -PathType Leaf) { [IO.File]::ReadAllText($envFile).Trim() } else { '' }
+  $needEnv = $current -ne $line
+  if ($needEnv) { [IO.File]::WriteAllText($envFile, $line + "`n", (New-Object Text.UTF8Encoding($false))) }
+  $secret = $null; $line = $null; $current = $null; $secretJson = $null
+  Say 'Private user-admin.env holds the service client secret' $needEnv
+  if ($needEnv) { Write-Host 'Restart IndTrana (aegis.cmd start) so the API reads the new private file. The secret was not printed.' }
   Write-Host 'Done. Sign out and in again to pick up the changes.'
 }
