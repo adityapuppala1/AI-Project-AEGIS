@@ -49,7 +49,7 @@ export default function install(g) {
       '<button class="livechip" id="liveChip" title="Live public data (read-only)"><i class="dotlive"></i><span id="liveTxt">Live data: OFF</span></button>' +
       '<form class="search" id="searchForm" autocomplete="off">' + ic('zoom', 15) + '<input id="searchIn" placeholder="Search any place on Earth…" aria-label="Search a place"><div class="sugg" id="sugg"></div></form>' +
       '<div class="clockb" id="clockB"><div class="tl" id="clockT">--:--</div><div class="cl"><span id="clockP">UTC</span><small id="clockD"></small></div></div><div class="sp"></div>' +
-      '<a class="btn" href="?mode=exercise" data-aj-mode="exercise" title="Back to the synthetic exercise (no live data)">' + ic('shield', 15) + '<span>Synthetic exercise</span></a>' +
+      '<nav class="modesw" aria-label="Alert Journey mode"><a class="seg" href="?mode=exercise" data-aj-mode="exercise" title="The scripted rehearsal story (synthetic data, no outside calls)">' + ic('shield', 15) + '<b>Storyboard</b><em>Synthetic</em></a><span class="seg on live" aria-current="page">' + ic('globe', 15) + '<b>Live Earth</b><em>Public data</em></span></nav>' +
       '<button class="btn icon" id="btnHelp" aria-label="Help">' + ic('help', 16) + '</button><button class="btn icon" id="btnFs" aria-label="Fullscreen">' + ic('expand', 16) + '</button>';
     $('#liveChip').onclick = function () { if (S.live) openModal('sources'); else openModal('consent'); };
     $('#btnHelp').onclick = function () { openModal('help'); }; $('#btnFs').onclick = function () { if (!document.fullscreenElement) document.documentElement.requestFullscreen && document.documentElement.requestFullscreen().catch(function () { }); else document.exitFullscreen().catch(function () { }); };

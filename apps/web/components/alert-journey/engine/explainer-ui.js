@@ -55,7 +55,7 @@ export default function install(g) {
       '<div class="incident"><span class="dotlive"></span><b>' + S.INCIDENT.title + '</b><em class="synth">' + S.INCIDENT.tag + ' · IndTrana sends nothing</em></div>' +
       '<div class="clockb"><div class="tl" id="tLabel">T−72h</div><div class="cl"><span id="clock">15:30</span><small id="dayLabel">Day −3</small></div></div>' +
       '<div class="sp"></div>' +
-      '<a class="btn" href="?mode=live" data-aj-mode="live" title="Real map, real weather, real satellites (opt-in live public data)">' + ic('globe', 15) + '<span>Live Earth</span></a>' +
+      '<nav class="modesw" aria-label="Alert Journey mode"><span class="seg on exercise" aria-current="page">' + ic('shield', 15) + '<b>Storyboard</b><em>Synthetic</em></span><a class="seg" href="?mode=live" data-aj-mode="live" title="Real map, real weather, real satellites (opt-in, read-only public data)">' + ic('globe', 15) + '<b>Live Earth</b><em>Public data</em></a></nav>' +
       '<button class="btn" id="btnReal" title="Can IndTrana send? Patents? Open data?">' + ic('alert', 15) + '<span>Reality check</span></button>' +
       '<button class="btn icon" id="btnHelp" aria-label="Help and shortcuts" title="Help (H)">' + ic('help', 16) + '</button>' +
       '<button class="btn icon" id="btnQ" aria-label="Quality" title="Quality">' + ic('gear', 16) + '</button>' +

@@ -12,6 +12,12 @@ The version number lives only in `apps/web/package.json`. The same entries, in p
 
 ## [Unreleased]
 
+### Changed
+
+- Alert Journey: the top bar of both modes now carries one mode switch ("Storyboard, Synthetic" and "Live Earth,
+  Public data") in place of a single link to the other mode, and each opening screen names its mode and data origin.
+  Amber marks the synthetic storyboard and cyan the live public data. No change to data, routes or behaviour.
+
 ## [0.5.1] - 2026-11-15
 
 Branch `Aegis_IndTrana`. Windows laptop only. First check of the Bhuvan connector against the real service, with the

@@ -23,6 +23,7 @@ function ExerciseShell() {
     <aside id="side" className="hud" aria-label="Story, AI copilot, teams, network and inspector" data-aj-fill />
     <div id="phoneW" className="hud" data-aj-fill />
     <div id="diveHint" className="hud">
+      <strong className="hint-title exercise">Storyboard: a rehearsal story on synthetic data</strong>
       <button className="btn big primary" id="diveBtn" type="button">Dive to the region ▸</button>
       <small>Drag to spin the globe. Press Play for the 4-day story, or dive in and explore.</small>
     </div>
@@ -48,6 +49,7 @@ function LiveShell() {
     <aside id="side" className="hud" aria-label="Incidents, place, flood statistics, impact, comms, satellites, sources" data-aj-fill />
     <div id="wxchip" className="hud" aria-live="polite" data-aj-fill />
     <div id="goLive" className="hud on">
+      <strong className="hint-title live">Live Earth: real places from public data</strong>
       <button className="btn big primary" type="button">Connect the real Earth ▸</button>
       <small>Opt-in · read-only public data · nothing is sent or written</small>
     </div>
